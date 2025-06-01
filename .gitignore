@@ -134,3 +134,8 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+# Swarm CLI package
+swarm-cli/dist/
+swarm-cli/node_modules/
+swarm-cli/CHANGELOG.md
