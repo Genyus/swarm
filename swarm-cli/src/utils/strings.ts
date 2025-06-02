@@ -1,3 +1,4 @@
+
 // Utility functions for string manipulation and validation
 
 /**

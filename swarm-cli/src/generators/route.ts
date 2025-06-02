@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import { error, info, success } from '../utils/errors';
 import {
   ensureDirectoryExists,
   getConfigDir,
@@ -48,8 +49,8 @@ export async function generateRoute(
     const fileExists = fs.existsSync(pageFile);
 
     if (fileExists && !force) {
-      console.log(`Page file already exists: ${pageFile}`);
-      console.log("Use --force to overwrite");
+      info(`Page file already exists: ${pageFile}`);
+      info("Use --force to overwrite");
     } else {
       // Generate the page component
       const templatePath = path.join(
@@ -70,9 +71,7 @@ export async function generateRoute(
       };
       const processed = processTemplate(template, replacements);
       fs.writeFileSync(pageFile, processed);
-      console.log(
-        `${fileExists ? "Overwrote" : "Generated"} page file: ${pageFile}`
-      );
+      success(`${fileExists ? "Overwrote" : "Generated"} page file: ${pageFile}`);
     }
 
     // Get the top-level feature name for config updates
@@ -82,15 +81,14 @@ export async function generateRoute(
     // Update config in the top-level feature's config file
     const configPath = path.join(getConfigDir(), `${topLevelFeature}.wasp.ts`);
     if (!fs.existsSync(configPath)) {
-      console.error(`Feature config file not found: ${configPath}`);
-      process.exit(1);
+      error(`Feature config file not found: ${configPath}`);
     }
     let configContent = fs.readFileSync(configPath, "utf8");
     // Look for the route definition in the format "pageName: {"
     const configExists = configContent.includes(`${componentName}: {`);
     if (configExists && !force) {
-      console.log(`Route config already exists in ${configPath}`);
-      console.log("Use --force to overwrite");
+      info(`Route config already exists in ${configPath}`);
+      info("Use --force to overwrite");
     } else if (!configExists || force) {
       if (configExists && force) {
         // Remove existing route definition including the closing brace on its own line
@@ -111,13 +109,10 @@ export async function generateRoute(
         importPath,
         auth,
       });
-      console.log(
-        `${configExists ? "Updated" : "Added"} route config in: ${configPath}`
-      );
+      success(`${configExists ? "Updated" : "Added"} route config in: ${configPath}`);
     }
-    console.log(`\nRoute ${routeName} processing complete.`);
+    info(`\nRoute ${routeName} processing complete.`);
   } catch (error: any) {
-    console.error("Failed to generate route:", error.stack);
-    process.exit(1);
+    error("Failed to generate route:", error.stack);
   }
 }

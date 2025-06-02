@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { main } from "./cli/index";
+import { handleFatalError } from './utils/errors';
 
 main().catch((err) => {
-  console.error(err);
-  process.exit(1);
+  handleFatalError('Swarm CLI failed to start', err);
 });

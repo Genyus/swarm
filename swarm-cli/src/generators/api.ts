@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import { error, info, success } from '../utils/errors';
 import {
   ensureDirectoryExists,
   getConfigDir,
@@ -48,8 +49,8 @@ export async function generateApi(
     const handlerFile = path.join(apiDir, apiFile);
     const fileExists = fs.existsSync(handlerFile);
     if (fileExists && !force) {
-      console.log(`API handler file already exists: ${handlerFile}`);
-      console.log("Use --force to overwrite");
+      info(`API handler file already exists: ${handlerFile}`);
+      info("Use --force to overwrite");
     } else {
       const AuthCheck = auth
         ? 'if (!context.user || !context.user.id) {\n    res.status(401).json({ error: "Unauthorized" });\n\n    return;\n  }\n'
@@ -72,7 +73,7 @@ export async function generateApi(
         AuthCheck,
       });
       fs.writeFileSync(handlerFile, processed);
-      console.log(
+      success(
         `${
           fileExists ? "Overwrote" : "Generated"
         } API handler file: ${handlerFile}`
@@ -82,14 +83,13 @@ export async function generateApi(
     const topLevelFeature = segments[0];
     const configPath = path.join(getConfigDir(), `${topLevelFeature}.wasp.ts`);
     if (!fs.existsSync(configPath)) {
-      console.error(`Feature config file not found: ${configPath}`);
-      process.exit(1);
+      error(`Feature config file not found: ${configPath}`);
     }
     let configContent = fs.readFileSync(configPath, "utf8");
     const configExists = configContent.includes(`${apiName}: {`);
     if (configExists && !force) {
-      console.log(`API config already exists in ${configPath}`);
-      console.log("Use --force to overwrite");
+      info(`API config already exists in ${configPath}`);
+      info("Use --force to overwrite");
     } else if (!configExists || force) {
       if (configExists && force) {
         const regex = new RegExp(
@@ -108,13 +108,12 @@ export async function generateApi(
         apiFile: apiFile.replace(/\.ts$/, ""),
         auth,
       });
-      console.log(
+      info(
         `${configExists ? "Updated" : "Added"} API config in: ${configPath}`
       );
     }
-    console.log(`\nAPI ${apiName} processing complete.`);
+    info(`\nAPI ${apiName} processing complete.`);
   } catch (error: any) {
-    console.error("Failed to generate API:", error.stack);
-    process.exit(1);
+    error("Failed to generate API:", error.stack);
   }
 }

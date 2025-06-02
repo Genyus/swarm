@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { OPERATIONS } from "../types";
+import { error, info, success } from '../utils/errors';
 import {
   ensureDirectoryExists,
   getConfigDir,
@@ -61,11 +62,11 @@ export async function generateOperation(
     const operationFile = path.join(operationsDir, `${operationName}.ts`);
     const fileExists = fs.existsSync(operationFile);
     if (fileExists && !flags.force) {
-      console.log(`Operation file already exists: ${operationFile}`);
-      console.log("Use --force to overwrite");
+      info(`Operation file already exists: ${operationFile}`);
+      info("Use --force to overwrite");
     } else {
       fs.writeFileSync(operationFile, operationCode);
-      console.log(
+      success(
         `${
           fileExists ? "Overwrote" : "Generated"
         } operation file: ${operationFile}`
@@ -75,14 +76,13 @@ export async function generateOperation(
     const topLevelFeature = segments[0];
     const configPath = path.join(getConfigDir(), `${topLevelFeature}.wasp.ts`);
     if (!fs.existsSync(configPath)) {
-      console.error(`Feature config file not found: ${configPath}`);
-      process.exit(1);
+      error(`Feature config file not found: ${configPath}`);
     }
     let configContent = fs.readFileSync(configPath, "utf8");
     const configExists = configContent.includes(`${operationName}: {`);
     if (configExists && !flags.force) {
-      console.log(`Operation config already exists in ${configPath}`);
-      console.log("Use --force to overwrite");
+      info(`Operation config already exists in ${configPath}`);
+      info("Use --force to overwrite");
     } else if (!configExists || flags.force) {
       if (configExists && flags.force) {
         const regex = new RegExp(
@@ -98,16 +98,15 @@ export async function generateOperation(
         importPath,
         entities,
       });
-      console.log(
+      success(
         `${
           configExists ? "Updated" : "Added"
         } ${command} config in: ${configPath}`
       );
     }
-    console.log(`\nOperation ${operationName} processing complete.`);
+    info(`\nOperation ${operationName} processing complete.`);
   } catch (error: any) {
-    console.error("Failed to generate operation:", error.stack);
-    process.exit(1);
+    error("Failed to generate operation:", error.stack);
   }
 }
 

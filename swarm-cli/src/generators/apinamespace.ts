@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import { error, info, success } from '../utils/errors';
 import {
     ensureDirectoryExists,
     getConfigDir,
@@ -41,8 +42,8 @@ export async function generateApiNamespace(
     const middlewareFile = path.join(middlewareDir, `${middlewareFnName}.ts`);
     const fileExists = fs.existsSync(middlewareFile);
     if (fileExists && !force) {
-      console.log(`Middleware file already exists: ${middlewareFile}`);
-      console.log("Use --force to overwrite");
+      info(`Middleware file already exists: ${middlewareFile}`);
+      info("Use --force to overwrite");
     } else {
       const templatePath = getFileTemplatePath("middleware");
       if (!fs.existsSync(templatePath)) {
@@ -54,7 +55,7 @@ export async function generateApiNamespace(
         namespaceName,
       });
       fs.writeFileSync(middlewareFile, processed);
-      console.log(
+      success(
         `${
           fileExists ? "Overwrote" : "Generated"
         } middleware file: ${middlewareFile}`
@@ -64,8 +65,7 @@ export async function generateApiNamespace(
     const topLevelFeature = segments[0];
     const configPath = path.join(getConfigDir(), `${topLevelFeature}.wasp.ts`);
     if (!fs.existsSync(configPath)) {
-      console.error(`Feature config file not found: ${configPath}`);
-      process.exit(1);
+      error(`Feature config file not found: ${configPath}`);
     }
     const middlewareImportPath = `${importPath}/${middlewareFnName}`;
     updateFeatureConfig(featurePath, "apiNamespace", {
@@ -74,10 +74,9 @@ export async function generateApiNamespace(
       middlewareImportPath,
       path: apiPath,
     });
-    console.log(`Added apiNamespace config in: ${configPath}`);
-    console.log(`\napiNamespace ${namespaceName} processing complete.`);
+    success(`Added apiNamespace config in: ${configPath}`);
+    success(`\napiNamespace ${namespaceName} processing complete.`);
   } catch (error: any) {
-    console.error("Failed to generate apiNamespace:", error.stack);
-    process.exit(1);
+    error("Failed to generate apiNamespace:", error.stack);
   }
 }

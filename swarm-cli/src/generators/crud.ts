@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import { handleFatalError, info, success } from '../utils/errors';
 import { ensureDirectoryExists, getFeatureTargetDir } from "../utils/io";
 import { getEntityMetadata } from "../utils/prisma";
 import { getPlural } from "../utils/strings";
@@ -93,10 +94,8 @@ export async function generateCrud(
       : "";
     const configExists = new RegExp(`${crudName}:\s*{`).test(configContent);
     if (configExists && !force) {
-      console.log(
-        `CRUD config for '${crudName}' already exists in ${configPath}.`
-      );
-      console.log("Use --force to overwrite");
+      info(`CRUD config for '${crudName}' already exists in ${configPath}.`);
+      info("Use --force to overwrite");
       return;
     }
     if (force && fs.existsSync(overrideDir)) {
@@ -126,9 +125,9 @@ export async function generateCrud(
             crudName
           );
           fs.writeFileSync(fnFile, operationCode);
-          console.log(`Generated override: ${fnFile}`);
+          success(`Generated override: ${fnFile}`);
         } else {
-          console.log(`Override already exists: ${fnFile}`);
+          success(`Override already exists: ${fnFile}`);
         }
         opConfig.overrideFn = {
           import: fnName,
@@ -143,9 +142,8 @@ export async function generateCrud(
       operations,
     };
     updateFeatureConfig(featurePath, "crud", crudConfig);
-    console.log(`Added CRUD config for ${crudName} in feature config.`);
+    success(`Added CRUD config for ${crudName} in feature config.`);
   } catch (error: any) {
-    console.error(`Error generating CRUD: ${error.message}`);
-    process.exit(1);
+    handleFatalError(`Error generating CRUD: ${error.message}`);
   }
 }

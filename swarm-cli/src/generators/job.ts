@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import { error, info, success } from '../utils/errors';
 import {
   ensureDirectoryExists,
   getConfigDir,
@@ -59,8 +60,8 @@ export async function generateJob(
     const workerFilePath = path.join(jobsDir, `${jobWorkerFile}.ts`);
     const workerExists = fs.existsSync(workerFilePath);
     if (workerExists && !flags.force) {
-      console.log(`Job worker file already exists: ${workerFilePath}`);
-      console.log("Use --force to overwrite");
+      info(`Job worker file already exists: ${workerFilePath}`);
+      info("Use --force to overwrite");
     } else {
       const workerTemplatePath = path.join(
         process.cwd(),
@@ -80,7 +81,7 @@ export async function generateJob(
         jobWorkerName,
       });
       fs.writeFileSync(workerFilePath, workerCode);
-      console.log(
+      success(
         `${
           workerExists ? "Overwrote" : "Generated"
         } job worker: ${workerFilePath}`
@@ -91,14 +92,14 @@ export async function generateJob(
     const topLevelFeature = segments[0];
     const configPath = path.join(getConfigDir(), `${topLevelFeature}.wasp.ts`);
     if (!fs.existsSync(configPath)) {
-      console.error(`Feature config file not found: ${configPath}`);
-      process.exit(1);
+      error(`Feature config file not found: ${configPath}`);
+      return;
     }
     let configContent = fs.readFileSync(configPath, "utf8");
     const configExists = configContent.includes(`${jobName}: {`);
     if (configExists && !flags.force) {
-      console.log(`Job config already exists in ${configPath}`);
-      console.log("Use --force to overwrite");
+      info(`Job config already exists in ${configPath}`);
+      info("Use --force to overwrite");
       return;
     } else if (configExists && flags.force) {
       // Remove existing job definition (single job entry in jobs object)
@@ -129,12 +130,11 @@ export async function generateJob(
       importPath,
       queueName,
     });
-    console.log(
+    success(
       `${configExists ? "Updated" : "Added"} job config in: ${configPath}`
     );
-    console.log(`\nJob ${jobName} processing complete.`);
+    info(`\nJob ${jobName} processing complete.`);
   } catch (error: any) {
-    console.error("Failed to generate job:", error.stack);
-    process.exit(1);
+    error("Failed to generate job:", error.stack);
   }
 }

@@ -6,6 +6,7 @@ import {
   GeneratorCommand,
   QUERY_OPERATIONS,
 } from "../../types";
+import { error } from '../../utils/errors';
 import { validateFeaturePath } from "../../utils/strings";
 import {
   withAuthOption,
@@ -34,12 +35,8 @@ export const actionCommand: GeneratorCommand = {
     cmd.action(async (opts) => {
       validateFeaturePath(opts.feature);
       if (!Object.values(ACTION_OPERATIONS).includes(opts.operation)) {
-        console.error(
-          `--operation flag must be one of: ${Object.values(
-            ACTION_OPERATIONS
-          ).join(", ")}`
-        );
-        process.exit(1);
+        error(`--operation flag must be one of: ${Object.values(ACTION_OPERATIONS).join(", ")}`);
+        return;
       }
       await generateOperation(COMMANDS.ACTION, {
         feature: opts.feature,
@@ -72,12 +69,8 @@ export const queryCommand: GeneratorCommand = {
     cmd.action(async (opts) => {
       validateFeaturePath(opts.feature);
       if (!Object.values(QUERY_OPERATIONS).includes(opts.operation)) {
-        console.error(
-          `--operation flag must be one of: ${Object.values(
-            QUERY_OPERATIONS
-          ).join(", ")}`
-        );
-        process.exit(1);
+        error(`--operation flag must be one of: ${Object.values(QUERY_OPERATIONS).join(", ")}`);
+        return;
       }
       await generateOperation(COMMANDS.QUERY, {
         feature: opts.feature,

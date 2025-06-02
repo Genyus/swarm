@@ -2,6 +2,7 @@ import { Command } from "commander";
 import * as fs from "fs";
 import * as path from "path";
 import { GeneratorCommand } from "../types";
+import { handleFatalError } from '../utils/errors';
 
 /**
  * Main entry point for the generator CLI
@@ -42,5 +43,5 @@ export async function main(): Promise<void> {
  * @returns {Promise<void>} - A promise that resolves when the main function completes
  */
 if (require.main === module) {
-  main().catch(console.error);
+  main().catch((err) => handleFatalError('Swarm CLI failed to start', err));
 }

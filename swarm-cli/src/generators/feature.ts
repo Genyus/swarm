@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { OPERATION_TYPES, TYPE_DIRECTORIES } from "../types";
+import { success } from "../utils/errors";
 import {
   copyDirectory,
   ensureDirectoryExists,
@@ -305,7 +306,7 @@ export function generateFeatureConfig(featureName: string): void {
     throw new Error("Feature config template not found");
   }
   fs.copyFileSync(templatePath, configPath);
-  console.log(`Generated feature config: ${configPath}`);
+  success(`Generated feature config: ${configPath}`);
 }
 
 /**
@@ -333,7 +334,7 @@ export function generateFeature(featurePath: string): void {
   if (segments.length === 1) {
     generateFeatureConfig(featurePath);
   }
-  console.log(
+  success(
     `Generated ${
       segments.length === 1 ? "top-level " : "sub-"
     }feature: ${featurePath}`
