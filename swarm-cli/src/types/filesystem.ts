@@ -54,3 +54,4 @@ export interface IFileSystem {
    */
   readdirSync(path: string, options: { withFileTypes: true }): Dirent[];
 }
+ 
