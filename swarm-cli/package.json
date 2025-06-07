@@ -1,7 +1,7 @@
 {
   "name": "@genyus/swarm",
   "version": "0.1.0",
-  "description": "Standalone CLI for code generation in the Genyus/Swarm ecosystem",
+  "description": "A powerful TypeScript CLI tool for rapidly generating features, APIs, jobs, CRUD operations, and more in Wasp full-stack framework projects",
   "bin": {
     "swarm": "./bin/swarm"
   },
@@ -9,22 +9,44 @@
   "types": "dist/index.d.ts",
   "files": [
     "dist",
-    "bin"
+    "bin",
+    "README.md",
+    "LICENSE"
   ],
   "scripts": {
-    "build": "tsup src/index.ts --format cjs,esm --dts --out-dir dist",
+    "build": "tsc && cp -r src/templates dist/",
+    "build:watch": "tsc --watch",
     "test": "vitest run",
     "test:watch": "vitest",
+    "prepublishOnly": "npm run build && npm test",
     "release": "semantic-release"
   },
   "keywords": [
     "cli",
     "codegen",
     "typescript",
-    "wasp"
+    "wasp",
+    "fullstack",
+    "react",
+    "nodejs",
+    "prisma",
+    "generator",
+    "boilerplate"
   ],
   "author": "Gary McPherson",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/genyus/swarm.git",
+    "directory": "swarm-cli"
+  },
+  "homepage": "https://github.com/genyus/swarm/tree/main/swarm-cli#readme",
+  "bugs": {
+    "url": "https://github.com/genyus/swarm/issues"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "devDependencies": {
     "@prisma/client": "5.19.1",
     "@types/node": "^22.15.29",
