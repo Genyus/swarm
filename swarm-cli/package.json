@@ -20,8 +20,8 @@
   "keywords": [
     "cli",
     "codegen",
-    "swarm",
-    "genyus"
+    "typescript",
+    "wasp"
   ],
   "author": "Gary McPherson",
   "license": "MIT",
