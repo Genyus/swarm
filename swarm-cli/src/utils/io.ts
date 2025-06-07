@@ -1,14 +1,15 @@
-import fs from "fs";
 import path from "path";
 import { TYPE_DIRECTORIES } from "../types";
+import { IFileSystem } from "../types/filesystem";
 import { toPascalCase } from "./strings";
 
 /**
  * Recursively copies a directory and its contents.
+ * @param fs - The filesystem abstraction
  * @param src - The source directory path
  * @param dest - The destination directory path
  */
-export function copyDirectory(src: string, dest: string): void {
+export function copyDirectory(fs: IFileSystem, src: string, dest: string): void {
   if (!fs.existsSync(dest)) {
     fs.mkdirSync(dest, { recursive: true });
   }
@@ -17,7 +18,7 @@ export function copyDirectory(src: string, dest: string): void {
     const srcPath = path.join(src, entry.name);
     const destPath = path.join(dest, entry.name);
     if (entry.isDirectory()) {
-      copyDirectory(srcPath, destPath);
+      copyDirectory(fs, srcPath, destPath);
     } else {
       fs.copyFileSync(srcPath, destPath);
     }
@@ -26,9 +27,10 @@ export function copyDirectory(src: string, dest: string): void {
 
 /**
  * Ensures a directory exists, creating it if necessary.
+ * @param fs - The filesystem abstraction
  * @param dir - The directory path to ensure
  */
-export function ensureDirectoryExists(dir: string): void {
+export function ensureDirectoryExists(fs: IFileSystem, dir: string): void {
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });
   }
@@ -36,10 +38,11 @@ export function ensureDirectoryExists(dir: string): void {
 
 /**
  * Checks if a feature exists at the specified path.
+ * @param fs - The filesystem abstraction
  * @param featurePath - The path to check
  * @returns True if the feature exists
  */
-export function featureExists(featurePath: string): boolean {
+export function featureExists(fs: IFileSystem, featurePath: string): boolean {
   return fs.existsSync(getFeatureDir(featurePath));
 }
 

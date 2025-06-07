@@ -1,140 +1,137 @@
-import fs from "fs";
 import path from "path";
-import { error, info, success } from '../utils/errors';
-import {
-  ensureDirectoryExists,
-  getConfigDir,
-  getFeatureTargetDir,
-} from "../utils/io";
+import { IFileSystem } from "../types/filesystem";
+import { IFeatureGenerator, NodeGenerator } from "../types/generator";
+import { Logger } from "../types/logger";
+import { ensureDirectoryExists, getFeatureTargetDir } from "../utils/io";
 import { capitalise } from "../utils/strings";
 import { processTemplate } from "../utils/templates";
-import { updateFeatureConfig } from "./feature";
 
-/**
- * Generates a job worker file and updates feature configuration.
- * @param featurePath - The feature path (can be nested)
- * @param flags - Command line flags and options
- * @param flags.name - The job name (will be suffixed with 'Job' if not present)
- * @param flags.entities - List of entity names (optional)
- * @param flags.schedule - Optional cron schedule
- * @param flags.scheduleArgs - Optional schedule args (JSON string)
- * @param flags.force - Whether to overwrite existing files
- */
-export async function generateJob(
-  featurePath: string,
-  flags: {
-    name: string;
-    entities?: string[];
-    schedule?: string;
-    scheduleArgs?: string;
-    force?: boolean;
-  }
-): Promise<void> {
-  try {
-    let baseName = flags.name;
-    if (!baseName.endsWith("Job")) {
-      baseName = baseName + "Job";
+export class JobGenerator implements NodeGenerator {
+  constructor(
+    public logger: Logger,
+    public fs: IFileSystem,
+    private featureGenerator: IFeatureGenerator,
+    private templatesDir: string = path.join(
+      process.cwd(),
+      "scripts",
+      "templates"
+    )
+  ) {}
+
+  async generate(
+    featurePath: string,
+    flags: {
+      name: string;
+      entities?: string[];
+      schedule?: string;
+      scheduleArgs?: string;
+      force?: boolean;
     }
-    const jobName = baseName;
-    const jobWorkerName = baseName;
-    const jobWorkerFile = baseName;
-    const JobType = capitalise(baseName);
-    const entitiesList = (flags.entities || []).map((e) => `"${e}"`).join(", ");
-    const schedule = flags.schedule;
-    const scheduleArgs = flags.scheduleArgs || "{}";
-    const cron = schedule;
-    const queueName = jobName;
-
-    let imports = `import type { ${JobType} } from 'wasp/server/jobs';\n`;
-    if (flags.entities && flags.entities.length > 0) {
-      imports += `import { ${flags.entities.join(
-        ", "
-      )} } from 'wasp/entities';\n`;
-    }
-
-    const { targetDir: jobsDir, importPath } = getFeatureTargetDir(
-      featurePath,
-      "job"
-    );
-    ensureDirectoryExists(jobsDir);
-    const workerFilePath = path.join(jobsDir, `${jobWorkerFile}.ts`);
-    const workerExists = fs.existsSync(workerFilePath);
-    if (workerExists && !flags.force) {
-      info(`Job worker file already exists: ${workerFilePath}`);
-      info("Use --force to overwrite");
-    } else {
-      const workerTemplatePath = path.join(
-        process.cwd(),
-        "scripts",
-        "templates",
-        "files",
-        "server",
-        "job.ts"
-      );
-      if (!fs.existsSync(workerTemplatePath)) {
-        throw new Error("Job worker template not found");
+  ): Promise<void> {
+    try {
+      let baseName = flags.name;
+      if (!baseName.endsWith("Job")) {
+        baseName = baseName + "Job";
       }
-      let workerTemplate = fs.readFileSync(workerTemplatePath, "utf8");
-      const workerCode = processTemplate(workerTemplate, {
-        Imports: imports,
-        JobType,
+      const jobName = baseName;
+      const jobWorkerName = baseName;
+      const jobWorkerFile = baseName;
+      const JobType = capitalise(baseName);
+      const entitiesList = (flags.entities || [])
+        .map((e) => `"${e}"`)
+        .join(", ");
+      const schedule = flags.schedule;
+      const scheduleArgs = flags.scheduleArgs || "{}";
+      const cron = schedule;
+      const queueName = jobName;
+
+      let imports = `import type { ${JobType} } from 'wasp/server/jobs';\n`;
+      if (flags.entities && flags.entities.length > 0) {
+        imports += `import { ${flags.entities.join(
+          ", "
+        )} } from 'wasp/entities';\n`;
+      }
+
+      const { targetDir: jobsDir, importPath } = getFeatureTargetDir(
+        featurePath,
+        "job"
+      );
+      ensureDirectoryExists(this.fs, jobsDir);
+      const workerFilePath = `${jobsDir}/${jobWorkerFile}.ts`;
+      const workerExists = this.fs.existsSync(workerFilePath);
+      if (workerExists && !flags.force) {
+        this.logger.info(`Job worker file already exists: ${workerFilePath}`);
+        this.logger.info("Use --force to overwrite");
+      } else {
+        const workerTemplatePath = path.join(
+          this.templatesDir,
+          "files",
+          "server",
+          "job.ts"
+        );
+        if (!this.fs.existsSync(workerTemplatePath)) {
+          this.logger.error("Job worker template not found");
+          return;
+        }
+        let workerTemplate = this.fs.readFileSync(workerTemplatePath, "utf8");
+        const workerCode = processTemplate(workerTemplate, {
+          Imports: imports,
+          JobType,
+          jobWorkerName,
+        });
+        this.fs.writeFileSync(workerFilePath, workerCode);
+        this.logger.success(
+          `${
+            workerExists ? "Overwrote" : "Generated"
+          } job worker: ${workerFilePath}`
+        );
+      }
+      const configPath = `config/${featurePath.split("/")[0]}.wasp.ts`;
+      if (!this.fs.existsSync(configPath)) {
+        this.logger.error(`Feature config file not found: ${configPath}`);
+        return;
+      }
+      let configContent = this.fs.readFileSync(configPath, "utf8");
+      const configExists = configContent.includes(`${jobName}: {`);
+      if (configExists && !flags.force) {
+        this.logger.info(`Job config already exists in ${configPath}`);
+        this.logger.info("Use --force to overwrite");
+        return;
+      } else if (configExists && flags.force) {
+        // Remove existing job definition (single job entry in jobs object)
+        const jobsSectionRegex = /(jobs\s*:\s*{)([\s\S]*?)(^\s*}\s*[},])/m;
+        const jobsMatch = configContent.match(jobsSectionRegex);
+        if (jobsMatch) {
+          let jobsBlock = jobsMatch[2];
+          const jobKeyRegex = new RegExp(
+            `(\s*${jobName}\s*:\s*{[\s\S]*?^\s*},?)`,
+            "m"
+          );
+          jobsBlock = jobsBlock.replace(jobKeyRegex, "");
+          configContent = configContent.replace(
+            jobsSectionRegex,
+            `$1${jobsBlock}$3`
+          );
+          this.fs.writeFileSync(configPath, configContent);
+        }
+      }
+      this.featureGenerator.updateFeatureConfig(featurePath, "job", {
+        jobName,
         jobWorkerName,
+        jobWorkerFile,
+        entitiesList,
+        schedule,
+        cron,
+        args: scheduleArgs,
+        importPath,
+        queueName,
       });
-      fs.writeFileSync(workerFilePath, workerCode);
-      success(
-        `${
-          workerExists ? "Overwrote" : "Generated"
-        } job worker: ${workerFilePath}`
+      this.logger.success(
+        `${configExists ? "Updated" : "Added"} job config in: ${configPath}`
       );
+      this.logger.info(`\nJob ${jobName} processing complete.`);
+    } catch (error: any) {
+      this.logger.error("Failed to generate job: " + error.stack);
     }
-
-    const segments = featurePath.split("/").filter(Boolean);
-    const topLevelFeature = segments[0];
-    const configPath = path.join(getConfigDir(), `${topLevelFeature}.wasp.ts`);
-    if (!fs.existsSync(configPath)) {
-      error(`Feature config file not found: ${configPath}`);
-      return;
-    }
-    let configContent = fs.readFileSync(configPath, "utf8");
-    const configExists = configContent.includes(`${jobName}: {`);
-    if (configExists && !flags.force) {
-      info(`Job config already exists in ${configPath}`);
-      info("Use --force to overwrite");
-      return;
-    } else if (configExists && flags.force) {
-      // Remove existing job definition (single job entry in jobs object)
-      const jobsSectionRegex = /(jobs\s*:\s*{)([\s\S]*?)(^\s*}\s*[},])/m;
-      const jobsMatch = configContent.match(jobsSectionRegex);
-      if (jobsMatch) {
-        let jobsBlock = jobsMatch[2];
-        const jobKeyRegex = new RegExp(
-          `(\s*${jobName}\s*:\s*{[\s\S]*?^\s*},?)`,
-          "m"
-        );
-        jobsBlock = jobsBlock.replace(jobKeyRegex, "");
-        configContent = configContent.replace(
-          jobsSectionRegex,
-          `$1${jobsBlock}$3`
-        );
-        fs.writeFileSync(configPath, configContent);
-      }
-    }
-    updateFeatureConfig(featurePath, "job", {
-      jobName,
-      jobWorkerName,
-      jobWorkerFile,
-      entitiesList,
-      schedule,
-      cron,
-      args: scheduleArgs,
-      importPath,
-      queueName,
-    });
-    success(
-      `${configExists ? "Updated" : "Added"} job config in: ${configPath}`
-    );
-    info(`\nJob ${jobName} processing complete.`);
-  } catch (error: any) {
-    error("Failed to generate job:", error.stack);
   }
 }

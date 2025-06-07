@@ -1,119 +1,92 @@
-import fs from "fs";
-import path from "path";
-import { error, info, success } from '../utils/errors';
-import {
-  ensureDirectoryExists,
-  getConfigDir,
-  getFeatureTargetDir,
-} from "../utils/io";
-import { capitalise } from "../utils/strings";
-import { processTemplate } from "../utils/templates";
-import { updateFeatureConfig } from "./feature";
+import { IFileSystem } from "../types/filesystem";
+import { IFeatureGenerator, NodeGenerator } from "../types/generator";
+import { Logger } from "../types/logger";
+import { ensureDirectoryExists, getFeatureTargetDir } from "../utils/io";
+import { getFileTemplatePath, processTemplate } from "../utils/templates";
 
-/**
- * Generates an API handler file and updates feature configuration.
- * @param featurePath - The feature path (can be nested)
- * @param flags - Command line flags and options
- * @param flags.name - The API name (e.g., importProfileApi)
- * @param flags.method - HTTP method (GET, POST, etc.)
- * @param flags.route - HTTP route (e.g., /api/profiles/import)
- * @param flags.entities - List of entity names (optional)
- * @param flags.auth - Whether authentication is required
- * @param flags.force - Whether to overwrite existing files
- */
-export async function generateApi(
-  featurePath: string,
-  flags: {
-    name: string;
-    method: string;
-    route: string;
-    entities?: string[];
-    auth?: boolean;
-    force?: boolean;
-  }
-): Promise<void> {
-  try {
-    let baseName = flags.name;
-    if (!baseName.endsWith("Api")) {
-      baseName = baseName + "Api";
+export class ApiGenerator implements NodeGenerator {
+  constructor(public logger: Logger, public fs: IFileSystem, private featureGenerator: IFeatureGenerator) {}
+
+  async generate(
+    featurePath: string,
+    flags: {
+      name: string;
+      method: string;
+      route: string;
+      entities?: string[];
+      auth?: boolean;
+      force?: boolean;
     }
-    const apiName = baseName;
-    const apiFile = `${apiName}.ts`;
-    const ApiType = capitalise(apiName);
-    const { method, route, entities = [], auth = false, force = false } = flags;
-    const { targetDir: apiDir, importPath } = getFeatureTargetDir(
-      featurePath,
-      "api"
-    );
-    ensureDirectoryExists(apiDir);
-    const handlerFile = path.join(apiDir, apiFile);
-    const fileExists = fs.existsSync(handlerFile);
-    if (fileExists && !force) {
-      info(`API handler file already exists: ${handlerFile}`);
-      info("Use --force to overwrite");
-    } else {
-      const AuthCheck = auth
-        ? 'if (!context.user || !context.user.id) {\n    res.status(401).json({ error: "Unauthorized" });\n\n    return;\n  }\n'
-        : "";
-      const templatePath = path.join(
-        process.cwd(),
-        "scripts",
-        "templates",
-        "files",
-        "server",
-        "api.ts"
-      );
-      if (!fs.existsSync(templatePath)) {
-        throw new Error("API handler template not found");
+  ): Promise<void> {
+    try {
+      let baseName = flags.name;
+      if (!baseName.endsWith("Api")) {
+        baseName = baseName + "Api";
       }
-      const template = fs.readFileSync(templatePath, "utf8");
-      const processed = processTemplate(template, {
-        apiName,
-        ApiType,
-        AuthCheck,
-      });
-      fs.writeFileSync(handlerFile, processed);
-      success(
-        `${
-          fileExists ? "Overwrote" : "Generated"
-        } API handler file: ${handlerFile}`
-      );
-    }
-    const segments = featurePath.split("/").filter(Boolean);
-    const topLevelFeature = segments[0];
-    const configPath = path.join(getConfigDir(), `${topLevelFeature}.wasp.ts`);
-    if (!fs.existsSync(configPath)) {
-      error(`Feature config file not found: ${configPath}`);
-    }
-    let configContent = fs.readFileSync(configPath, "utf8");
-    const configExists = configContent.includes(`${apiName}: {`);
-    if (configExists && !force) {
-      info(`API config already exists in ${configPath}`);
-      info("Use --force to overwrite");
-    } else if (!configExists || force) {
-      if (configExists && force) {
-        const regex = new RegExp(
-          `\\s*${apiName}:\\s*{[^}]*}\\s*[,]?[^}]*}[,]?(?:\\r?\\n)`,
-          "g"
-        );
-        configContent = configContent.replace(regex, "\n");
-        configContent = configContent.replace(/\n\s*\n\s*\n/g, "\n\n");
-        fs.writeFileSync(configPath, configContent);
-      }
-      updateFeatureConfig(featurePath, "api", {
-        apiName,
-        entities,
-        method: method.toUpperCase(),
+      const apiName = baseName;
+      const apiFile = `${apiName}.ts`;
+      const ApiType = apiName.charAt(0).toUpperCase() + apiName.slice(1);
+      const {
+        method,
         route,
-        apiFile: apiFile.replace(/\.ts$/, ""),
-        auth,
-      });
-      info(
-        `${configExists ? "Updated" : "Added"} API config in: ${configPath}`
-      );
+        entities = [],
+        auth = false,
+        force = false,
+      } = flags;
+      const { targetDir: apiDir, importPath } = getFeatureTargetDir(featurePath, "api");
+      ensureDirectoryExists(this.fs, apiDir);
+      const handlerFile = `${apiDir}/${apiFile}`;
+      const fileExists = this.fs.existsSync(handlerFile);
+      if (fileExists && !force) {
+        this.logger.info(`API handler file already exists: ${handlerFile}`);
+        this.logger.info("Use --force to overwrite");
+      } else {
+        const templatePath = getFileTemplatePath("api");
+        if (!this.fs.existsSync(templatePath)) {
+          this.logger.error("API handler template not found");
+          return;
+        }
+        const template = this.fs.readFileSync(templatePath, "utf8");
+        const processed = processTemplate(template, {
+          ApiType,
+          apiName,
+          method,
+          route,
+          entities: entities.map((e) => `\"${e}\"`).join(", "),
+          auth: String(auth),
+        });
+        this.fs.writeFileSync(handlerFile, processed);
+        this.logger.success(
+          `${fileExists ? "Overwrote" : "Generated"} API handler file: ${handlerFile}`
+        );
+      }
+      const configPath = `config/${featurePath.split("/")[0]}.wasp.ts`;
+      if (!this.fs.existsSync(configPath)) {
+        this.logger.error(`Feature config file not found: ${configPath}`);
+        return;
+      }
+      let configContent = this.fs.readFileSync(configPath, "utf8");
+      const configExists = configContent.includes(`${apiName}: {`);
+      if (configExists && !force) {
+        this.logger.info(`API config already exists in ${configPath}`);
+        this.logger.info("Use --force to overwrite");
+      } else {
+        this.featureGenerator.updateFeatureConfig(featurePath, "api", {
+          apiName,
+          entities,
+          method,
+          route,
+          apiFile,
+          auth,
+          importPath,
+        });
+        this.logger.success(
+          `${configExists ? "Updated" : "Added"} API config in: ${configPath}`
+        );
+      }
+      this.logger.info(`\nAPI ${apiName} processing complete.`);
+    } catch (error: any) {
+      this.logger.error("Failed to generate API: " + error.stack);
     }
-    info(`\nAPI ${apiName} processing complete.`);
-  } catch (error: any) {
-    error("Failed to generate API:", error.stack);
   }
 }

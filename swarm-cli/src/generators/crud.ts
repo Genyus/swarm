@@ -1,11 +1,8 @@
-import fs from "fs";
-import path from "path";
-import { handleFatalError, info, success } from '../utils/errors';
+import { IFileSystem } from "../types/filesystem";
+import { IFeatureGenerator, NodeGenerator } from "../types/generator";
+import { Logger } from "../types/logger";
 import { ensureDirectoryExists, getFeatureTargetDir } from "../utils/io";
-import { getEntityMetadata } from "../utils/prisma";
-import { getPlural } from "../utils/strings";
-import { updateFeatureConfig } from "./feature";
-import { generateOperationCode, getOperationType } from "./operation";
+import { getFileTemplatePath, processTemplate } from "../utils/templates";
 
 const CRUD_OPERATIONS = [
   "get",
@@ -48,102 +45,74 @@ function removeCrudNodeFromConfig(
   return configContent.slice(0, startIndex) + configContent.slice(endIndex);
 }
 
-/**
- * Generates CRUD operations and updates feature configuration.
- */
-export async function generateCrud(
-  featurePath: string,
-  flags: {
-    dataType: string;
-    public?: string[];
-    override?: string[];
-    exclude?: string[];
-    force?: boolean;
-  }
-): Promise<void> {
-  try {
-    const {
-      dataType,
-      public: publicOps = [],
-      override: overrideOps = [],
-      exclude: excludeOps = [],
-      force = false,
-    } = flags;
-    const pluralName = getPlural(dataType);
-    const crudName = pluralName;
-    const operations: Record<string, any> = {};
-    const overrideDirName =
-      crudName.charAt(0).toLowerCase() + crudName.slice(1);
-    const { targetDir: crudsDir, importPath } = getFeatureTargetDir(
-      featurePath,
-      "crud"
-    );
-    ensureDirectoryExists(crudsDir);
-    const modelMeta = await getEntityMetadata(dataType);
-    const overrideDir = path.join(crudsDir, overrideDirName);
-    // Check for config duplication
-    const segments = featurePath.split("/").filter(Boolean);
-    const topLevelFeature = segments[0];
-    const configPath = path.join(
-      process.cwd(),
-      "config",
-      `${topLevelFeature}.wasp.ts`
-    );
-    let configContent = fs.existsSync(configPath)
-      ? fs.readFileSync(configPath, "utf8")
-      : "";
-    const configExists = new RegExp(`${crudName}:\s*{`).test(configContent);
-    if (configExists && !force) {
-      info(`CRUD config for '${crudName}' already exists in ${configPath}.`);
-      info("Use --force to overwrite");
-      return;
+export class CrudGenerator implements NodeGenerator {
+  constructor(public logger: Logger, public fs: IFileSystem, private featureGenerator: IFeatureGenerator) {}
+
+  async generate(
+    featurePath: string,
+    flags: {
+      dataType: string;
+      public?: string[];
+      override?: string[];
+      exclude?: string[];
+      force?: boolean;
     }
-    if (force && fs.existsSync(overrideDir)) {
-      fs.rmSync(overrideDir, { recursive: true, force: true });
-    }
-    if (force && configExists) {
-      configContent = removeCrudNodeFromConfig(configContent, crudName);
-      fs.writeFileSync(configPath, configContent);
-    }
-    for (const op of CRUD_OPERATIONS) {
-      if (excludeOps.includes(op)) continue;
-      const opConfig: Record<string, any> = {};
-      if (publicOps.includes(op)) opConfig.isPublic = true;
-      if (overrideOps.includes(op)) {
-        const fnName =
-          op === "getAll" ? `getAll${crudName}` : `${op}${dataType}`;
-        const fnFile = path.join(overrideDir, `${fnName}.ts`);
-        ensureDirectoryExists(path.dirname(fnFile));
-        if (!fs.existsSync(fnFile) || force) {
-          const operationType = getOperationType(op);
-          const operationCode = generateOperationCode(
-            modelMeta,
-            op,
-            fnName,
-            false,
-            true,
-            crudName
-          );
-          fs.writeFileSync(fnFile, operationCode);
-          success(`Generated override: ${fnFile}`);
-        } else {
-          success(`Override already exists: ${fnFile}`);
-        }
-        opConfig.overrideFn = {
-          import: fnName,
-          from: `${importPath}/${overrideDirName}/${fnName}`,
-        };
+  ): Promise<void> {
+    try {
+      const { dataType, force } = flags;
+      const pluralName = dataType.endsWith("y")
+        ? `${dataType.slice(0, -1)}ies`
+        : `${dataType}s`;
+      const crudName = pluralName;
+      const { targetDir: crudsDir, importPath } = getFeatureTargetDir(featurePath, "crud");
+      ensureDirectoryExists(this.fs, crudsDir);
+      const crudFile = `${crudsDir}/${crudName}.ts`;
+      const fileExists = this.fs.existsSync(crudFile);
+      if (fileExists && !force) {
+        this.logger.info(`CRUD file already exists: ${crudFile}`);
+        this.logger.info("Use --force to overwrite");
+        return;
       }
-      operations[op] = opConfig;
+      // Use template for CRUD file
+      const templatePath = getFileTemplatePath("crud");
+      if (!this.fs.existsSync(templatePath)) {
+        this.logger.error("CRUD template not found");
+        return;
+      }
+      const template = this.fs.readFileSync(templatePath, "utf8");
+      const crudCode = processTemplate(template, {
+        crudName,
+        dataType,
+        operations: JSON.stringify(CRUD_OPERATIONS, null, 2),
+      });
+      this.fs.writeFileSync(crudFile, crudCode);
+      this.logger.success(
+        `${fileExists ? "Overwrote" : "Generated"} CRUD file: ${crudFile}`
+      );
+      const configPath = `config/${featurePath.split("/")[0]}.wasp.ts`;
+      if (!this.fs.existsSync(configPath)) {
+        this.logger.error(`Feature config file not found: ${configPath}`);
+        return;
+      }
+      let configContent = this.fs.readFileSync(configPath, "utf8");
+      const configExists = configContent.includes(`${crudName}: {`);
+      if (configExists && !force) {
+        this.logger.info(`CRUD config already exists in ${configPath}`);
+        this.logger.info("Use --force to overwrite");
+        return;
+      }
+      this.featureGenerator.updateFeatureConfig(featurePath, "crud", {
+        crudName,
+        dataType,
+        operations: CRUD_OPERATIONS,
+        importPath,
+      });
+      this.logger.success(
+        `${configExists ? "Updated" : "Added"} CRUD config in: ${configPath}`
+      );
+      this.logger.info(`\nCRUD ${crudName} processing complete.`);
+    } catch (error: any) {
+      this.logger.error("Failed to generate CRUD: " + error.stack);
     }
-    const crudConfig = {
-      crudName,
-      dataType,
-      operations,
-    };
-    updateFeatureConfig(featurePath, "crud", crudConfig);
-    success(`Added CRUD config for ${crudName} in feature config.`);
-  } catch (error: any) {
-    handleFatalError(`Error generating CRUD: ${error.message}`);
   }
 }

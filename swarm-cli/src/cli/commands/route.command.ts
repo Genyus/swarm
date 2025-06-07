@@ -1,8 +1,10 @@
 import { Command } from "commander";
-import { generateRoute } from "../../generators/route";
-import { GeneratorCommand } from "../../types";
-import { getRouteNameFromPath } from "../../utils/io";
-import { validateFeaturePath, validateRoutePath } from "../../utils/strings";
+import { RouteGenerator } from "../../generators/route";
+import { NodeGeneratorCommand } from "../../types";
+import { IFileSystem } from "../../types/filesystem";
+import { IFeatureGenerator, NodeGenerator } from "../../types/generator";
+import { Logger } from "../../types/logger";
+import { validateFeaturePath } from "../../utils/strings";
 import {
   withAuthOption,
   withFeatureOption,
@@ -11,26 +13,36 @@ import {
   withPathOption,
 } from "../options";
 
-export const routeCommand: GeneratorCommand = {
-  name: "route",
-  description: "Generate a new route",
-  register(program: Command) {
-    let cmd = program.command("route").description("Generate a new route");
-    cmd = withFeatureOption(cmd);
-    cmd = withPathOption(cmd);
-    cmd = withNameOption(cmd);
-    cmd = withAuthOption(cmd);
-    cmd = withForceOption(cmd);
-    cmd.action(async (opts) => {
-      validateFeaturePath(opts.feature);
-      validateRoutePath(opts.path);
-      const routeFlags = {
-        ...opts,
-        name: opts.name || getRouteNameFromPath(opts.path),
-        auth: !!opts.auth,
-        force: !!opts.force,
-      };
-      await generateRoute(opts.feature, routeFlags);
-    });
-  },
-};
+/**
+ * Create a route command
+ * @param logger - The logger instance
+ * @param fs - The file system instance
+ * @returns The command
+ */
+export function createRouteCommand(
+  logger: Logger,
+  fs: IFileSystem,
+  featureGenerator: IFeatureGenerator
+): NodeGeneratorCommand {
+  return {
+    name: "route",
+    description: "Generate a route handler",
+    generator: new RouteGenerator(logger, fs, featureGenerator),
+    register(program: Command, generator: NodeGenerator) {
+      let cmd = program.command(this.name).description(this.description);
+      cmd = withFeatureOption(cmd);
+      cmd = withNameOption(cmd, "Route name");
+      cmd = withPathOption(cmd, "Route path (e.g. /foo)");
+      cmd = withAuthOption(cmd);
+      cmd = withForceOption(cmd);
+      cmd.action(async (opts) => {
+        validateFeaturePath(opts.feature);
+        await generator.generate(opts.feature, {
+          name: opts.name,
+          path: opts.path,
+          force: !!opts.force,
+        });
+      });
+    },
+  };
+}

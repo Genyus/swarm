@@ -39,26 +39,19 @@ export function withAuthOption(cmd: Command) {
 /**
  * Adds the --name <name> option (required) to a Commander command.
  * @param cmd - The Commander command
+ * @param description - Optional custom description for the name option
  * @returns The command with the option added
  */
-export function withNameOption(cmd: Command) {
-  return cmd.requiredOption("--name <name>", "Name");
+export function withNameOption(cmd: Command, description?: string) {
+  return cmd.requiredOption("--name <name>", description || "Name");
 }
 
 /**
  * Adds the --path <path> option (required) to a Commander command.
  * @param cmd - The Commander command
+ * @param description - Optional custom description for the path option
  * @returns The command with the option added
  */
-export function withPathOption(cmd: Command) {
-  return cmd.requiredOption("--path <path>", "Path");
-}
-
-/**
- * Adds the --dataType <dataType> option (required) to a Commander command.
- * @param cmd - The Commander command
- * @returns The command with the option added
- */
-export function withDataTypeOption(cmd: Command) {
-  return cmd.requiredOption("--dataType <dataType>", "Model/type name");
+export function withPathOption(cmd: Command, description?: string) {
+  return cmd.requiredOption("--path <path>", description || "Path");
 }
