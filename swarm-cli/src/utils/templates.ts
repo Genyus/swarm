@@ -38,7 +38,7 @@ export function getFileTemplatePath(type: string, operation?: string): string {
     "query",
     "route",
   ];
-  const baseDir = path.join(process.cwd(), "scripts", "templates");
+  const baseDir = path.join(__dirname, "..", "templates");
   if (clientTypes.includes(type)) {
     return path.join(baseDir, "files", "client", `${type}.tsx`);
   } else if (serverTypes.includes(type)) {
@@ -61,8 +61,8 @@ export function getFileTemplatePath(type: string, operation?: string): string {
  */
 export function getConfigTemplatePath(type: string): string {
   const templatePath = path.join(
-    process.cwd(),
-    "scripts",
+    __dirname,
+    "..",
     "templates",
     "config",
     `${type}.ts`

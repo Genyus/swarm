@@ -148,8 +148,8 @@ export class FeatureGenerator implements IFeatureGenerator {
     const configPath = path.join(configDir, `${topLevelFeature}.wasp.ts`);
     if (!this.fs.existsSync(configPath)) {
       const templatePath = path.join(
-        process.cwd(),
-        "scripts",
+        __dirname,
+        "..",
         "templates",
         "config",
         "feature.wasp.ts"
@@ -300,7 +300,7 @@ export class FeatureGenerator implements IFeatureGenerator {
       this.fs.writeFileSync(configDir, ""); // placeholder for ensureDirectoryExists
     }
     const configPath = `${configDir}/${featureName}.wasp.ts`;
-    const templatePath = `scripts/templates/config/feature.wasp.ts`;
+    const templatePath = path.join(__dirname, "..", "templates", "config", "feature.wasp.ts");
     if (!this.fs.existsSync(templatePath)) {
       handleFatalError("Feature config template not found");
     }
@@ -324,9 +324,7 @@ export class FeatureGenerator implements IFeatureGenerator {
         handleFatalError("Parent feature does not exist");
       }
     }
-    const templateDir = `scripts/templates/feature/${
-      segments.length === 1 ? "" : "_core"
-    }`;
+    const templateDir = path.join(__dirname, "..", "templates", "feature", segments.length === 1 ? "" : "_core");
     const featureDir = `features/${featurePath}`;
     copyDirectory(this.fs, templateDir, featureDir);
     this.logger.debug(`Copied template from ${templateDir} to ${featureDir}`);
