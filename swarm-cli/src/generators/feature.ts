@@ -1,4 +1,3 @@
-import fs from "fs";
 import path from "path";
 import { OPERATION_TYPES, TYPE_DIRECTORIES } from "../types";
 import { IFileSystem } from "../types/filesystem";
@@ -24,7 +23,7 @@ export class FeatureGenerator implements IFeatureGenerator {
   ): string {
     const featureDir = getFeatureImportPath(featurePath);
     const templatePath = getConfigTemplatePath("route");
-    const template = fs.readFileSync(templatePath, "utf8");
+    const template = this.fs.readFileSync(templatePath, "utf8");
     return processTemplate(template, {
       routeName,
       routePath,
@@ -49,7 +48,7 @@ export class FeatureGenerator implements IFeatureGenerator {
     const directory = TYPE_DIRECTORIES[operationType];
     const featureDir = getFeatureImportPath(featurePath);
     const templatePath = getConfigTemplatePath("operation");
-    const template = fs.readFileSync(templatePath, "utf8");
+    const template = this.fs.readFileSync(templatePath, "utf8");
     return processTemplate(template, {
       operationName,
       featureDir,
@@ -73,7 +72,7 @@ export class FeatureGenerator implements IFeatureGenerator {
     queueName: string
   ): string {
     const templatePath = getConfigTemplatePath("job");
-    const template = fs.readFileSync(templatePath, "utf8");
+    const template = this.fs.readFileSync(templatePath, "utf8");
     return processTemplate(template, {
       jobName,
       jobWorkerName,
@@ -101,7 +100,7 @@ export class FeatureGenerator implements IFeatureGenerator {
   ): string {
     const featureDir = getFeatureImportPath(featurePath);
     const templatePath = getConfigTemplatePath("api");
-    const template = fs.readFileSync(templatePath, "utf8");
+    const template = this.fs.readFileSync(templatePath, "utf8");
     return processTemplate(template, {
       apiName,
       featureDir,
@@ -123,7 +122,7 @@ export class FeatureGenerator implements IFeatureGenerator {
     pathValue: string
   ): string {
     const templatePath = getConfigTemplatePath("apiNamespace");
-    const template = fs.readFileSync(templatePath, "utf8");
+    const template = this.fs.readFileSync(templatePath, "utf8");
     return processTemplate(template, {
       namespaceName,
       middlewareFnName,
@@ -147,7 +146,7 @@ export class FeatureGenerator implements IFeatureGenerator {
     const topLevelFeature = featurePath.split("/")[0];
     const configDir = getConfigDir();
     const configPath = path.join(configDir, `${topLevelFeature}.wasp.ts`);
-    if (!fs.existsSync(configPath)) {
+    if (!this.fs.existsSync(configPath)) {
       const templatePath = path.join(
         process.cwd(),
         "scripts",
@@ -155,12 +154,12 @@ export class FeatureGenerator implements IFeatureGenerator {
         "config",
         "feature.wasp.ts"
       );
-      if (!fs.existsSync(templatePath)) {
+      if (!this.fs.existsSync(templatePath)) {
         handleFatalError(`Feature config template not found: ${templatePath}`);
       }
-      fs.copyFileSync(templatePath, configPath);
+      this.fs.copyFileSync(templatePath, configPath);
     }
-    let content = fs.readFileSync(configPath, "utf8");
+    let content = this.fs.readFileSync(configPath, "utf8");
     let configSection: string = "";
     let definition: string = "";
     switch (type) {
@@ -260,7 +259,7 @@ export class FeatureGenerator implements IFeatureGenerator {
         configSection = "cruds";
         const { crudName, dataType, operations } = options;
         const templatePath = getConfigTemplatePath("crud");
-        const template = fs.readFileSync(templatePath, "utf8");
+        const template = this.fs.readFileSync(templatePath, "utf8");
         const operationsStr = JSON.stringify(operations, null, 2)
           .replace(/"([^"]+)":/g, "$1:")
           .split("\n")
@@ -287,7 +286,7 @@ export class FeatureGenerator implements IFeatureGenerator {
         `${configSection}: {${definition},`
       );
     }
-    fs.writeFileSync(configPath, content);
+    this.fs.writeFileSync(configPath, content);
     return configPath;
   }
 

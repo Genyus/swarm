@@ -4,6 +4,7 @@ import { IFeatureGenerator, NodeGenerator } from "../types/generator";
 import { Logger } from "../types/logger";
 import { handleFatalError } from "../utils/errors";
 import {
+    copyDirectory,
     ensureDirectoryExists,
     getConfigDir,
     getFeatureTargetDir,
@@ -314,5 +315,15 @@ export class OperationGenerator implements NodeGenerator {
       operationType,
       operationName,
     };
+  }
+
+  /**
+   * Copies a directory of operation templates to the target feature directory.
+   * @param templateDir - The source template directory
+   * @param targetDir - The target feature directory
+   */
+  public copyOperationTemplates(templateDir: string, targetDir: string): void {
+    copyDirectory(this.fs, templateDir, targetDir);
+    this.logger.debug(`Copied operation templates from ${templateDir} to ${targetDir}`);
   }
 }
