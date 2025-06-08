@@ -1,22 +1,13 @@
 import { describe, expect, it, vi } from 'vitest';
-import type { IFeatureGenerator, NodeGenerator } from '../../types/generator';
+import {
+  createMockFeatureGen,
+  createMockFS,
+  createMockLogger,
+} from '../../../test/utils';
+import type { NodeGenerator } from '../../types/generator';
 import { createActionCommand } from './operation.command';
 
 describe('createActionCommand', () => {
-  function createMockLogger() {
-    return { debug: vi.fn(), info: vi.fn(), success: vi.fn(), error: vi.fn(), warn: vi.fn() };
-  }
-  function createMockFS() {
-    return { readFileSync: vi.fn(), writeFileSync: vi.fn(), existsSync: vi.fn(), copyFileSync: vi.fn(), mkdirSync: vi.fn(), readdirSync: vi.fn() };
-  }
-  function createMockFeatureGen(): IFeatureGenerator {
-    return {
-      updateFeatureConfig: vi.fn(),
-      generateFeatureConfig: vi.fn(),
-      generateFeature: vi.fn(),
-    } as any;
-  }
-
   it('registers and calls generator', async () => {
     const logger = createMockLogger();
     const fs = createMockFS();
@@ -28,10 +19,19 @@ describe('createActionCommand', () => {
       requiredOption: vi.fn().mockReturnThis(),
       option: vi.fn().mockReturnThis(),
       description: vi.fn().mockReturnThis(),
-      action: vi.fn((fn) => { fn({ feature: 'foo', operation: 'create', dataType: 'User' }); return mockCmd; }),
+      action: vi.fn((fn) => {
+        fn({
+          feature: 'foo',
+          dataType: 'User',
+          operation: 'get',
+          entities: 'User',
+        });
+        return mockCmd;
+      }),
     };
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const program = { command: vi.fn(() => mockCmd) } as any;
     cmd.register(program, generator);
     expect(program.command).toHaveBeenCalledWith('action');
   });
-}); 
+});

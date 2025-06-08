@@ -1,16 +1,16 @@
-import { Command } from "commander";
-import { ApiNamespaceGenerator } from "../../generators/apinamespace";
-import { NodeGeneratorCommand } from "../../types";
-import { IFileSystem } from "../../types/filesystem";
-import { IFeatureGenerator, NodeGenerator } from "../../types/generator";
-import { Logger } from "../../types/logger";
-import { validateFeaturePath } from "../../utils/strings";
+import { Command } from 'commander';
+import { ApiNamespaceGenerator } from '../../generators/apinamespace';
+import { NodeGeneratorCommand } from '../../types';
+import { IFileSystem } from '../../types/filesystem';
+import { IFeatureGenerator, NodeGenerator } from '../../types/generator';
+import { Logger } from '../../types/logger';
+import { validateFeaturePath } from '../../utils/strings';
 import {
   withFeatureOption,
   withForceOption,
   withNameOption,
   withPathOption,
-} from "../options";
+} from '../options';
 
 export function createApiNamespaceCommand(
   logger: Logger,
@@ -18,15 +18,15 @@ export function createApiNamespaceCommand(
   featureGenerator: IFeatureGenerator
 ): NodeGeneratorCommand {
   return {
-    name: "apinamespace",
-    description: "Generate an API namespace",
+    name: 'apinamespace',
+    description: 'Generate an API namespace',
     generator: new ApiNamespaceGenerator(logger, fs, featureGenerator),
     register(program: Command, generator: NodeGenerator) {
       let cmd = program
-        .command("apinamespace")
-        .description("Generate an API namespace");
+        .command('apinamespace')
+        .description('Generate an API namespace');
       cmd = withFeatureOption(cmd);
-      cmd = withNameOption(cmd, "Namespace name");
+      cmd = withNameOption(cmd, 'Namespace name');
       cmd = withPathOption(cmd);
       cmd = withForceOption(cmd);
       cmd.action(async (opts) => {

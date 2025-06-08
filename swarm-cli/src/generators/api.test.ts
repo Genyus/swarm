@@ -1,35 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import {
+  createMockFeatureGen,
+  createMockFS,
+  createMockLogger,
+} from '../../test/utils';
 import type { IFileSystem } from '../types/filesystem';
 import type { IFeatureGenerator } from '../types/generator';
 import type { Logger } from '../types/logger';
 import { ApiGenerator } from './api';
-
-function createMockFS(): IFileSystem {
-  return {
-    readFileSync: vi.fn(() => 'template'),
-    writeFileSync: vi.fn(),
-    existsSync: vi.fn(() => true),
-    copyFileSync: vi.fn(),
-    mkdirSync: vi.fn(),
-    readdirSync: vi.fn(() => []),
-  };
-}
-
-function createMockLogger(): Logger {
-  return {
-    debug: vi.fn(),
-    info: vi.fn(),
-    success: vi.fn(),
-    error: vi.fn(),
-    warn: vi.fn(),
-  };
-}
-
-function createMockFeatureGen(): IFeatureGenerator {
-  return {
-    updateFeatureConfig: vi.fn(() => 'config'),
-  } as any;
-}
 
 describe('ApiGenerator', () => {
   let fs: IFileSystem;
@@ -48,8 +26,13 @@ describe('ApiGenerator', () => {
     fs.existsSync = vi.fn((p) => !p.includes('notfound'));
     fs.readFileSync = vi.fn(() => 'template');
     fs.writeFileSync = vi.fn();
-    await gen.generate('foo', { name: 'api', method: 'GET', route: '/api', force: true });
+    await gen.generate('foo', {
+      name: 'api',
+      method: 'GET',
+      route: '/api',
+      force: true,
+    });
     expect(fs.writeFileSync).toHaveBeenCalled();
     expect(featureGen.updateFeatureConfig).toHaveBeenCalled();
   });
-}); 
+});

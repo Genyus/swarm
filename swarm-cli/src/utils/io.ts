@@ -1,7 +1,7 @@
-import path from "path";
-import { TYPE_DIRECTORIES } from "../types";
-import { IFileSystem } from "../types/filesystem";
-import { toPascalCase } from "./strings";
+import path from 'path';
+import { TYPE_DIRECTORIES } from '../types';
+import { IFileSystem } from '../types/filesystem';
+import { toPascalCase } from './strings';
 
 /**
  * Recursively copies a directory and its contents.
@@ -9,7 +9,11 @@ import { toPascalCase } from "./strings";
  * @param src - The source directory path
  * @param dest - The destination directory path
  */
-export function copyDirectory(fs: IFileSystem, src: string, dest: string): void {
+export function copyDirectory(
+  fs: IFileSystem,
+  src: string,
+  dest: string
+): void {
   if (!fs.existsSync(dest)) {
     fs.mkdirSync(dest, { recursive: true });
   }
@@ -51,7 +55,7 @@ export function featureExists(fs: IFileSystem, featurePath: string): boolean {
  * @returns The absolute path to the config directory
  */
 export function getConfigDir(): string {
-  return path.join(process.cwd(), "config");
+  return path.join(process.cwd(), 'config');
 }
 
 /**
@@ -60,7 +64,7 @@ export function getConfigDir(): string {
  * @returns The absolute path to the feature directory
  */
 export function getFeatureDir(featureName: string): string {
-  return path.join(process.cwd(), "src", "features", featureName);
+  return path.join(process.cwd(), 'src', 'features', featureName);
 }
 
 /**
@@ -69,9 +73,9 @@ export function getFeatureDir(featureName: string): string {
  * @returns The directory path to use in imports
  */
 export function getFeatureImportPath(featurePath: string): string {
-  const segments = featurePath.split("/").filter(Boolean);
+  const segments = featurePath.split('/').filter(Boolean);
   const isTopLevel = segments.length === 1;
-  return `${segments[0]}/${isTopLevel ? "_core" : segments.slice(1).join("/")}`;
+  return `${segments[0]}/${isTopLevel ? '_core' : segments.slice(1).join('/')}`;
 }
 
 /**
@@ -84,13 +88,13 @@ export function getFeatureTargetDir(
   featurePath: string,
   type: string
 ): { targetDir: string; importPath: string } {
-  const segments = featurePath.split("/").filter(Boolean);
+  const segments = featurePath.split('/').filter(Boolean);
   const isTopLevel = segments.length === 1;
   const featureDir = getFeatureDir(featurePath);
-  const baseDir = isTopLevel ? "_core" : "";
+  const baseDir = isTopLevel ? '_core' : '';
   const targetDir = path.join(featureDir, baseDir, TYPE_DIRECTORIES[type]);
   const importPath = `@src/features/${segments[0]}/$${
-    isTopLevel ? "_core" : segments.slice(1).join("/")
+    isTopLevel ? '_core' : segments.slice(1).join('/')
   }/${TYPE_DIRECTORIES[type]}`;
   return { targetDir, importPath };
 }
@@ -101,7 +105,7 @@ export function getFeatureTargetDir(
  * @returns The generated component name
  */
 export function getRouteNameFromPath(routePath: string): string {
-  const lastSegment = routePath.split("/").filter(Boolean).pop() || "index";
-  const cleanSegment = lastSegment.replace(/[:*]/g, "");
+  const lastSegment = routePath.split('/').filter(Boolean).pop() || 'index';
+  const cleanSegment = lastSegment.replace(/[:*]/g, '');
   return `${toPascalCase(cleanSegment)}Page`;
 }

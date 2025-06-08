@@ -1,5 +1,5 @@
-import { IFileSystem } from "./filesystem";
-import { Logger } from "./logger";
+import { IFileSystem } from './filesystem';
+import { Logger } from './logger';
 
 /**
  * Interface for feature generators
@@ -30,6 +30,7 @@ export interface IFeatureGenerator {
   updateFeatureConfig(
     featurePath: string,
     type: string,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     options: Record<string, any>
   ): string;
 }
@@ -37,17 +38,20 @@ export interface IFeatureGenerator {
 /**
  * Interface for Wasp config node generators
  * @interface NodeGenerator
+ * @template TFlags - The type of flags/options for the generator
  * @property {Logger} logger - The logger instance
  * @property {IFileSystem} fs - The file system instance
  * @property {Function} generate - The main entrypoint for CLI integration
  */
-export interface NodeGenerator {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export interface NodeGenerator<TFlags = any> {
   /**
    * Generate a Wasp object
-   * @param {any[]} args - The arguments for the generator
+   * @param {string} featurePath - The feature path
+   * @param {TFlags} flags - The generator flags/options
    * @returns {Promise<void> | void} - The result of the generator
    */
-  generate(...args: any[]): Promise<void> | void;
+  generate(featurePath: string, flags: TFlags): Promise<void> | void;
 
   /**
    * The logger instance

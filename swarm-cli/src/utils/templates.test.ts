@@ -9,4 +9,4 @@ describe('templates utils', () => {
   });
 
   // Add more tests for getFileTemplatePath, getConfigTemplatePath as needed
-}); 
+});

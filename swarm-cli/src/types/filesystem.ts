@@ -1,4 +1,4 @@
-import type { Dirent } from "fs";
+import type { Dirent } from 'fs';
 /**
  * Interface for file system operations
  * @interface IFileSystem
@@ -54,4 +54,3 @@ export interface IFileSystem {
    */
   readdirSync(path: string, options: { withFileTypes: true }): Dirent[];
 }
- 

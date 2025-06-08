@@ -1,19 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { createMockFS } from '../../test/utils';
 import type { IFileSystem } from '../types/filesystem';
 import * as io from './io';
-
-function createMockFS(): IFileSystem {
-  const files: Record<string, string> = {};
-  const dirs: Set<string> = new Set();
-  return {
-    readFileSync: vi.fn((path: string) => files[path] || ''),
-    writeFileSync: vi.fn((path: string, data: string) => { files[path] = data; }),
-    existsSync: vi.fn((path: string) => path in files || dirs.has(path)),
-    copyFileSync: vi.fn((src: string, dest: string) => { files[dest] = files[src]; }),
-    mkdirSync: vi.fn((path: string) => { dirs.add(path); }),
-    readdirSync: vi.fn((path: string, options: { withFileTypes: true }) => []),
-  };
-}
 
 describe('io utils', () => {
   let fs: IFileSystem;
@@ -63,4 +51,4 @@ describe('io utils', () => {
     expect(io.getRouteNameFromPath('/foo-bar')).toBe('FooBarPage');
     expect(io.getRouteNameFromPath('/')).toBe('IndexPage');
   });
-}); 
+});

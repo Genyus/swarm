@@ -1,12 +1,11 @@
-
 // Utility functions for string manipulation and validation
 
 /**
  * Maps singular operation types to their plural directory names.
  */
 export const OPERATION_DIRECTORIES: Record<string, string> = {
-  query: "queries",
-  action: "actions",
+  query: 'queries',
+  action: 'actions',
 };
 
 /**
@@ -15,10 +14,10 @@ export const OPERATION_DIRECTORIES: Record<string, string> = {
  * @returns The formatted display name (e.g., 'Contact', 'About Us')
  */
 export function formatDisplayName(componentName: string): string {
-  const nameWithoutSuffix = componentName.replace(/Page$/, "");
+  const nameWithoutSuffix = componentName.replace(/Page$/, '');
   return nameWithoutSuffix
-    .replace(/([a-z])([A-Z])/g, "$1 $2")
-    .replace(/([A-Z])([A-Z][a-z])/g, "$1 $2");
+    .replace(/([a-z])([A-Z])/g, '$1 $2')
+    .replace(/([A-Z])([A-Z][a-z])/g, '$1 $2');
 }
 
 /**
@@ -27,10 +26,10 @@ export function formatDisplayName(componentName: string): string {
  * @returns The pluralized word
  */
 export function getPlural(name: string): string {
-  if (name.endsWith("y")) {
+  if (name.endsWith('y')) {
     return `${name.slice(0, -1)}ies`;
   }
-  if (name.endsWith("s")) {
+  if (name.endsWith('s')) {
     return `${name}es`;
   }
   return `${name}s`;
@@ -54,10 +53,10 @@ export function parseFlags(args: string[]): Record<string, string | boolean> {
   const flags: Record<string, string | boolean> = {};
   for (let i = 0; i < args.length; i++) {
     const arg = args[i];
-    if (arg.startsWith("--")) {
+    if (arg.startsWith('--')) {
       const flag = arg.slice(2);
       const value = args[i + 1];
-      if (value && !value.startsWith("--")) {
+      if (value && !value.startsWith('--')) {
         flags[flag] = value;
         i++;
       } else {
@@ -85,8 +84,8 @@ export function toCamelCase(str: string): string {
  */
 export function toKebabCase(str: string): string {
   return str
-    .replace(/([a-z])([A-Z])/g, "$1-$2")
-    .replace(/[\s_]+/g, "-")
+    .replace(/([a-z])([A-Z])/g, '$1-$2')
+    .replace(/[\s_]+/g, '-')
     .toLowerCase();
 }
 
@@ -99,7 +98,7 @@ export function toPascalCase(str: string): string {
   return str
     .split(/[-_\s]+/)
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join("");
+    .join('');
 }
 
 /**
@@ -122,9 +121,9 @@ export function validateFeatureName(name: string): void {
  * @throws If any path segment is invalid
  */
 export function validateFeaturePath(featurePath: string): string[] {
-  const segments = featurePath.split("/").filter(Boolean);
+  const segments = featurePath.split('/').filter(Boolean);
   if (segments.length === 0) {
-    throw new Error("Feature path cannot be empty");
+    throw new Error('Feature path cannot be empty');
   }
   segments.forEach((segment) => {
     validateFeatureName(segment);
@@ -139,20 +138,20 @@ export function validateFeaturePath(featurePath: string): string[] {
  */
 export function validateFileType(type: string): void {
   const validTypes = [
-    "component",
-    "hook",
-    "layout",
-    "route",
-    "util",
-    "action",
-    "endpoint",
-    "middleware",
-    "query",
-    "type",
+    'component',
+    'hook',
+    'layout',
+    'route',
+    'util',
+    'action',
+    'endpoint',
+    'middleware',
+    'query',
+    'type',
   ];
   if (!validTypes.includes(type)) {
     throw new Error(
-      `Invalid file type. Must be one of: ${validTypes.join(", ")}`
+      `Invalid file type. Must be one of: ${validTypes.join(', ')}`
     );
   }
 }
@@ -163,12 +162,12 @@ export function validateFileType(type: string): void {
  * @throws If the path is invalid
  */
 export function validateRoutePath(path: string): void {
-  if (!path.startsWith("/")) {
-    throw new Error("Route path must start with a forward slash");
+  if (!path.startsWith('/')) {
+    throw new Error('Route path must start with a forward slash');
   }
   const invalidPatterns = /[^a-zA-Z0-9\-_/:.]/g;
   if (invalidPatterns.test(path)) {
-    throw new Error("Route path contains invalid characters");
+    throw new Error('Route path contains invalid characters');
   }
 }
 

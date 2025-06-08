@@ -1,4 +1,4 @@
-import { Command } from "commander";
+import { Command } from 'commander';
 
 /**
  * Adds the --feature <feature> option (required) to a Commander command.
@@ -6,7 +6,7 @@ import { Command } from "commander";
  * @returns The command with the option added
  */
 export function withFeatureOption(cmd: Command) {
-  return cmd.requiredOption("--feature <feature>", "Feature name (kebab-case)");
+  return cmd.requiredOption('--feature <feature>', 'Feature name (kebab-case)');
 }
 
 /**
@@ -15,7 +15,7 @@ export function withFeatureOption(cmd: Command) {
  * @returns The command with the option added
  */
 export function withForceOption(cmd: Command) {
-  return cmd.option("--force", "Overwrite existing files");
+  return cmd.option('--force', 'Overwrite existing files');
 }
 
 /**
@@ -24,7 +24,7 @@ export function withForceOption(cmd: Command) {
  * @returns The command with the option added
  */
 export function withEntitiesOption(cmd: Command) {
-  return cmd.option("--entities <entities>", "Comma-separated entity names");
+  return cmd.option('--entities <entities>', 'Comma-separated entity names');
 }
 
 /**
@@ -33,7 +33,7 @@ export function withEntitiesOption(cmd: Command) {
  * @returns The command with the option added
  */
 export function withAuthOption(cmd: Command) {
-  return cmd.option("--auth", "Require authentication");
+  return cmd.option('--auth', 'Require authentication');
 }
 
 /**
@@ -43,7 +43,7 @@ export function withAuthOption(cmd: Command) {
  * @returns The command with the option added
  */
 export function withNameOption(cmd: Command, description?: string) {
-  return cmd.requiredOption("--name <name>", description || "Name");
+  return cmd.requiredOption('--name <name>', description || 'Name');
 }
 
 /**
@@ -53,5 +53,5 @@ export function withNameOption(cmd: Command, description?: string) {
  * @returns The command with the option added
  */
 export function withPathOption(cmd: Command, description?: string) {
-  return cmd.requiredOption("--path <path>", description || "Path");
+  return cmd.requiredOption('--path <path>', description || 'Path');
 }

@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { main } from "./cli/index";
+import { main } from './cli/index';
 import { handleFatalError } from './utils/errors';
 
 main().catch((err) => {

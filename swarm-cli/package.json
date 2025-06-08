@@ -18,7 +18,12 @@
     "build:watch": "tsc --watch",
     "test": "vitest run",
     "test:watch": "vitest",
-    "prepublishOnly": "npm run build && npm test",
+    "lint": "eslint src --ext .ts",
+    "lint:fix": "eslint src --ext .ts --fix",
+    "format": "prettier --write src",
+    "format:check": "prettier --check src",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "pnpm run typecheck && pnpm run lint && pnpm run build && pnpm test",
     "release": "semantic-release"
   },
   "keywords": [
@@ -48,9 +53,16 @@
     "node": ">=18.0.0"
   },
   "devDependencies": {
+    "@eslint/js": "^9.28.0",
     "@prisma/client": "5.19.1",
     "@types/node": "^22.15.29",
     "@types/signale": "^1.4.7",
+    "@typescript-eslint/eslint-plugin": "^8.33.1",
+    "@typescript-eslint/parser": "^8.33.1",
+    "eslint": "^9.28.0",
+    "eslint-config-prettier": "^10.1.5",
+    "eslint-plugin-prettier": "^5.4.1",
+    "prettier": "^3.5.3",
     "semantic-release": "^24.2.5",
     "tsup": "^8.5.0",
     "typescript": "^5.0.0",

@@ -24,7 +24,12 @@ export function success(message: string) {
   logger.success(message);
 }
 
-export function handleFatalError(message: string, err?: Error, code = 1, debug?: boolean) {
+export function handleFatalError(
+  message: string,
+  err?: Error,
+  code = 1,
+  debug?: boolean
+) {
   error(message, err, debug);
   process.exit(code);
-} 
+}

@@ -1,4 +1,6 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient } from '@prisma/client';
+import { DMMF } from '@prisma/client/runtime/library';
+import type { EntityMetadata, RuntimeDataModel } from '../types/prisma';
 
 /**
  * Maps Prisma types to TypeScript types.
@@ -7,15 +9,15 @@ import { PrismaClient } from "@prisma/client";
  */
 export function getPrismaToTsType(type: string): string {
   const typeMap: Record<string, string> = {
-    String: "string",
-    Int: "number",
-    Float: "number",
-    Boolean: "boolean",
-    DateTime: "Date",
-    Json: "Prisma.JsonValue",
-    BigInt: "bigint",
-    Decimal: "Prisma.Decimal",
-    Bytes: "Buffer",
+    String: 'string',
+    Int: 'number',
+    Float: 'number',
+    Boolean: 'boolean',
+    DateTime: 'Date',
+    Json: 'Prisma.JsonValue',
+    BigInt: 'bigint',
+    Decimal: 'Prisma.Decimal',
+    Bytes: 'Buffer',
   };
   return typeMap[type] || type;
 }
@@ -26,19 +28,21 @@ export function getPrismaToTsType(type: string): string {
  * @returns The model metadata
  * @throws If the model is not found
  */
-export async function getEntityMetadata(modelName: string): Promise<any> {
+export async function getEntityMetadata(
+  modelName: string
+): Promise<EntityMetadata> {
   const prisma = new PrismaClient();
-  // @ts-ignore: _originalClient is not officially typed
-  const models = (prisma as any)._originalClient._runtimeDataModel.models;
+  const models = (prisma._originalClient._runtimeDataModel as RuntimeDataModel)
+    .models;
   const model = models[modelName];
   if (!model) throw new Error(`Model ${modelName} not found`);
   return {
     fields: Object.entries(model.fields).map(
-      ([name, field]: [string, any]) => ({
+      ([, field]: [string, DMMF.Field]) => ({
         name: field.name,
         type: field.type,
         tsType: getPrismaToTsType(field.type),
-        isRequired: !field.isNullable,
+        isRequired: field.isRequired,
         isId: field.isId || false,
         isUnique: field.isUnique || false,
         hasDefaultValue: field.hasDefaultValue || false,
@@ -59,10 +63,13 @@ export async function getEntityMetadata(modelName: string): Promise<any> {
  * @returns The ID field metadata
  * @throws If no ID field is found
  */
-export function getIdField(model: any): any {
-  const idField = model.fields.find((f: any) => f.isId);
+export function getIdField(model: EntityMetadata): {
+  name: string;
+  tsType: string;
+} {
+  const idField = model.fields.find((f) => f.isId);
   if (!idField) throw new Error(`No ID field found for model ${model.name}`);
-  return idField;
+  return { name: idField.name, tsType: idField.tsType };
 }
 
 /**
@@ -70,17 +77,17 @@ export function getIdField(model: any): any {
  * @param model - The model metadata
  * @returns The fields to omit as a union type
  */
-export function getOmitFields(model: any): string {
+export function getOmitFields(model: EntityMetadata): string {
   return model.fields
     .filter(
-      (f: any) =>
+      (f) =>
         f.isId ||
         f.isGenerated ||
         f.isUpdatedAt ||
-        (f.type === "DateTime" && f.hasDefaultValue)
+        (f.type === 'DateTime' && f.hasDefaultValue)
     )
-    .map((f: any) => `"${f.name}"`)
-    .join(" | ");
+    .map((f) => `"${f.name}"`)
+    .join(' | ');
 }
 
 /**
@@ -88,10 +95,8 @@ export function getOmitFields(model: any): string {
  * @param model - The model metadata
  * @returns Array of JSON field names
  */
-export function getJsonFields(model: any): string[] {
-  return model.fields
-    .filter((f: any) => f.type === "Json")
-    .map((f: any) => f.name);
+export function getJsonFields(model: EntityMetadata): string[] {
+  return model.fields.filter((f) => f.type === 'Json').map((f) => f.name);
 }
 
 /**
@@ -100,13 +105,13 @@ export function getJsonFields(model: any): string[] {
  * @returns The generated code for handling JSON fields
  */
 export function generateJsonTypeHandling(jsonFields: string[]): string {
-  if (jsonFields.length === 0) return "";
+  if (jsonFields.length === 0) return '';
   const assignments = jsonFields
     .map(
       (field) =>
         `        ${field}: (data.${field} as Prisma.JsonValue) || Prisma.JsonNull`
     )
-    .join(",\n");
+    .join(',\n');
   return `,\n${assignments}`;
 }
 
@@ -115,8 +120,6 @@ export function generateJsonTypeHandling(jsonFields: string[]): string {
  * @param model - The model metadata
  * @returns True if the model needs Prisma import
  */
-export function needsPrismaImport(model: any): boolean {
-  return model.fields.some(
-    (f: any) => f.type === "Json" || f.type === "Decimal"
-  );
+export function needsPrismaImport(model: EntityMetadata): boolean {
+  return model.fields.some((f) => f.type === 'Json' || f.type === 'Decimal');
 }

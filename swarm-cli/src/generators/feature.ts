@@ -1,15 +1,18 @@
-import path from "path";
-import { OPERATION_TYPES, TYPE_DIRECTORIES } from "../types";
-import { IFileSystem } from "../types/filesystem";
-import { IFeatureGenerator } from "../types/generator";
-import { Logger } from "../types/logger";
-import { handleFatalError } from "../utils/errors";
-import { copyDirectory, getConfigDir, getFeatureImportPath } from "../utils/io";
-import { getPlural, validateFeaturePath } from "../utils/strings";
-import { getConfigTemplatePath, processTemplate } from "../utils/templates";
+import path from 'path';
+import { OPERATION_TYPES, TYPE_DIRECTORIES } from '../types';
+import { IFileSystem } from '../types/filesystem';
+import { IFeatureGenerator } from '../types/generator';
+import { Logger } from '../types/logger';
+import { handleFatalError } from '../utils/errors';
+import { copyDirectory, getConfigDir, getFeatureImportPath } from '../utils/io';
+import { getPlural, validateFeaturePath } from '../utils/strings';
+import { getConfigTemplatePath, processTemplate } from '../utils/templates';
 
 export class FeatureGenerator implements IFeatureGenerator {
-  constructor(private logger: Logger, private fs: IFileSystem) {}
+  constructor(
+    private logger: Logger,
+    private fs: IFileSystem
+  ) {}
 
   /**
    * Generates a route definition for the feature configuration.
@@ -22,8 +25,8 @@ export class FeatureGenerator implements IFeatureGenerator {
     auth = false
   ): string {
     const featureDir = getFeatureImportPath(featurePath);
-    const templatePath = getConfigTemplatePath("route");
-    const template = this.fs.readFileSync(templatePath, "utf8");
+    const templatePath = getConfigTemplatePath('route');
+    const template = this.fs.readFileSync(templatePath, 'utf8');
     return processTemplate(template, {
       routeName,
       routePath,
@@ -40,20 +43,20 @@ export class FeatureGenerator implements IFeatureGenerator {
     operationName: string,
     featurePath: string,
     entities: string[],
-    operationType: "query" | "action"
+    operationType: 'query' | 'action'
   ): string {
     if (!OPERATION_TYPES.includes(operationType)) {
       handleFatalError(`Unknown operation type: ${operationType}`);
     }
     const directory = TYPE_DIRECTORIES[operationType];
     const featureDir = getFeatureImportPath(featurePath);
-    const templatePath = getConfigTemplatePath("operation");
-    const template = this.fs.readFileSync(templatePath, "utf8");
+    const templatePath = getConfigTemplatePath('operation');
+    const template = this.fs.readFileSync(templatePath, 'utf8');
     return processTemplate(template, {
       operationName,
       featureDir,
       directory,
-      entities: entities.map((e) => `"${e}"`).join(", "),
+      entities: entities.map((e) => `"${e}"`).join(', '),
     });
   }
 
@@ -71,8 +74,8 @@ export class FeatureGenerator implements IFeatureGenerator {
     importPath: string,
     queueName: string
   ): string {
-    const templatePath = getConfigTemplatePath("job");
-    const template = this.fs.readFileSync(templatePath, "utf8");
+    const templatePath = getConfigTemplatePath('job');
+    const template = this.fs.readFileSync(templatePath, 'utf8');
     return processTemplate(template, {
       jobName,
       jobWorkerName,
@@ -99,12 +102,12 @@ export class FeatureGenerator implements IFeatureGenerator {
     auth = false
   ): string {
     const featureDir = getFeatureImportPath(featurePath);
-    const templatePath = getConfigTemplatePath("api");
-    const template = this.fs.readFileSync(templatePath, "utf8");
+    const templatePath = getConfigTemplatePath('api');
+    const template = this.fs.readFileSync(templatePath, 'utf8');
     return processTemplate(template, {
       apiName,
       featureDir,
-      entities: entities.map((e) => `"${e}"`).join(", "),
+      entities: entities.map((e) => `"${e}"`).join(', '),
       method,
       route,
       apiFile,
@@ -121,8 +124,8 @@ export class FeatureGenerator implements IFeatureGenerator {
     middlewareImportPath: string,
     pathValue: string
   ): string {
-    const templatePath = getConfigTemplatePath("apiNamespace");
-    const template = this.fs.readFileSync(templatePath, "utf8");
+    const templatePath = getConfigTemplatePath('apiNamespace');
+    const template = this.fs.readFileSync(templatePath, 'utf8');
     return processTemplate(template, {
       namespaceName,
       middlewareFnName,
@@ -141,30 +144,31 @@ export class FeatureGenerator implements IFeatureGenerator {
   public updateFeatureConfig(
     featurePath: string,
     type: string,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     options: Record<string, any> = {}
   ): string {
-    const topLevelFeature = featurePath.split("/")[0];
+    const topLevelFeature = featurePath.split('/')[0];
     const configDir = getConfigDir();
     const configPath = path.join(configDir, `${topLevelFeature}.wasp.ts`);
     if (!this.fs.existsSync(configPath)) {
       const templatePath = path.join(
         __dirname,
-        "..",
-        "templates",
-        "config",
-        "feature.wasp.ts"
+        '..',
+        'templates',
+        'config',
+        'feature.wasp.ts'
       );
       if (!this.fs.existsSync(templatePath)) {
         handleFatalError(`Feature config template not found: ${templatePath}`);
       }
       this.fs.copyFileSync(templatePath, configPath);
     }
-    let content = this.fs.readFileSync(configPath, "utf8");
-    let configSection: string = "";
-    let definition: string = "";
+    let content = this.fs.readFileSync(configPath, 'utf8');
+    let configSection: string = '';
+    let definition: string = '';
     switch (type) {
-      case "route": {
-        configSection = "routes";
+      case 'route': {
+        configSection = 'routes';
         const {
           path: routePath,
           componentName,
@@ -180,8 +184,8 @@ export class FeatureGenerator implements IFeatureGenerator {
         );
         break;
       }
-      case "action":
-      case "query": {
+      case 'action':
+      case 'query': {
         configSection = getPlural(type);
         const { operationName, entities = [] } = options;
         definition = this.getOperationDefinition(
@@ -192,18 +196,18 @@ export class FeatureGenerator implements IFeatureGenerator {
         );
         break;
       }
-      case "job": {
-        configSection = "jobs";
+      case 'job': {
+        configSection = 'jobs';
         const {
           jobName,
           jobWorkerName,
           jobWorkerFile,
-          entitiesList = "",
-          schedule = "",
-          cron = "",
-          args = "",
-          importPath = "",
-          queueName = "",
+          entitiesList = '',
+          schedule = '',
+          cron = '',
+          args = '',
+          importPath = '',
+          queueName = '',
         } = options;
         definition = this.getJobDefinition(
           jobName,
@@ -218,8 +222,8 @@ export class FeatureGenerator implements IFeatureGenerator {
         );
         break;
       }
-      case "api": {
-        configSection = "apis";
+      case 'api': {
+        configSection = 'apis';
         const {
           apiName,
           entities = [],
@@ -239,8 +243,8 @@ export class FeatureGenerator implements IFeatureGenerator {
         );
         break;
       }
-      case "apiNamespace": {
-        configSection = "apiNamespaces";
+      case 'apiNamespace': {
+        configSection = 'apiNamespaces';
         const {
           namespaceName,
           middlewareFnName,
@@ -255,16 +259,16 @@ export class FeatureGenerator implements IFeatureGenerator {
         );
         break;
       }
-      case "crud": {
-        configSection = "cruds";
+      case 'crud': {
+        configSection = 'cruds';
         const { crudName, dataType, operations } = options;
-        const templatePath = getConfigTemplatePath("crud");
-        const template = this.fs.readFileSync(templatePath, "utf8");
+        const templatePath = getConfigTemplatePath('crud');
+        const template = this.fs.readFileSync(templatePath, 'utf8');
         const operationsStr = JSON.stringify(operations, null, 2)
-          .replace(/"([^"]+)":/g, "$1:")
-          .split("\n")
-          .map((line, index) => (index === 0 ? line : "        " + line))
-          .join("\n");
+          .replace(/"([^"]+)":/g, '$1:')
+          .split('\n')
+          .map((line, index) => (index === 0 ? line : '        ' + line))
+          .join('\n');
         definition = processTemplate(template, {
           crudName,
           dataType,
@@ -276,8 +280,8 @@ export class FeatureGenerator implements IFeatureGenerator {
         handleFatalError(`Unknown configuration type: ${type}`);
     }
     const configBlock = `\n    ${configSection}: {${definition},\n    },`;
-    if (content.includes("return {};")) {
-      content = content.replace("return {};", `return {${configBlock}\n  };`);
+    if (content.includes('return {};')) {
+      content = content.replace('return {};', `return {${configBlock}\n  };`);
     } else if (!content.includes(`${configSection}:`)) {
       content = content.replace(/return\s*{/, `return {${configBlock}`);
     } else {
@@ -295,14 +299,20 @@ export class FeatureGenerator implements IFeatureGenerator {
    * @param featureName - The name of the feature
    */
   public generateFeatureConfig(featureName: string): void {
-    const configDir = "config";
+    const configDir = 'config';
     if (!this.fs.existsSync(configDir)) {
-      this.fs.writeFileSync(configDir, ""); // placeholder for ensureDirectoryExists
+      this.fs.writeFileSync(configDir, ''); // placeholder for ensureDirectoryExists
     }
     const configPath = `${configDir}/${featureName}.wasp.ts`;
-    const templatePath = path.join(__dirname, "..", "templates", "config", "feature.wasp.ts");
+    const templatePath = path.join(
+      __dirname,
+      '..',
+      'templates',
+      'config',
+      'feature.wasp.ts'
+    );
     if (!this.fs.existsSync(templatePath)) {
-      handleFatalError("Feature config template not found");
+      handleFatalError('Feature config template not found');
     }
     this.fs.copyFileSync(templatePath, configPath);
     this.logger.success(`Generated feature config: ${configPath}`);
@@ -315,16 +325,22 @@ export class FeatureGenerator implements IFeatureGenerator {
   public generateFeature(featurePath: string): void {
     const segments = validateFeaturePath(featurePath);
     if (segments.length > 1) {
-      const parentPath = segments.slice(0, -1).join("/");
+      const parentPath = segments.slice(0, -1).join('/');
       // featureExists logic (simplified)
       if (!this.fs.existsSync(parentPath)) {
         handleFatalError(
           `Parent feature '${parentPath}' does not exist. Please create it first.`
         );
-        handleFatalError("Parent feature does not exist");
+        handleFatalError('Parent feature does not exist');
       }
     }
-    const templateDir = path.join(__dirname, "..", "templates", "feature", segments.length === 1 ? "" : "_core");
+    const templateDir = path.join(
+      __dirname,
+      '..',
+      'templates',
+      'feature',
+      segments.length === 1 ? '' : '_core'
+    );
     const featureDir = `features/${featurePath}`;
     copyDirectory(this.fs, templateDir, featureDir);
     this.logger.debug(`Copied template from ${templateDir} to ${featureDir}`);
@@ -333,7 +349,7 @@ export class FeatureGenerator implements IFeatureGenerator {
     }
     this.logger.success(
       `Generated ${
-        segments.length === 1 ? "top-level " : "sub-"
+        segments.length === 1 ? 'top-level ' : 'sub-'
       }feature: ${featurePath}`
     );
   }

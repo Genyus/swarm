@@ -1,16 +1,16 @@
-import { Command } from "commander";
-import { JobGenerator } from "../../generators/job";
-import { NodeGeneratorCommand } from "../../types";
-import { IFileSystem } from "../../types/filesystem";
-import { IFeatureGenerator, NodeGenerator } from "../../types/generator";
-import { Logger } from "../../types/logger";
-import { validateFeaturePath } from "../../utils/strings";
+import { Command } from 'commander';
+import { JobGenerator } from '../../generators/job';
+import { NodeGeneratorCommand } from '../../types';
+import { IFileSystem } from '../../types/filesystem';
+import { IFeatureGenerator, NodeGenerator } from '../../types/generator';
+import { Logger } from '../../types/logger';
+import { validateFeaturePath } from '../../utils/strings';
 import {
   withEntitiesOption,
   withFeatureOption,
   withForceOption,
   withNameOption,
-} from "../options";
+} from '../options';
 
 /**
  * Create a job command
@@ -25,17 +25,17 @@ export function createJobCommand(
   featureGenerator: IFeatureGenerator
 ): NodeGeneratorCommand {
   return {
-    name: "job",
-    description: "Generate a job worker",
+    name: 'job',
+    description: 'Generate a job worker',
     generator: new JobGenerator(logger, fs, featureGenerator),
     register(program: Command, generator: NodeGenerator) {
       let cmd = program
-        .command("job")
-        .option("--schedule <schedule>", "Cron schedule")
-        .option("--scheduleArgs <scheduleArgs>", "Schedule args (JSON string)")
-        .description("Generate a job worker");
+        .command('job')
+        .option('--schedule <schedule>', 'Cron schedule')
+        .option('--scheduleArgs <scheduleArgs>', 'Schedule args (JSON string)')
+        .description('Generate a job worker');
       cmd = withFeatureOption(cmd);
-      cmd = withNameOption(cmd, "Job name");
+      cmd = withNameOption(cmd, 'Job name');
       cmd = withEntitiesOption(cmd);
       cmd = withForceOption(cmd);
       cmd.action(async (opts) => {
@@ -44,7 +44,7 @@ export function createJobCommand(
           name: opts.name,
           entities: opts.entities
             ? opts.entities
-                .split(",")
+                .split(',')
                 .map((e: string) => e.trim())
                 .filter(Boolean)
             : undefined,

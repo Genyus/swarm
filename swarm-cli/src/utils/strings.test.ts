@@ -16,4 +16,4 @@ describe('strings utils', () => {
   });
 
   // Add more tests for other string utilities as needed
-}); 
+});

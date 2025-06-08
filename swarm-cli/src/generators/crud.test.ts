@@ -1,35 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import {
+  createMockFeatureGen,
+  createMockFS,
+  createMockLogger,
+} from '../../test/utils';
 import type { IFileSystem } from '../types/filesystem';
 import type { IFeatureGenerator } from '../types/generator';
 import type { Logger } from '../types/logger';
 import { CrudGenerator } from './crud';
-
-function createMockFS(): IFileSystem {
-  return {
-    readFileSync: vi.fn(() => 'template'),
-    writeFileSync: vi.fn(),
-    existsSync: vi.fn(() => true),
-    copyFileSync: vi.fn(),
-    mkdirSync: vi.fn(),
-    readdirSync: vi.fn(() => []),
-  };
-}
-
-function createMockLogger(): Logger {
-  return {
-    debug: vi.fn(),
-    info: vi.fn(),
-    success: vi.fn(),
-    error: vi.fn(),
-    warn: vi.fn(),
-  };
-}
-
-function createMockFeatureGen(): IFeatureGenerator {
-  return {
-    updateFeatureConfig: vi.fn(() => 'config'),
-  } as any;
-}
 
 describe('CrudGenerator', () => {
   let fs: IFileSystem;
@@ -52,4 +30,4 @@ describe('CrudGenerator', () => {
     expect(fs.writeFileSync).toHaveBeenCalled();
     expect(featureGen.updateFeatureConfig).toHaveBeenCalled();
   });
-}); 
+});

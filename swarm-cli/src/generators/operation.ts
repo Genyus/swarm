@@ -1,64 +1,52 @@
-import { OPERATIONS } from "../types";
-import { IFileSystem } from "../types/filesystem";
-import { IFeatureGenerator, NodeGenerator } from "../types/generator";
-import { Logger } from "../types/logger";
-import { handleFatalError } from "../utils/errors";
+import { OPERATIONS, OperationConfigEntry, OperationFlags } from '../types';
+import { IFileSystem } from '../types/filesystem';
+import { IFeatureGenerator, NodeGenerator } from '../types/generator';
+import { Logger } from '../types/logger';
+import { EntityMetadata } from '../types/prisma';
+import { handleFatalError } from '../utils/errors';
 import {
-    copyDirectory,
-    ensureDirectoryExists,
-    getConfigDir,
-    getFeatureTargetDir,
-} from "../utils/io";
+  copyDirectory,
+  ensureDirectoryExists,
+  getConfigDir,
+  getFeatureTargetDir,
+} from '../utils/io';
 import {
-    generateJsonTypeHandling,
-    getEntityMetadata,
-    getIdField,
-    getJsonFields,
-    getOmitFields,
-    needsPrismaImport,
-} from "../utils/prisma";
-import { getPlural } from "../utils/strings";
-import { getFileTemplatePath, processTemplate } from "../utils/templates";
+  generateJsonTypeHandling,
+  getEntityMetadata,
+  getIdField,
+  getJsonFields,
+  getOmitFields,
+  needsPrismaImport,
+} from '../utils/prisma';
+import { getPlural } from '../utils/strings';
+import { getFileTemplatePath, processTemplate } from '../utils/templates';
 
-export class OperationGenerator implements NodeGenerator {
+export class OperationGenerator implements NodeGenerator<OperationFlags> {
   constructor(
     public logger: Logger,
     public fs: IFileSystem,
     private featureGenerator: IFeatureGenerator
   ) {}
 
-  async generate(
-    featurePath: string,
-    flags: {
-      feature: string;
-      dataType: string;
-      operation: string;
-      entities?: string;
-      force?: boolean;
-      auth?: boolean;
-    }
-  ): Promise<void> {
+  async generate(featurePath: string, flags: OperationFlags): Promise<void> {
     try {
-      const featurePath = flags.feature;
       const dataType = flags.dataType;
       const operationType = flags.operation;
       const entities = flags.entities
-        ? flags.entities
-            .split(",")
-            .map((e) => e.trim())
-            .filter(Boolean)
+        ? Array.isArray(flags.entities)
+          ? flags.entities
+          : flags.entities
+              .split(',')
+              .map((e: string) => e.trim())
+              .filter(Boolean)
         : [];
-      const {
-        operationCode,
-        configEntry,
-        operationType: opType,
-        operationName,
-      } = await this.generateOperationComponents(
-        dataType,
-        operationType,
-        flags.auth,
-        entities
-      );
+      const { operationCode, configEntry, operationName } =
+        await this.generateOperationComponents(
+          dataType,
+          operationType,
+          flags.auth,
+          entities
+        );
       const { targetDir: operationsDir, importPath } = getFeatureTargetDir(
         featurePath,
         operationType
@@ -68,35 +56,35 @@ export class OperationGenerator implements NodeGenerator {
       const fileExists = this.fs.existsSync(operationFile);
       if (fileExists && !flags.force) {
         this.logger.info(`Operation file already exists: ${operationFile}`);
-        this.logger.info("Use --force to overwrite");
+        this.logger.info('Use --force to overwrite');
       } else {
         this.fs.writeFileSync(operationFile, operationCode);
         this.logger.success(
           `${
-            fileExists ? "Overwrote" : "Generated"
+            fileExists ? 'Overwrote' : 'Generated'
           } operation file: ${operationFile}`
         );
       }
       const configPath = `${getConfigDir()}/${
-        featurePath.split("/")[0]
+        featurePath.split('/')[0]
       }.wasp.ts`;
       if (!this.fs.existsSync(configPath)) {
         this.logger.error(`Feature config file not found: ${configPath}`);
         return;
       }
-      let configContent = this.fs.readFileSync(configPath, "utf8");
+      let configContent = this.fs.readFileSync(configPath, 'utf8');
       const configExists = configContent.includes(`${operationName}: {`);
       if (configExists && !flags.force) {
         this.logger.info(`Operation config already exists in ${configPath}`);
-        this.logger.info("Use --force to overwrite");
+        this.logger.info('Use --force to overwrite');
       } else if (!configExists || flags.force) {
         if (configExists && flags.force) {
           const regex = new RegExp(
             `\\s*${operationName}:\\s*{[^}]*}\\s*[,]?[^}]*}[,]?(?:\\r?\\n)`,
-            "g"
+            'g'
           );
-          configContent = configContent.replace(regex, "\n");
-          configContent = configContent.replace(/\n\s*\n\s*\n/g, "\n\n");
+          configContent = configContent.replace(regex, '\n');
+          configContent = configContent.replace(/\n\s*\n\s*\n/g, '\n\n');
           this.fs.writeFileSync(configPath, configContent);
         }
         this.featureGenerator.updateFeatureConfig(featurePath, operationType, {
@@ -106,13 +94,14 @@ export class OperationGenerator implements NodeGenerator {
         });
         this.logger.success(
           `${
-            configExists ? "Updated" : "Added"
+            configExists ? 'Updated' : 'Added'
           } ${operationType} config in: ${configPath}`
         );
       }
       this.logger.info(`\nOperation ${operationName} processing complete.`);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
-      this.logger.error("Failed to generate operation: " + error.stack);
+      this.logger.error('Failed to generate operation: ' + error.stack);
     }
   }
 
@@ -145,7 +134,7 @@ export class OperationGenerator implements NodeGenerator {
         return `GetAll${getPlural(modelName)}`;
       default:
         handleFatalError(`Unknown operation type: ${operation}`);
-        return "";
+        return '';
     }
   }
 
@@ -153,7 +142,7 @@ export class OperationGenerator implements NodeGenerator {
    * Generates import statements for an operation.
    */
   generateImports(
-    model: any,
+    model: EntityMetadata,
     modelName: string,
     operation: string,
     isCrudOverride = false,
@@ -177,23 +166,23 @@ export class OperationGenerator implements NodeGenerator {
         )} } from "wasp/server/operations";`
       );
     }
-    return imports.join("\n");
+    return imports.join('\n');
   }
 
   /**
    * Gets the operation type ("query" or "action") for a given operation.
    */
-  getOperationType(operation: string): "query" | "action" {
+  getOperationType(operation: string): 'query' | 'action' {
     return operation === OPERATIONS.GETALL || operation === OPERATIONS.GET
-      ? "query"
-      : "action";
+      ? 'query'
+      : 'action';
   }
 
   /**
    * Generates the code for an operation.
    */
   generateOperationCode(
-    model: any,
+    model: EntityMetadata,
     operation: string,
     auth = false,
     isCrudOverride = false,
@@ -201,7 +190,7 @@ export class OperationGenerator implements NodeGenerator {
   ): string {
     const operationType = this.getOperationType(operation);
     const templatePath = getFileTemplatePath(operationType, operation);
-    const template = this.fs.readFileSync(templatePath, "utf8");
+    const template = this.fs.readFileSync(templatePath, 'utf8');
     const idField = getIdField(model);
     const omitFields = getOmitFields(model);
     const jsonFields = getJsonFields(model);
@@ -215,48 +204,48 @@ export class OperationGenerator implements NodeGenerator {
       isCrudOverride,
       crudName
     );
-    let typeParams = "";
-    if (operation === "create") {
+    let typeParams = '';
+    if (operation === 'create') {
       typeParams = `<Omit<${model.name}, ${omitFields}>, ${model.name}>`;
-    } else if (operation === "update") {
+    } else if (operation === 'update') {
       typeParams = `<{ ${idField.name}: ${idField.tsType} } & Partial<Omit<${model.name}, ${omitFields}>>, ${model.name}>`;
-    } else if (operation === "delete") {
+    } else if (operation === 'delete') {
       typeParams = `<{ ${idField.name}: ${idField.tsType} }, void>`;
-    } else if (operation === "get") {
+    } else if (operation === 'get') {
       typeParams = `<{ ${idField.name}: ${idField.tsType} }>`;
-    } else if (operation === "getAll") {
+    } else if (operation === 'getAll') {
       typeParams = `<void>`;
     }
-    let TypeAnnotation = "";
-    let SatisfiesType = "";
+    let TypeAnnotation = '';
+    let SatisfiesType = '';
     if (isCrudOverride && crudName) {
       const opCap = operation.charAt(0).toUpperCase() + operation.slice(1);
-      if (operationType === "action") {
+      if (operationType === 'action') {
         TypeAnnotation = `: ${crudName}.${opCap}Action${typeParams}`;
       } else {
-        TypeAnnotation = "";
+        TypeAnnotation = '';
       }
-      if (operationType === "query") {
+      if (operationType === 'query') {
         SatisfiesType = `satisfies ${crudName}.${opCap}Query${typeParams}`;
       } else {
-        SatisfiesType = "";
+        SatisfiesType = '';
       }
     } else {
-      if (operationType === "action") {
+      if (operationType === 'action') {
         TypeAnnotation = `: ${this.getOperationTypeName(
           operation,
           model.name
         )}${typeParams}`;
       } else {
-        TypeAnnotation = "";
+        TypeAnnotation = '';
       }
-      if (operationType === "query") {
+      if (operationType === 'query') {
         SatisfiesType = `satisfies ${this.getOperationTypeName(
           operation,
           model.name
         )}${typeParams}`;
       } else {
-        SatisfiesType = "";
+        SatisfiesType = '';
       }
     }
     return processTemplate(template, {
@@ -267,8 +256,8 @@ export class OperationGenerator implements NodeGenerator {
       IdType: idField.tsType,
       JsonTypeHandling: generateJsonTypeHandling(jsonFields),
       AuthCheck: auth
-        ? "  if (!context.user || !context.user.id) {\n    throw new HttpError(401);\n  }\n\n"
-        : "",
+        ? '  if (!context.user || !context.user.id) {\n    throw new HttpError(401);\n  }\n\n'
+        : '',
       modelNameLower,
       PluralModelName: pluralModelName,
       pluralModelNameLower,
@@ -292,18 +281,14 @@ export class OperationGenerator implements NodeGenerator {
     entities = [modelName]
   ): Promise<{
     operationCode: string;
-    configEntry: Record<string, any>;
+    configEntry: OperationConfigEntry;
     operationType: string;
     operationName: string;
   }> {
     const metadata = await getEntityMetadata(modelName);
     const operationName = this.getOperationName(operation, modelName);
     const operationType = operation;
-    const operationCode = this.generateOperationCode(
-      metadata,
-      operation,
-      auth
-    );
+    const operationCode = this.generateOperationCode(metadata, operation, auth);
     const configEntry = {
       operationName,
       entities,
@@ -324,6 +309,8 @@ export class OperationGenerator implements NodeGenerator {
    */
   public copyOperationTemplates(templateDir: string, targetDir: string): void {
     copyDirectory(this.fs, templateDir, targetDir);
-    this.logger.debug(`Copied operation templates from ${templateDir} to ${targetDir}`);
+    this.logger.debug(
+      `Copied operation templates from ${templateDir} to ${targetDir}`
+    );
   }
 }

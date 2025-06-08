@@ -1,10 +1,10 @@
-import { Command } from "commander";
-import { ApiGenerator } from "../../generators/api";
-import { NodeGeneratorCommand } from "../../types";
-import { IFileSystem } from "../../types/filesystem";
-import { IFeatureGenerator, NodeGenerator } from "../../types/generator";
-import { Logger } from "../../types/logger";
-import { validateFeaturePath } from "../../utils/strings";
+import { Command } from 'commander';
+import { ApiGenerator } from '../../generators/api';
+import { ApiFlags, HttpMethod, NodeGeneratorCommand } from '../../types';
+import { IFileSystem } from '../../types/filesystem';
+import { IFeatureGenerator, NodeGenerator } from '../../types/generator';
+import { Logger } from '../../types/logger';
+import { validateFeaturePath } from '../../utils/strings';
 import {
   withAuthOption,
   withEntitiesOption,
@@ -12,7 +12,7 @@ import {
   withForceOption,
   withNameOption,
   withPathOption,
-} from "../options";
+} from '../options';
 
 /**
  * Create an API command
@@ -25,19 +25,19 @@ export function createApiCommand(
   logger: Logger,
   fs: IFileSystem,
   featureGenerator: IFeatureGenerator
-): NodeGeneratorCommand {
+): NodeGeneratorCommand<ApiFlags> {
   return {
-    name: "api",
-    description: "Generate an API handler",
+    name: 'api',
+    description: 'Generate an API handler',
     generator: new ApiGenerator(logger, fs, featureGenerator),
-    register(program: Command, generator: NodeGenerator) {
+    register(program: Command, generator: NodeGenerator<ApiFlags>) {
       let cmd = program
-        .command("api")
-        .requiredOption("--method <method>", "HTTP method (GET, POST, etc.)")
-        .description("Generate an API handler");
+        .command('api')
+        .requiredOption('--method <method>', 'HTTP method (GET, POST, etc.)')
+        .description('Generate an API handler');
       cmd = withFeatureOption(cmd);
-      cmd = withNameOption(cmd, "API name");
-      cmd = withPathOption(cmd, "API path (e.g. /api/foo)");
+      cmd = withNameOption(cmd, 'API name');
+      cmd = withPathOption(cmd, 'API path (e.g. /api/foo)');
       cmd = withEntitiesOption(cmd);
       cmd = withAuthOption(cmd);
       cmd = withForceOption(cmd);
@@ -45,11 +45,11 @@ export function createApiCommand(
         validateFeaturePath(opts.feature);
         await generator.generate(opts.feature, {
           name: opts.name,
-          method: opts.method,
+          method: opts.method.toUpperCase() as HttpMethod,
           route: opts.path,
           entities: opts.entities
             ? opts.entities
-                .split(",")
+                .split(',')
                 .map((e: string) => e.trim())
                 .filter(Boolean)
             : undefined,
