@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [main, develop]
+    branches: [main, develop, next, next-major, alpha, beta, "*.x"]
   pull_request:
-    branches: [main, develop]
+    branches: [main, develop, next, next-major, alpha, beta, "*.x"]
 
 jobs:
   test:
@@ -66,8 +66,8 @@ jobs:
           ./bin/swarm feature --help
 
       - name: Release
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        run: pnpm release
+        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/next' || github.ref == 'refs/heads/next-major' || github.ref == 'refs/heads/alpha' || github.ref == 'refs/heads/beta' || contains(github.ref, '.x'))
+        run: npx semantic-release
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
