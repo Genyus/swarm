@@ -1,4 +1,4 @@
-# @genyus/swarm
+# @ingenyus/swarm
 
 A powerful TypeScript CLI tool for rapidly generating features, APIs, jobs, CRUD operations, and more in **Wasp full-stack framework** projects. Built with type safety, modularity, and extensibility in mind.
 
@@ -21,16 +21,16 @@ Wasp is a full-stack web framework that lets you develop web apps in React, Node
 
 ### Global Installation
 ```bash
-npm install -g @genyus/swarm
+npm install -g @ingenyus/swarm
 # or
-yarn global add @genyus/swarm
+yarn global add @ingenyus/swarm
 ```
 
 ### Local Project Usage
 ```bash
-npx @genyus/swarm <command>
+npx @ingenyus/swarm <command>
 # or
-yarn dlx @genyus/swarm <command>
+yarn dlx @ingenyus/swarm <command>
 ```
 
 ## Quick Start

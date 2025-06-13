@@ -1,5 +1,5 @@
 {
-  "name": "@genyus/swarm",
+  "name": "@ingenyus/swarm",
   "type": "module",
   "version": "0.0.0-dev",
   "description": "A powerful TypeScript CLI tool for rapidly generating features, APIs, jobs, CRUD operations, and more in Wasp full-stack framework projects",
