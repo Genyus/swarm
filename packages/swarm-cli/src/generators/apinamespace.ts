@@ -2,7 +2,7 @@ import { ApiNamespaceFlags } from '../types';
 import { IFileSystem } from '../types/filesystem';
 import { IFeatureGenerator, NodeGenerator } from '../types/generator';
 import { Logger } from '../types/logger';
-import { ensureDirectoryExists, getFeatureTargetDir } from '../utils/io';
+import { ensureDirectoryExists, getFeatureTargetDir } from '../utils/filesystem';
 import { getFileTemplatePath, processTemplate } from '../utils/templates';
 
 export class ApiNamespaceGenerator implements NodeGenerator<ApiNamespaceFlags> {
@@ -24,6 +24,7 @@ export class ApiNamespaceGenerator implements NodeGenerator<ApiNamespaceFlags> {
       const namespaceName = name;
       const middlewareFnName = `${name}Middleware`;
       const { targetDir: middlewareDir, importPath } = getFeatureTargetDir(
+        this.fs,
         featurePath,
         'middleware'
       );

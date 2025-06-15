@@ -9,15 +9,8 @@ import {
   ensureDirectoryExists,
   getConfigDir,
   getFeatureTargetDir,
-} from '../utils/io';
-import {
-  generateJsonTypeHandling,
-  getEntityMetadata,
-  getIdField,
-  getJsonFields,
-  getOmitFields,
-  needsPrismaImport,
-} from '../utils/prisma';
+} from '../utils/filesystem';
+import { getEntityMetadata, needsPrismaImport } from '../utils/prisma';
 import { getPlural } from '../utils/strings';
 import { getFileTemplatePath, processTemplate } from '../utils/templates';
 
@@ -48,6 +41,7 @@ export class OperationGenerator implements NodeGenerator<OperationFlags> {
           entities
         );
       const { targetDir: operationsDir, importPath } = getFeatureTargetDir(
+        this.fs,
         featurePath,
         operationType
       );
@@ -65,7 +59,7 @@ export class OperationGenerator implements NodeGenerator<OperationFlags> {
           } operation file: ${operationFile}`
         );
       }
-      const configPath = `${getConfigDir()}/${
+      const configPath = `${getConfigDir(this.fs)}/${
         featurePath.split('/')[0]
       }.wasp.ts`;
       if (!this.fs.existsSync(configPath)) {
@@ -179,100 +173,7 @@ export class OperationGenerator implements NodeGenerator<OperationFlags> {
   }
 
   /**
-   * Generates the code for an operation.
-   */
-  generateOperationCode(
-    model: EntityMetadata,
-    operation: string,
-    auth = false,
-    isCrudOverride = false,
-    crudName: string | null = null
-  ): string {
-    const operationType = this.getOperationType(operation);
-    const templatePath = getFileTemplatePath(operationType, operation);
-    const template = this.fs.readFileSync(templatePath, 'utf8');
-    const idField = getIdField(model);
-    const omitFields = getOmitFields(model);
-    const jsonFields = getJsonFields(model);
-    const pluralModelName = getPlural(model.name);
-    const pluralModelNameLower = pluralModelName.toLowerCase();
-    const modelNameLower = model.name.toLowerCase();
-    const imports = this.generateImports(
-      model,
-      model.name,
-      operation,
-      isCrudOverride,
-      crudName
-    );
-    let typeParams = '';
-    if (operation === 'create') {
-      typeParams = `<Omit<${model.name}, ${omitFields}>, ${model.name}>`;
-    } else if (operation === 'update') {
-      typeParams = `<{ ${idField.name}: ${idField.tsType} } & Partial<Omit<${model.name}, ${omitFields}>>, ${model.name}>`;
-    } else if (operation === 'delete') {
-      typeParams = `<{ ${idField.name}: ${idField.tsType} }, void>`;
-    } else if (operation === 'get') {
-      typeParams = `<{ ${idField.name}: ${idField.tsType} }>`;
-    } else if (operation === 'getAll') {
-      typeParams = `<void>`;
-    }
-    let TypeAnnotation = '';
-    let SatisfiesType = '';
-    if (isCrudOverride && crudName) {
-      const opCap = operation.charAt(0).toUpperCase() + operation.slice(1);
-      if (operationType === 'action') {
-        TypeAnnotation = `: ${crudName}.${opCap}Action${typeParams}`;
-      } else {
-        TypeAnnotation = '';
-      }
-      if (operationType === 'query') {
-        SatisfiesType = `satisfies ${crudName}.${opCap}Query${typeParams}`;
-      } else {
-        SatisfiesType = '';
-      }
-    } else {
-      if (operationType === 'action') {
-        TypeAnnotation = `: ${this.getOperationTypeName(
-          operation,
-          model.name
-        )}${typeParams}`;
-      } else {
-        TypeAnnotation = '';
-      }
-      if (operationType === 'query') {
-        SatisfiesType = `satisfies ${this.getOperationTypeName(
-          operation,
-          model.name
-        )}${typeParams}`;
-      } else {
-        SatisfiesType = '';
-      }
-    }
-    return processTemplate(template, {
-      Imports: imports,
-      ModelName: model.name,
-      OmitFields: omitFields,
-      IdField: idField.name,
-      IdType: idField.tsType,
-      JsonTypeHandling: generateJsonTypeHandling(jsonFields),
-      AuthCheck: auth
-        ? '  if (!context.user || !context.user.id) {\n    throw new HttpError(401);\n  }\n\n'
-        : '',
-      modelNameLower,
-      PluralModelName: pluralModelName,
-      pluralModelNameLower,
-      TypeAnnotation,
-      SatisfiesType,
-    });
-  }
-
-  /**
-   * Generates an operation with its code and configuration.
-   * @param modelName - The name of the model
-   * @param operation - The type of operation, e.g. "create", "update", "delete", "get", "getAll"
-   * @param auth - Whether authentication is required
-   * @param entities - The entities to include in the operation
-   * @returns The operation code (e.g. "export const createUser: CreateUserAction = async (context, { input }) => { ... }"), configuration entry (e.g. { operationName: "createUser", operationType: "create", operationCode: "..." }), operation type (e.g. "create"), and operation name (e.g. "createUser")
+   * Generates the operation components needed for file and config generation.
    */
   async generateOperationComponents(
     modelName: string,
@@ -285,21 +186,45 @@ export class OperationGenerator implements NodeGenerator<OperationFlags> {
     operationType: string;
     operationName: string;
   }> {
-    const metadata = await getEntityMetadata(modelName);
+    const model = await getEntityMetadata(modelName);
+    const operationType = this.getOperationType(operation);
     const operationName = this.getOperationName(operation, modelName);
-    const operationType = operation;
-    const operationCode = this.generateOperationCode(metadata, operation, auth);
+    const operationCode = this.generateOperationCode(model, operation, auth);
+
     const configEntry = {
       operationName,
       entities,
       authRequired: auth,
     };
+
     return {
       operationCode,
       configEntry,
       operationType,
       operationName,
     };
+  }
+
+  /**
+   * Generates the code for an operation.
+   */
+  generateOperationCode(
+    model: EntityMetadata,
+    operation: string,
+    auth = false
+  ): string {
+    const operationType = this.getOperationType(operation);
+    const templatePath = getFileTemplatePath(operationType);
+    const template = this.fs.readFileSync(templatePath, 'utf8');
+
+    const replacements = {
+      OPERATION_NAME: this.getOperationName(operation, model.name),
+      MODEL_NAME: model.name,
+      AUTH_REQUIRED: auth.toString(),
+      IMPORTS: this.generateImports(model, model.name, operation),
+    };
+
+    return processTemplate(template, replacements);
   }
 
   /**

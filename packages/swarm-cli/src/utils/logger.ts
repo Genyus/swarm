@@ -1,6 +1,7 @@
-import { Signale } from 'signale';
+import pkg from 'signale';
 import { Logger } from '../types/logger';
 
+const { Signale } = pkg;
 const signale = new Signale({ scope: 'Swarm' });
 
 export const realLogger: Logger = {

@@ -3,21 +3,25 @@ import { JobFlags } from '../types';
 import { IFileSystem } from '../types/filesystem';
 import { IFeatureGenerator, NodeGenerator } from '../types/generator';
 import { Logger } from '../types/logger';
-import { ensureDirectoryExists, getFeatureTargetDir } from '../utils/io';
+import {
+  ensureDirectoryExists,
+  findWaspRoot,
+  getFeatureTargetDir,
+  getTemplatesDir,
+} from '../utils/filesystem';
 import { capitalise } from '../utils/strings';
 import { processTemplate } from '../utils/templates';
 
 export class JobGenerator implements NodeGenerator<JobFlags> {
+  private templatesDir: string;
+
   constructor(
     public logger: Logger,
     public fs: IFileSystem,
-    private featureGenerator: IFeatureGenerator,
-    private templatesDir: string = path.join(
-      process.cwd(),
-      'scripts',
-      'templates'
-    )
-  ) {}
+    private featureGenerator: IFeatureGenerator
+  ) {
+    this.templatesDir = getTemplatesDir(this.fs);
+  }
 
   async generate(featurePath: string, flags: JobFlags): Promise<void> {
     try {
@@ -48,6 +52,7 @@ export class JobGenerator implements NodeGenerator<JobFlags> {
       }
 
       const { targetDir: jobsDir, importPath } = getFeatureTargetDir(
+        this.fs,
         featurePath,
         'job'
       );
@@ -81,7 +86,12 @@ export class JobGenerator implements NodeGenerator<JobFlags> {
           } job worker: ${workerFilePath}`
         );
       }
-      const configPath = `config/${featurePath.split('/')[0]}.wasp.ts`;
+      const waspRoot = findWaspRoot(this.fs);
+      const configPath = path.join(
+        waspRoot,
+        'config',
+        `${featurePath.split('/')[0]}.wasp.ts`
+      );
       if (!this.fs.existsSync(configPath)) {
         this.logger.error(`Feature config file not found: ${configPath}`);
         return;

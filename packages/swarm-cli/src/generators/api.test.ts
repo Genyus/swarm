@@ -9,6 +9,20 @@ import type { IFeatureGenerator } from '../types/generator';
 import type { Logger } from '../types/logger';
 import { ApiGenerator } from './api';
 
+// Mock the io and templates utilities
+vi.mock('../utils/io', () => ({
+  ensureDirectoryExists: vi.fn(),
+  getFeatureTargetDir: vi.fn().mockReturnValue({
+    targetDir: '/mock/target/dir',
+    importPath: '@src/features/test/_core/server/apis',
+  }),
+}));
+
+vi.mock('../utils/templates', () => ({
+  getFileTemplatePath: vi.fn().mockReturnValue('/mock/template/path'),
+  processTemplate: vi.fn().mockReturnValue('processed template content'),
+}));
+
 describe('ApiGenerator', () => {
   let fs: IFileSystem;
   let logger: Logger;

@@ -2,7 +2,7 @@ import { ApiFlags } from '../types';
 import { IFileSystem } from '../types/filesystem';
 import { IFeatureGenerator, NodeGenerator } from '../types/generator';
 import { Logger } from '../types/logger';
-import { ensureDirectoryExists, getFeatureTargetDir } from '../utils/io';
+import { ensureDirectoryExists, getFeatureTargetDir } from '../utils/filesystem';
 import { getFileTemplatePath, processTemplate } from '../utils/templates';
 
 export class ApiGenerator implements NodeGenerator<ApiFlags> {
@@ -29,6 +29,7 @@ export class ApiGenerator implements NodeGenerator<ApiFlags> {
         force = false,
       } = flags;
       const { targetDir: apiDir, importPath } = getFeatureTargetDir(
+        this.fs,
         featurePath,
         'api'
       );
@@ -36,12 +37,12 @@ export class ApiGenerator implements NodeGenerator<ApiFlags> {
       const handlerFile = `${apiDir}/${apiFile}`;
       const fileExists = this.fs.existsSync(handlerFile);
       if (fileExists && !force) {
-        this.logger.info(`API handler file already exists: ${handlerFile}`);
+        this.logger.info(`API endpoint file already exists: ${handlerFile}`);
         this.logger.info('Use --force to overwrite');
       } else {
         const templatePath = getFileTemplatePath('api');
         if (!this.fs.existsSync(templatePath)) {
-          this.logger.error('API handler template not found');
+          this.logger.error('API endpoint template not found');
           return;
         }
         const template = this.fs.readFileSync(templatePath, 'utf8');
@@ -60,7 +61,7 @@ export class ApiGenerator implements NodeGenerator<ApiFlags> {
         });
         this.fs.writeFileSync(handlerFile, processed);
         this.logger.success(
-          `${fileExists ? 'Overwrote' : 'Generated'} API handler file: ${handlerFile}`
+          `${fileExists ? 'Overwrote' : 'Generated'} API endpoint file: ${handlerFile}`
         );
       }
       const configPath = `config/${featurePath.split('/')[0]}.wasp.ts`;

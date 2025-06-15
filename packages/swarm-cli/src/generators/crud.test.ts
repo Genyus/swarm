@@ -9,6 +9,27 @@ import type { IFeatureGenerator } from '../types/generator';
 import type { Logger } from '../types/logger';
 import { CrudGenerator } from './crud';
 
+// Mock the utilities
+vi.mock('../utils/io', () => ({
+  ensureDirectoryExists: vi.fn(),
+  getFeatureTargetDir: vi.fn().mockReturnValue({
+    targetDir: '/mock/target/dir',
+    importPath: '@src/features/test/_core/server',
+  }),
+}));
+
+vi.mock('../utils/templates', () => ({
+  getFileTemplatePath: vi.fn().mockReturnValue('/mock/template/path'),
+  processTemplate: vi.fn().mockReturnValue('processed template content'),
+}));
+
+vi.mock('../utils/prisma', () => ({
+  getEntityMetadata: vi.fn().mockResolvedValue({
+    name: 'User',
+    fields: [],
+  }),
+}));
+
 describe('CrudGenerator', () => {
   let fs: IFileSystem;
   let logger: Logger;

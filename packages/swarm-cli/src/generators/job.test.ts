@@ -9,6 +9,22 @@ import type { IFeatureGenerator } from '../types/generator';
 import type { Logger } from '../types/logger';
 import { JobGenerator } from './job';
 
+// Mock the utilities
+vi.mock('../utils/io', () => ({
+  ensureDirectoryExists: vi.fn(),
+  findWaspRoot: vi.fn().mockReturnValue('/mock/wasp/root'),
+  getFeatureTargetDir: vi.fn().mockReturnValue({
+    targetDir: '/mock/target/dir',
+    importPath: '@src/features/test/_core/server/jobs',
+  }),
+  getTemplatesDir: vi.fn().mockReturnValue('/mock/templates'),
+}));
+
+vi.mock('../utils/templates', () => ({
+  getFileTemplatePath: vi.fn().mockReturnValue('/mock/template/path'),
+  processTemplate: vi.fn().mockReturnValue('processed template content'),
+}));
+
 describe('JobGenerator', () => {
   let fs: IFileSystem;
   let logger: Logger;

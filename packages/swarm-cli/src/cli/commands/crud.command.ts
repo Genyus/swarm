@@ -14,7 +14,7 @@ export function createCrudCommand(
 ): NodeGeneratorCommand {
   return {
     name: 'crud',
-    description: 'Generate CRUD endpoints',
+    description: 'Generate CRUD operations',
     generator: new CrudGenerator(logger, fs, featureGenerator),
     register(program: Command, generator: NodeGenerator) {
       let cmd = program
@@ -22,7 +22,7 @@ export function createCrudCommand(
         .option('--public <public>', 'Comma-separated public operations')
         .option('--override <override>', 'Comma-separated override operations')
         .option('--exclude <exclude>', 'Comma-separated excluded operations')
-        .description('Generate CRUD endpoints');
+        .description('Generate CRUD operations');
       cmd = withFeatureOption(cmd);
       cmd = withNameOption(cmd, 'CRUD name');
       cmd = withForceOption(cmd);

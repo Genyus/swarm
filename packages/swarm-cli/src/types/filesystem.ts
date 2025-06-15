@@ -1,4 +1,4 @@
-import type { Dirent } from 'fs';
+import type { Dirent, ObjectEncodingOptions } from 'fs';
 /**
  * Interface for file system operations
  * @interface IFileSystem
@@ -16,7 +16,7 @@ export interface IFileSystem {
    * @param {string} encoding - The encoding of the file
    * @returns {string} - The contents of the file
    */
-  readFileSync(path: string, encoding: string): string;
+  readFileSync(path: string, encoding: BufferEncoding): string;
 
   /**
    * Write to a file
@@ -52,5 +52,22 @@ export interface IFileSystem {
    * @param {object} options - Options for reading directory (must be { withFileTypes: true })
    * @returns {Dirent[]} - The directory entries
    */
-  readdirSync(path: string, options: { withFileTypes: true }): Dirent[];
+  readdirSync(
+    path: string,
+    options:
+      | ObjectEncodingOptions
+      | { withFileTypes: true; recursive?: boolean | undefined }
+  ): Dirent[];
+
+  readdirSync(
+    path: string,
+    options?:
+      | {
+          encoding: BufferEncoding | null;
+          withFileTypes?: false | undefined;
+          recursive?: boolean | undefined;
+        }
+      | BufferEncoding
+      | null
+  ): string[];
 }

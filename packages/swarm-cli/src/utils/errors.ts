@@ -1,5 +1,6 @@
-import { Signale } from 'signale';
+import pkg from 'signale';
 
+const { Signale } = pkg;
 const logger = new Signale({ scope: 'Swarm' });
 
 export function error(message: string, err?: Error, debug?: boolean) {

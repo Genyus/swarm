@@ -1,8 +1,6 @@
 import { Command } from 'commander';
-import * as fs from 'fs';
 import * as path from 'path';
-import { handleFatalError } from '../utils/errors';
-import { realFileSystem } from '../utils/filesystem';
+import { getAppRootDir, realFileSystem } from '../utils/filesystem';
 import { realLogger } from '../utils/logger';
 import { createFeatureCommand } from './commands/feature.command';
 
@@ -17,12 +15,19 @@ export async function main(): Promise<void> {
   const featureCmd = createFeatureCommand(realLogger, realFileSystem);
   const featureGenerator = featureCmd.generator;
 
-  program.name('swarm').description('Genyus/Swarm CLI').version('0.1.0');
+  // Read version from package.json and setup __dirname
+  const __dirname = getAppRootDir(realFileSystem);
+  const packageJsonPath = path.join(__dirname, '../package.json');
+  const version = JSON.parse(
+    realFileSystem.readFileSync(packageJsonPath, 'utf8')
+  ).version;
+
+  program.name('swarm').description('@ingenyus/swarm-cli').version(version);
   featureCmd.register(program, featureGenerator);
 
   // Dynamically load all other commands except feature.command.ts/js
-  const commandsDir = path.join(__dirname, './commands');
-  const files = fs
+  const commandsDir = path.join(__dirname, './cli/commands');
+  const files = realFileSystem
     .readdirSync(commandsDir)
     .filter(
       (f) =>
@@ -50,13 +55,4 @@ export async function main(): Promise<void> {
   }
 
   await program.parseAsync(process.argv);
-}
-
-/**
- * Main entry point for the generator CLI
- * @function main
- * @returns {Promise<void>} - A promise that resolves when the main function completes
- */
-if (require.main === module) {
-  main().catch((err) => handleFatalError('Swarm CLI failed to start', err));
 }

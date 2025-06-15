@@ -28,13 +28,13 @@ export function createApiCommand(
 ): NodeGeneratorCommand<ApiFlags> {
   return {
     name: 'api',
-    description: 'Generate an API handler',
+    description: 'Generate an API endpoint',
     generator: new ApiGenerator(logger, fs, featureGenerator),
     register(program: Command, generator: NodeGenerator<ApiFlags>) {
       let cmd = program
         .command('api')
         .requiredOption('--method <method>', 'HTTP method (GET, POST, etc.)')
-        .description('Generate an API handler');
+        .description('Generate an API endpoint');
       cmd = withFeatureOption(cmd);
       cmd = withNameOption(cmd, 'API name');
       cmd = withPathOption(cmd, 'API path (e.g. /api/foo)');

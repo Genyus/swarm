@@ -2,7 +2,7 @@ import { CrudFlags } from '../types';
 import { IFileSystem } from '../types/filesystem';
 import { IFeatureGenerator, NodeGenerator } from '../types/generator';
 import { Logger } from '../types/logger';
-import { ensureDirectoryExists, getFeatureTargetDir } from '../utils/io';
+import { ensureDirectoryExists, getFeatureTargetDir } from '../utils/filesystem';
 import { getFileTemplatePath, processTemplate } from '../utils/templates';
 
 const CRUD_OPERATIONS = [
@@ -28,6 +28,7 @@ export class CrudGenerator implements NodeGenerator<CrudFlags> {
         : `${dataType}s`;
       const crudName = pluralName;
       const { targetDir: crudsDir, importPath } = getFeatureTargetDir(
+        this.fs,
         featurePath,
         'crud'
       );

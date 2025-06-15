@@ -7,21 +7,21 @@ import {
   ensureDirectoryExists,
   getFeatureTargetDir,
   getRouteNameFromPath,
-} from '../utils/io';
+  getTemplatesDir,
+} from '../utils/filesystem';
 import { formatDisplayName } from '../utils/strings';
 import { processTemplate } from '../utils/templates';
 
 export class RouteGenerator implements NodeGenerator<RouteFlags> {
+  private templatesDir: string;
+
   constructor(
     public logger: Logger,
     public fs: IFileSystem,
-    private featureGenerator: IFeatureGenerator,
-    private templatesDir: string = path.join(
-      process.cwd(),
-      'scripts',
-      'templates'
-    )
-  ) {}
+    private featureGenerator: IFeatureGenerator
+  ) {
+    this.templatesDir = getTemplatesDir(this.fs);
+  }
 
   async generate(featurePath: string, flags: RouteFlags): Promise<void> {
     try {
@@ -35,6 +35,7 @@ export class RouteGenerator implements NodeGenerator<RouteFlags> {
       }Route`;
       // Get the appropriate directory for the page component
       const { targetDir: pagesDir, importPath } = getFeatureTargetDir(
+        this.fs,
         featurePath,
         'page'
       );
@@ -53,7 +54,7 @@ export class RouteGenerator implements NodeGenerator<RouteFlags> {
           'page.tsx'
         );
         if (!this.fs.existsSync(templatePath)) {
-          this.logger.error('Page template not found');
+          this.logger.error(`Page template not found: ${templatePath}`);
           return;
         }
         const template = this.fs.readFileSync(templatePath, 'utf8');

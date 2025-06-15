@@ -1,5 +1,5 @@
-import fs from 'fs';
 import path from 'path';
+import { getTemplatesDir, realFileSystem } from './filesystem';
 import { getPlural } from './strings';
 
 /**
@@ -38,17 +38,20 @@ export function getFileTemplatePath(type: string, operation?: string): string {
     'query',
     'route',
   ];
-  const baseDir = path.join(__dirname, '..', 'templates');
+  const templatesDir = getTemplatesDir(realFileSystem);
+
   if (clientTypes.includes(type)) {
-    return path.join(baseDir, 'files', 'client', `${type}.tsx`);
+    return path.join(templatesDir, 'files', 'client', `${type}.tsx`);
   } else if (serverTypes.includes(type)) {
-    const templatePath = path.join(baseDir, 'files', 'server');
+    const templatePath = path.join(templatesDir, 'files', 'server');
+
     if ((type === 'query' || type === 'action') && operation) {
       return path.join(templatePath, getPlural(type), `${operation}.ts`);
     }
+
     return path.join(templatePath, `${type}.ts`);
   } else if (type === 'type') {
-    return path.join(baseDir, 'type.ts');
+    return path.join(templatesDir, 'type.ts');
   }
   throw new Error(`Unknown file type: ${type}`);
 }
@@ -61,14 +64,10 @@ export function getFileTemplatePath(type: string, operation?: string): string {
  */
 export function getConfigTemplatePath(type: string): string {
   const templatePath = path.join(
-    __dirname,
-    '..',
-    'templates',
+    getTemplatesDir(realFileSystem),
     'config',
     `${type}.ts`
   );
-  if (!fs.existsSync(templatePath)) {
-    throw new Error(`Config template not found for ${type}: ${templatePath}`);
-  }
+
   return templatePath;
 }

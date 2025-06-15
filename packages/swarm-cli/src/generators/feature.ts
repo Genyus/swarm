@@ -4,7 +4,13 @@ import { IFileSystem } from '../types/filesystem';
 import { IFeatureGenerator } from '../types/generator';
 import { Logger } from '../types/logger';
 import { handleFatalError } from '../utils/errors';
-import { copyDirectory, getConfigDir, getFeatureImportPath } from '../utils/io';
+import {
+  copyDirectory,
+  findWaspRoot,
+  getConfigDir,
+  getFeatureImportPath,
+  getTemplatesDir,
+} from '../utils/filesystem';
 import { getPlural, validateFeaturePath } from '../utils/strings';
 import { getConfigTemplatePath, processTemplate } from '../utils/templates';
 
@@ -148,16 +154,11 @@ export class FeatureGenerator implements IFeatureGenerator {
     options: Record<string, any> = {}
   ): string {
     const topLevelFeature = featurePath.split('/')[0];
-    const configDir = getConfigDir();
+    const configDir = getConfigDir(this.fs);
     const configPath = path.join(configDir, `${topLevelFeature}.wasp.ts`);
     if (!this.fs.existsSync(configPath)) {
-      const templatePath = path.join(
-        __dirname,
-        '..',
-        'templates',
-        'config',
-        'feature.wasp.ts'
-      );
+      const templatesDir = getTemplatesDir(this.fs);
+      const templatePath = path.join(templatesDir, 'config', 'feature.wasp.ts');
       if (!this.fs.existsSync(templatePath)) {
         handleFatalError(`Feature config template not found: ${templatePath}`);
       }
@@ -299,23 +300,42 @@ export class FeatureGenerator implements IFeatureGenerator {
    * @param featureName - The name of the feature
    */
   public generateFeatureConfig(featureName: string): void {
-    const configDir = 'config';
+    const configDir = getConfigDir(this.fs);
     if (!this.fs.existsSync(configDir)) {
-      this.fs.writeFileSync(configDir, ''); // placeholder for ensureDirectoryExists
+      this.fs.mkdirSync(configDir, { recursive: true });
     }
-    const configPath = `${configDir}/${featureName}.wasp.ts`;
-    const templatePath = path.join(
-      __dirname,
-      '..',
-      'templates',
-      'config',
-      'feature.wasp.ts'
-    );
+
+    // Check if config/utils.ts exists, if not copy it from templates
+    const utilsPath = path.join(configDir, 'utils.ts');
+    if (!this.fs.existsSync(utilsPath)) {
+      const utilsTemplatePath = path.join(
+        getTemplatesDir(this.fs),
+        'config',
+        'utils.ts'
+      );
+      if (this.fs.existsSync(utilsTemplatePath)) {
+        this.fs.copyFileSync(utilsTemplatePath, utilsPath);
+        this.logger.info(`✓ Created config/utils.ts`);
+      }
+    }
+
+    const templatesDir = getTemplatesDir(this.fs);
+    const templatePath = path.join(templatesDir, 'config', 'feature.ts');
+
     if (!this.fs.existsSync(templatePath)) {
-      handleFatalError('Feature config template not found');
+      this.logger.error(`Template not found: ${templatePath}`);
+      return;
     }
-    this.fs.copyFileSync(templatePath, configPath);
-    this.logger.success(`Generated feature config: ${configPath}`);
+
+    const featureKey = featureName.replace(/[^a-zA-Z0-9]/g, '');
+    const content = this.fs
+      .readFileSync(templatePath, 'utf8')
+      .replace(/\$\{FEATURE_NAME\}/g, featureName)
+      .replace(/\$\{FEATURE_KEY\}/g, featureKey);
+
+    const outputPath = path.join(configDir, `${featureName}.ts`);
+    this.fs.writeFileSync(outputPath, content);
+    this.logger.success(`Generated feature config: ${outputPath}`);
   }
 
   /**
@@ -335,13 +355,16 @@ export class FeatureGenerator implements IFeatureGenerator {
       }
     }
     const templateDir = path.join(
-      __dirname,
-      '..',
-      'templates',
+      getTemplatesDir(this.fs),
       'feature',
       segments.length === 1 ? '' : '_core'
     );
-    const featureDir = `features/${featurePath}`;
+    const featureDir = path.join(
+      findWaspRoot(this.fs),
+      'src',
+      'features',
+      featurePath
+    );
     copyDirectory(this.fs, templateDir, featureDir);
     this.logger.debug(`Copied template from ${templateDir} to ${featureDir}`);
     if (segments.length === 1) {

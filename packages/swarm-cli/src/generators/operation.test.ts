@@ -7,7 +7,7 @@ import {
 import type { IFileSystem } from '../types/filesystem';
 import type { IFeatureGenerator } from '../types/generator';
 import type { Logger } from '../types/logger';
-import * as ioUtils from '../utils/io';
+import * as ioUtils from '../utils/filesystem';
 import { OperationGenerator } from './operation';
 
 // Mock the io utils

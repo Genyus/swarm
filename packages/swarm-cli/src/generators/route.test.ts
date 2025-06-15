@@ -9,6 +9,21 @@ import type { IFeatureGenerator } from '../types/generator';
 import type { Logger } from '../types/logger';
 import { RouteGenerator } from './route';
 
+// Mock the io and templates utilities
+vi.mock('../utils/io', () => ({
+  ensureDirectoryExists: vi.fn(),
+  getFeatureTargetDir: vi.fn().mockReturnValue({
+    targetDir: '/mock/target/dir',
+    importPath: '@src/features/test/_core/client/pages',
+  }),
+  getTemplatesDir: vi.fn().mockReturnValue('/mock/templates'),
+}));
+
+vi.mock('../utils/templates', () => ({
+  getFileTemplatePath: vi.fn().mockReturnValue('/mock/template/path'),
+  processTemplate: vi.fn().mockReturnValue('processed template content'),
+}));
+
 describe('RouteGenerator', () => {
   let fs: IFileSystem;
   let logger: Logger;

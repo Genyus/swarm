@@ -2,6 +2,14 @@ import { describe, expect, it, vi } from 'vitest';
 
 // Mock only the logger/signale part
 vi.mock('signale', () => ({
+  default: {
+    Signale: vi.fn().mockImplementation(() => ({
+      error: vi.fn(),
+      warn: vi.fn(),
+      info: vi.fn(),
+      success: vi.fn(),
+    })),
+  },
   Signale: vi.fn().mockImplementation(() => ({
     error: vi.fn(),
     warn: vi.fn(),
