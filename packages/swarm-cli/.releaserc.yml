@@ -1,0 +1,45 @@
+# Semantic Release Configuration
+# Uses default branch configuration which supports:
+# - main/master for regular releases  
+# - next/next-major for pre-releases to respective channels
+# - alpha/beta branches for pre-releases
+# - maintenance branches (N.N.x, N.x.x, N.x format)
+
+branches:
+  - "+([0-9])?(.{+([0-9]),x}).x"
+  - "main"
+  - "master" 
+  - "next"
+  - "next-major"
+  - name: "beta"
+    prerelease: true
+  - name: "alpha" 
+    prerelease: true
+
+plugins:
+  - "@semantic-release/commit-analyzer"
+  - "@semantic-release/release-notes-generator"
+  - - "@semantic-release/changelog"
+    - changelogFile: "CHANGELOG.md"
+      changelogTitle: |
+        # Changelog
+
+        All notable changes to this project will be documented in this file. See
+        [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+  - - "@semantic-release/npm"
+    - # Store tarball outside package directory to avoid inclusion in second prepack run
+      # See: https://github.com/semantic-release/npm/issues/535
+      tarballDir: "/tmp/semantic-release-${nextRelease.gitHead}/"
+  - - "@semantic-release/git"
+    - assets:
+        - "CHANGELOG.md"
+        - "package.json"
+        - "pnpm-lock.yaml"
+      message: |
+        chore(release): ${nextRelease.version} [skip ci]
+
+        ${nextRelease.notes.length < 32000 ? nextRelease.notes : (nextRelease.notes.slice(0,32000) + "...\n\n(Notes too long. Truncated.)")}
+  - - "@semantic-release/github"
+    - assets:
+        - path: "/tmp/semantic-release-${nextRelease.gitHead}/*.tgz"
+          label: "NPM Package" 
