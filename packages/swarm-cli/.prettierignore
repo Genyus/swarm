@@ -1,0 +1,9 @@
+dist/
+node_modules/
+.git/
+*.log
+*.tgz
+.DS_Store
+pnpm-lock.yaml
+src/templates/
+CHANGELOG.md 
