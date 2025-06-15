@@ -139,3 +139,6 @@ dist
 swarm-cli/dist/
 swarm-cli/node_modules/
 swarm-cli/CHANGELOG.md
+
+# macOS
+.DS_Store
