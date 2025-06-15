@@ -96,7 +96,7 @@ swarm route users --path "/users/profile" --name "UserProfile" --auth
 Creates API endpoints with handlers.
 
 **Options:**
-- `--name <name>` - API handler name (required)
+- `--name <name>` - API endpoint name (required)
 - `--method <method>` - HTTP method: GET, POST, PUT, DELETE (required)
 - `--route <route>` - API route path (required)
 - `--entities <entities>` - Comma-separated list of entities
@@ -256,7 +256,7 @@ your-project/
 │   │   └── _core/
 │   │       ├── client/     # React components, hooks
 │   │       ├── server/     # Server-side logic
-│   │       │   ├── api/    # API handlers
+│   │       │   ├── api/    # API endpoints
 │   │       │   ├── actions/ # Server actions
 │   │       │   ├── queries/ # Server queries
 │   │       │   ├── jobs/   # Background jobs
@@ -283,7 +283,7 @@ The CLI uses a comprehensive template system located in `src/templates/`:
 ### File Templates (`src/templates/files/`)
 
 #### Server Templates (`src/templates/files/server/`)
-- `api.ts` - API handler template
+- `api.ts` - API endpoint template
 - `job.ts` - Background job worker template
 - `middleware.ts` - API namespace middleware template
 - `queries/get.ts` - Get query template
