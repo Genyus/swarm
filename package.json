@@ -1,0 +1,43 @@
+{
+  "name": "@ingenyus/swarm",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Swarm monorepo - Tools and utilities for Wasp development",
+  "scripts": {
+    "build": "pnpm -r run build",
+    "test": "pnpm -r run test",
+    "lint": "pnpm -r run lint",
+    "format": "pnpm -r run format",
+    "typecheck": "pnpm -r run typecheck",
+    "changeset": "changeset",
+    "changeset:autogenerate": "node .changeset/changeset-autogenerate.js",
+    "changeset:autogenerate-batch": "node .changeset/changeset-autogenerate-batch.js",
+    "version-packages": "changeset version",
+    "release": "pnpm build && changeset publish"
+  },
+  "keywords": [
+    "monorepo",
+    "wasp",
+    "development-tools"
+  ],
+  "author": "Gary McPherson",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/genyus/swarm.git"
+  },
+  "homepage": "https://github.com/genyus/swarm",
+  "bugs": {
+    "url": "https://github.com/genyus/swarm/issues"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0"
+  },
+  "devDependencies": {
+    "@changesets/cli": "^2.29.4",
+    "@changesets/changelog-github": "^0.5.0"
+  },
+  "packageManager": "pnpm@9.0.0"
+} 
