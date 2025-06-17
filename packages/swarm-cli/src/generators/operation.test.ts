@@ -10,8 +10,8 @@ import type { Logger } from '../types/logger';
 import * as ioUtils from '../utils/filesystem';
 import { OperationGenerator } from './operation';
 
-// Mock the io utils
-vi.mock('../utils/io', () => ({
+// Mock the filesystem utils
+vi.mock('../utils/filesystem', () => ({
   getFeatureTargetDir: vi.fn().mockReturnValue({
     targetDir: 'features/test/server/queries',
     importPath: '@src/features/test/_core/server/queries',
