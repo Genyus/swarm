@@ -2,7 +2,10 @@ import { ApiNamespaceFlags } from '../types';
 import { IFileSystem } from '../types/filesystem';
 import { IFeatureGenerator, NodeGenerator } from '../types/generator';
 import { Logger } from '../types/logger';
-import { ensureDirectoryExists, getFeatureTargetDir } from '../utils/filesystem';
+import {
+  ensureDirectoryExists,
+  getFeatureTargetDir,
+} from '../utils/filesystem';
 import { getFileTemplatePath, processTemplate } from '../utils/templates';
 
 export class ApiNamespaceGenerator implements NodeGenerator<ApiNamespaceFlags> {
