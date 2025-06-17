@@ -17,9 +17,6 @@ importers:
 
   packages/swarm-cli:
     dependencies:
-      '@prisma/client':
-        specifier: 5.19.1
-        version: 5.19.1(prisma@5.19.1)
       chalk:
         specifier: ^5.0.0
         version: 5.4.1
@@ -33,6 +30,9 @@ importers:
       '@eslint/js':
         specifier: ^9.28.0
         version: 9.29.0
+      '@prisma/client':
+        specifier: 5.19.1
+        version: 5.19.1(prisma@5.19.1)
       '@types/glob':
         specifier: ^8.1.0
         version: 8.1.0
@@ -63,6 +63,9 @@ importers:
       prettier:
         specifier: ^3.5.3
         version: 3.5.3
+      prisma:
+        specifier: ^5.19.1
+        version: 5.19.1
       tsup:
         specifier: ^8.5.0
         version: 8.5.0(postcss@8.5.5)(typescript@5.8.3)
@@ -2148,11 +2151,9 @@ snapshots:
     optionalDependencies:
       prisma: 5.19.1
 
-  '@prisma/debug@5.19.1':
-    optional: true
+  '@prisma/debug@5.19.1': {}
 
-  '@prisma/engines-version@5.19.1-2.69d742ee20b815d88e17e54db4a2a7a3b30324e3':
-    optional: true
+  '@prisma/engines-version@5.19.1-2.69d742ee20b815d88e17e54db4a2a7a3b30324e3': {}
 
   '@prisma/engines@5.19.1':
     dependencies:
@@ -2160,19 +2161,16 @@ snapshots:
       '@prisma/engines-version': 5.19.1-2.69d742ee20b815d88e17e54db4a2a7a3b30324e3
       '@prisma/fetch-engine': 5.19.1
       '@prisma/get-platform': 5.19.1
-    optional: true
 
   '@prisma/fetch-engine@5.19.1':
     dependencies:
       '@prisma/debug': 5.19.1
       '@prisma/engines-version': 5.19.1-2.69d742ee20b815d88e17e54db4a2a7a3b30324e3
       '@prisma/get-platform': 5.19.1
-    optional: true
 
   '@prisma/get-platform@5.19.1':
     dependencies:
       '@prisma/debug': 5.19.1
-    optional: true
 
   '@rollup/rollup-android-arm-eabi@4.43.0':
     optional: true
@@ -3121,7 +3119,6 @@ snapshots:
       '@prisma/engines': 5.19.1
     optionalDependencies:
       fsevents: 2.3.3
-    optional: true
 
   punycode@2.3.1: {}
 
