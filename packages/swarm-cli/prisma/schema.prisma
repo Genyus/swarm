@@ -1,0 +1,17 @@
+// This is a minimal schema for development/testing only
+// The CLI will work with external Wasp project schemas at runtime
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+// Minimal model for development
+model DevModel {
+  id   Int    @id @default(autoincrement())
+  name String
+} 

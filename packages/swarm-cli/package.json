@@ -25,6 +25,7 @@
     "format": "prettier --write src",
     "format:check": "prettier --check src",
     "typecheck": "tsc --noEmit",
+    "postinstall": "prisma generate",
     "prepublishOnly": "pnpm run typecheck && pnpm run lint && pnpm run build && pnpm test"
   },
   "keywords": [
@@ -55,7 +56,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.28.0",
-
+    "@prisma/client": "5.19.1",
     "@types/glob": "^8.1.0",
     "@types/node": "^22.15.29",
     "@types/signale": "^1.4.7",
@@ -66,12 +67,12 @@
     "eslint-plugin-prettier": "^5.4.1",
     "glob": "^11.0.3",
     "prettier": "^3.5.3",
+    "prisma": "^5.19.1",
     "tsup": "^8.5.0",
     "typescript": "^5.0.0",
     "vitest": "^3.1.4"
   },
   "dependencies": {
-    "@prisma/client": "5.19.1",
     "chalk": "^5.0.0",
     "commander": "^14.0.0",
     "signale": "^1.4.0"
