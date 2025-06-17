@@ -4,8 +4,8 @@ import type { IFileSystem } from '../types/filesystem';
 import type { Logger } from '../types/logger';
 import { FeatureGenerator } from './feature';
 
-// Mock the io utilities
-vi.mock('../utils/io', () => ({
+// Mock the filesystem utilities
+vi.mock('../utils/filesystem', () => ({
   findWaspRoot: vi.fn().mockReturnValue('/mock/wasp/root'),
   getConfigDir: vi.fn().mockReturnValue('/mock/config'),
   getFeatureDir: vi.fn().mockReturnValue('/mock/features/test'),
@@ -13,6 +13,11 @@ vi.mock('../utils/io', () => ({
   copyDirectory: vi.fn(),
   ensureDirectoryExists: vi.fn(),
   getFeatureImportPath: vi.fn().mockReturnValue('test/_core'),
+}));
+
+vi.mock('../utils/strings', () => ({
+  validateFeaturePath: vi.fn().mockReturnValue(['foo']),
+  getPlural: vi.fn().mockImplementation((str: string) => str + 's'),
 }));
 
 vi.mock('../utils/templates', () => ({
