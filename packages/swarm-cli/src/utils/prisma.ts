@@ -32,10 +32,21 @@ export async function getEntityMetadata(
   modelName: string
 ): Promise<EntityMetadata> {
   const prisma = new PrismaClient();
-  const models = (prisma._originalClient._runtimeDataModel as RuntimeDataModel)
-    .models;
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const runtimeDataModel = (prisma as any)
+    ._runtimeDataModel as RuntimeDataModel;
+  const models = runtimeDataModel?.models;
+
+  if (!models) {
+    throw new Error('Unable to access Prisma runtime data model');
+  }
+
   const model = models[modelName];
-  if (!model) throw new Error(`Model ${modelName} not found`);
+  if (!model) {
+    throw new Error(`Model ${modelName} not found`);
+  }
+
   return {
     fields: Object.entries(model.fields).map(
       ([, field]: [string, DMMF.Field]) => ({
