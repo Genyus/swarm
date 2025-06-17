@@ -25,8 +25,7 @@
     "format": "prettier --write src",
     "format:check": "prettier --check src",
     "typecheck": "tsc --noEmit",
-    "prepublishOnly": "pnpm run typecheck && pnpm run lint && pnpm run build && pnpm test",
-    "release": "semantic-release"
+    "prepublishOnly": "pnpm run typecheck && pnpm run lint && pnpm run build && pnpm test"
   },
   "keywords": [
     "cli",
@@ -45,9 +44,9 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/genyus/swarm.git",
-    "directory": "swarm-cli"
+    "directory": "packages/swarm-cli"
   },
-  "homepage": "https://github.com/genyus/swarm/tree/main/swarm-cli#readme",
+  "homepage": "https://github.com/genyus/swarm/tree/main/packages/swarm-cli#readme",
   "bugs": {
     "url": "https://github.com/genyus/swarm/issues"
   },
@@ -56,8 +55,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.28.0",
-    "@semantic-release/changelog": "^6.0.3",
-    "@semantic-release/git": "^10.0.1",
+
     "@types/glob": "^8.1.0",
     "@types/node": "^22.15.29",
     "@types/signale": "^1.4.7",
@@ -68,7 +66,6 @@
     "eslint-plugin-prettier": "^5.4.1",
     "glob": "^11.0.3",
     "prettier": "^3.5.3",
-    "semantic-release": "^24.2.5",
     "tsup": "^8.5.0",
     "typescript": "^5.0.0",
     "vitest": "^3.1.4"
