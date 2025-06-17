@@ -189,7 +189,7 @@ export function consolidateChanges(commits) {
     const { packageName, changeType, description } = parseCommitMessage(message);
     
     if (packageName && changeType && description) {
-      const fullPackageName = `@ingenyus/swarm-${packageName}`;
+      const fullPackageName = `@ingenyus/${packageName}`;
       
       if (!packageChanges[fullPackageName]) {
         packageChanges[fullPackageName] = {
