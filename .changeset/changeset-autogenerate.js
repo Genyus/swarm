@@ -15,7 +15,7 @@ const { packageName, changeType, description } = parseCommitMessage(commitMessag
 
 // Generate changeset if we found a valid conventional commit
 if (packageName && changeType && description) {
-  const fullPackageName = `@ingenyus/swarm-${packageName}`;
+  const fullPackageName = `@ingenyus/${packageName}`;
   const cleanDescription = description?.trim() || 'No description provided.';
   
   const filename = createChangesetFile(fullPackageName, changeType, cleanDescription, 'auto');
