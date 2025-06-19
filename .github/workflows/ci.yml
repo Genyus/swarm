@@ -79,12 +79,14 @@ jobs:
       contents: write
       pull-requests: write
       packages: write
+      actions: write
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -102,8 +104,8 @@ jobs:
 
       - name: Set Git user name and email
         run: |
-          git config --local user.email "github-actions@github.com"
-          git config --local user.name "GitHub Actions"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
 
       - name: Generate Changesets from commit messages
         run: pnpm changeset:autogenerate-batch
@@ -116,6 +118,7 @@ jobs:
           title: "chore: version packages"
           version: node .github/changeset-version.js
           publish: pnpm release
+          createGithubReleases: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }} 
