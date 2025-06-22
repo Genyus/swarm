@@ -115,7 +115,12 @@ jobs:
           git add .changeset
           if ! git diff --cached --quiet; then
             git commit -m "chore: add changesets for release [skip ci]"
-            git push
+            # Try to push, and if it fails due to being behind, pull and retry
+            if ! git push; then
+              echo "Push failed, pulling latest changes and retrying..."
+              git pull --rebase origin main
+              git push
+            fi
           else
             echo "No changesets to commit"
           fi
