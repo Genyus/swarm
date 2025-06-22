@@ -114,7 +114,7 @@ jobs:
         run: |
           git add .changeset
           if ! git diff --cached --quiet; then
-            git commit -m "chore: add changesets for release"
+            git commit -m "chore: add changesets for release [skip ci]"
             git push
           else
             echo "No changesets to commit"
