@@ -111,6 +111,20 @@ export function parseCommitMessage(message) {
 }
 
 /**
+ * Convert package name to file-friendly format
+ * @param {string} packageName - Full package name (e.g., '@ingenyus/swarm-cli')
+ * @returns {string} - File-friendly package name (e.g., 'swarm-cli')
+ */
+function packageNameToFileFriendly(packageName) {
+  return packageName
+    .replace(/^@[^/]+\//, '') // Remove @scope/ prefix
+    .replace(/[/@]/g, '-')    // Replace / and @ with -
+    .replace(/[^a-zA-Z0-9\-_]/g, '-') // Replace other non-alphanumeric chars with -
+    .replace(/-+/g, '-')      // Replace multiple consecutive - with single -
+    .replace(/^-|-$/g, '');   // Remove leading/trailing -
+}
+
+/**
  * Create a changeset file with the given content
  * @param {string} packageName - Full package name (e.g., '@ingenyus/swarm-cli')
  * @param {string} changeType - Version bump type (patch/minor/major)
@@ -119,8 +133,8 @@ export function parseCommitMessage(message) {
  * @returns {string} - The created filename
  */
 export function createChangesetFile(packageName, changeType, description, filenamePrefix = 'auto') {
-  const timestamp = Date.now() + Math.random().toString(36).substring(2, 5);
-  const filename = `${filenamePrefix}-${timestamp}.md`;
+  const fileFriendlyPackage = packageNameToFileFriendly(packageName);
+  const filename = `${filenamePrefix}-changeset-${fileFriendlyPackage}.md`;
   const filepath = path.join('.changeset', filename);
   
   const changesetContent = `---

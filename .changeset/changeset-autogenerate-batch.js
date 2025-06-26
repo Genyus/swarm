@@ -1,8 +1,8 @@
 import {
-    consolidateChanges,
-    createChangesetFile,
-    getCommitsSinceLastRelease,
-    printValidPatterns
+  consolidateChanges,
+  createChangesetFile,
+  getCommitsSinceLastRelease,
+  printValidPatterns
 } from './utils.js';
 
 // Main execution
@@ -31,7 +31,7 @@ packageNames.forEach(packageName => {
     ? change.descriptions[0]
     : `Multiple changes:\n${change.descriptions.map(desc => `- ${desc}`).join('\n')}`;
   
-  const filename = createChangesetFile(packageName, change.changeType, description, 'auto-batch');
+  const filename = createChangesetFile(packageName, change.changeType, description, 'auto');
   
   console.log(`✅ Changeset created: ${filename}`);
   console.log(`   Package: ${packageName}`);
