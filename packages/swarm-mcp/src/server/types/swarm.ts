@@ -196,9 +196,9 @@ export interface TemplateProcessingResult {
   dependencies: string[];
 }
 
-export type SwarmErrorType = 
+export type SwarmErrorType =
   | 'validation'
-  | 'filesystem' 
+  | 'filesystem'
   | 'generation'
   | 'configuration'
   | 'dependency'
@@ -308,6 +308,13 @@ export const SwarmGenerateRouteParamsSchema = SwarmCLIParamsSchema.extend({
   force: z.boolean().optional(),
 });
 
+export const SwarmGenerateApiNamespaceParamsSchema =
+  SwarmCLIParamsSchema.extend({
+    name: z.string().min(1),
+    path: z.string().min(1),
+    force: z.boolean().optional(),
+  });
+
 export const SwarmAnalyzeProjectParamsSchema = SwarmCLIParamsSchema.extend({
   includeDependencies: z.boolean().optional(),
   includeStructure: z.boolean().optional(),
@@ -346,7 +353,7 @@ export function isSwarmError(error: unknown): error is SwarmError {
   );
 }
 
-export type SwarmGeneratorType = 
+export type SwarmGeneratorType =
   | 'api'
   | 'feature'
   | 'crud'
@@ -368,7 +375,7 @@ export interface SwarmGeneratorInfo {
   }[];
 }
 
-export type SwarmMCPToolName = 
+export type SwarmMCPToolName =
   | 'swarm_generate_api'
   | 'swarm_generate_feature'
   | 'swarm_generate_crud'
