@@ -224,70 +224,7 @@ export interface RollbackResult {
   restoredFiles: string[];
 }
 
-export interface SwarmCLIParams {
-  projectPath?: string;
-  options?: Record<string, unknown>;
-}
 
-export interface SwarmGenerateAPIParams extends SwarmCLIParams {
-  name: string;
-  type: 'rest' | 'graphql' | 'grpc';
-  endpoints?: string[];
-}
-
-export interface SwarmGenerateFeatureParams extends SwarmCLIParams {
-  name: string;
-  components?: string[];
-  withTests?: boolean;
-}
-
-export interface SwarmGenerateCRUDParams extends SwarmCLIParams {
-  name: string;
-  fields: Record<string, string>;
-  withAuth?: boolean;
-}
-
-export interface SwarmGenerateJobParams extends SwarmCLIParams {
-  name: string;
-  schedule?: string;
-  retryPolicy?: string;
-}
-
-export interface SwarmGenerateOperationParams extends SwarmCLIParams {
-  name: string;
-  type: 'query' | 'mutation';
-  input?: Record<string, string>;
-}
-
-export interface SwarmGenerateRouteParams extends SwarmCLIParams {
-  name: string;
-  path: string;
-  method: 'GET' | 'POST' | 'PUT' | 'DELETE';
-  middleware?: string[];
-}
-
-export interface SwarmAnalyzeProjectParams extends SwarmCLIParams {
-  includeDependencies?: boolean;
-  includeStructure?: boolean;
-}
-
-export interface SwarmAnalyzeProjectResult {
-  projectType: string;
-  dependencies: string[];
-  structure: Record<string, unknown>;
-  recommendations: string[];
-}
-
-export interface SwarmValidateConfigParams extends SwarmCLIParams {
-  configPath?: string;
-  strict?: boolean;
-}
-
-export interface SwarmValidateConfigResult {
-  isValid: boolean;
-  errors: string[];
-  warnings: string[];
-}
 
 export interface Transport {
   start(): Promise<void>;

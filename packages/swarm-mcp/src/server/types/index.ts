@@ -5,9 +5,3 @@ export interface MCPTool {
   description: string;
   parameters: Record<string, unknown>;
 }
-
-export interface SwarmCLIResult {
-  success: boolean;
-  output: string;
-  error?: string;
-}
