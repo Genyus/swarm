@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 
-// CLI entry point for the Swarm MCP Server
 import { Command } from 'commander';
 
 const program = new Command();

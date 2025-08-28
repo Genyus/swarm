@@ -1,15 +1,15 @@
-// Test setup file for Jest
-import { jest } from '@jest/globals';
+// Test setup file for Vitest
+import { vi } from 'vitest';
 
 // Global test timeout
-jest.setTimeout(10000);
+vi.setConfig({ testTimeout: 10000 });
 
 // Mock console methods to reduce noise in tests
 global.console = {
   ...console,
-  log: jest.fn(),
-  debug: jest.fn(),
-  info: jest.fn(),
-  warn: jest.fn(),
-  error: jest.fn(),
+  log: vi.fn(),
+  debug: vi.fn(),
+  info: vi.fn(),
+  warn: vi.fn(),
+  error: vi.fn(),
 };
