@@ -1,45 +1,37 @@
 #!/usr/bin/env node
 
 import { Command } from 'commander';
+import {
+  createStartCommand,
+  createStatusCommand,
+  createStopCommand,
+} from './commands/index.js';
+import { ServerManager } from './server-manager.js';
 
 const program = new Command();
+const serverManager = new ServerManager();
 
 program
   .name('swarm-mcp')
   .description('Model Context Protocol server for Swarm CLI integration')
   .version('0.1.0');
 
-program
-  .command('start')
-  .description('Start the MCP server')
-  .action(() => {
-    // eslint-disable-next-line no-console
-    console.log('Starting Swarm MCP server...');
-    // TODO: Implement start command
-    // eslint-disable-next-line no-console
-    console.log('Server started (not implemented yet)');
-  });
+program.addCommand(createStartCommand(serverManager));
+program.addCommand(createStopCommand(serverManager));
+program.addCommand(createStatusCommand(serverManager));
 
-program
-  .command('stop')
-  .description('Stop the MCP server')
-  .action(() => {
-    // eslint-disable-next-line no-console
-    console.log('Stopping Swarm MCP server...');
-    // TODO: Implement stop command
-    // eslint-disable-next-line no-console
-    console.log('Server stopped (not implemented yet)');
-  });
-
-program
-  .command('status')
-  .description('Check server status')
-  .action(() => {
-    // eslint-disable-next-line no-console
-    console.log('Checking server status...');
-    // TODO: Implement status command
-    // eslint-disable-next-line no-console
-    console.log('Server status: Not running (not implemented yet)');
-  });
+program.addHelpText(
+  'after',
+  `
+Examples:
+  $ swarm-mcp start              # Start server on default port 3000
+  $ swarm-mcp start --port 8080  # Start server on port 8080
+  $ swarm-mcp start --stdio      # Start server in stdio mode
+  $ swarm-mcp stop               # Stop the server gracefully
+  $ swarm-mcp stop --force       # Force stop the server
+  $ swarm-mcp status             # Check server status
+  $ swarm-mcp status --json      # Get status in JSON format
+`
+);
 
 program.parse();

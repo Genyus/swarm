@@ -36,6 +36,13 @@ export default [
     },
   },
   {
+    files: ['src/cli/**/*.ts'],
+    rules: {
+      'no-console': 'off',
+      '@typescript-eslint/no-unsafe-argument': 'off',
+    },
+  },
+  {
     ignores: ['dist/', 'node_modules/', 'coverage/'],
   },
 ];
