@@ -19,6 +19,7 @@ import {
   Tool,
 } from './types/mcp.js';
 import { configManager } from './utils/config.js';
+import { ErrorFactory, createErrorContext } from './utils/errors.js';
 import { logger } from './utils/logger.js';
 
 export class SwarmMCPServer {
@@ -458,7 +459,11 @@ export class SwarmMCPServer {
 
   async start(): Promise<void> {
     if (this.state.isRunning) {
-      throw new Error('Server is already running');
+      throw ErrorFactory.internal(
+        'start server',
+        undefined,
+        createErrorContext('SwarmMCPServer', 'start')
+      );
     }
 
     try {

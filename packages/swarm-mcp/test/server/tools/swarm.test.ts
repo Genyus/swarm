@@ -127,7 +127,7 @@ describe('Swarm Tools', () => {
       mockSpawn.mockReturnValue(mockProcess as any);
 
       await expect(swarmGenerateAPI(validParams)).rejects.toThrow(
-        'SWARM_API_GENERATION_FAILED'
+        'Swarm generation failed: api generate'
       );
     });
 

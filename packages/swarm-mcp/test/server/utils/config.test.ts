@@ -116,7 +116,7 @@ describe('ConfigurationManager', () => {
   describe('getConfig', () => {
     it('should throw error when config not loaded', () => {
       expect(() => configManager.getConfig()).toThrow(
-        'Configuration not loaded. Call loadConfig() first.'
+        'Configuration error: config="not loaded". Expected: loaded configuration'
       );
     });
 
@@ -164,7 +164,7 @@ describe('ConfigurationManager', () => {
   describe('updateConfig', () => {
     it('should throw error when config not loaded', () => {
       expect(() => configManager.updateConfig({})).toThrow(
-        'Configuration not loaded. Call loadConfig() first.'
+        'Configuration error: config="not loaded". Expected: loaded configuration'
       );
     });
 

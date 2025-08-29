@@ -2,6 +2,7 @@ import { existsSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { z } from 'zod';
+import { ErrorFactory, createErrorContext } from './errors.js';
 
 const ENV_PREFIX = 'SWARM_MCP_';
 
@@ -149,7 +150,12 @@ export class ConfigurationManager {
 
   getConfig(): ServerConfig {
     if (!this.isLoaded) {
-      throw new Error('Configuration not loaded. Call loadConfig() first.');
+      throw ErrorFactory.configuration(
+        'config',
+        'not loaded',
+        'loaded configuration',
+        createErrorContext('ConfigurationManager', 'getConfig')
+      );
     }
     return { ...this.config };
   }
@@ -166,7 +172,12 @@ export class ConfigurationManager {
 
   updateConfig(updates: Partial<ServerConfig>): void {
     if (!this.isLoaded) {
-      throw new Error('Configuration not loaded. Call loadConfig() first.');
+      throw ErrorFactory.configuration(
+        'config',
+        'not loaded',
+        'loaded configuration',
+        createErrorContext('ConfigurationManager', 'updateConfig')
+      );
     }
 
     const completeUpdates: ServerConfig = {

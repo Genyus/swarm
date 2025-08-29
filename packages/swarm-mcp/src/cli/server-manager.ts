@@ -1,6 +1,7 @@
 import { SwarmMCPServer } from '../server/index.js';
 import type { ServerConfig } from '../server/types/mcp.js';
 import { configManager } from '../server/utils/config.js';
+import { ErrorFactory, createErrorContext } from '../server/utils/errors.js';
 import { logger } from '../server/utils/logger.js';
 
 export class ServerManager {
@@ -10,7 +11,11 @@ export class ServerManager {
 
   async start(): Promise<void> {
     if (this.isRunning) {
-      throw new Error('Server is already running');
+      throw ErrorFactory.internal(
+        'start server',
+        undefined,
+        createErrorContext('ServerManager', 'start')
+      );
     }
 
     try {
@@ -46,7 +51,11 @@ export class ServerManager {
       const errorMessage =
         error instanceof Error ? error.message : String(error);
       logger.error(`Failed to start server: ${errorMessage}`);
-      throw new Error(`Failed to start server: ${errorMessage}`);
+      throw ErrorFactory.internal(
+        'start server',
+        new Error(errorMessage),
+        createErrorContext('ServerManager', 'start')
+      );
     }
   }
 
@@ -65,7 +74,11 @@ export class ServerManager {
       const errorMessage =
         error instanceof Error ? error.message : String(error);
       logger.error(`Failed to stop server: ${errorMessage}`);
-      throw new Error(`Failed to stop server: ${errorMessage}`);
+      throw ErrorFactory.internal(
+        'stop server',
+        new Error(errorMessage),
+        createErrorContext('ServerManager', 'stop')
+      );
     }
   }
 

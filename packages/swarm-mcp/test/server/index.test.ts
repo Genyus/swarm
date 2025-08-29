@@ -96,7 +96,7 @@ describe('SwarmMCPServer', () => {
         (server as any).state.isRunning = true;
       }
 
-      await expect(server.start()).rejects.toThrow('Server is already running');
+      await expect(server.start()).rejects.toThrow('Internal error during start server');
     });
 
     it('should handle stop gracefully when not running', async () => {

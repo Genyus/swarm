@@ -15,7 +15,7 @@ import {
   SwarmValidateConfigParamsSchema,
   SwarmValidateConfigResult,
 } from '../types/swarm.js';
-import { createError } from '../utils/index.js';
+import { ErrorFactory, createErrorContext } from '../utils/errors.js';
 import { logger } from '../utils/logger.js';
 
 async function executeSwarmCommand(
@@ -188,9 +188,15 @@ export async function swarmGenerateAPI(
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     logger.error(`Failed to generate API: ${errorMessage}`);
-    throw createError(
-      'SWARM_API_GENERATION_FAILED',
-      `Failed to generate API: ${errorMessage}`
+    throw ErrorFactory.swarmGeneration(
+      'api',
+      'generate',
+      errorMessage,
+      createErrorContext(
+        'swarm_generate_api',
+        'generate',
+        params as Record<string, unknown>
+      )
     );
   }
 }
@@ -251,9 +257,15 @@ export async function swarmGenerateFeature(
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     logger.error(`Failed to generate feature: ${errorMessage}`);
-    throw createError(
-      'SWARM_FEATURE_GENERATION_FAILED',
-      `Failed to generate feature: ${errorMessage}`
+    throw ErrorFactory.swarmGeneration(
+      'feature',
+      'generate',
+      errorMessage,
+      createErrorContext(
+        'swarm_generate_feature',
+        'generate',
+        params as Record<string, unknown>
+      )
     );
   }
 }
@@ -314,9 +326,15 @@ export async function swarmGenerateCRUD(
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     logger.error(`Failed to generate CRUD: ${errorMessage}`);
-    throw createError(
-      'SWARM_CRUD_GENERATION_FAILED',
-      `Failed to generate CRUD: ${errorMessage}`
+    throw ErrorFactory.swarmGeneration(
+      'crud',
+      'generate',
+      errorMessage,
+      createErrorContext(
+        'swarm_generate_crud',
+        'generate',
+        params as Record<string, unknown>
+      )
     );
   }
 }
@@ -381,9 +399,15 @@ export async function swarmGenerateJob(
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     logger.error(`Failed to generate job: ${errorMessage}`);
-    throw createError(
-      'SWARM_JOB_GENERATION_FAILED',
-      `Failed to generate job: ${errorMessage}`
+    throw ErrorFactory.swarmGeneration(
+      'job',
+      'generate',
+      errorMessage,
+      createErrorContext(
+        'swarm_generate_job',
+        'generate',
+        params as Record<string, unknown>
+      )
     );
   }
 }
@@ -440,9 +464,15 @@ export async function swarmGenerateOperation(
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     logger.error(`Failed to generate operation: ${errorMessage}`);
-    throw createError(
-      'SWARM_OPERATION_GENERATION_FAILED',
-      `Failed to generate operation: ${errorMessage}`
+    throw ErrorFactory.swarmGeneration(
+      'operation',
+      'generate',
+      errorMessage,
+      createErrorContext(
+        'swarm_generate_operation',
+        'generate',
+        params as Record<string, unknown>
+      )
     );
   }
 }
@@ -497,9 +527,15 @@ export async function swarmGenerateRoute(
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     logger.error(`Failed to generate route: ${errorMessage}`);
-    throw createError(
-      'SWARM_ROUTE_GENERATION_FAILED',
-      `Failed to generate route: ${errorMessage}`
+    throw ErrorFactory.swarmGeneration(
+      'route',
+      'generate',
+      errorMessage,
+      createErrorContext(
+        'swarm_generate_route',
+        'generate',
+        params as Record<string, unknown>
+      )
     );
   }
 }
@@ -554,9 +590,15 @@ export async function swarmGenerateApiNamespace(
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     logger.error(`Failed to generate API namespace: ${errorMessage}`);
-    throw createError(
-      `Failed to generate API namespace: ${errorMessage}`,
-      'SWARM_API_NAMESPACE_GENERATION_FAILED'
+    throw ErrorFactory.swarmGeneration(
+      'api-namespace',
+      'generate',
+      errorMessage,
+      createErrorContext(
+        'swarm_generate_api_namespace',
+        'generate',
+        params as Record<string, unknown>
+      )
     );
   }
 }
@@ -629,9 +671,15 @@ export async function swarmAnalyzeProject(
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     logger.error(`Failed to analyze project: ${errorMessage}`);
-    throw createError(
-      'SWARM_PROJECT_ANALYSIS_FAILED',
-      `Failed to analyze project: ${errorMessage}`
+    throw ErrorFactory.swarmGeneration(
+      'analyze',
+      'analyze',
+      errorMessage,
+      createErrorContext(
+        'swarm_analyze_project',
+        'analyze',
+        params as Record<string, unknown>
+      )
     );
   }
 }
@@ -693,9 +741,15 @@ export async function swarmValidateConfig(
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     logger.error(`Failed to validate config: ${errorMessage}`);
-    throw createError(
-      'SWARM_CONFIG_VALIDATION_FAILED',
-      `Failed to validate config: ${errorMessage}`
+    throw ErrorFactory.swarmGeneration(
+      'validate',
+      'validate',
+      errorMessage,
+      createErrorContext(
+        'swarm_validate_config',
+        'validate',
+        params as Record<string, unknown>
+      )
     );
   }
 }
