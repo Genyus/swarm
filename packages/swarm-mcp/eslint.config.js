@@ -43,6 +43,12 @@ export default [
     },
   },
   {
+    files: ['src/server/utils/config.ts'],
+    rules: {
+      'no-console': 'off',
+    },
+  },
+  {
     ignores: ['dist/', 'node_modules/', 'coverage/'],
   },
 ];
