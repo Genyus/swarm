@@ -1,4 +1,3 @@
-import type { Readable, Writable } from 'node:stream';
 import { z } from 'zod';
 
 export type RequestId = string | number;
@@ -224,8 +223,6 @@ export interface RollbackResult {
   restoredFiles: string[];
 }
 
-
-
 export interface Transport {
   start(): Promise<void>;
   send(message: JSONRPCMessage): Promise<void>;
@@ -238,29 +235,11 @@ export interface Transport {
 
 export type JSONRPCMessage = MCPRequest | MCPResponse | MCPNotification;
 
-export interface TransportOptions {
-  stdio?: {
-    stdin?: Readable;
-    stdout?: Writable;
-  };
-  http?: {
-    port?: number;
-    host?: string;
-    enableCORS?: boolean;
-    allowedOrigins?: string[];
-  };
-  unixSocket?: {
-    path: string;
-    permissions?: number;
-  };
-}
-
 export interface ServerConfig {
   name: string;
   version: string;
   capabilities?: ServerCapabilities;
   instructions?: string;
-  transport: TransportOptions;
   tools: Tool[];
   logging?: {
     level: 'debug' | 'info' | 'warn' | 'error';

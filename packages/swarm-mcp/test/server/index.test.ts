@@ -11,9 +11,6 @@ describe('SwarmMCPServer', () => {
       name: 'test-swarm-mcp',
       version: '0.1.0',
       instructions: 'Test MCP server for Swarm CLI integration',
-      transport: {
-        stdio: {},
-      },
       tools: [],
       logging: {
         level: 'error', // Reduce logging noise in tests
@@ -43,11 +40,13 @@ describe('SwarmMCPServer', () => {
     it('should handle missing instructions gracefully', () => {
       const configWithoutInstructions = { ...config };
       delete configWithoutInstructions.instructions;
-      
+
       server = new SwarmMCPServer(configWithoutInstructions);
       const info = server.getInfo() as any;
       // Instructions may be undefined if not provided, which is acceptable
-      expect(info.instructions === undefined || typeof info.instructions === 'string').toBe(true);
+      expect(
+        info.instructions === undefined || typeof info.instructions === 'string'
+      ).toBe(true);
     });
   });
 
@@ -62,7 +61,7 @@ describe('SwarmMCPServer', () => {
     it('should provide server information', () => {
       server = new SwarmMCPServer(config);
       const info = server.getInfo() as any;
-      
+
       expect(info.name).toBe(config.name);
       expect(info.version).toBe(config.version);
       expect(info.instructions).toBe(config.instructions);
@@ -75,43 +74,12 @@ describe('SwarmMCPServer', () => {
       server = new SwarmMCPServer(config);
       expect(() => server.getInfo()).not.toThrow();
     });
-
-    it('should handle HTTP transport configuration', () => {
-      const httpConfig = {
-        ...config,
-        transport: {
-          http: {
-            port: 3000,
-            host: 'localhost',
-          },
-        },
-      };
-      
-      server = new SwarmMCPServer(httpConfig);
-      expect(() => server.getInfo()).not.toThrow();
-    });
-
-    it('should throw error for unsupported unix socket transport', async () => {
-      const unixConfig = {
-        ...config,
-        transport: {
-          unixSocket: {
-            path: '/tmp/test.sock',
-          },
-        },
-      };
-      
-      server = new SwarmMCPServer(unixConfig);
-      
-      // The error should be thrown when trying to start, not during construction
-      await expect(server.start()).rejects.toThrow('Unix socket transport not yet implemented');
-    });
   });
 
   describe('Lifecycle Management', () => {
     it('should prevent starting server twice', async () => {
       server = new SwarmMCPServer(config);
-      
+
       // Note: We can't actually start the server in tests without a real MCP client
       // But we can test that attempting to start twice throws an error
       try {
@@ -119,7 +87,7 @@ describe('SwarmMCPServer', () => {
       } catch (error) {
         // Expected to fail without a real transport connection
       }
-      
+
       // Set the state manually for testing
       const status = server.getStatus();
       if (!status.isRunning) {
@@ -127,13 +95,13 @@ describe('SwarmMCPServer', () => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (server as any).state.isRunning = true;
       }
-      
+
       await expect(server.start()).rejects.toThrow('Server is already running');
     });
 
     it('should handle stop gracefully when not running', async () => {
       server = new SwarmMCPServer(config);
-      
+
       // Should not throw when stopping a server that's not running
       await expect(server.stop()).resolves.not.toThrow();
     });

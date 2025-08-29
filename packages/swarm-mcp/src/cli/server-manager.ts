@@ -1,8 +1,6 @@
-import {
-  ServerConfig,
-  SwarmMCPServer,
-  TransportOptions,
-} from '../server/index.js';
+import { SwarmMCPServer } from '../server/index.js';
+import type { ServerConfig } from '../server/types/mcp.js';
+import { configManager } from '../server/utils/config.js';
 import { logger } from '../server/utils/logger.js';
 
 export class ServerManager {
@@ -10,32 +8,18 @@ export class ServerManager {
   private isRunning = false;
   private pid: number | null = null;
 
-  async start(options: { port?: number; stdio?: boolean } = {}): Promise<void> {
+  async start(): Promise<void> {
     if (this.isRunning) {
       throw new Error('Server is already running');
     }
 
     try {
-      let transportConfig: TransportOptions;
-
-      if (options.stdio) {
-        transportConfig = { stdio: {} };
-      } else {
-        const port = options.port || 3000;
-        transportConfig = {
-          http: {
-            host: 'localhost',
-            port,
-            allowedOrigins: ['*'],
-          },
-        };
-      }
+      await configManager.loadConfig();
 
       const config: ServerConfig = {
         name: 'Swarm MCP Server',
         version: '0.1.0',
-        transport: transportConfig,
-        tools: [], // Tools are registered internally by the server
+        tools: [],
         capabilities: {
           tools: { listChanged: true },
           resources: { subscribe: false, listChanged: false },
@@ -44,6 +28,8 @@ export class ServerManager {
       };
 
       this.server = new SwarmMCPServer(config);
+
+      await this.server.loadConfiguration();
       await this.server.start();
 
       this.isRunning = true;

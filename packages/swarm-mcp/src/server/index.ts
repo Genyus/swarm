@@ -3,7 +3,6 @@ import {
   ServerOptions,
 } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
-import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
 import type { Transport as MCPTransport } from '@modelcontextprotocol/sdk/shared/transport.js';
 import {
   CallToolRequestSchema,
@@ -11,24 +10,17 @@ import {
   ListToolsRequestSchema,
 } from '@modelcontextprotocol/sdk/types.js';
 import { randomUUID } from 'crypto';
-
+import { tools } from './tools/index.js';
 import {
   MCPErrorCode,
   MCPProtocolError,
   ServerConfig,
   ServerState,
   Tool,
-  TransportOptions,
 } from './types/mcp.js';
-
-import { tools } from './tools/index.js';
-
+import { configManager } from './utils/config.js';
 import { logger } from './utils/logger.js';
 
-/**
- * Swarm MCP Server implementation
- * Provides MCP protocol compliance with transport support for stdio, HTTP, and Unix sockets
- */
 export class SwarmMCPServer {
   private mcpServer: MCPServer;
   private config: ServerConfig;
@@ -68,6 +60,28 @@ export class SwarmMCPServer {
     this.registerTools();
   }
 
+  async loadConfiguration(): Promise<void> {
+    try {
+      await configManager.loadConfig();
+
+      const loggingConfig = configManager.getLoggingConfig();
+      logger.updateConfig({
+        logging: {
+          level: loggingConfig.level || 'info',
+          format: loggingConfig.format || 'json',
+        },
+      });
+
+      logger.info('Configuration loaded and applied', {
+        configPath: configManager.getConfigPath(),
+      });
+    } catch (error) {
+      logger.warn('Failed to load configuration, using defaults', {
+        error: error instanceof Error ? error.message : String(error),
+      });
+    }
+  }
+
   private setupEventHandlers(): void {
     this.mcpServer.oninitialized = (): void => {
       logger.info('MCP client initialized');
@@ -84,14 +98,7 @@ export class SwarmMCPServer {
     };
   }
 
-  /**
-   * Register all available tools with the MCP server
-   */
   private registerTools(): void {
-    // Note: Request handlers are commented out due to type compatibility issues with the MCP SDK
-    // The SDK expects specific Zod schema types, but we need string method names for our tools
-    // TODO: Investigate proper MCP SDK tool registration approach
-
     logger.info('Tool registration framework initialized');
     logger.debug(
       'Available tools: filesystem operations, Swarm CLI generation tools'
@@ -449,9 +456,6 @@ export class SwarmMCPServer {
     }));
   }
 
-  /**
-   * Start the MCP server with the configured transport
-   */
   async start(): Promise<void> {
     if (this.state.isRunning) {
       throw new Error('Server is already running');
@@ -461,10 +465,9 @@ export class SwarmMCPServer {
       logger.info('Starting Swarm MCP Server', {
         name: this.config.name,
         version: this.config.version,
-        transport: Object.keys(this.config.transport)[0],
       });
 
-      this.transport = this.createTransport();
+      this.transport = new StdioServerTransport();
 
       await this.mcpServer.connect(this.transport);
 
@@ -482,9 +485,6 @@ export class SwarmMCPServer {
     }
   }
 
-  /**
-   * Stop the MCP server
-   */
   async stop(): Promise<void> {
     if (!this.state.isRunning) {
       return;
@@ -512,49 +512,10 @@ export class SwarmMCPServer {
     }
   }
 
-  /**
-   * Get the current server status
-   */
   getStatus(): ServerState {
     return { ...this.state };
   }
 
-  /**
-   * Create transport based on configuration
-   */
-  private createTransport(): MCPTransport {
-    if (this.config.transport.stdio) {
-      logger.debug('Creating stdio transport');
-      return new StdioServerTransport();
-    }
-
-    if (this.config.transport.http) {
-      logger.debug('Creating HTTP transport');
-      const { host = 'localhost', allowedOrigins = ['*'] } =
-        this.config.transport.http;
-
-      return new StreamableHTTPServerTransport({
-        sessionIdGenerator: () => randomUUID(),
-        enableDnsRebindingProtection: false,
-        allowedHosts: [host],
-        allowedOrigins,
-      });
-    }
-
-    if (this.config.transport.unixSocket) {
-      logger.debug('Creating Unix socket transport');
-      // TODO: Implement Unix socket transport
-      throw new Error('Unix socket transport not yet implemented');
-    }
-
-    // Default to stdio transport
-    logger.debug('Creating default stdio transport');
-    return new StdioServerTransport();
-  }
-
-  /**
-   * Get server information
-   */
   getInfo(): unknown {
     return {
       name: this.config.name,
@@ -566,12 +527,5 @@ export class SwarmMCPServer {
   }
 }
 
-export {
-  MCPErrorCode,
-  MCPProtocolError,
-  ServerConfig,
-  ServerState,
-  Tool,
-  TransportOptions
-};
+export { MCPErrorCode, MCPProtocolError, ServerConfig, ServerState, Tool };
 export default SwarmMCPServer;
