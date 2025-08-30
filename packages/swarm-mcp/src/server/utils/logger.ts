@@ -89,7 +89,6 @@ class Logger {
     this.log('error', message, context);
   }
 
-  // Method to update logger configuration
   updateConfig(config: Partial<ServerConfig>): void {
     if (config.name) {
       this.serviceName = config.name;
@@ -103,8 +102,5 @@ class Logger {
   }
 }
 
-// Create default logger instance
 export const logger = new Logger();
-
-// Export the Logger class for custom instances
 export { Logger };
