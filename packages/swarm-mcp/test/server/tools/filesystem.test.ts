@@ -1,4 +1,3 @@
-import fs from 'node:fs/promises';
 import path from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
@@ -8,12 +7,46 @@ import {
   resetProjectRootForTesting,
   rollback,
   setProjectRootForTesting,
-  writeFile
+  writeFile,
 } from '../../../src/server/tools/filesystem.js';
-import { MCPErrorCode, MCPProtocolError } from '../../../src/server/types/mcp.js';
+import { MCPProtocolError } from '../../../src/server/types/mcp.js';
 
-// Mock the filesystem operations
-vi.mock('node:fs/promises');
+vi.mock('../../../src/server/utils/backup.js', () => ({
+  createBackup: vi
+    .fn()
+    .mockResolvedValue('/test/backup/path/backup.txt.bak.123'),
+  generateRollbackToken: vi.fn().mockReturnValue('test-rollback-token-123'),
+  initializeBackup: vi.fn(),
+  performRollback: vi.fn(),
+  simulateFileOperation: vi.fn(
+    async (
+      targetPath: string,
+      operation: 'write' | 'delete',
+      backup: boolean = false
+    ) => ({
+      wouldOverwrite: false,
+      backupWouldBeCreated: !!backup && operation === 'write',
+      targetPath,
+    })
+  ),
+}));
+
+vi.mock('node:fs/promises', () => {
+  const api = {
+    access: vi.fn(),
+    copyFile: vi.fn(),
+    mkdir: vi.fn(),
+    readFile: vi.fn(),
+    readdir: vi.fn(),
+    realpath: vi.fn(),
+    rename: vi.fn(),
+    stat: vi.fn(),
+    unlink: vi.fn(),
+    writeFile: vi.fn(),
+  };
+  return { ...api, default: api };
+});
+
 vi.mock('mime-types', () => ({
   default: {
     lookup: vi.fn((filePath: string) => {
@@ -26,15 +59,17 @@ vi.mock('mime-types', () => ({
   },
 }));
 
-const mockFs = vi.mocked(fs);
-
 describe('Filesystem Tools', () => {
   const originalCwd = process.cwd();
   const testProjectRoot = '/test/project';
+  let mockFs: any;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     vi.clearAllMocks();
-    // Set up test environment
+
+    const fs = await import('node:fs/promises');
+    mockFs = fs;
+
     process.env.VITEST = 'true';
     setProjectRootForTesting(testProjectRoot);
   });
@@ -89,22 +124,34 @@ describe('Filesystem Tools', () => {
     it('should reject directory traversal attempts', async () => {
       const maliciousUri = '../../../etc/passwd';
 
-      await expect(readFile({ uri: maliciousUri })).rejects.toThrow(MCPProtocolError);
-      await expect(readFile({ uri: maliciousUri })).rejects.toThrow(/outside project directory/);
+      await expect(readFile({ uri: maliciousUri })).rejects.toThrow(
+        MCPProtocolError
+      );
+      await expect(readFile({ uri: maliciousUri })).rejects.toThrow(
+        /outside project directory/
+      );
     });
 
     it('should reject absolute paths', async () => {
       const absolutePath = '/etc/passwd';
 
-      await expect(readFile({ uri: absolutePath })).rejects.toThrow(MCPProtocolError);
-      await expect(readFile({ uri: absolutePath })).rejects.toThrow(/Absolute paths are not allowed/);
+      await expect(readFile({ uri: absolutePath })).rejects.toThrow(
+        MCPProtocolError
+      );
+      await expect(readFile({ uri: absolutePath })).rejects.toThrow(
+        /Absolute paths are not allowed/
+      );
     });
 
     it('should reject paths with null bytes', async () => {
-      const maliciousUri = 'test\0.txt'; // Actual null byte
+      const maliciousUri = 'test\0.txt';
 
-      await expect(readFile({ uri: maliciousUri })).rejects.toThrow(MCPProtocolError);
-      await expect(readFile({ uri: maliciousUri })).rejects.toThrow(/Null byte detected/);
+      await expect(readFile({ uri: maliciousUri })).rejects.toThrow(
+        MCPProtocolError
+      );
+      await expect(readFile({ uri: maliciousUri })).rejects.toThrow(
+        /Null byte detected/
+      );
     });
 
     it('should handle symlinks that escape project directory', async () => {
@@ -114,14 +161,18 @@ describe('Filesystem Tools', () => {
 
       mockFs.realpath.mockResolvedValue(dangerousTarget);
 
-      await expect(readFile({ uri: testUri })).rejects.toThrow(MCPProtocolError);
-      await expect(readFile({ uri: testUri })).rejects.toThrow(/Symlink escapes project directory/);
+      await expect(readFile({ uri: testUri })).rejects.toThrow(
+        MCPProtocolError
+      );
+      await expect(readFile({ uri: testUri })).rejects.toThrow(
+        /Symlink escapes project directory/
+      );
     });
 
     it('should enforce file size limits', async () => {
       const testUri = 'large.txt';
       const expectedPath = path.join(testProjectRoot, testUri);
-      const largeSize = 500 * 1024; // 500KB, exceeds 400KB limit
+      const largeSize = 500 * 1024;
 
       mockFs.realpath.mockResolvedValue(expectedPath);
       mockFs.stat.mockResolvedValue({
@@ -129,17 +180,27 @@ describe('Filesystem Tools', () => {
         size: largeSize,
       } as any);
 
-      await expect(readFile({ uri: testUri })).rejects.toThrow(MCPProtocolError);
-      await expect(readFile({ uri: testUri })).rejects.toThrow(/File too large/);
+      await expect(readFile({ uri: testUri })).rejects.toThrow(
+        MCPProtocolError
+      );
+      await expect(readFile({ uri: testUri })).rejects.toThrow(
+        /File too large/
+      );
     });
 
     it('should handle file not found errors', async () => {
       const testUri = 'nonexistent.txt';
 
-      mockFs.realpath.mockRejectedValue(new Error('ENOENT: no such file or directory'));
-      mockFs.stat.mockRejectedValue(new Error('ENOENT: no such file or directory'));
+      mockFs.realpath.mockRejectedValue(
+        new Error('ENOENT: no such file or directory')
+      );
+      mockFs.stat.mockRejectedValue(
+        new Error('ENOENT: no such file or directory')
+      );
 
-      await expect(readFile({ uri: testUri })).rejects.toThrow(MCPProtocolError);
+      await expect(readFile({ uri: testUri })).rejects.toThrow(
+        MCPProtocolError
+      );
     });
 
     it('should reject directories when expecting files', async () => {
@@ -153,8 +214,12 @@ describe('Filesystem Tools', () => {
         size: 0,
       } as any);
 
-      await expect(readFile({ uri: testUri })).rejects.toThrow(MCPProtocolError);
-      await expect(readFile({ uri: testUri })).rejects.toThrow(/Path is not a file/);
+      await expect(readFile({ uri: testUri })).rejects.toThrow(
+        MCPProtocolError
+      );
+      await expect(readFile({ uri: testUri })).rejects.toThrow(
+        /Path is not a file/
+      );
     });
 
     it('should handle empty file URI', async () => {
@@ -173,51 +238,56 @@ describe('Filesystem Tools', () => {
       mockFs.writeFile.mockResolvedValue(undefined);
       mockFs.rename.mockResolvedValue(undefined);
 
-      const result = await writeFile({ 
-        uri: testUri, 
+      const result = await writeFile({
+        uri: testUri,
         contents: testContent,
-        mimeType: 'text/plain'
+        mimeType: 'text/plain',
       });
 
       expect(result.success).toBe(true);
       expect(mockFs.mkdir).toHaveBeenCalledWith(parentDir, { recursive: true });
-      
-      // Check for atomic file operation: temp file write + rename
+
       expect(mockFs.writeFile).toHaveBeenCalledTimes(1);
       const writeFileCall = mockFs.writeFile.mock.calls[0];
       expect(writeFileCall[1]).toBe(testContent);
       expect(writeFileCall[2]).toBe('utf8');
-      // The temp file should start with the target path and have .tmp. in the name
-      expect(writeFileCall[0]).toMatch(new RegExp(`^${expectedPath}\\.tmp\\.\\d+$`));
-      
-      // Check that rename was called to move temp file to final location
+      expect(writeFileCall[0]).toMatch(
+        new RegExp(`^${expectedPath}\\.tmp\\.\\d+$`)
+      );
+
       expect(mockFs.rename).toHaveBeenCalledTimes(1);
       const renameCall = mockFs.rename.mock.calls[0];
-      expect(renameCall[0]).toBe(writeFileCall[0]); // from temp file
-      expect(renameCall[1]).toBe(expectedPath); // to final location
+      expect(renameCall[0]).toBe(writeFileCall[0]);
+      expect(renameCall[1]).toBe(expectedPath);
     });
 
     it('should reject directory traversal in write operations', async () => {
       const maliciousUri = '../../../tmp/evil.txt';
       const testContent = 'malicious content';
 
-      await expect(writeFile({ 
-        uri: maliciousUri, 
-        contents: testContent 
-      })).rejects.toThrow(MCPProtocolError);
+      await expect(
+        writeFile({
+          uri: maliciousUri,
+          contents: testContent,
+        })
+      ).rejects.toThrow(MCPProtocolError);
     });
 
     it('should handle write permission errors', async () => {
       const testUri = 'protected.txt';
       const testContent = 'content';
-      
-      mockFs.mkdir.mockResolvedValue(undefined);
-      mockFs.writeFile.mockRejectedValue(new Error('EACCES: permission denied'));
 
-      await expect(writeFile({ 
-        uri: testUri, 
-        contents: testContent 
-      })).rejects.toThrow(MCPProtocolError);
+      mockFs.mkdir.mockResolvedValue(undefined);
+      mockFs.writeFile.mockRejectedValue(
+        new Error('EACCES: permission denied')
+      );
+
+      await expect(
+        writeFile({
+          uri: testUri,
+          contents: testContent,
+        })
+      ).rejects.toThrow(MCPProtocolError);
     });
 
     it('should perform dry run without writing files', async () => {
@@ -225,37 +295,98 @@ describe('Filesystem Tools', () => {
       const testContent = 'This should not be written';
       const expectedPath = path.join(testProjectRoot, testUri);
 
-      // Mock file exists check for dry run simulation - file doesn't exist
-      mockFs.access.mockRejectedValueOnce({ code: 'ENOENT' }); // File doesn't exist
+      mockFs.access.mockRejectedValueOnce({ code: 'ENOENT' });
 
       const result = await writeFile({
         uri: testUri,
         contents: testContent,
         dryRun: true,
-        backup: false // Simpler test without backup complications
+        backup: false,
       });
 
       expect(result.success).toBe(true);
       expect(result.dryRun).toEqual({
         wouldOverwrite: false,
         backupWouldBeCreated: false,
-        targetPath: expectedPath
+        targetPath: expectedPath,
       });
 
-      // Verify no actual filesystem operations occurred
       expect(mockFs.writeFile).not.toHaveBeenCalled();
       expect(mockFs.rename).not.toHaveBeenCalled();
       expect(mockFs.mkdir).not.toHaveBeenCalled();
     });
 
-    // Note: Backup tests are disabled for now due to complex mocking requirements
-    // The backup functionality works in production but requires more sophisticated test setup
-    it.skip('should create backup when backup option is enabled', async () => {
-      // TODO: Implement proper backup test with comprehensive mocking
+    it('should create backup when backup option is enabled', async () => {
+      const testUri = 'backup-file.txt';
+      const testContent = 'Content requiring backup';
+      const expectedPath = path.join(testProjectRoot, testUri);
+      const parentDir = path.dirname(expectedPath);
+
+      mockFs.mkdir.mockResolvedValue(undefined);
+      mockFs.writeFile.mockResolvedValue(undefined);
+      mockFs.rename.mockResolvedValue(undefined);
+
+      const backup = await import('../../../src/server/utils/backup.js');
+
+      const result = await writeFile({
+        uri: testUri,
+        contents: testContent,
+        backup: true,
+      });
+
+      expect(result.success).toBe(true);
+      expect((backup as any).createBackup).toHaveBeenCalledTimes(1);
+
+      expect(mockFs.mkdir).toHaveBeenCalledWith(parentDir, { recursive: true });
+      expect(mockFs.writeFile).toHaveBeenCalledTimes(1);
+      expect(mockFs.rename).toHaveBeenCalledTimes(1);
+
+      const cbCalls1 = (backup as any).createBackup.mock.calls;
+      expect(cbCalls1.length).toBe(1);
+      expect(cbCalls1[0][0]).toBe(expectedPath);
+      if (cbCalls1[0].length >= 2) {
+        const tokenArg = cbCalls1[0][1];
+        expect(tokenArg === undefined || typeof tokenArg === 'string').toBe(
+          true
+        );
+      }
     });
 
-    it.skip('should handle backup creation when original file does not exist', async () => {
-      // TODO: Implement proper backup test with comprehensive mocking
+    it('should handle backup creation when original file does not exist', async () => {
+      const testUri = 'no-original.txt';
+      const testContent = 'New content';
+      const expectedPath = path.join(testProjectRoot, testUri);
+      const parentDir = path.dirname(expectedPath);
+
+      mockFs.mkdir.mockResolvedValue(undefined);
+      mockFs.writeFile.mockResolvedValue(undefined);
+      mockFs.rename.mockResolvedValue(undefined);
+
+      const backup = await import('../../../src/server/utils/backup.js');
+      (backup as any).createBackup.mockResolvedValueOnce('');
+
+      const result = await writeFile({
+        uri: testUri,
+        contents: testContent,
+        backup: true,
+      });
+
+      expect(result.success).toBe(true);
+      expect(result.backupPath).toBeUndefined();
+
+      expect(mockFs.mkdir).toHaveBeenCalledWith(parentDir, { recursive: true });
+      expect(mockFs.writeFile).toHaveBeenCalledTimes(1);
+      expect(mockFs.rename).toHaveBeenCalledTimes(1);
+
+      const cbCalls2 = (backup as any).createBackup.mock.calls;
+      expect(cbCalls2.length).toBe(1);
+      expect(cbCalls2[0][0]).toBe(expectedPath);
+      if (cbCalls2[0].length >= 2) {
+        const tokenArg = cbCalls2[0][1];
+        expect(tokenArg === undefined || typeof tokenArg === 'string').toBe(
+          true
+        );
+      }
     });
   });
 
@@ -266,30 +397,30 @@ describe('Filesystem Tools', () => {
       const mockEntries = ['file1.txt', 'file2.js', 'subdir'];
       const mockDate = new Date('2023-01-01T12:00:00Z');
 
-      mockFs.stat.mockImplementation(async (filePath) => {
+      mockFs.stat.mockImplementation(async filePath => {
         const pathStr = filePath.toString();
         if (pathStr === expectedPath) {
-          return { 
-            isDirectory: () => true, 
+          return {
+            isDirectory: () => true,
             isFile: () => false,
-            mtime: mockDate
+            mtime: mockDate,
           } as any;
         }
         if (pathStr.endsWith('subdir')) {
-          return { 
-            isDirectory: () => true, 
+          return {
+            isDirectory: () => true,
             isFile: () => false,
-            mtime: mockDate
+            mtime: mockDate,
           } as any;
         }
-        return { 
-          isDirectory: () => false, 
+        return {
+          isDirectory: () => false,
           isFile: () => true,
           size: 1024,
-          mtime: mockDate
+          mtime: mockDate,
         } as any;
       });
-      
+
       mockFs.readdir.mockResolvedValue(mockEntries as any);
 
       const result = await listDirectory({ uri: testUri });
@@ -314,7 +445,9 @@ describe('Filesystem Tools', () => {
     it('should reject directory traversal in list operations', async () => {
       const maliciousUri = '../../../';
 
-      await expect(listDirectory({ uri: maliciousUri })).rejects.toThrow(MCPProtocolError);
+      await expect(listDirectory({ uri: maliciousUri })).rejects.toThrow(
+        MCPProtocolError
+      );
     });
 
     it('should handle permission errors on directory listing', async () => {
@@ -327,7 +460,9 @@ describe('Filesystem Tools', () => {
       } as any);
       mockFs.readdir.mockRejectedValue(new Error('EACCES: permission denied'));
 
-      await expect(listDirectory({ uri: testUri })).rejects.toThrow(MCPProtocolError);
+      await expect(listDirectory({ uri: testUri })).rejects.toThrow(
+        MCPProtocolError
+      );
     });
   });
 
@@ -357,16 +492,24 @@ describe('Filesystem Tools', () => {
         isDirectory: () => true,
       } as any);
 
-      await expect(deleteFile({ uri: testUri })).rejects.toThrow(MCPProtocolError);
-      await expect(deleteFile({ uri: testUri })).rejects.toThrow(/Path is not a file/);
+      await expect(deleteFile({ uri: testUri })).rejects.toThrow(
+        MCPProtocolError
+      );
+      await expect(deleteFile({ uri: testUri })).rejects.toThrow(
+        /Path is not a file/
+      );
     });
 
     it('should handle file not found during deletion', async () => {
       const testUri = 'nonexistent.txt';
 
-      mockFs.stat.mockRejectedValue(new Error('ENOENT: no such file or directory'));
+      mockFs.stat.mockRejectedValue(
+        new Error('ENOENT: no such file or directory')
+      );
 
-      await expect(deleteFile({ uri: testUri })).rejects.toThrow(MCPProtocolError);
+      await expect(deleteFile({ uri: testUri })).rejects.toThrow(
+        MCPProtocolError
+      );
     });
   });
 
@@ -374,13 +517,19 @@ describe('Filesystem Tools', () => {
     it('should handle invalid rollback token', async () => {
       const invalidToken = 'invalid-token';
 
-      await expect(rollback({ rollbackToken: invalidToken })).rejects.toThrow(MCPProtocolError);
-      await expect(rollback({ rollbackToken: invalidToken })).rejects.toThrow(/Failed to perform rollback/);
+      await expect(rollback({ rollbackToken: invalidToken })).rejects.toThrow(
+        MCPProtocolError
+      );
+      await expect(rollback({ rollbackToken: invalidToken })).rejects.toThrow(
+        /Failed to perform rollback/
+      );
     });
 
     it('should handle missing parameters', async () => {
       await expect(rollback({} as any)).rejects.toThrow(MCPProtocolError);
-      await expect(rollback({ rollbackToken: '' })).rejects.toThrow(MCPProtocolError);
+      await expect(rollback({ rollbackToken: '' })).rejects.toThrow(
+        MCPProtocolError
+      );
     });
   });
 
@@ -395,22 +544,25 @@ describe('Filesystem Tools', () => {
       ];
 
       for (const testUri of testCases) {
-        mockFs.realpath.mockResolvedValue(path.join(testProjectRoot, 'file.txt'));
+        mockFs.realpath.mockResolvedValue(
+          path.join(testProjectRoot, 'file.txt')
+        );
         mockFs.stat.mockResolvedValue({
           isFile: () => true,
           size: 100,
         } as any);
         mockFs.readFile.mockResolvedValue('content');
 
-        // These should all succeed and resolve to the same safe path
         await expect(readFile({ uri: testUri })).resolves.toBeDefined();
       }
     });
 
     it('should handle Windows-style path separators', async () => {
       const testUri = 'dir\\file.txt';
-      
-      mockFs.realpath.mockResolvedValue(path.join(testProjectRoot, 'dir', 'file.txt'));
+
+      mockFs.realpath.mockResolvedValue(
+        path.join(testProjectRoot, 'dir', 'file.txt')
+      );
       mockFs.stat.mockResolvedValue({
         isFile: () => true,
         size: 100,
@@ -429,7 +581,9 @@ describe('Filesystem Tools', () => {
       ];
 
       for (const maliciousUri of maliciousCases) {
-        await expect(readFile({ uri: maliciousUri })).rejects.toThrow(MCPProtocolError);
+        await expect(readFile({ uri: maliciousUri })).rejects.toThrow(
+          MCPProtocolError
+        );
       }
     });
   });
