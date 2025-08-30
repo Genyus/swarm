@@ -1,26 +1,22 @@
 import { describe, expect, it } from 'vitest';
 import {
-  HttpMethodSchema,
-  OperationTypeSchema,
-  SwarmAnalyzeProjectParamsSchema,
-  SwarmGenerateAPIParamsSchema,
-  SwarmGenerateCRUDParamsSchema,
-  SwarmGenerateFeatureParamsSchema,
-  SwarmGenerateJobParamsSchema,
-  SwarmGenerateOperationParamsSchema,
-  SwarmGenerateRouteParamsSchema,
-  SwarmValidateConfigParamsSchema,
-  isActionOperation,
-  isHttpMethod,
-  isOperationType,
-  isQueryOperation,
-  isSwarmError,
-  type HttpMethod,
-  type OperationType,
-  type SwarmAnalyzeProjectResult,
-  type SwarmError,
-  type SwarmGenerateAPIParams,
-  type SwarmValidateConfigResult,
+    HttpMethodSchema,
+    OperationTypeSchema,
+    SwarmGenerateApiParamsSchema,
+    SwarmGenerateCrudParamsSchema,
+    SwarmGenerateFeatureParamsSchema,
+    SwarmGenerateJobParamsSchema,
+    SwarmGenerateOperationParamsSchema,
+    SwarmGenerateRouteParamsSchema,
+    isActionOperation,
+    isHttpMethod,
+    isOperationType,
+    isQueryOperation,
+    isSwarmError,
+    type HttpMethod,
+    type OperationType,
+    type SwarmError,
+    type SwarmGenerateApiParams,
 } from '../../src/server/types/swarm.js';
 
 describe('Swarm Types', () => {
@@ -143,7 +139,7 @@ describe('Swarm Types', () => {
 
     describe('SwarmGenerateAPIParamsSchema', () => {
       it('should validate correct API generation parameters', () => {
-        const validParams: SwarmGenerateAPIParams = {
+        const validParams: SwarmGenerateApiParams = {
           name: 'UserAPI',
           method: 'GET',
           route: '/api/users',
@@ -152,7 +148,7 @@ describe('Swarm Types', () => {
           force: false,
         };
         expect(() =>
-          SwarmGenerateAPIParamsSchema.parse(validParams)
+          SwarmGenerateApiParamsSchema.parse(validParams)
         ).not.toThrow();
       });
 
@@ -166,7 +162,7 @@ describe('Swarm Types', () => {
         ];
 
         invalidParams.forEach(params => {
-          expect(() => SwarmGenerateAPIParamsSchema.parse(params)).toThrow();
+          expect(() => SwarmGenerateApiParamsSchema.parse(params)).toThrow();
         });
       });
     });
@@ -206,7 +202,7 @@ describe('Swarm Types', () => {
           force: true,
         };
         expect(() =>
-          SwarmGenerateCRUDParamsSchema.parse(validParams)
+          SwarmGenerateCrudParamsSchema.parse(validParams)
         ).not.toThrow();
       });
 
@@ -215,7 +211,7 @@ describe('Swarm Types', () => {
           dataType: '',
         };
         expect(() =>
-          SwarmGenerateCRUDParamsSchema.parse(invalidParams)
+          SwarmGenerateCrudParamsSchema.parse(invalidParams)
         ).toThrow();
       });
     });
@@ -276,116 +272,7 @@ describe('Swarm Types', () => {
       });
     });
 
-    describe('SwarmAnalyzeProjectParamsSchema', () => {
-      it('should validate correct project analysis parameters', () => {
-        const validParams = {
-          projectPath: '/path/to/project',
-          includeDependencies: true,
-          includeStructure: true,
-          deep: false,
-        };
-        expect(() =>
-          SwarmAnalyzeProjectParamsSchema.parse(validParams)
-        ).not.toThrow();
-      });
 
-      it('should allow empty parameters', () => {
-        expect(() => SwarmAnalyzeProjectParamsSchema.parse({})).not.toThrow();
-      });
-    });
-
-    describe('SwarmValidateConfigParamsSchema', () => {
-      it('should validate correct config validation parameters', () => {
-        const validParams = {
-          configPath: './wasp.config.js',
-          strict: true,
-          checkDependencies: true,
-        };
-        expect(() =>
-          SwarmValidateConfigParamsSchema.parse(validParams)
-        ).not.toThrow();
-      });
-    });
   });
 
-  describe('Complex Types', () => {
-    describe('SwarmAnalyzeProjectResult', () => {
-      it('should have the correct structure', () => {
-        const result: SwarmAnalyzeProjectResult = {
-          success: true,
-          output: 'Analysis complete',
-          projectType: 'wasp',
-          waspVersion: '0.12.0',
-          dependencies: ['react', 'prisma'],
-          devDependencies: ['typescript', 'vitest'],
-          structure: {
-            features: ['auth', 'user-management'],
-            entities: ['User', 'Task'],
-            operations: {
-              queries: ['getUser', 'getAllTasks'],
-              actions: ['createTask', 'updateUser'],
-            },
-            apis: ['userApi', 'taskApi'],
-            routes: ['/dashboard', '/login'],
-            jobs: ['emailSender'],
-            pages: ['MainPage', 'LoginPage'],
-            components: ['TaskList', 'UserProfile'],
-          },
-          recommendations: ['Add error handling', 'Implement caching'],
-          issues: [
-            {
-              level: 'warning',
-              message: 'Unused import detected',
-              file: 'src/Main.tsx',
-              line: 5,
-            },
-          ],
-        };
-
-        expect(result.projectType).toBe('wasp');
-        expect(result.structure.entities).toHaveLength(2);
-        expect(result.issues[0].level).toBe('warning');
-      });
-    });
-
-    describe('SwarmValidateConfigResult', () => {
-      it('should have the correct structure', () => {
-        const result: SwarmValidateConfigResult = {
-          success: true,
-          output: 'Validation complete',
-          isValid: false,
-          errors: [
-            {
-              type: 'syntax',
-              message: 'Missing semicolon',
-              file: 'wasp.config.js',
-              line: 10,
-              column: 25,
-            },
-          ],
-          warnings: [
-            {
-              type: 'deprecated',
-              message: 'This feature is deprecated',
-              file: 'main.wasp',
-              suggestion: 'Use the new syntax instead',
-            },
-          ],
-          configSummary: {
-            totalEntities: 3,
-            totalOperations: 8,
-            totalRoutes: 5,
-            totalJobs: 2,
-            authEnabled: true,
-            dbProvider: 'postgresql',
-          },
-        };
-
-        expect(result.isValid).toBe(false);
-        expect(result.errors).toHaveLength(1);
-        expect(result.warnings[0].type).toBe('deprecated');
-        expect(result.configSummary?.authEnabled).toBe(true);
-      });
-    });
-  });
 });

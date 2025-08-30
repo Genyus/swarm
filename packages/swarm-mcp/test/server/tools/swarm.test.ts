@@ -2,15 +2,13 @@ import { spawn } from 'node:child_process';
 import fs from 'node:fs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
-  swarmAnalyzeProject,
-  swarmGenerateAPI,
+  swarmGenerateApi,
   swarmGenerateApiNamespace,
-  swarmGenerateCRUD,
+  swarmGenerateCrud,
   swarmGenerateFeature,
   swarmGenerateJob,
   swarmGenerateOperation,
   swarmGenerateRoute,
-  swarmValidateConfig,
 } from '../../../src/server/tools/swarm.js';
 
 // Mock the child_process module
@@ -40,7 +38,7 @@ describe('Swarm Tools', () => {
 
   describe('swarmGenerateAPI', () => {
     it('should validate required parameters', async () => {
-      await expect(swarmGenerateAPI({})).rejects.toThrow();
+      await expect(swarmGenerateApi({})).rejects.toThrow();
     });
 
     it('should validate parameter types', async () => {
@@ -50,7 +48,7 @@ describe('Swarm Tools', () => {
         route: '', // should not be empty
       };
 
-      await expect(swarmGenerateAPI(invalidParams)).rejects.toThrow();
+      await expect(swarmGenerateApi(invalidParams)).rejects.toThrow();
     });
 
     it('should accept valid parameters', async () => {
@@ -93,7 +91,7 @@ describe('Swarm Tools', () => {
 
       mockFs.statSync.mockReturnValue({ mtime: new Date() } as any);
 
-      const result = await swarmGenerateAPI(validParams);
+      const result = await swarmGenerateApi(validParams);
 
       expect(result.success).toBe(true);
       expect(result.output).toContain('UserAPI');
@@ -126,7 +124,7 @@ describe('Swarm Tools', () => {
 
       mockSpawn.mockReturnValue(mockProcess as any);
 
-      await expect(swarmGenerateAPI(validParams)).rejects.toThrow(
+      await expect(swarmGenerateApi(validParams)).rejects.toThrow(
         'Swarm generation failed: api generate'
       );
     });
@@ -163,7 +161,7 @@ describe('Swarm Tools', () => {
       // Mock empty file scans
       mockFs.readdirSync.mockReturnValue([]);
 
-      await swarmGenerateAPI(params);
+      await swarmGenerateApi(params);
 
       // Verify the command was called with correct arguments
       expect(mockSpawn).toHaveBeenCalledWith(
@@ -269,7 +267,7 @@ describe('Swarm Tools', () => {
       mockSpawn.mockReturnValue(mockProcess as any);
       mockFs.readdirSync.mockReturnValue([]);
 
-      await swarmGenerateCRUD(params);
+      await swarmGenerateCrud(params);
 
       expect(mockSpawn).toHaveBeenCalledWith(
         'npx',
@@ -405,60 +403,7 @@ describe('Swarm Tools', () => {
       );
     });
 
-    it('should analyze project with correct parameters', async () => {
-      const params = {
-        deep: true,
-        projectPath: '/test/project',
-      };
 
-      const mockProcess = {
-        stdout: { on: vi.fn() },
-        stderr: { on: vi.fn() },
-        on: vi.fn((event, callback) => {
-          if (event === 'close') {
-            callback(0);
-          }
-        }),
-      };
-
-      mockSpawn.mockReturnValue(mockProcess as any);
-
-      await swarmAnalyzeProject(params);
-
-      expect(mockSpawn).toHaveBeenCalledWith(
-        'npx',
-        ['swarm', 'analyze', '--project-path', '/test/project', '--deep'],
-        expect.any(Object)
-      );
-    });
-
-    it('should validate config with correct parameters', async () => {
-      const params = {
-        strict: true,
-        configPath: './custom.wasp',
-        projectPath: '/test/project',
-      };
-
-      const mockProcess = {
-        stdout: { on: vi.fn() },
-        stderr: { on: vi.fn() },
-        on: vi.fn((event, callback) => {
-          if (event === 'close') {
-            callback(0);
-          }
-        }),
-      };
-
-      mockSpawn.mockReturnValue(mockProcess as any);
-
-      await swarmValidateConfig(params);
-
-      expect(mockSpawn).toHaveBeenCalledWith(
-        'npx',
-        ['swarm', 'validate', '--config-path', './custom.wasp', '--strict'],
-        expect.any(Object)
-      );
-    });
 
     it('should generate API namespace with correct parameters', async () => {
       const params = {

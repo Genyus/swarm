@@ -13,17 +13,13 @@ import type {
 
 import type {
   GenerationResult,
-  SwarmAnalyzeProjectParams,
-  SwarmAnalyzeProjectResult,
   SwarmGenerateApiNamespaceParams,
-  SwarmGenerateAPIParams,
-  SwarmGenerateCRUDParams,
+  SwarmGenerateApiParams,
+  SwarmGenerateCrudParams,
   SwarmGenerateFeatureParams,
   SwarmGenerateJobParams,
   SwarmGenerateOperationParams,
   SwarmGenerateRouteParams,
-  SwarmValidateConfigParams,
-  SwarmValidateConfigResult,
 } from '../types/swarm.js';
 
 import {
@@ -35,15 +31,13 @@ import {
 } from './filesystem.js';
 
 import {
-  swarmAnalyzeProject,
-  swarmGenerateAPI,
+  swarmGenerateApi,
   swarmGenerateApiNamespace,
-  swarmGenerateCRUD,
+  swarmGenerateCrud,
   swarmGenerateFeature,
   swarmGenerateJob,
   swarmGenerateOperation,
   swarmGenerateRoute,
-  swarmValidateConfig,
 } from './swarm.js';
 
 export * from './filesystem.js';
@@ -59,14 +53,14 @@ export const tools = {
     params: DeleteFileParams
   ) => Promise<DeleteFileResult>,
   rollback: rollback as (params: RollbackParams) => Promise<RollbackResult>,
-  swarm_generate_api: swarmGenerateAPI as (
-    params: SwarmGenerateAPIParams
+  swarm_generate_api: swarmGenerateApi as (
+    params: SwarmGenerateApiParams
   ) => Promise<GenerationResult>,
   swarm_generate_feature: swarmGenerateFeature as (
     params: SwarmGenerateFeatureParams
   ) => Promise<GenerationResult>,
-  swarm_generate_crud: swarmGenerateCRUD as (
-    params: SwarmGenerateCRUDParams
+  swarm_generate_crud: swarmGenerateCrud as (
+    params: SwarmGenerateCrudParams
   ) => Promise<GenerationResult>,
   swarm_generate_job: swarmGenerateJob as (
     params: SwarmGenerateJobParams
@@ -80,10 +74,4 @@ export const tools = {
   swarm_generate_apinamespace: swarmGenerateApiNamespace as (
     params: SwarmGenerateApiNamespaceParams
   ) => Promise<GenerationResult>,
-  swarm_analyze_project: swarmAnalyzeProject as (
-    params: SwarmAnalyzeProjectParams
-  ) => Promise<SwarmAnalyzeProjectResult>,
-  swarm_validate_config: swarmValidateConfig as (
-    params: SwarmValidateConfigParams
-  ) => Promise<SwarmValidateConfigResult>,
 } as const;

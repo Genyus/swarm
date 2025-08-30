@@ -1,11 +1,11 @@
 import { z } from 'zod';
 
-export interface SwarmCLIParams {
+export interface SwarmCliParams {
   projectPath?: string;
   options?: Record<string, unknown>;
 }
 
-export interface SwarmCLIResult {
+export interface SwarmCliResult {
   success: boolean;
   output: string;
   error?: string;
@@ -18,7 +18,7 @@ export type OperationType = 'query' | 'action';
 export type ActionOperation = 'create' | 'update' | 'delete';
 export type QueryOperation = 'get' | 'getAll';
 
-export interface SwarmGenerateAPIParams extends SwarmCLIParams {
+export interface SwarmGenerateApiParams extends SwarmCliParams {
   name: string;
   method: HttpMethod;
   route: string;
@@ -27,7 +27,7 @@ export interface SwarmGenerateAPIParams extends SwarmCLIParams {
   force?: boolean;
 }
 
-export interface SwarmGenerateFeatureParams extends SwarmCLIParams {
+export interface SwarmGenerateFeatureParams extends SwarmCliParams {
   name: string;
   dataType?: string;
   components?: string[];
@@ -35,7 +35,7 @@ export interface SwarmGenerateFeatureParams extends SwarmCLIParams {
   force?: boolean;
 }
 
-export interface SwarmGenerateCRUDParams extends SwarmCLIParams {
+export interface SwarmGenerateCrudParams extends SwarmCliParams {
   dataType: string;
   public?: string[];
   override?: string[];
@@ -43,7 +43,7 @@ export interface SwarmGenerateCRUDParams extends SwarmCLIParams {
   force?: boolean;
 }
 
-export interface SwarmGenerateJobParams extends SwarmCLIParams {
+export interface SwarmGenerateJobParams extends SwarmCliParams {
   name: string;
   schedule?: string;
   scheduleArgs?: string;
@@ -51,7 +51,7 @@ export interface SwarmGenerateJobParams extends SwarmCLIParams {
   force?: boolean;
 }
 
-export interface SwarmGenerateOperationParams extends SwarmCLIParams {
+export interface SwarmGenerateOperationParams extends SwarmCliParams {
   feature: string;
   operation: ActionOperation | QueryOperation;
   dataType: string;
@@ -60,81 +60,17 @@ export interface SwarmGenerateOperationParams extends SwarmCLIParams {
   force?: boolean;
 }
 
-export interface SwarmGenerateRouteParams extends SwarmCLIParams {
+export interface SwarmGenerateRouteParams extends SwarmCliParams {
   name: string;
   path: string;
   auth?: boolean;
   force?: boolean;
 }
 
-export interface SwarmGenerateApiNamespaceParams extends SwarmCLIParams {
+export interface SwarmGenerateApiNamespaceParams extends SwarmCliParams {
   name: string;
   path: string;
   force?: boolean;
-}
-
-export interface SwarmAnalyzeProjectParams extends SwarmCLIParams {
-  includeDependencies?: boolean;
-  includeStructure?: boolean;
-  deep?: boolean;
-}
-
-export interface SwarmAnalyzeProjectResult extends SwarmCLIResult {
-  projectType: 'wasp' | 'unknown';
-  waspVersion?: string;
-  dependencies: string[];
-  devDependencies: string[];
-  structure: {
-    features: string[];
-    entities: string[];
-    operations: {
-      queries: string[];
-      actions: string[];
-    };
-    apis: string[];
-    routes: string[];
-    jobs: string[];
-    pages: string[];
-    components: string[];
-  };
-  recommendations: string[];
-  issues: {
-    level: 'error' | 'warning' | 'info';
-    message: string;
-    file?: string;
-    line?: number;
-  }[];
-}
-
-export interface SwarmValidateConfigParams extends SwarmCLIParams {
-  configPath?: string;
-  strict?: boolean;
-  checkDependencies?: boolean;
-}
-
-export interface SwarmValidateConfigResult extends SwarmCLIResult {
-  isValid: boolean;
-  errors: {
-    type: 'syntax' | 'semantic' | 'dependency' | 'file';
-    message: string;
-    file?: string;
-    line?: number;
-    column?: number;
-  }[];
-  warnings: {
-    type: 'deprecated' | 'performance' | 'best-practice';
-    message: string;
-    file?: string;
-    suggestion?: string;
-  }[];
-  configSummary?: {
-    totalEntities: number;
-    totalOperations: number;
-    totalRoutes: number;
-    totalJobs: number;
-    authEnabled: boolean;
-    dbProvider: string;
-  };
 }
 
 export interface FeatureDefinition {
@@ -178,7 +114,7 @@ export interface RelationshipDefinition {
   references?: string[];
 }
 
-export interface GenerationResult extends SwarmCLIResult {
+export interface GenerationResult extends SwarmCliResult {
   generatedFiles: string[];
   modifiedFiles: string[];
   skippedFiles?: string[];
@@ -254,12 +190,12 @@ export const OperationTypeSchema = z.enum(['query', 'action']);
 export const ActionOperationSchema = z.enum(['create', 'update', 'delete']);
 export const QueryOperationSchema = z.enum(['get', 'getAll']);
 
-export const SwarmCLIParamsSchema = z.object({
+export const SwarmCliParamsSchema = z.object({
   projectPath: z.string().optional(),
   options: z.record(z.unknown()).optional(),
 });
 
-export const SwarmGenerateAPIParamsSchema = SwarmCLIParamsSchema.extend({
+export const SwarmGenerateApiParamsSchema = SwarmCliParamsSchema.extend({
   name: z.string().min(1),
   method: HttpMethodSchema,
   route: z.string().min(1),
@@ -268,7 +204,7 @@ export const SwarmGenerateAPIParamsSchema = SwarmCLIParamsSchema.extend({
   force: z.boolean().optional(),
 });
 
-export const SwarmGenerateFeatureParamsSchema = SwarmCLIParamsSchema.extend({
+export const SwarmGenerateFeatureParamsSchema = SwarmCliParamsSchema.extend({
   name: z.string().min(1),
   dataType: z.string().optional(),
   components: z.array(z.string()).optional(),
@@ -276,7 +212,7 @@ export const SwarmGenerateFeatureParamsSchema = SwarmCLIParamsSchema.extend({
   force: z.boolean().optional(),
 });
 
-export const SwarmGenerateCRUDParamsSchema = SwarmCLIParamsSchema.extend({
+export const SwarmGenerateCrudParamsSchema = SwarmCliParamsSchema.extend({
   dataType: z.string().min(1),
   public: z.array(z.string()).optional(),
   override: z.array(z.string()).optional(),
@@ -284,7 +220,7 @@ export const SwarmGenerateCRUDParamsSchema = SwarmCLIParamsSchema.extend({
   force: z.boolean().optional(),
 });
 
-export const SwarmGenerateJobParamsSchema = SwarmCLIParamsSchema.extend({
+export const SwarmGenerateJobParamsSchema = SwarmCliParamsSchema.extend({
   name: z.string().min(1),
   schedule: z.string().optional(),
   scheduleArgs: z.string().optional(),
@@ -292,7 +228,7 @@ export const SwarmGenerateJobParamsSchema = SwarmCLIParamsSchema.extend({
   force: z.boolean().optional(),
 });
 
-export const SwarmGenerateOperationParamsSchema = SwarmCLIParamsSchema.extend({
+export const SwarmGenerateOperationParamsSchema = SwarmCliParamsSchema.extend({
   feature: z.string().min(1),
   operation: z.union([ActionOperationSchema, QueryOperationSchema]),
   dataType: z.string().min(1),
@@ -301,7 +237,7 @@ export const SwarmGenerateOperationParamsSchema = SwarmCLIParamsSchema.extend({
   force: z.boolean().optional(),
 });
 
-export const SwarmGenerateRouteParamsSchema = SwarmCLIParamsSchema.extend({
+export const SwarmGenerateRouteParamsSchema = SwarmCliParamsSchema.extend({
   name: z.string().min(1),
   path: z.string().min(1),
   auth: z.boolean().optional(),
@@ -309,23 +245,11 @@ export const SwarmGenerateRouteParamsSchema = SwarmCLIParamsSchema.extend({
 });
 
 export const SwarmGenerateApiNamespaceParamsSchema =
-  SwarmCLIParamsSchema.extend({
+  SwarmCliParamsSchema.extend({
     name: z.string().min(1),
     path: z.string().min(1),
     force: z.boolean().optional(),
   });
-
-export const SwarmAnalyzeProjectParamsSchema = SwarmCLIParamsSchema.extend({
-  includeDependencies: z.boolean().optional(),
-  includeStructure: z.boolean().optional(),
-  deep: z.boolean().optional(),
-});
-
-export const SwarmValidateConfigParamsSchema = SwarmCLIParamsSchema.extend({
-  configPath: z.string().optional(),
-  strict: z.boolean().optional(),
-  checkDependencies: z.boolean().optional(),
-});
 
 export function isHttpMethod(value: string): value is HttpMethod {
   return ['GET', 'POST', 'PUT', 'DELETE', 'ALL'].includes(value);
@@ -375,13 +299,11 @@ export interface SwarmGeneratorInfo {
   }[];
 }
 
-export type SwarmMCPToolName =
+export type SwarmMcpToolName =
   | 'swarm_generate_api'
   | 'swarm_generate_feature'
   | 'swarm_generate_crud'
   | 'swarm_generate_job'
   | 'swarm_generate_operation'
   | 'swarm_generate_route'
-  | 'swarm_generate_apinamespace'
-  | 'swarm_analyze_project'
-  | 'swarm_validate_config';
+  | 'swarm_generate_apinamespace';

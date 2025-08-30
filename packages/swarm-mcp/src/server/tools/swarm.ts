@@ -3,17 +3,13 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {
   GenerationResult,
-  SwarmAnalyzeProjectParamsSchema,
-  SwarmAnalyzeProjectResult,
-  SwarmGenerateAPIParamsSchema,
   SwarmGenerateApiNamespaceParamsSchema,
-  SwarmGenerateCRUDParamsSchema,
+  SwarmGenerateApiParamsSchema,
+  SwarmGenerateCrudParamsSchema,
   SwarmGenerateFeatureParamsSchema,
   SwarmGenerateJobParamsSchema,
   SwarmGenerateOperationParamsSchema,
   SwarmGenerateRouteParamsSchema,
-  SwarmValidateConfigParamsSchema,
-  SwarmValidateConfigResult,
 } from '../types/swarm.js';
 import { ErrorFactory, createErrorContext } from '../utils/errors.js';
 import { logger } from '../utils/logger.js';
@@ -72,13 +68,16 @@ async function trackGeneratedFiles(
   function scanDirectory(dirPath: string): void {
     try {
       const entries = fs.readdirSync(dirPath, { withFileTypes: true });
+
       for (const entry of entries) {
         const fullPath = path.join(dirPath, entry.name);
+
         if (entry.isDirectory()) {
           scanDirectory(fullPath);
         } else if (entry.isFile()) {
           try {
             const stats = fs.statSync(fullPath);
+
             beforeFiles.set(fullPath, stats.mtime.getTime());
           } catch {
             // Ignore files we can't stat
@@ -99,8 +98,10 @@ async function trackGeneratedFiles(
   function scanAfter(dirPath: string): void {
     try {
       const entries = fs.readdirSync(dirPath, { withFileTypes: true });
+
       for (const entry of entries) {
         const fullPath = path.join(dirPath, entry.name);
+
         if (entry.isDirectory()) {
           scanAfter(fullPath);
         } else if (entry.isFile()) {
@@ -129,12 +130,11 @@ async function trackGeneratedFiles(
   return { generatedFiles, modifiedFiles };
 }
 
-export async function swarmGenerateAPI(
+export async function swarmGenerateApi(
   params: unknown
 ): Promise<GenerationResult> {
   try {
-    const validParams = SwarmGenerateAPIParamsSchema.parse(params);
-
+    const validParams = SwarmGenerateApiParamsSchema.parse(params);
     const projectRoot = getProjectRoot(validParams.projectPath);
     const args = [
       'api',
@@ -174,8 +174,8 @@ export async function swarmGenerateAPI(
         logger.info(`Swarm CLI output: ${stdout}`);
       }
     );
-
     const output = `Successfully generated API: ${validParams.name}`;
+
     logger.info(output);
 
     return {
@@ -187,7 +187,9 @@ export async function swarmGenerateAPI(
     };
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
+
     logger.error(`Failed to generate API: ${errorMessage}`);
+
     throw ErrorFactory.swarmGeneration(
       'api',
       'generate',
@@ -206,9 +208,7 @@ export async function swarmGenerateFeature(
 ): Promise<GenerationResult> {
   try {
     const validParams = SwarmGenerateFeatureParamsSchema.parse(params);
-
     const projectRoot = getProjectRoot(validParams.projectPath);
-
     const args = ['feature', '--name', validParams.name];
 
     if (validParams.dataType) {
@@ -243,8 +243,8 @@ export async function swarmGenerateFeature(
         logger.info(`Swarm CLI output: ${stdout}`);
       }
     );
-
     const output = `Successfully generated feature: ${validParams.name}`;
+
     logger.info(output);
 
     return {
@@ -256,7 +256,9 @@ export async function swarmGenerateFeature(
     };
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
+
     logger.error(`Failed to generate feature: ${errorMessage}`);
+
     throw ErrorFactory.swarmGeneration(
       'feature',
       'generate',
@@ -270,14 +272,12 @@ export async function swarmGenerateFeature(
   }
 }
 
-export async function swarmGenerateCRUD(
+export async function swarmGenerateCrud(
   params: unknown
 ): Promise<GenerationResult> {
   try {
-    const validParams = SwarmGenerateCRUDParamsSchema.parse(params);
-
+    const validParams = SwarmGenerateCrudParamsSchema.parse(params);
     const projectRoot = getProjectRoot(validParams.projectPath);
-
     const args = ['crud', '--data-type', validParams.dataType];
 
     if (validParams.public && validParams.public.length > 0) {
@@ -312,8 +312,8 @@ export async function swarmGenerateCRUD(
         logger.info(`Swarm CLI output: ${stdout}`);
       }
     );
-
     const output = `Successfully generated CRUD operations for: ${validParams.dataType}`;
+
     logger.info(output);
 
     return {
@@ -325,7 +325,9 @@ export async function swarmGenerateCRUD(
     };
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
+
     logger.error(`Failed to generate CRUD: ${errorMessage}`);
+
     throw ErrorFactory.swarmGeneration(
       'crud',
       'generate',
@@ -344,9 +346,7 @@ export async function swarmGenerateJob(
 ): Promise<GenerationResult> {
   try {
     const validParams = SwarmGenerateJobParamsSchema.parse(params);
-
     const projectRoot = getProjectRoot(validParams.projectPath);
-
     const args = ['job', '--name', validParams.name];
 
     if (validParams.schedule) {
@@ -381,8 +381,8 @@ export async function swarmGenerateJob(
         logger.info(`Swarm CLI output: ${stdout}`);
       }
     );
-
     const output = `Successfully generated job: ${validParams.name}`;
+
     logger.info(output);
 
     const warnings = validParams.schedule
@@ -398,7 +398,9 @@ export async function swarmGenerateJob(
     };
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
+
     logger.error(`Failed to generate job: ${errorMessage}`);
+
     throw ErrorFactory.swarmGeneration(
       'job',
       'generate',
@@ -417,9 +419,7 @@ export async function swarmGenerateOperation(
 ): Promise<GenerationResult> {
   try {
     const validParams = SwarmGenerateOperationParamsSchema.parse(params);
-
     const projectRoot = getProjectRoot(validParams.projectPath);
-
     const args = [
       'operation',
       '--feature',
@@ -450,8 +450,8 @@ export async function swarmGenerateOperation(
         logger.info(`Swarm CLI output: ${stdout}`);
       }
     );
-
     const output = `Successfully generated ${validParams.operation} operation for: ${validParams.dataType}`;
+
     logger.info(output);
 
     return {
@@ -463,7 +463,9 @@ export async function swarmGenerateOperation(
     };
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
+
     logger.error(`Failed to generate operation: ${errorMessage}`);
+
     throw ErrorFactory.swarmGeneration(
       'operation',
       'generate',
@@ -482,9 +484,7 @@ export async function swarmGenerateRoute(
 ): Promise<GenerationResult> {
   try {
     const validParams = SwarmGenerateRouteParamsSchema.parse(params);
-
     const projectRoot = getProjectRoot(validParams.projectPath);
-
     const args = [
       'route',
       '--name',
@@ -513,8 +513,8 @@ export async function swarmGenerateRoute(
         logger.info(`Swarm CLI output: ${stdout}`);
       }
     );
-
     const output = `Successfully generated route: ${validParams.name}`;
+
     logger.info(output);
 
     return {
@@ -526,7 +526,9 @@ export async function swarmGenerateRoute(
     };
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
+
     logger.error(`Failed to generate route: ${errorMessage}`);
+
     throw ErrorFactory.swarmGeneration(
       'route',
       'generate',
@@ -545,9 +547,7 @@ export async function swarmGenerateApiNamespace(
 ): Promise<GenerationResult> {
   try {
     const validParams = SwarmGenerateApiNamespaceParamsSchema.parse(params);
-
     const projectRoot = getProjectRoot(validParams.projectPath);
-
     const args = [
       'api-namespace',
       '--name',
@@ -576,8 +576,8 @@ export async function swarmGenerateApiNamespace(
         logger.info(`Swarm CLI output: ${stdout}`);
       }
     );
-
     const output = `Successfully generated API namespace: ${validParams.name}`;
+
     logger.info(output);
 
     return {
@@ -589,7 +589,9 @@ export async function swarmGenerateApiNamespace(
     };
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
+
     logger.error(`Failed to generate API namespace: ${errorMessage}`);
+
     throw ErrorFactory.swarmGeneration(
       'api-namespace',
       'generate',
@@ -597,157 +599,6 @@ export async function swarmGenerateApiNamespace(
       createErrorContext(
         'swarm_generate_api_namespace',
         'generate',
-        params as Record<string, unknown>
-      )
-    );
-  }
-}
-
-export async function swarmAnalyzeProject(
-  params: unknown
-): Promise<SwarmAnalyzeProjectResult> {
-  try {
-    const validParams = SwarmAnalyzeProjectParamsSchema.parse(params);
-
-    const projectRoot = getProjectRoot(validParams.projectPath);
-
-    const args = ['analyze', '--project-path', projectRoot];
-
-    if (validParams.deep) {
-      args.push('--deep');
-    }
-
-    const { stdout, stderr } = await executeSwarmCommand(
-      'npx',
-      ['swarm', ...args],
-      projectRoot
-    );
-
-    if (stderr) {
-      logger.warn(`Swarm CLI warnings: ${stderr}`);
-    }
-
-    logger.info(`Swarm CLI output: ${stdout}`);
-
-    // Parse the CLI output to extract analysis results
-    // For now, return a basic structure - this would be enhanced based on actual CLI output format
-    const analysisType = validParams.deep ? 'deep' : 'standard';
-    const output = `Project analysis completed (${analysisType}) for ${projectRoot}`;
-
-    return {
-      success: true,
-      output,
-      projectType: 'wasp',
-      waspVersion: '0.12.0', // This would be extracted from CLI output
-      dependencies: ['react', '@wasp-lang/wasp', 'prisma'], // This would be extracted from CLI output
-      devDependencies: ['typescript', 'vite', '@types/react'], // This would be extracted from CLI output
-      structure: {
-        features: ['auth', 'dashboard'], // This would be extracted from CLI output
-        entities: ['User', 'Task'], // This would be extracted from CLI output
-        operations: {
-          queries: ['getUser', 'getTasks'], // This would be extracted from CLI output
-          actions: ['createTask', 'updateTask'], // This would be extracted from CLI output
-        },
-        apis: ['userApi'], // This would be extracted from CLI output
-        routes: ['/dashboard', '/login'], // This would be extracted from CLI output
-        jobs: ['emailSender'], // This would be extracted from CLI output
-        pages: ['MainPage', 'LoginPage'], // This would be extracted from CLI output
-        components: ['TaskList', 'Header'], // This would be extracted from CLI output
-      },
-      recommendations: [
-        'Consider adding error boundaries to React components',
-        'Implement proper input validation for all forms',
-        'Add comprehensive unit tests for business logic',
-      ],
-      issues: [
-        {
-          level: 'warning',
-          message: 'Some imports may be unused',
-          file: 'src/client/Main.tsx',
-          line: 5,
-        },
-      ],
-    };
-  } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    logger.error(`Failed to analyze project: ${errorMessage}`);
-    throw ErrorFactory.swarmGeneration(
-      'analyze',
-      'analyze',
-      errorMessage,
-      createErrorContext(
-        'swarm_analyze_project',
-        'analyze',
-        params as Record<string, unknown>
-      )
-    );
-  }
-}
-
-export async function swarmValidateConfig(
-  params: unknown
-): Promise<SwarmValidateConfigResult> {
-  try {
-    const validParams = SwarmValidateConfigParamsSchema.parse(params);
-
-    const projectRoot = getProjectRoot(validParams.projectPath);
-    const configPath = validParams.configPath || './main.wasp';
-
-    const args = ['validate', '--config-path', configPath];
-
-    if (validParams.strict) {
-      args.push('--strict');
-    }
-
-    const { stdout, stderr } = await executeSwarmCommand(
-      'npx',
-      ['swarm', ...args],
-      projectRoot
-    );
-
-    if (stderr) {
-      logger.warn(`Swarm CLI warnings: ${stderr}`);
-    }
-
-    logger.info(`Swarm CLI output: ${stdout}`);
-
-    // Parse the CLI output to extract validation results
-    // For now, return a basic structure - this would be enhanced based on actual CLI output format
-    const validationMode = validParams.strict ? 'strict' : 'lenient';
-    const output = `Configuration validation completed (${validationMode}) for ${configPath}`;
-
-    return {
-      success: true,
-      output,
-      isValid: true, // This would be extracted from CLI output
-      errors: [], // This would be extracted from CLI output
-      warnings: [
-        {
-          type: 'best-practice',
-          message: 'Consider enabling strict mode for TypeScript',
-          file: 'tsconfig.json',
-          suggestion: 'Add "strict": true to compilerOptions',
-        },
-      ],
-      configSummary: {
-        totalEntities: 2, // This would be extracted from CLI output
-        totalOperations: 6, // This would be extracted from CLI output
-        totalRoutes: 3, // This would be extracted from CLI output
-        totalJobs: 1, // This would be extracted from CLI output
-        authEnabled: true, // This would be extracted from CLI output
-        dbProvider: 'postgresql', // This would be extracted from CLI output
-      },
-    };
-  } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    logger.error(`Failed to validate config: ${errorMessage}`);
-    throw ErrorFactory.swarmGeneration(
-      'validate',
-      'validate',
-      errorMessage,
-      createErrorContext(
-        'swarm_validate_config',
-        'validate',
         params as Record<string, unknown>
       )
     );

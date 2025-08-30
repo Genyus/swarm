@@ -90,4 +90,8 @@ jspm_packages/
 
 # MCP server specific
 .mcp/
+.mcp_backups/
 *.sock
+
+# Test artifacts
+test/output/
