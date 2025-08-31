@@ -1,6 +1,6 @@
+import { realLogger as logger } from '@ingenyus/swarm-cli/dist/utils/logger.js';
 import { MCPProtocolError } from '../types/mcp.js';
 import { createErrorContext, normalizeToMCPError } from './errors.js';
-import { logger } from './logger.js';
 
 export interface ErrorHandlingContext {
   tool?: string;
@@ -111,11 +111,7 @@ export function createToolErrorHandler(tool: string) {
     operation: string,
     parameters?: Record<string, unknown>
   ): never {
-    const errorContext = createErrorContext(
-      tool,
-      operation,
-      parameters
-    );
+    const errorContext = createErrorContext(tool, operation, parameters);
 
     logger.error('Operation failed', {
       error: error instanceof Error ? error.message : String(error),
@@ -152,7 +148,9 @@ export function validateRequiredParameter<T>(
       parameters: context?.parameters,
     });
 
-    throw normalizeToMCPError(new Error(`Required parameter '${name}' is missing`));
+    throw normalizeToMCPError(
+      new Error(`Required parameter '${name}' is missing`)
+    );
   }
 
   if (typeof value !== expectedType) {
@@ -170,7 +168,11 @@ export function validateRequiredParameter<T>(
       parameters: context?.parameters,
     });
 
-    throw normalizeToMCPError(new Error(`Parameter '${name}' must be a ${expectedType}, got ${typeof value}`));
+    throw normalizeToMCPError(
+      new Error(
+        `Parameter '${name}' must be a ${expectedType}, got ${typeof value}`
+      )
+    );
   }
 
   return value as T;
@@ -181,7 +183,12 @@ export function validateNonEmptyString(
   name: string,
   context?: ErrorHandlingContext
 ): string {
-  const stringValue = validateRequiredParameter<string>(value, name, 'string', context);
+  const stringValue = validateRequiredParameter<string>(
+    value,
+    name,
+    'string',
+    context
+  );
 
   if (stringValue.trim() === '') {
     const errorContext = createErrorContext(
@@ -211,7 +218,12 @@ export function validateNumberRange(
   max: number,
   context?: ErrorHandlingContext
 ): number {
-  const numberValue = validateRequiredParameter<number>(value, name, 'number', context);
+  const numberValue = validateRequiredParameter<number>(
+    value,
+    name,
+    'number',
+    context
+  );
 
   if (numberValue < min || numberValue > max) {
     const errorContext = createErrorContext(
@@ -228,7 +240,11 @@ export function validateNumberRange(
       parameters: context?.parameters,
     });
 
-    throw normalizeToMCPError(new Error(`Parameter '${name}' must be between ${min} and ${max}, got ${numberValue}`));
+    throw normalizeToMCPError(
+      new Error(
+        `Parameter '${name}' must be between ${min} and ${max}, got ${numberValue}`
+      )
+    );
   }
 
   return numberValue;
@@ -241,7 +257,12 @@ export function validateArrayLength<T>(
   maxLength?: number,
   context?: ErrorHandlingContext
 ): T[] {
-  const arrayValue = validateRequiredParameter<T[]>(value, name, 'object', context);
+  const arrayValue = validateRequiredParameter<T[]>(
+    value,
+    name,
+    'object',
+    context
+  );
 
   if (!Array.isArray(arrayValue)) {
     const errorContext = createErrorContext(
@@ -258,7 +279,11 @@ export function validateArrayLength<T>(
       parameters: context?.parameters,
     });
 
-    throw normalizeToMCPError(new Error(`Parameter '${name}' must be an array, got ${typeof arrayValue}`));
+    throw normalizeToMCPError(
+      new Error(
+        `Parameter '${name}' must be an array, got ${typeof arrayValue}`
+      )
+    );
   }
 
   if (arrayValue.length < minLength) {
@@ -276,7 +301,11 @@ export function validateArrayLength<T>(
       parameters: context?.parameters,
     });
 
-    throw normalizeToMCPError(new Error(`Parameter '${name}' must have at least ${minLength} items, got ${arrayValue.length}`));
+    throw normalizeToMCPError(
+      new Error(
+        `Parameter '${name}' must have at least ${minLength} items, got ${arrayValue.length}`
+      )
+    );
   }
 
   if (maxLength !== undefined && arrayValue.length > maxLength) {
@@ -294,7 +323,11 @@ export function validateArrayLength<T>(
       parameters: context?.parameters,
     });
 
-    throw normalizeToMCPError(new Error(`Parameter '${name}' must have at most ${maxLength} items, got ${arrayValue.length}`));
+    throw normalizeToMCPError(
+      new Error(
+        `Parameter '${name}' must have at most ${maxLength} items, got ${arrayValue.length}`
+      )
+    );
   }
 
   return arrayValue;

@@ -1,3 +1,4 @@
+import { realLogger as logger } from '@ingenyus/swarm-cli/dist/utils/logger.js';
 import {
   Server as MCPServer,
   ServerOptions,
@@ -20,7 +21,6 @@ import {
 } from './types/mcp.js';
 import { configManager } from './utils/config.js';
 import { ErrorFactory, createErrorContext } from './utils/errors.js';
-import { logger } from './utils/logger.js';
 
 export class SwarmMCPServer {
   private mcpServer: MCPServer;
@@ -64,14 +64,6 @@ export class SwarmMCPServer {
   async loadConfiguration(): Promise<void> {
     try {
       await configManager.loadConfig();
-
-      const loggingConfig = configManager.getLoggingConfig();
-      logger.updateConfig({
-        logging: {
-          level: loggingConfig.level || 'info',
-          format: loggingConfig.format || 'json',
-        },
-      });
 
       logger.info('Configuration loaded and applied', {
         configPath: configManager.getConfigPath(),

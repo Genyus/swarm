@@ -1,3 +1,4 @@
+import { realLogger as logger } from '@ingenyus/swarm-cli/dist/utils/logger.js';
 import mime from 'mime-types';
 import { Stats } from 'node:fs';
 import fs from 'node:fs/promises';
@@ -24,7 +25,6 @@ import {
   performRollback,
   simulateFileOperation,
 } from '../utils/backup.js';
-import { logger } from '../utils/logger.js';
 import {
   createFileOperationError,
   DeleteFileSchema,

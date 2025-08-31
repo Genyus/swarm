@@ -97,14 +97,10 @@ export async function swarmGenerateApi(
   try {
     const validParams = SwarmGenerateApiParamsSchema.parse(params);
     const projectRoot = getProjectRoot(validParams.projectPath);
-
-    // Use direct integration instead of process spawning
     const generatorFactory = SwarmGeneratorFactoryService.getInstance();
-
     const { generatedFiles, modifiedFiles } = await trackGeneratedFiles(
       projectRoot,
       async () => {
-        // Map CLI parameters to generator flags
         const apiFlags = {
           name: validParams.name,
           method: validParams.method,
@@ -113,8 +109,6 @@ export async function swarmGenerateApi(
           auth: validParams.auth || false,
           force: validParams.force || false,
         };
-
-        // Use the feature path from the project root
         const featurePath = 'default'; // This should be configurable or derived from project structure
 
         await generatorFactory.generateApi(featurePath, apiFlags);
@@ -122,6 +116,7 @@ export async function swarmGenerateApi(
     );
 
     const output = `Successfully generated API: ${validParams.name}`;
+
     logger.info(output);
 
     return {
@@ -154,14 +149,10 @@ export async function swarmGenerateFeature(
   try {
     const validParams = SwarmGenerateFeatureParamsSchema.parse(params);
     const projectRoot = getProjectRoot(validParams.projectPath);
-
-    // Use direct integration instead of process spawning
     const generatorFactory = SwarmGeneratorFactoryService.getInstance();
-
-        const { generatedFiles, modifiedFiles } = await trackGeneratedFiles(
+    const { generatedFiles, modifiedFiles } = await trackGeneratedFiles(
       projectRoot,
       () => {
-        // Use the feature path from the project root
         const featurePath = validParams.name;
 
         generatorFactory.generateFeature(featurePath);
@@ -202,14 +193,10 @@ export async function swarmGenerateCrud(
   try {
     const validParams = SwarmGenerateCrudParamsSchema.parse(params);
     const projectRoot = getProjectRoot(validParams.projectPath);
-
-    // Use direct integration instead of process spawning
     const generatorFactory = SwarmGeneratorFactoryService.getInstance();
-
     const { generatedFiles, modifiedFiles } = await trackGeneratedFiles(
       projectRoot,
       async () => {
-        // Map CLI parameters to generator flags
         const crudFlags = {
           dataType: validParams.dataType,
           public: validParams.public || [],
@@ -217,8 +204,6 @@ export async function swarmGenerateCrud(
           exclude: validParams.exclude || [],
           force: validParams.force || false,
         };
-
-        // Use the feature path from the project root
         const featurePath = 'default'; // This should be configurable or derived from project structure
 
         await generatorFactory.generateCrud(featurePath, crudFlags);
@@ -237,6 +222,7 @@ export async function swarmGenerateCrud(
     };
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
+
     logger.error(`Failed to generate CRUD: ${errorMessage}`);
 
     throw ErrorFactory.swarmGeneration(
@@ -258,29 +244,23 @@ export async function swarmGenerateRoute(
   try {
     const validParams = SwarmGenerateRouteParamsSchema.parse(params);
     const projectRoot = getProjectRoot(validParams.projectPath);
-
-    // Use direct integration instead of process spawning
     const generatorFactory = SwarmGeneratorFactoryService.getInstance();
-
     const { generatedFiles, modifiedFiles } = await trackGeneratedFiles(
       projectRoot,
       async () => {
-        // Map CLI parameters to generator flags
         const routeFlags = {
           path: validParams.path,
           name: validParams.name,
           auth: validParams.auth || false,
           force: validParams.force || false,
         };
-
-        // Use the feature path from the project root
         const featurePath = 'default'; // This should be configurable or derived from project structure
 
         await generatorFactory.generateRoute(featurePath, routeFlags);
       }
     );
-
     const output = `Successfully generated route: ${validParams.path}`;
+
     logger.info(output);
 
     return {
@@ -292,6 +272,7 @@ export async function swarmGenerateRoute(
     };
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
+
     logger.error(`Failed to generate route: ${errorMessage}`);
 
     throw ErrorFactory.swarmGeneration(
@@ -313,14 +294,10 @@ export async function swarmGenerateJob(
   try {
     const validParams = SwarmGenerateJobParamsSchema.parse(params);
     const projectRoot = getProjectRoot(validParams.projectPath);
-
-    // Use direct integration instead of process spawning
     const generatorFactory = SwarmGeneratorFactoryService.getInstance();
-
     const { generatedFiles, modifiedFiles } = await trackGeneratedFiles(
       projectRoot,
       async () => {
-        // Map CLI parameters to generator flags
         const jobFlags = {
           name: validParams.name,
           entities: validParams.entities || [],
@@ -328,15 +305,13 @@ export async function swarmGenerateJob(
           scheduleArgs: validParams.scheduleArgs || '',
           force: validParams.force || false,
         };
-
-        // Use the feature path from the project root
         const featurePath = 'default'; // This should be configurable or derived from project structure
 
         await generatorFactory.generateJob(featurePath, jobFlags);
       }
     );
-
     const output = `Successfully generated job: ${validParams.name}`;
+
     logger.info(output);
 
     return {
@@ -369,14 +344,10 @@ export async function swarmGenerateOperation(
   try {
     const validParams = SwarmGenerateOperationParamsSchema.parse(params);
     const projectRoot = getProjectRoot(validParams.projectPath);
-
-    // Use direct integration instead of process spawning
     const generatorFactory = SwarmGeneratorFactoryService.getInstance();
-
     const { generatedFiles, modifiedFiles } = await trackGeneratedFiles(
       projectRoot,
       async () => {
-        // Map CLI parameters to generator flags
         const operationFlags = {
           feature: validParams.feature,
           dataType: validParams.dataType,
@@ -385,15 +356,13 @@ export async function swarmGenerateOperation(
           auth: validParams.auth || false,
           force: validParams.force || false,
         };
-
-        // Use the feature path from the project root
         const featurePath = 'default'; // This should be configurable or derived from project structure
 
         await generatorFactory.generateOperation(featurePath, operationFlags);
       }
     );
-
     const output = `Successfully generated operation: ${validParams.operation} for ${validParams.dataType}`;
+
     logger.info(output);
 
     return {
@@ -426,21 +395,15 @@ export async function swarmGenerateApiNamespace(
   try {
     const validParams = SwarmGenerateApiNamespaceParamsSchema.parse(params);
     const projectRoot = getProjectRoot(validParams.projectPath);
-
-    // Use direct integration instead of process spawning
     const generatorFactory = SwarmGeneratorFactoryService.getInstance();
-
     const { generatedFiles, modifiedFiles } = await trackGeneratedFiles(
       projectRoot,
       async () => {
-        // Map CLI parameters to generator flags
         const apiNamespaceFlags = {
           name: validParams.name,
           path: validParams.path,
           force: validParams.force || false,
         };
-
-        // Use the feature path from the project root
         const featurePath = 'default'; // This should be configurable or derived from project structure
 
         await generatorFactory.generateApiNamespace(
@@ -449,8 +412,8 @@ export async function swarmGenerateApiNamespace(
         );
       }
     );
-
     const output = `Successfully generated API namespace: ${validParams.name}`;
+
     logger.info(output);
 
     return {

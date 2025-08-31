@@ -1,39 +1,11 @@
-/**
- * Interface for logging operations
- * @interface Logger
- * @property {Function} info - Log an info message
- * @property {Function} success - Log a success message
- * @property {Function} warn - Log a warning message
- * @property {Function} error - Log an error message
- */
 export interface Logger {
-  /**
-   * Log a debug message
-   * @param {string} msg - The message to log
-   */
-  debug(msg: string): void;
+  debug(message: string, context?: Record<string, unknown>): void;
 
-  /**
-   * Log an info message
-   * @param {string} msg - The message to log
-   */
-  info(msg: string): void;
+  info(message: string, context?: Record<string, unknown>): void;
 
-  /**
-   * Log a success message
-   * @param {string} msg - The message to log
-   */
-  success(msg: string): void;
+  success(message: string, context?: Record<string, unknown>): void;
 
-  /**
-   * Log a warning message
-   * @param {string} msg - The message to log
-   */
-  warn(msg: string): void;
+  warn(message: string, context?: Record<string, unknown>): void;
 
-  /**
-   * Log an error message
-   * @param {string} msg - The message to log
-   */
-  error(msg: string): void;
+  error(message: string, context?: Record<string, unknown>): void;
 }

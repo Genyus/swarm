@@ -36,10 +36,12 @@ export class ValidationError extends AppError {
 }
 
 export class FileSystemError extends AppError {
+  public readonly cause?: Error;
+
   constructor(
     operation: string,
     path: string,
-    public override readonly cause?: Error,
+    cause?: Error,
     context?: ErrorContext
   ) {
     super(
@@ -47,6 +49,10 @@ export class FileSystemError extends AppError {
       `File system error during ${operation}: ${path}`,
       context
     );
+
+    if (cause) {
+      this.cause = cause;
+    }
   }
 }
 
@@ -110,16 +116,18 @@ export class PermissionDeniedError extends AppError {
 }
 
 export class InternalError extends AppError {
-  constructor(
-    operation: string,
-    public override readonly cause?: Error,
-    context?: ErrorContext
-  ) {
+  public readonly cause?: Error;
+
+  constructor(operation: string, cause?: Error, context?: ErrorContext) {
     super(
       MCPErrorCode.InternalError,
       `Internal error during ${operation}`,
       context
     );
+
+    if (cause) {
+      this.cause = cause;
+    }
   }
 }
 
