@@ -34,6 +34,15 @@ swarm-mcp start
 - `swarm-mcp stop` - Stop the MCP server
 - `swarm-mcp status` - Check server status
 
+## 📚 Documentation
+
+- **[Getting Started](./docs/GETTING_STARTED.md)** - Quick start guide for AI-enabled development
+- **[MCP Configuration Guide](./docs/MCP_CONFIGURATION.md)** - Complete setup guide for AI-enabled editors
+- **[API Reference](./docs/API.md)** - Complete API documentation with examples
+- **[Usage Examples](./docs/EXAMPLES.md)** - Practical workflows and patterns
+- **[Troubleshooting Guide](./docs/TROUBLESHOOTING.md)** - Common issues and solutions
+- **[Documentation Index](./docs/README.md)** - Overview of all available docs
+
 ## Development
 
 ### Prerequisites
