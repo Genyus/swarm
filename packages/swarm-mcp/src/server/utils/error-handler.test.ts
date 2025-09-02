@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { MCPProtocolError } from '../../../src/server/types/mcp.js';
+import { MCPProtocolError } from '../types/mcp.js';
 import {
   createToolErrorHandler,
   handleError,
@@ -9,10 +9,10 @@ import {
   validateRequiredParameter,
   withErrorHandling,
   withErrorHandlingSync,
-} from '../../../src/server/utils/error-handler.js';
+} from './error-handler.js';
 
 // Mock logger
-vi.mock('../../../../src/server/utils/logger.js', () => ({
+vi.mock('./logger.js', () => ({
   logger: {
     error: vi.fn(),
     warn: vi.fn(),

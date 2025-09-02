@@ -94,4 +94,4 @@ jspm_packages/
 *.sock
 
 # Test artifacts
-test/output/
+tests/output/

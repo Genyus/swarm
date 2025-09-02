@@ -16,8 +16,8 @@
     "test:coverage": "vitest run --coverage",
     "lint": "eslint src/**/*.ts",
     "lint:fix": "eslint src/**/*.ts --fix",
-    "format": "prettier --write {src,test}",
-    "format:check": "prettier --check {src,test}",
+    "format": "prettier --write {src,tests}",
+    "format:check": "prettier --check {src,tests}",
     "clean": "rm -rf dist",
     "prebuild": "npm run clean"
   },

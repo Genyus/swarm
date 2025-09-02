@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { SwarmMCPServer } from '../../src/server/index.js';
-import type { ServerConfig } from '../../src/server/types/mcp.js';
+import { SwarmMCPServer } from './index.js';
+import type { ServerConfig } from './types/mcp.js';
 
 describe('SwarmMCPServer', () => {
   let server: SwarmMCPServer;
@@ -23,7 +23,7 @@ describe('SwarmMCPServer', () => {
     if (server) {
       try {
         await server.stop();
-      } catch (error) {
+      } catch {
         // Ignore errors during cleanup
       }
     }
@@ -33,8 +33,8 @@ describe('SwarmMCPServer', () => {
     it('should create a server instance with valid config', () => {
       server = new SwarmMCPServer(config);
       expect(server).toBeDefined();
-      expect((server.getInfo() as any).name).toBe('test-swarm-mcp');
-      expect((server.getInfo() as any).version).toBe('0.1.0');
+      expect(server.getInfo().name).toBe('test-swarm-mcp');
+      expect(server.getInfo().version).toBe('0.1.0');
     });
 
     it('should handle missing instructions gracefully', () => {
@@ -42,7 +42,7 @@ describe('SwarmMCPServer', () => {
       delete configWithoutInstructions.instructions;
 
       server = new SwarmMCPServer(configWithoutInstructions);
-      const info = server.getInfo() as any;
+      const info = server.getInfo();
       // Instructions may be undefined if not provided, which is acceptable
       expect(
         info.instructions === undefined || typeof info.instructions === 'string'
@@ -60,7 +60,7 @@ describe('SwarmMCPServer', () => {
 
     it('should provide server information', () => {
       server = new SwarmMCPServer(config);
-      const info = server.getInfo() as any;
+      const info = server.getInfo();
 
       expect(info.name).toBe(config.name);
       expect(info.version).toBe(config.version);
@@ -84,7 +84,7 @@ describe('SwarmMCPServer', () => {
       // But we can test that attempting to start twice throws an error
       try {
         await server.start();
-      } catch (error) {
+      } catch {
         // Expected to fail without a real transport connection
       }
 
@@ -92,7 +92,7 @@ describe('SwarmMCPServer', () => {
       const status = server.getStatus();
       if (!status.isRunning) {
         // Simulate the running state for this test
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
         (server as any).state.isRunning = true;
       }
 

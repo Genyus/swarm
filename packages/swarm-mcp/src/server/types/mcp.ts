@@ -46,6 +46,14 @@ export interface ServerCapabilities {
   logging?: LoggingCapabilities;
 }
 
+export interface ServerInfo {
+  name: string;
+  version: string;
+  capabilities?: ServerCapabilities | undefined;
+  instructions?: string | undefined;
+  status: ServerState;
+}
+
 export interface ToolCapabilities {
   listChanged?: boolean;
 }

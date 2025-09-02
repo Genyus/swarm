@@ -8,13 +8,13 @@ import {
   rollback,
   setProjectRootForTesting,
   writeFile,
-} from '../../../src/server/tools/filesystem.js';
-import { MCPProtocolError } from '../../../src/server/types/mcp.js';
+} from './filesystem.js';
+import { MCPProtocolError } from '../types/mcp.js';
 
-vi.mock('../../../src/server/utils/backup.js', () => ({
+vi.mock('../utils/backup.js', () => ({
   createBackup: vi
     .fn()
-    .mockResolvedValue('/test/backup/path/backup.txt.bak.123'),
+    .mockResolvedValue('/tests/backup/path/backup.txt.bak.123'),
   generateRollbackToken: vi.fn().mockReturnValue('test-rollback-token-123'),
   initializeBackup: vi.fn(),
   performRollback: vi.fn(),
@@ -60,8 +60,7 @@ vi.mock('mime-types', () => ({
 }));
 
 describe('Filesystem Tools', () => {
-  const originalCwd = process.cwd();
-  const testProjectRoot = '/test/project';
+  const testProjectRoot = '/tests/project';
   let mockFs: any;
 
   beforeEach(async () => {
@@ -70,14 +69,14 @@ describe('Filesystem Tools', () => {
     const fs = await import('node:fs/promises');
     mockFs = fs;
 
-    process.env.VITEST = 'true';
+    process.env['VITEST'] = 'true';
     setProjectRootForTesting(testProjectRoot);
   });
 
   afterEach(() => {
     vi.restoreAllMocks();
     resetProjectRootForTesting();
-    delete process.env.VITEST;
+    delete process.env['VITEST'];
   });
 
   describe('readFile', () => {
@@ -156,7 +155,6 @@ describe('Filesystem Tools', () => {
 
     it('should handle symlinks that escape project directory', async () => {
       const testUri = 'symlink.txt';
-      const expectedPath = path.join(testProjectRoot, testUri);
       const dangerousTarget = '/etc/passwd';
 
       mockFs.realpath.mockResolvedValue(dangerousTarget);
@@ -326,7 +324,7 @@ describe('Filesystem Tools', () => {
       mockFs.writeFile.mockResolvedValue(undefined);
       mockFs.rename.mockResolvedValue(undefined);
 
-      const backup = await import('../../../src/server/utils/backup.js');
+      const backup = await import('../utils/backup.js');
 
       const result = await writeFile({
         uri: testUri,
@@ -362,7 +360,7 @@ describe('Filesystem Tools', () => {
       mockFs.writeFile.mockResolvedValue(undefined);
       mockFs.rename.mockResolvedValue(undefined);
 
-      const backup = await import('../../../src/server/utils/backup.js');
+      const backup = await import('../utils/backup.js');
       (backup as any).createBackup.mockResolvedValueOnce('');
 
       const result = await writeFile({
@@ -397,29 +395,31 @@ describe('Filesystem Tools', () => {
       const mockEntries = ['file1.txt', 'file2.js', 'subdir'];
       const mockDate = new Date('2023-01-01T12:00:00Z');
 
-      mockFs.stat.mockImplementation(async filePath => {
-        const pathStr = filePath.toString();
-        if (pathStr === expectedPath) {
+      mockFs.stat.mockImplementation(
+        async (filePath: { toString: () => any }) => {
+          const pathStr = filePath.toString();
+          if (pathStr === expectedPath) {
+            return {
+              isDirectory: () => true,
+              isFile: () => false,
+              mtime: mockDate,
+            } as any;
+          }
+          if (pathStr.endsWith('subdir')) {
+            return {
+              isDirectory: () => true,
+              isFile: () => false,
+              mtime: mockDate,
+            } as any;
+          }
           return {
-            isDirectory: () => true,
-            isFile: () => false,
+            isDirectory: () => false,
+            isFile: () => true,
+            size: 1024,
             mtime: mockDate,
           } as any;
         }
-        if (pathStr.endsWith('subdir')) {
-          return {
-            isDirectory: () => true,
-            isFile: () => false,
-            mtime: mockDate,
-          } as any;
-        }
-        return {
-          isDirectory: () => false,
-          isFile: () => true,
-          size: 1024,
-          mtime: mockDate,
-        } as any;
-      });
+      );
 
       mockFs.readdir.mockResolvedValue(mockEntries as any);
 
@@ -452,7 +452,6 @@ describe('Filesystem Tools', () => {
 
     it('should handle permission errors on directory listing', async () => {
       const testUri = 'protected-dir';
-      const expectedPath = path.join(testProjectRoot, testUri);
 
       mockFs.stat.mockResolvedValue({
         isDirectory: () => true,
@@ -485,7 +484,6 @@ describe('Filesystem Tools', () => {
 
     it('should reject deleting directories', async () => {
       const testUri = 'directory';
-      const expectedPath = path.join(testProjectRoot, testUri);
 
       mockFs.stat.mockResolvedValue({
         isFile: () => false,

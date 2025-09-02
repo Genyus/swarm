@@ -17,6 +17,7 @@ export default [
         console: 'readonly',
         process: 'readonly',
         Buffer: 'readonly',
+        BufferEncoding: 'readonly',
       },
     },
     plugins: {
@@ -51,9 +52,4 @@ export default [
   {
     ignores: ['dist/', 'node_modules/', 'coverage/'],
   },
-  {
-    globals: {
-      BufferEncoding: 'readonly',
-    },
-  }
 ];

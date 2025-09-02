@@ -1,8 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import {
-  MCPErrorCode,
-  MCPProtocolError,
-} from '../../../src/server/types/mcp.js';
+import { MCPErrorCode, MCPProtocolError } from '../types/mcp.js';
 import {
   AppError,
   ConfigurationError,
@@ -15,7 +12,7 @@ import {
   ResourceNotFoundError,
   SwarmGenerationError,
   ValidationError,
-} from '../../../src/server/utils/errors.js';
+} from './errors.js';
 
 describe('Error Handling Framework', () => {
   describe('AppError', () => {

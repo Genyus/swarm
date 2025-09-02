@@ -12,7 +12,7 @@ import {
   MCPRequestSchema,
   MCPResponse,
   MCPResponseSchema,
-} from '../../src/server/types/mcp.js';
+} from './mcp.js';
 
 describe('MCP Protocol Types', () => {
   describe('Type Guards', () => {

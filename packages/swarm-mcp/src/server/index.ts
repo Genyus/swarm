@@ -16,6 +16,7 @@ import {
   MCPErrorCode,
   MCPProtocolError,
   ServerConfig,
+  ServerInfo,
   ServerState,
   Tool,
 } from './types/mcp.js';
@@ -513,7 +514,7 @@ export class SwarmMCPServer {
     return { ...this.state };
   }
 
-  getInfo(): unknown {
+  getInfo(): ServerInfo {
     return {
       name: this.config.name,
       version: this.config.version,

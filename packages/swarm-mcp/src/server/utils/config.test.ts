@@ -1,6 +1,14 @@
 import { readFile } from 'node:fs/promises';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { ConfigurationManager } from '../../../src/server/utils/config.js';
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+  type MockedFunction,
+} from 'vitest';
+import { ConfigurationManager } from './config.js';
 
 // Mock fs/promises
 vi.mock('node:fs/promises', () => ({
@@ -15,11 +23,11 @@ vi.mock('node:path', () => ({
 
 // Mock process.cwd
 vi.mock('node:process', () => ({
-  cwd: vi.fn(() => '/test/project'),
+  cwd: vi.fn(() => '/tests/project'),
 }));
 
 // Mock logger
-vi.mock('../../../src/server/utils/logger.js', () => ({
+vi.mock('./logger.js', () => ({
   logger: {
     info: vi.fn(),
     warn: vi.fn(),
@@ -29,11 +37,11 @@ vi.mock('../../../src/server/utils/logger.js', () => ({
 
 describe('ConfigurationManager', () => {
   let configManager: ConfigurationManager;
-  const mockReadFile = readFile as vi.MockedFunction<typeof readFile>;
+  const mockReadFile = readFile as MockedFunction<typeof readFile>;
 
   beforeEach(() => {
     vi.clearAllMocks();
-    configManager = new ConfigurationManager('/test/config.json');
+    configManager = new ConfigurationManager('/tests/config.json');
   });
 
   afterEach(() => {
@@ -56,9 +64,6 @@ describe('ConfigurationManager', () => {
   describe('loadConfig', () => {
     it('should load valid configuration successfully', async () => {
       const validConfig = {
-        transport: {
-          stdio: true,
-        },
         logging: {
           level: 'debug',
           format: 'text',
@@ -110,8 +115,6 @@ describe('ConfigurationManager', () => {
       await configManager.loadConfig();
 
       expect(configManager.isConfigLoaded()).toBe(true);
-      const config = configManager.getConfig();
-      // Transport is no longer configurable, so no assertion needed
     });
   });
 

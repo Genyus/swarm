@@ -1,20 +1,14 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { createStatusCommand } from '../../../src/cli/commands/status.js';
-import { ServerManager } from '../../../src/cli/server-manager.js';
+import { createStatusCommand } from './status.js';
+import { ServerManager } from '../server-manager.js';
 
 // Mock the ServerManager
-vi.mock('../../../src/cli/server-manager.js', () => ({
+vi.mock('../server-manager.js', () => ({
   ServerManager: vi.fn(),
 }));
 
 // Mock console methods
 const mockConsoleLog = vi.spyOn(console, 'log').mockImplementation(() => {});
-const mockConsoleError = vi
-  .spyOn(console, 'error')
-  .mockImplementation(() => {});
-const mockProcessExit = vi.spyOn(process, 'exit').mockImplementation(() => {
-  throw new Error('process.exit called');
-});
 
 describe('Status Command', () => {
   let mockServerManager: ServerManager;

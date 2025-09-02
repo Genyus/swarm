@@ -11,7 +11,7 @@ import {
   listRollbackTokens,
   performRollback,
   simulateFileOperation,
-} from '../../../src/server/utils/backup.js';
+} from './backup.js';
 
 vi.mock('node:fs', () => ({
   promises: {
@@ -24,7 +24,7 @@ vi.mock('node:fs', () => ({
   },
 }));
 
-vi.mock('../../../src/server/utils/logger.js', () => ({
+vi.mock('./logger.js', () => ({
   logger: {
     debug: vi.fn(),
     info: vi.fn(),
@@ -32,8 +32,8 @@ vi.mock('../../../src/server/utils/logger.js', () => ({
   },
 }));
 
-vi.mock('../../../src/server/utils/validation.js', () => ({
-  createFileOperationError: vi.fn((operation, path, error) => {
+vi.mock('./validation.js', () => ({
+  createFileOperationError: vi.fn((operation, path, _error) => {
     const mcpError = new Error(`File operation failed: ${operation} ${path}`);
     (mcpError as any).code = -32603;
     return mcpError;
@@ -43,7 +43,7 @@ vi.mock('../../../src/server/utils/validation.js', () => ({
 const mockFs = vi.mocked(fs);
 
 describe('Backup Utilities', () => {
-  const testProjectRoot = '/test/project';
+  const testProjectRoot = '/tests/project';
   const testFilePath = path.join(testProjectRoot, 'test.txt');
   const expectedBackupDir = path.join(testProjectRoot, '.mcp_backups');
 

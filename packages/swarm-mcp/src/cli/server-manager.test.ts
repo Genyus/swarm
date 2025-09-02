@@ -1,14 +1,14 @@
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-return */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { ServerManager } from '../../src/cli/server-manager.js';
-import { SwarmMCPServer } from '../../src/server/index.js';
+import { ServerManager } from './server-manager.js';
 
 // Mock the SwarmMCPServer
-vi.mock('../../src/server/index.js', () => ({
+vi.mock('../server/index.js', () => ({
   SwarmMCPServer: vi.fn(),
 }));
 
 // Mock logger
-vi.mock('../../src/server/utils/logger.js', () => ({
+vi.mock('../server/utils/logger.js', () => ({
   logger: {
     info: vi.fn(),
     error: vi.fn(),
@@ -16,7 +16,7 @@ vi.mock('../../src/server/utils/logger.js', () => ({
 }));
 
 // Mock configManager
-vi.mock('../../src/server/utils/config.js', () => ({
+vi.mock('../server/utils/config.js', () => ({
   configManager: {
     loadConfig: vi.fn().mockResolvedValue(undefined),
   },
@@ -31,8 +31,8 @@ describe('ServerManager', () => {
     vi.clearAllMocks();
 
     // Get the mocked SwarmMCPServer
-    const { SwarmMCPServer } = await import('../../src/server/index.js');
-    MockedSwarmMCPServer = SwarmMCPServer;
+    const { SwarmMCPServer } = await import('../server/index.js');
+    MockedSwarmMCPServer = SwarmMCPServer as any;
 
     // Create the mock server instance with proper method setup
     mockServer = {
@@ -150,8 +150,8 @@ describe('ServerManager', () => {
 
       expect(status).toEqual({
         isRunning: true,
-        pid: expect.any(Number),
-        uptime: expect.any(Number),
+        pid: expect.any(Number) as number,
+        uptime: expect.any(Number) as number,
       });
     });
 
@@ -173,7 +173,9 @@ describe('ServerManager', () => {
         await serverManager.start();
       } catch (error) {
         expect(error).toBeInstanceOf(Error);
-        expect(error.message).toContain('Internal error during start server');
+        expect((error as Error).message).toContain(
+          'Internal error during start server'
+        );
       }
     });
 
@@ -187,7 +189,9 @@ describe('ServerManager', () => {
         await serverManager.stop();
       } catch (error) {
         expect(error).toBeInstanceOf(Error);
-        expect(error.message).toContain('Internal error during stop server');
+        expect((error as Error).message).toContain(
+          'Internal error during stop server'
+        );
       }
     });
   });

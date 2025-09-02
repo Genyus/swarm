@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 // Mock the SwarmGeneratorsService before importing SwarmTools
-vi.mock('../../../src/server/services/swarm-generators.service.js', () => ({
+vi.mock('../services/swarm-generators.service.js', () => ({
   SwarmGeneratorsService: {
     create: vi.fn(() => ({
       generateFeature: vi.fn().mockResolvedValue(undefined),
@@ -18,7 +18,7 @@ vi.mock('../../../src/server/services/swarm-generators.service.js', () => ({
 }));
 
 // Import SwarmTools after mocking
-import { SwarmTools } from '../../../src/server/tools/swarm.js';
+import { SwarmTools } from './swarm.js';
 
 vi.mock('node:child_process', () => ({
   spawn: vi.fn(),
@@ -30,7 +30,7 @@ vi.mock('node:fs', () => ({
     existsSync: vi.fn(),
   },
 }));
-vi.mock('../../../src/server/utils/logger.js', () => ({
+vi.mock('../utils/logger.js', () => ({
   realLogger: {
     error: vi.fn(),
     warn: vi.fn(),

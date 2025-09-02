@@ -17,7 +17,7 @@ import {
   type OperationType,
   type SwarmError,
   type SwarmGenerateApiParams,
-} from '../../src/server/types/swarm.js';
+} from './swarm.js';
 
 describe('Swarm Types', () => {
   describe('Type Guards', () => {

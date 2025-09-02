@@ -1,9 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { createStartCommand } from '../../../src/cli/commands/start.js';
-import { ServerManager } from '../../../src/cli/server-manager.js';
+import { createStartCommand } from './start.js';
+import { ServerManager } from '../server-manager.js';
 
 // Mock the ServerManager
-vi.mock('../../../src/cli/server-manager.js', () => ({
+vi.mock('../server-manager.js', () => ({
   ServerManager: vi.fn(),
 }));
 

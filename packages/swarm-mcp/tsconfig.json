@@ -4,8 +4,8 @@
     "module": "ESNext",
     "moduleResolution": "bundler",
     "lib": ["ES2020"],
+    "types": ["node", "vitest/globals"],
     "outDir": "./dist",
-    "rootDir": "./src",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
@@ -29,14 +29,13 @@
     "noUncheckedIndexedAccess": true
   },
   "include": [
-    "src/**/*"
+    "src/**/*",
+    "**/*.test.ts",
+    "**/*.spec.ts"
   ],
   "exclude": [
     "node_modules",
-    "dist",
-    "test",
-    "**/*.test.ts",
-    "**/*.spec.ts"
+    "dist"
   ],
   "ts-node": {
     "esm": true

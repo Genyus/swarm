@@ -1,9 +1,6 @@
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
-import {
-  MCPErrorCode,
-  MCPProtocolError,
-} from '../../../src/server/types/mcp.js';
+import { MCPErrorCode, MCPProtocolError } from '../types/mcp.js';
 import {
   createFileOperationError,
   FileUriSchema,
@@ -13,10 +10,10 @@ import {
   validateFileSize,
   validateProjectFilePath,
   WriteFileSchema,
-} from '../../../src/server/utils/validation.js';
+} from './validation.js';
 
 describe('Validation Utilities', () => {
-  const testProjectRoot = '/test/project';
+  const testProjectRoot = '/tests/project';
 
   describe('validateProjectFilePath', () => {
     it('should validate and resolve safe paths', () => {
