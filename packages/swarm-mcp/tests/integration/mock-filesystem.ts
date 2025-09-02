@@ -40,12 +40,12 @@ export class MockFileSystem {
     try {
       await this.testEnv.addFile(uri, contents);
 
-      const rollbackToken = backup ? `mock-token-${Date.now()}` : undefined;
+      const rollbackToken = backup ? `mock-token-${Date.now()}` : '';
 
       return {
         success: true,
         rollbackToken,
-        backupPath: backup ? `.mcp_backups/${rollbackToken}` : undefined,
+        backupPath: backup ? `.mcp_backups/${rollbackToken}` : '',
       };
     } catch (error) {
       return {
@@ -77,15 +77,13 @@ export class MockFileSystem {
   }
 
   async deleteFile(
-    uri: string,
+    _uri: string,
     backup: boolean = false
   ): Promise<MockFileSystemResult> {
     try {
       // In a real implementation, we'd need to handle deletion
       // For now, we'll just return success
-      const rollbackToken = backup
-        ? `mock-delete-token-${Date.now()}`
-        : undefined;
+      const rollbackToken = backup ? `mock-delete-token-${Date.now()}` : '';
 
       return {
         success: true,
@@ -99,7 +97,7 @@ export class MockFileSystem {
     }
   }
 
-  async rollback(rollbackToken: string): Promise<MockFileSystemResult> {
+  async rollback(_rollbackToken: string): Promise<MockFileSystemResult> {
     try {
       // Mock rollback - in a real implementation, this would restore the file
       return {

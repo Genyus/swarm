@@ -112,7 +112,6 @@ export class IntegrationValidator {
   }
 
   async validateRollbackFunctionality(): Promise<void> {
-    const backupDir = path.join(this.testEnv.getProjectRoot(), '.mcp_backups');
     const backupExists = await this.testEnv.fileExists('.mcp_backups');
 
     if (!backupExists) {

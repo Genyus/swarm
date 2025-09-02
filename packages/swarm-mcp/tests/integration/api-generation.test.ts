@@ -1,12 +1,4 @@
-import {
-  afterEach,
-  beforeAll,
-  beforeEach,
-  describe,
-  expect,
-  it,
-  vi,
-} from 'vitest';
+import { afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import {
   mockSwarmFunctions,
   resetSwarmMocks,
@@ -78,7 +70,7 @@ describe('API Generation Integration', () => {
         expect(calls[i][0]).toMatchObject({
           name: `User${methods[i]}API`,
           method: methods[i],
-          route: `/api/users/${methods[i].toLowerCase()}`,
+          route: `/api/users/${methods?.[i]?.toLowerCase()}`,
           entities: ['User'],
           auth: true,
           force: false,

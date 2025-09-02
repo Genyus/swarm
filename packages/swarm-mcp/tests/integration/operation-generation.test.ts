@@ -1,12 +1,4 @@
-import {
-  afterEach,
-  beforeAll,
-  beforeEach,
-  describe,
-  expect,
-  it,
-  vi,
-} from 'vitest';
+import { afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { mockFileSystemTools } from './mock-filesystem.js';
 import {
   mockSwarmFunctions,
@@ -15,7 +7,6 @@ import {
   setupSwarmMocks,
 } from './mock-swarm-functions.js';
 import { IntegrationTestEnvironment } from './setup.js';
-import { IntegrationValidator } from './validator.js';
 
 // Mock the Swarm functions before importing them
 mockSwarmFunctions();
@@ -26,7 +17,6 @@ import { SwarmTools } from '../../src/server/tools/swarm.js';
 
 describe('Operation Generation Integration Tests', () => {
   let testEnv: IntegrationTestEnvironment;
-  let validator: IntegrationValidator;
   let mockSwarm: any;
   let swarmTools: SwarmTools;
 
@@ -36,7 +26,6 @@ describe('Operation Generation Integration Tests', () => {
 
   beforeEach(async () => {
     testEnv = new IntegrationTestEnvironment();
-    validator = new IntegrationValidator(testEnv);
 
     // Setup mocks
     mockSwarmFunctions();

@@ -17,6 +17,7 @@ export class IntegrationTestEnvironment {
   private projectTemplates: Map<string, ProjectTemplate>;
 
   constructor() {
+    this._tempProjectDir = '';
     this.projectTemplates = new Map();
     this.setupTemplates();
   }
@@ -148,7 +149,7 @@ export default app;`,
 
     this._tempProjectDir = path.join(
       process.cwd(),
-      'test',
+      'tests',
       'output',
       `test-${randomUUID()}`
     );

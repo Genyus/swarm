@@ -1,5 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { mockFileSystemTools } from './mock-filesystem.js';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { IntegrationTestEnvironment } from './setup.js';
 import { IntegrationValidator } from './validator.js';
 
@@ -7,13 +6,11 @@ import { IntegrationValidator } from './validator.js';
 describe('File Operations Integration', () => {
   let testEnv: IntegrationTestEnvironment;
   let validator: IntegrationValidator;
-  let mockFS: any;
 
   beforeEach(async () => {
     testEnv = new IntegrationTestEnvironment();
     await testEnv.setup('minimal');
     validator = new IntegrationValidator(testEnv);
-    mockFS = mockFileSystemTools(testEnv);
   });
 
   afterEach(async () => {

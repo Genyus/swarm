@@ -1,5 +1,8 @@
-import { Signale } from 'signale';
+import pkg from 'signale';
+import type { Signale } from 'signale';
 import { Logger } from '../types/logger';
+
+const { Signale: SignaleConstructor } = pkg;
 
 export type LogLevel = 'debug' | 'info' | 'warn' | 'error';
 
@@ -42,7 +45,7 @@ export class SwarmLogger implements Logger {
   }
 
   private createSignale(): Signale {
-    return new Signale({
+    return new SignaleConstructor({
       scope: 'Swarm',
       logLevel: this.logLevel,
     });
