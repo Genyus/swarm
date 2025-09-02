@@ -10,10 +10,11 @@ import {
   getTemplatesDir,
 } from '../utils/filesystem';
 import { capitalise } from '../utils/strings';
-import { processTemplate } from '../utils/templates';
+import { TemplateUtility } from '../utils/templates';
 
 export class JobGenerator implements NodeGenerator<JobFlags> {
   private templatesDir: string;
+  private templateUtility: TemplateUtility;
 
   constructor(
     public logger: Logger,
@@ -21,6 +22,7 @@ export class JobGenerator implements NodeGenerator<JobFlags> {
     private featureGenerator: IFeatureGenerator
   ) {
     this.templatesDir = getTemplatesDir(this.fs);
+    this.templateUtility = new TemplateUtility(fs);
   }
 
   async generate(featurePath: string, flags: JobFlags): Promise<void> {
@@ -74,11 +76,14 @@ export class JobGenerator implements NodeGenerator<JobFlags> {
           return;
         }
         const workerTemplate = this.fs.readFileSync(workerTemplatePath, 'utf8');
-        const workerCode = processTemplate(workerTemplate, {
-          Imports: imports,
-          JobType,
-          jobWorkerName,
-        });
+        const workerCode = this.templateUtility.processTemplate(
+          workerTemplate,
+          {
+            Imports: imports,
+            JobType,
+            jobWorkerName,
+          }
+        );
         this.fs.writeFileSync(workerFilePath, workerCode);
         this.logger.success(
           `${

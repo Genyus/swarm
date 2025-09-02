@@ -1,24 +1,36 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { mockFileSystemTools } from './mock-filesystem.js';
 import {
-  mockSwarmFunctions,
-  resetSwarmMocks,
-  setSwarmError,
-  setupSwarmMocks,
+    mockSwarmFunctions,
+    resetSwarmMocks,
+    setSwarmError,
+    setupSwarmMocks,
 } from './mock-swarm-functions.js';
 import { IntegrationTestEnvironment } from './setup.js';
 import { IntegrationValidator } from './validator.js';
+
+// Mock the Swarm functions before importing them
+mockSwarmFunctions();
+
+import { realFileSystem } from '@ingenyus/swarm-cli/dist/utils/filesystem.js';
+import { realLogger } from '@ingenyus/swarm-cli/dist/utils/logger.js';
+import { SwarmTools } from '../../src/server/tools/swarm.js';
 
 describe('Route Generation Integration Tests', () => {
   let testEnv: IntegrationTestEnvironment;
   let validator: IntegrationValidator;
   let mockSwarm: any;
+  let swarmTools: SwarmTools;
 
-  beforeEach(async () => {
+  beforeAll(() => {
+    swarmTools = SwarmTools.create(realLogger, realFileSystem);
+  });
+
+beforeEach(async () => {
     testEnv = new IntegrationTestEnvironment();
     validator = new IntegrationValidator(testEnv);
     mockSwarmFunctions();
-    mockSwarm = setupSwarmMocks();
+    mockSwarm = await setupSwarmMocks();
     mockFileSystemTools(testEnv);
 
     await testEnv.setup('withEntities');
@@ -36,11 +48,11 @@ describe('Route Generation Integration Tests', () => {
         path: '/',
         projectPath: testEnv.tempProjectDir,
       };
-      const result = await mockSwarm.swarmGenerateRoute(params);
+      const result = await swarmTools.generateRoute(params);
 
       expect(result.success).toBe(true);
-      expect(result.output).toContain('HomePage');
-      expect(mockSwarm.swarmGenerateRoute).toHaveBeenCalledWith(params);
+      expect(result.output).toContain('Route generated successfully');
+      expect(mockSwarm.mockSwarmToolsInstance.generateRoute).toHaveBeenCalledWith(params);
     });
 
     it('should generate a route with force flag', async () => {
@@ -50,11 +62,11 @@ describe('Route Generation Integration Tests', () => {
         force: true,
         projectPath: testEnv.tempProjectDir,
       };
-      const result = await mockSwarm.swarmGenerateRoute(params);
+      const result = await swarmTools.generateRoute(params);
 
       expect(result.success).toBe(true);
-      expect(result.output).toContain('UserProfile');
-      expect(mockSwarm.swarmGenerateRoute).toHaveBeenCalledWith(params);
+      expect(result.output).toContain('Route generated successfully');
+      expect(mockSwarm.mockSwarmToolsInstance.generateRoute).toHaveBeenCalledWith(params);
     });
   });
 
@@ -68,10 +80,10 @@ describe('Route Generation Integration Tests', () => {
           path,
           projectPath: testEnv.tempProjectDir,
         };
-        const result = await mockSwarm.swarmGenerateRoute(params);
+        const result = await swarmTools.generateRoute(params);
 
         expect(result.success).toBe(true);
-        expect(mockSwarm.swarmGenerateRoute).toHaveBeenCalledWith(params);
+        expect(mockSwarm.mockSwarmToolsInstance.generateRoute).toHaveBeenCalledWith(params);
       }
     });
 
@@ -91,10 +103,10 @@ describe('Route Generation Integration Tests', () => {
           path,
           projectPath: testEnv.tempProjectDir,
         };
-        const result = await mockSwarm.swarmGenerateRoute(params);
+        const result = await swarmTools.generateRoute(params);
 
         expect(result.success).toBe(true);
-        expect(mockSwarm.swarmGenerateRoute).toHaveBeenCalledWith(params);
+        expect(mockSwarm.mockSwarmToolsInstance.generateRoute).toHaveBeenCalledWith(params);
       }
     });
 
@@ -114,10 +126,10 @@ describe('Route Generation Integration Tests', () => {
           path,
           projectPath: testEnv.tempProjectDir,
         };
-        const result = await mockSwarm.swarmGenerateRoute(params);
+        const result = await swarmTools.generateRoute(params);
 
         expect(result.success).toBe(true);
-        expect(mockSwarm.swarmGenerateRoute).toHaveBeenCalledWith(params);
+        expect(mockSwarm.mockSwarmToolsInstance.generateRoute).toHaveBeenCalledWith(params);
       }
     });
   });
@@ -137,10 +149,10 @@ describe('Route Generation Integration Tests', () => {
           path: config.path,
           projectPath: testEnv.tempProjectDir,
         };
-        const result = await mockSwarm.swarmGenerateRoute(params);
+        const result = await swarmTools.generateRoute(params);
 
         expect(result.success).toBe(true);
-        expect(mockSwarm.swarmGenerateRoute).toHaveBeenCalledWith(params);
+        expect(mockSwarm.mockSwarmToolsInstance.generateRoute).toHaveBeenCalledWith(params);
       }
     });
 
@@ -150,11 +162,11 @@ describe('Route Generation Integration Tests', () => {
         path: '/user-profile',
         projectPath: testEnv.tempProjectDir,
       };
-      const result = await mockSwarm.swarmGenerateRoute(params);
+      const result = await swarmTools.generateRoute(params);
 
       expect(result.success).toBe(true);
-      expect(result.output).toContain('User_Profile_Page');
-      expect(mockSwarm.swarmGenerateRoute).toHaveBeenCalledWith(params);
+      expect(result.output).toContain('Route generated successfully');
+      expect(mockSwarm.mockSwarmToolsInstance.generateRoute).toHaveBeenCalledWith(params);
     });
   });
 
@@ -166,11 +178,11 @@ describe('Route Generation Integration Tests', () => {
         auth: true,
         projectPath: testEnv.tempProjectDir,
       };
-      const result = await mockSwarm.swarmGenerateRoute(params);
+      const result = await swarmTools.generateRoute(params);
 
       expect(result.success).toBe(true);
-      expect(result.output).toContain('ProtectedPage');
-      expect(mockSwarm.swarmGenerateRoute).toHaveBeenCalledWith(params);
+      expect(result.output).toContain('Route generated successfully');
+      expect(mockSwarm.mockSwarmToolsInstance.generateRoute).toHaveBeenCalledWith(params);
     });
 
     it('should generate public routes', async () => {
@@ -180,11 +192,11 @@ describe('Route Generation Integration Tests', () => {
         auth: false,
         projectPath: testEnv.tempProjectDir,
       };
-      const result = await mockSwarm.swarmGenerateRoute(params);
+      const result = await swarmTools.generateRoute(params);
 
       expect(result.success).toBe(true);
-      expect(result.output).toContain('PublicPage');
-      expect(mockSwarm.swarmGenerateRoute).toHaveBeenCalledWith(params);
+      expect(result.output).toContain('Route generated successfully');
+      expect(mockSwarm.mockSwarmToolsInstance.generateRoute).toHaveBeenCalledWith(params);
     });
 
     it('should generate mixed authentication routes', async () => {
@@ -202,10 +214,10 @@ describe('Route Generation Integration Tests', () => {
           auth: route.auth,
           projectPath: testEnv.tempProjectDir,
         };
-        const result = await mockSwarm.swarmGenerateRoute(params);
+        const result = await swarmTools.generateRoute(params);
 
         expect(result.success).toBe(true);
-        expect(mockSwarm.swarmGenerateRoute).toHaveBeenCalledWith(params);
+        expect(mockSwarm.mockSwarmToolsInstance.generateRoute).toHaveBeenCalledWith(params);
       }
     });
   });
@@ -231,10 +243,10 @@ describe('Route Generation Integration Tests', () => {
           auth: route.auth || false,
           projectPath: testEnv.tempProjectDir,
         };
-        const result = await mockSwarm.swarmGenerateRoute(params);
+        const result = await swarmTools.generateRoute(params);
 
         expect(result.success).toBe(true);
-        expect(mockSwarm.swarmGenerateRoute).toHaveBeenCalledWith(params);
+        expect(mockSwarm.mockSwarmToolsInstance.generateRoute).toHaveBeenCalledWith(params);
       }
     });
 
@@ -254,10 +266,10 @@ describe('Route Generation Integration Tests', () => {
           auth: route.auth,
           projectPath: testEnv.tempProjectDir,
         };
-        const result = await mockSwarm.swarmGenerateRoute(params);
+        const result = await swarmTools.generateRoute(params);
 
         expect(result.success).toBe(true);
-        expect(mockSwarm.swarmGenerateRoute).toHaveBeenCalledWith(params);
+        expect(mockSwarm.mockSwarmToolsInstance.generateRoute).toHaveBeenCalledWith(params);
       }
     });
 
@@ -276,10 +288,10 @@ describe('Route Generation Integration Tests', () => {
           path: route.path,
           projectPath: testEnv.tempProjectDir,
         };
-        const result = await mockSwarm.swarmGenerateRoute(params);
+        const result = await swarmTools.generateRoute(params);
 
         expect(result.success).toBe(true);
-        expect(mockSwarm.swarmGenerateRoute).toHaveBeenCalledWith(params);
+        expect(mockSwarm.mockSwarmToolsInstance.generateRoute).toHaveBeenCalledWith(params);
       }
     });
   });
@@ -292,11 +304,11 @@ describe('Route Generation Integration Tests', () => {
         force: true,
         projectPath: testEnv.tempProjectDir,
       };
-      const result = await mockSwarm.swarmGenerateRoute(params);
+      const result = await swarmTools.generateRoute(params);
 
       expect(result.success).toBe(true);
-      expect(result.output).toContain('OverriddenRoute');
-      expect(mockSwarm.swarmGenerateRoute).toHaveBeenCalledWith(params);
+      expect(result.output).toContain('Route generated successfully');
+      expect(mockSwarm.mockSwarmToolsInstance.generateRoute).toHaveBeenCalledWith(params);
     });
 
     it('should handle routes without force flag', async () => {
@@ -306,17 +318,17 @@ describe('Route Generation Integration Tests', () => {
         force: false,
         projectPath: testEnv.tempProjectDir,
       };
-      const result = await mockSwarm.swarmGenerateRoute(params);
+      const result = await swarmTools.generateRoute(params);
 
       expect(result.success).toBe(true);
-      expect(result.output).toContain('NormalRoute');
-      expect(mockSwarm.swarmGenerateRoute).toHaveBeenCalledWith(params);
+      expect(result.output).toContain('Route generated successfully');
+      expect(mockSwarm.mockSwarmToolsInstance.generateRoute).toHaveBeenCalledWith(params);
     });
   });
 
   describe('Error Handling', () => {
     it('should handle route generation errors gracefully', async () => {
-      setSwarmError(mockSwarm, 'swarmGenerateRoute', 'Route generation failed');
+      setSwarmError(mockSwarm, 'generateRoute', 'Route generation failed');
 
       const params = {
         name: 'ErrorRoute',
@@ -324,7 +336,7 @@ describe('Route Generation Integration Tests', () => {
         projectPath: testEnv.tempProjectDir,
       };
 
-      await expect(mockSwarm.swarmGenerateRoute(params)).rejects.toThrow(
+      await expect(swarmTools.generateRoute(params)).rejects.toThrow(
         'Route generation failed'
       );
     });
@@ -337,7 +349,7 @@ describe('Route Generation Integration Tests', () => {
       };
 
       // This would be handled by the Swarm CLI validation
-      const result = await mockSwarm.swarmGenerateRoute(params);
+      const result = await swarmTools.generateRoute(params);
 
       expect(result.success).toBe(true);
     });
@@ -353,10 +365,10 @@ describe('Route Generation Integration Tests', () => {
         path: '/minimal',
         projectPath: testEnv.tempProjectDir,
       };
-      const result = await mockSwarm.swarmGenerateRoute(params);
+      const result = await swarmTools.generateRoute(params);
 
       expect(result.success).toBe(true);
-      expect(result.output).toContain('MinimalRoute');
+      expect(result.output).toContain('Route generated successfully');
     });
 
     it('should work with projects containing entities', async () => {
@@ -368,10 +380,10 @@ describe('Route Generation Integration Tests', () => {
         path: '/entities',
         projectPath: testEnv.tempProjectDir,
       };
-      const result = await mockSwarm.swarmGenerateRoute(params);
+      const result = await swarmTools.generateRoute(params);
 
       expect(result.success).toBe(true);
-      expect(result.output).toContain('EntityRoute');
+      expect(result.output).toContain('Route generated successfully');
     });
   });
 
@@ -394,10 +406,10 @@ describe('Route Generation Integration Tests', () => {
           auth: route.auth,
           projectPath: testEnv.tempProjectDir,
         };
-        const result = await mockSwarm.swarmGenerateRoute(params);
+        const result = await swarmTools.generateRoute(params);
 
         expect(result.success).toBe(true);
-        expect(mockSwarm.swarmGenerateRoute).toHaveBeenCalledWith(params);
+        expect(mockSwarm.mockSwarmToolsInstance.generateRoute).toHaveBeenCalledWith(params);
       }
     });
   });

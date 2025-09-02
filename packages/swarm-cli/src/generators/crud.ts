@@ -6,7 +6,7 @@ import {
   ensureDirectoryExists,
   getFeatureTargetDir,
 } from '../utils/filesystem';
-import { getFileTemplatePath, processTemplate } from '../utils/templates';
+import { TemplateUtility } from '../utils/templates';
 
 const CRUD_OPERATIONS = [
   'get',
@@ -17,11 +17,15 @@ const CRUD_OPERATIONS = [
 ] as const;
 
 export class CrudGenerator implements NodeGenerator<CrudFlags> {
+  private templateUtility: TemplateUtility;
+
   constructor(
     public logger: Logger,
     public fs: IFileSystem,
     private featureGenerator: IFeatureGenerator
-  ) {}
+  ) {
+    this.templateUtility = new TemplateUtility(fs);
+  }
 
   async generate(featurePath: string, flags: CrudFlags): Promise<void> {
     try {
@@ -44,13 +48,13 @@ export class CrudGenerator implements NodeGenerator<CrudFlags> {
         return;
       }
       // Use template for CRUD file
-      const templatePath = getFileTemplatePath('crud');
+      const templatePath = this.templateUtility.getFileTemplatePath('crud');
       if (!this.fs.existsSync(templatePath)) {
         this.logger.error('CRUD template not found');
         return;
       }
       const template = this.fs.readFileSync(templatePath, 'utf8');
-      const crudCode = processTemplate(template, {
+      const crudCode = this.templateUtility.processTemplate(template, {
         crudName,
         dataType,
         operations: JSON.stringify(CRUD_OPERATIONS, null, 2),

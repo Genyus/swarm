@@ -1,4 +1,12 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import {
+  afterEach,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from 'vitest';
 import {
   mockSwarmFunctions,
   resetSwarmMocks,
@@ -11,18 +19,25 @@ import { IntegrationValidator } from './validator.js';
 // Mock the Swarm functions before importing them
 mockSwarmFunctions();
 
-import { swarmGenerateFeature } from '../../src/server/tools/swarm.js';
+import { realFileSystem } from '@ingenyus/swarm-cli/dist/utils/filesystem.js';
+import { realLogger } from '@ingenyus/swarm-cli/dist/utils/logger.js';
+import { SwarmTools } from '../../src/server/tools/swarm.js';
 
 describe('Feature Generation Integration', () => {
   let testEnv: IntegrationTestEnvironment;
   let validator: IntegrationValidator;
   let mockSwarm: any;
+  let swarmTools: SwarmTools;
+
+  beforeAll(() => {
+    swarmTools = SwarmTools.create(realLogger, realFileSystem);
+  });
 
   beforeEach(async () => {
     testEnv = new IntegrationTestEnvironment();
     await testEnv.setup('withEntities');
     validator = new IntegrationValidator(testEnv);
-    mockSwarm = setupSwarmMocks();
+    mockSwarm = await setupSwarmMocks();
   });
 
   afterEach(async () => {
@@ -32,7 +47,7 @@ describe('Feature Generation Integration', () => {
 
   describe('Basic Feature Generation', () => {
     it('should generate complete feature with components and tests', async () => {
-      const result = await swarmGenerateFeature({
+      const result = await swarmTools.generateFeature({
         name: 'UserProfile',
         dataType: 'User',
         components: ['Profile', 'Settings', 'Avatar'],
@@ -44,7 +59,9 @@ describe('Feature Generation Integration', () => {
       expect(result.output).toContain('Feature generated successfully');
       expect(result.generatedFiles).toBeDefined();
 
-      expect(mockSwarm.swarmGenerateFeature).toHaveBeenCalledWith({
+      expect(
+        mockSwarm.mockSwarmToolsInstance.generateFeature
+      ).toHaveBeenCalledWith({
         name: 'UserProfile',
         dataType: 'User',
         components: ['Profile', 'Settings', 'Avatar'],
@@ -54,7 +71,7 @@ describe('Feature Generation Integration', () => {
     });
 
     it('should generate feature with custom data types', async () => {
-      const result = await swarmGenerateFeature({
+      const result = await swarmTools.generateFeature({
         name: 'CustomFeature',
         dataType: 'CustomType',
         components: ['Main'],
@@ -64,7 +81,9 @@ describe('Feature Generation Integration', () => {
 
       expect(result.success).toBe(true);
 
-      expect(mockSwarm.swarmGenerateFeature).toHaveBeenCalledWith({
+      expect(
+        mockSwarm.mockSwarmToolsInstance.generateFeature
+      ).toHaveBeenCalledWith({
         name: 'CustomFeature',
         dataType: 'CustomType',
         components: ['Main'],
@@ -74,7 +93,7 @@ describe('Feature Generation Integration', () => {
     });
 
     it('should generate feature without data type', async () => {
-      const result = await swarmGenerateFeature({
+      const result = await swarmTools.generateFeature({
         name: 'SimpleFeature',
         components: ['Simple'],
         withTests: false,
@@ -83,7 +102,9 @@ describe('Feature Generation Integration', () => {
 
       expect(result.success).toBe(true);
 
-      expect(mockSwarm.swarmGenerateFeature).toHaveBeenCalledWith({
+      expect(
+        mockSwarm.mockSwarmToolsInstance.generateFeature
+      ).toHaveBeenCalledWith({
         name: 'SimpleFeature',
         components: ['Simple'],
         withTests: false,
@@ -96,7 +117,7 @@ describe('Feature Generation Integration', () => {
     it('should generate multiple components for feature', async () => {
       const components = ['List', 'Detail', 'Form', 'Card'];
 
-      const result = await swarmGenerateFeature({
+      const result = await swarmTools.generateFeature({
         name: 'MultiComponentFeature',
         components,
         withTests: true,
@@ -105,7 +126,9 @@ describe('Feature Generation Integration', () => {
 
       expect(result.success).toBe(true);
 
-      expect(mockSwarm.swarmGenerateFeature).toHaveBeenCalledWith({
+      expect(
+        mockSwarm.mockSwarmToolsInstance.generateFeature
+      ).toHaveBeenCalledWith({
         name: 'MultiComponentFeature',
         components,
         withTests: true,
@@ -114,7 +137,7 @@ describe('Feature Generation Integration', () => {
     });
 
     it('should handle feature with single component', async () => {
-      const result = await swarmGenerateFeature({
+      const result = await swarmTools.generateFeature({
         name: 'SingleComponentFeature',
         components: ['Main'],
         withTests: false,
@@ -123,7 +146,9 @@ describe('Feature Generation Integration', () => {
 
       expect(result.success).toBe(true);
 
-      expect(mockSwarm.swarmGenerateFeature).toHaveBeenCalledWith({
+      expect(
+        mockSwarm.mockSwarmToolsInstance.generateFeature
+      ).toHaveBeenCalledWith({
         name: 'SingleComponentFeature',
         components: ['Main'],
         withTests: false,
@@ -134,7 +159,7 @@ describe('Feature Generation Integration', () => {
 
   describe('Test Generation', () => {
     it('should generate feature with tests enabled', async () => {
-      const result = await swarmGenerateFeature({
+      const result = await swarmTools.generateFeature({
         name: 'TestedFeature',
         components: ['Main'],
         withTests: true,
@@ -143,7 +168,9 @@ describe('Feature Generation Integration', () => {
 
       expect(result.success).toBe(true);
 
-      expect(mockSwarm.swarmGenerateFeature).toHaveBeenCalledWith({
+      expect(
+        mockSwarm.mockSwarmToolsInstance.generateFeature
+      ).toHaveBeenCalledWith({
         name: 'TestedFeature',
         components: ['Main'],
         withTests: true,
@@ -152,7 +179,7 @@ describe('Feature Generation Integration', () => {
     });
 
     it('should generate feature without tests', async () => {
-      const result = await swarmGenerateFeature({
+      const result = await swarmTools.generateFeature({
         name: 'NoTestFeature',
         components: ['Main'],
         withTests: false,
@@ -161,7 +188,9 @@ describe('Feature Generation Integration', () => {
 
       expect(result.success).toBe(true);
 
-      expect(mockSwarm.swarmGenerateFeature).toHaveBeenCalledWith({
+      expect(
+        mockSwarm.mockSwarmToolsInstance.generateFeature
+      ).toHaveBeenCalledWith({
         name: 'NoTestFeature',
         components: ['Main'],
         withTests: false,
@@ -177,7 +206,7 @@ describe('Feature Generation Integration', () => {
         '// Existing feature content'
       );
 
-      const result = await swarmGenerateFeature({
+      const result = await swarmTools.generateFeature({
         name: 'ExistingFeature',
         components: ['Updated'],
         withTests: false,
@@ -186,7 +215,9 @@ describe('Feature Generation Integration', () => {
 
       expect(result.success).toBe(true);
 
-      expect(mockSwarm.swarmGenerateFeature).toHaveBeenCalledWith({
+      expect(
+        mockSwarm.mockSwarmToolsInstance.generateFeature
+      ).toHaveBeenCalledWith({
         name: 'ExistingFeature',
         components: ['Updated'],
         withTests: false,
@@ -202,12 +233,12 @@ describe('Feature Generation Integration', () => {
 
       setSwarmError(
         mockSwarm,
-        'swarmGenerateFeature',
+        'generateFeature',
         'Feature already exists'
       );
 
       await expect(
-        swarmGenerateFeature({
+        swarmTools.generateFeature({
           name: 'existing-feature',
           dataType: 'User',
           components: ['UserList', 'UserForm'],
@@ -220,10 +251,10 @@ describe('Feature Generation Integration', () => {
 
   describe('Error Handling', () => {
     it('should handle feature generation errors gracefully', async () => {
-      setSwarmError(mockSwarm, 'swarmGenerateFeature', 'Invalid feature name');
+      setSwarmError(mockSwarm, 'generateFeature', 'Invalid feature name');
 
       await expect(
-        swarmGenerateFeature({
+        swarmTools.generateFeature({
           name: 'invalid@feature',
           dataType: 'User',
           components: [],
@@ -236,12 +267,12 @@ describe('Feature Generation Integration', () => {
     it('should handle component generation errors', async () => {
       setSwarmError(
         mockSwarm,
-        'swarmGenerateFeature',
+        'generateFeature',
         'Invalid component specified'
       );
 
       await expect(
-        swarmGenerateFeature({
+        swarmTools.generateFeature({
           name: 'test-feature',
           dataType: 'User',
           components: ['Invalid@Component'],
@@ -254,7 +285,7 @@ describe('Feature Generation Integration', () => {
 
   describe('Project Integration', () => {
     it('should integrate generated features with project structure', async () => {
-      const result = await swarmGenerateFeature({
+      const result = await swarmTools.generateFeature({
         name: 'IntegrationFeature',
         dataType: 'User',
         components: ['Main', 'Detail'],
@@ -271,7 +302,7 @@ describe('Feature Generation Integration', () => {
     it('should maintain project consistency after feature generation', async () => {
       const beforeFiles = await testEnv.listFiles('src');
 
-      await swarmGenerateFeature({
+      await swarmTools.generateFeature({
         name: 'ConsistencyFeature',
         components: ['Main'],
         withTests: false,
@@ -283,7 +314,7 @@ describe('Feature Generation Integration', () => {
     });
 
     it('should generate features compatible with existing entities', async () => {
-      const result = await swarmGenerateFeature({
+      const result = await swarmTools.generateFeature({
         name: 'EntityCompatibleFeature',
         dataType: 'User',
         components: ['List', 'Detail'],
@@ -299,7 +330,7 @@ describe('Feature Generation Integration', () => {
 
   describe('Complex Feature Scenarios', () => {
     it('should handle feature with complex data types', async () => {
-      const result = await swarmGenerateFeature({
+      const result = await swarmTools.generateFeature({
         name: 'ComplexFeature',
         dataType: 'ComplexType',
         components: ['Complex', 'Nested', 'Advanced'],
@@ -309,7 +340,9 @@ describe('Feature Generation Integration', () => {
 
       expect(result.success).toBe(true);
 
-      expect(mockSwarm.swarmGenerateFeature).toHaveBeenCalledWith({
+      expect(
+        mockSwarm.mockSwarmToolsInstance.generateFeature
+      ).toHaveBeenCalledWith({
         name: 'ComplexFeature',
         dataType: 'ComplexType',
         components: ['Complex', 'Nested', 'Advanced'],
@@ -319,14 +352,16 @@ describe('Feature Generation Integration', () => {
     });
 
     it('should generate feature with minimal configuration', async () => {
-      const result = await swarmGenerateFeature({
+      const result = await swarmTools.generateFeature({
         name: 'MinimalFeature',
         force: false,
       });
 
       expect(result.success).toBe(true);
 
-      expect(mockSwarm.swarmGenerateFeature).toHaveBeenCalledWith({
+      expect(
+        mockSwarm.mockSwarmToolsInstance.generateFeature
+      ).toHaveBeenCalledWith({
         name: 'MinimalFeature',
         force: false,
       });

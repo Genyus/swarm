@@ -6,14 +6,18 @@ import {
   ensureDirectoryExists,
   getFeatureTargetDir,
 } from '../utils/filesystem';
-import { getFileTemplatePath, processTemplate } from '../utils/templates';
+import { TemplateUtility } from '../utils/templates';
 
 export class ApiGenerator implements NodeGenerator<ApiFlags> {
+  private templateUtility: TemplateUtility;
+
   constructor(
     public logger: Logger,
     public fs: IFileSystem,
     private featureGenerator: IFeatureGenerator
-  ) {}
+  ) {
+    this.templateUtility = new TemplateUtility(fs);
+  }
 
   async generate(featurePath: string, flags: ApiFlags): Promise<void> {
     try {
@@ -43,7 +47,7 @@ export class ApiGenerator implements NodeGenerator<ApiFlags> {
         this.logger.info(`API endpoint file already exists: ${handlerFile}`);
         this.logger.info('Use --force to overwrite');
       } else {
-        const templatePath = getFileTemplatePath('api');
+        const templatePath = this.templateUtility.getFileTemplatePath('api');
         if (!this.fs.existsSync(templatePath)) {
           this.logger.error('API endpoint template not found');
           return;
@@ -54,7 +58,7 @@ export class ApiGenerator implements NodeGenerator<ApiFlags> {
           : entities
             ? `"${entities}"`
             : '';
-        const processed = processTemplate(template, {
+        const processed = this.templateUtility.processTemplate(template, {
           ApiType,
           apiName,
           method,

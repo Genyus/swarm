@@ -5,6 +5,8 @@ import { FeatureGenerator } from '@ingenyus/swarm-cli/dist/generators/feature.js
 import { JobGenerator } from '@ingenyus/swarm-cli/dist/generators/job.js';
 import { OperationGenerator } from '@ingenyus/swarm-cli/dist/generators/operation.js';
 import { RouteGenerator } from '@ingenyus/swarm-cli/dist/generators/route.js';
+import type { IFileSystem } from '@ingenyus/swarm-cli/dist/types/filesystem.js';
+import type { Logger } from '@ingenyus/swarm-cli/dist/types/logger.js';
 
 import type {
   ApiFlags,
@@ -15,61 +17,126 @@ import type {
   RouteFlags,
 } from '@ingenyus/swarm-cli/dist/types/index.js';
 
-import { realFileSystem } from '@ingenyus/swarm-cli/dist/utils/filesystem.js';
-import { realLogger } from '@ingenyus/swarm-cli/dist/utils/logger.js';
-
 export class SwarmGeneratorsService {
-  private static instance: SwarmGeneratorsService;
   private featureGenerator: FeatureGenerator;
+  private apiGenerator?: ApiGenerator;
+  private apiNamespaceGenerator?: ApiNamespaceGenerator;
+  private crudGenerator?: CrudGenerator;
+  private routeGenerator?: RouteGenerator;
+  private jobGenerator?: JobGenerator;
+  private operationGenerator?: OperationGenerator;
 
-  private constructor() {
-    this.featureGenerator = new FeatureGenerator(realLogger, realFileSystem);
+  constructor(
+    private logger: Logger,
+    private fileSystem: IFileSystem
+  ) {
+    this.featureGenerator = new FeatureGenerator(this.logger, this.fileSystem);
   }
 
-  static getInstance(): SwarmGeneratorsService {
-    if (!SwarmGeneratorsService.instance) {
-      SwarmGeneratorsService.instance = new SwarmGeneratorsService();
+  static create(
+    logger: Logger,
+    fileSystem: IFileSystem
+  ): SwarmGeneratorsService {
+    return new SwarmGeneratorsService(logger, fileSystem);
+  }
+
+  private getApiGenerator(): ApiGenerator {
+    if (!this.apiGenerator) {
+      this.apiGenerator = new ApiGenerator(
+        this.logger,
+        this.fileSystem,
+        this.featureGenerator
+      );
     }
-    return SwarmGeneratorsService.instance;
+
+    return this.apiGenerator;
   }
 
-  async generateApi(featurePath: string, flags: ApiFlags): Promise<void> {
-    const apiGenerator = new ApiGenerator(
-      realLogger,
-      realFileSystem,
-      this.featureGenerator
-    );
-    await apiGenerator.generate(featurePath, flags);
+  private getCrudGenerator(): CrudGenerator {
+    if (!this.crudGenerator) {
+      this.crudGenerator = new CrudGenerator(
+        this.logger,
+        this.fileSystem,
+        this.featureGenerator
+      );
+    }
+
+    return this.crudGenerator;
+  }
+
+  private getRouteGenerator(): RouteGenerator {
+    if (!this.routeGenerator) {
+      this.routeGenerator = new RouteGenerator(
+        this.logger,
+        this.fileSystem,
+        this.featureGenerator
+      );
+    }
+
+    return this.routeGenerator;
+  }
+
+  private getJobGenerator(): JobGenerator {
+    if (!this.jobGenerator) {
+      this.jobGenerator = new JobGenerator(
+        this.logger,
+        this.fileSystem,
+        this.featureGenerator
+      );
+    }
+
+    return this.jobGenerator;
+  }
+
+  private getOperationGenerator(): OperationGenerator {
+    if (!this.operationGenerator) {
+      this.operationGenerator = new OperationGenerator(
+        this.logger,
+        this.fileSystem,
+        this.featureGenerator
+      );
+    }
+
+    return this.operationGenerator;
+  }
+
+  private getApiNamespaceGenerator(): ApiNamespaceGenerator {
+    if (!this.apiNamespaceGenerator) {
+      this.apiNamespaceGenerator = new ApiNamespaceGenerator(
+        this.logger,
+        this.fileSystem,
+        this.featureGenerator
+      );
+    }
+
+    return this.apiNamespaceGenerator;
   }
 
   generateFeature(featurePath: string): void {
     this.featureGenerator.generateFeature(featurePath);
   }
 
+  async generateApi(featurePath: string, flags: ApiFlags): Promise<void> {
+    const apiGenerator = this.getApiGenerator();
+
+    await apiGenerator.generate(featurePath, flags);
+  }
+
   async generateCrud(featurePath: string, flags: CrudFlags): Promise<void> {
-    const crudGenerator = new CrudGenerator(
-      realLogger,
-      realFileSystem,
-      this.featureGenerator
-    );
+    const crudGenerator = this.getCrudGenerator();
+
     await crudGenerator.generate(featurePath, flags);
   }
 
   async generateRoute(featurePath: string, flags: RouteFlags): Promise<void> {
-    const routeGenerator = new RouteGenerator(
-      realLogger,
-      realFileSystem,
-      this.featureGenerator
-    );
+    const routeGenerator = this.getRouteGenerator();
+
     await routeGenerator.generate(featurePath, flags);
   }
 
   async generateJob(featurePath: string, flags: JobFlags): Promise<void> {
-    const jobGenerator = new JobGenerator(
-      realLogger,
-      realFileSystem,
-      this.featureGenerator
-    );
+    const jobGenerator = this.getJobGenerator();
+
     await jobGenerator.generate(featurePath, flags);
   }
 
@@ -77,11 +144,8 @@ export class SwarmGeneratorsService {
     featurePath: string,
     flags: OperationFlags
   ): Promise<void> {
-    const operationGenerator = new OperationGenerator(
-      realLogger,
-      realFileSystem,
-      this.featureGenerator
-    );
+    const operationGenerator = this.getOperationGenerator();
+
     await operationGenerator.generate(featurePath, flags);
   }
 
@@ -89,15 +153,8 @@ export class SwarmGeneratorsService {
     featurePath: string,
     flags: ApiNamespaceFlags
   ): Promise<void> {
-    const apiNamespaceGenerator = new ApiNamespaceGenerator(
-      realLogger,
-      realFileSystem,
-      this.featureGenerator
-    );
-    await apiNamespaceGenerator.generate(featurePath, flags);
-  }
+    const apiNamespaceGenerator = this.getApiNamespaceGenerator();
 
-  getFeatureGenerator(): FeatureGenerator {
-    return this.featureGenerator;
+    await apiNamespaceGenerator.generate(featurePath, flags);
   }
 }

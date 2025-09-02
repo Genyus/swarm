@@ -1,4 +1,4 @@
-import type { Dirent, ObjectEncodingOptions } from 'fs';
+import type { Dirent, ObjectEncodingOptions, Stats } from 'fs';
 /**
  * Interface for file system operations
  * @interface IFileSystem
@@ -70,4 +70,11 @@ export interface IFileSystem {
       | BufferEncoding
       | null
   ): string[];
+
+  /**
+   * Get file status
+   * @param {string} path - The path to the file
+   * @returns {Stats} - The file status
+   */
+  statSync(path: string): Stats;
 }

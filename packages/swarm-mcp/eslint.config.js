@@ -51,4 +51,9 @@ export default [
   {
     ignores: ['dist/', 'node_modules/', 'coverage/'],
   },
+  {
+    globals: {
+      BufferEncoding: 'readonly',
+    },
+  }
 ];

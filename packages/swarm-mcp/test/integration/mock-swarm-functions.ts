@@ -1,47 +1,43 @@
 import { vi } from 'vitest';
-import {
-  swarmGenerateApi,
-  swarmGenerateApiNamespace,
-  swarmGenerateCrud,
-  swarmGenerateFeature,
-  swarmGenerateJob,
-  swarmGenerateOperation,
-  swarmGenerateRoute,
-} from '../../src/server/tools/swarm.js';
 
 export function mockSwarmFunctions() {
-  vi.mock('../../src/server/tools/swarm.js', () => ({
-    swarmGenerateAPI: vi.fn(),
-    swarmGenerateFeature: vi.fn(),
-    swarmGenerateCRUD: vi.fn(),
-    swarmGenerateJob: vi.fn(),
-    swarmGenerateOperation: vi.fn(),
-    swarmGenerateRoute: vi.fn(),
-    swarmGenerateApiNamespace: vi.fn(),
-  }));
+  vi.mock('../../src/server/tools/swarm.js', () => {
+    const mockSwarmToolsInstance = {
+      generateApi: vi.fn(),
+      generateFeature: vi.fn(),
+      generateCrud: vi.fn(),
+      generateRoute: vi.fn(),
+      generateJob: vi.fn(),
+      generateOperation: vi.fn(),
+      generateApiNamespace: vi.fn(),
+    };
+
+    return {
+      SwarmTools: {
+        create: vi.fn(() => mockSwarmToolsInstance),
+      },
+    };
+  });
 }
 
-export function setupSwarmMocks() {
-  const mockSwarm = vi.mocked({
-    swarmGenerateAPI: swarmGenerateApi,
-    swarmGenerateFeature,
-    swarmGenerateCRUD: swarmGenerateCrud,
-    swarmGenerateJob,
-    swarmGenerateOperation,
-    swarmGenerateRoute,
-    swarmGenerateApiNamespace,
-  });
+export async function setupSwarmMocks() {
+  const { SwarmTools } = await import('../../src/server/tools/swarm.js');
 
-  // Setup default successful responses
-  mockSwarm.swarmGenerateAPI.mockResolvedValue({
+  const mockSwarm = {
+    SwarmTools: SwarmTools as any,
+    mockSwarmToolsInstance: null as any, // Will be set below
+  };
+  const mockSwarmToolsInstance = mockSwarm.SwarmTools.create();
+
+  mockSwarm.mockSwarmToolsInstance = mockSwarmToolsInstance;
+  mockSwarmToolsInstance.generateApi.mockResolvedValue({
     success: true,
     output:
       'API generated successfully\nGenerated files:\n- src/api/user.ts\n- src/operations/user.ts',
     generatedFiles: ['src/api/user.ts', 'src/operations/user.ts'],
     modifiedFiles: [],
   });
-
-  mockSwarm.swarmGenerateFeature.mockResolvedValue({
+  mockSwarmToolsInstance.generateFeature.mockResolvedValue({
     success: true,
     output:
       'Feature generated successfully\nGenerated files:\n- src/features/User/User.tsx\n- src/features/User/index.tsx',
@@ -51,48 +47,38 @@ export function setupSwarmMocks() {
     ],
     modifiedFiles: [],
   });
-
-  mockSwarm.swarmGenerateCRUD.mockResolvedValue({
+  mockSwarmToolsInstance.generateCrud.mockResolvedValue({
     success: true,
     output:
       'CRUD operations generated successfully\nGenerated files:\n- src/operations/user.ts\n- src/queries/user.ts',
     generatedFiles: ['src/operations/user.ts', 'src/queries/user.ts'],
     modifiedFiles: [],
   });
-
-  // Use dynamic output based on parameters
-  mockSwarm.swarmGenerateJob.mockImplementation((params: any) => {
-    const jobName = params?.name || 'cleanup';
+  mockSwarmToolsInstance.generateRoute.mockResolvedValue({
+    success: true,
+    output:
+      'Route generated successfully\nGenerated files:\n- src/routes/user.tsx',
+    generatedFiles: ['src/routes/user.tsx'],
+    modifiedFiles: [],
+  });
+  mockSwarmToolsInstance.generateJob.mockImplementation((params) => {
+    const jobName = params.name || 'defaultJob';
+    const fileName = jobName.toLowerCase().replace(/[^a-z0-9]/g, '') + '.ts';
     return Promise.resolve({
       success: true,
-      output: `${jobName} job generated successfully\nGenerated files:\n- src/jobs/${jobName.toLowerCase()}.ts`,
-      generatedFiles: [`src/jobs/${jobName.toLowerCase()}.ts`],
+      output: `Job ${jobName} generated successfully\nGenerated files:\n- src/jobs/${fileName}`,
+      generatedFiles: [`src/jobs/${fileName}`],
       modifiedFiles: [],
     });
   });
-
-  mockSwarm.swarmGenerateOperation.mockImplementation((params: any) => {
-    const operation = params?.operation || 'get';
-    const dataType = params?.dataType || 'User';
-    return Promise.resolve({
-      success: true,
-      output: `${operation} operation for ${dataType} generated successfully\nGenerated files:\n- src/operations/${dataType.toLowerCase()}.ts`,
-      generatedFiles: [`src/operations/${dataType.toLowerCase()}.ts`],
-      modifiedFiles: [],
-    });
+  mockSwarmToolsInstance.generateOperation.mockResolvedValue({
+    success: true,
+    output:
+      'Operation generated successfully\nGenerated files:\n- src/operations/user.ts',
+    generatedFiles: ['src/operations/user.ts'],
+    modifiedFiles: [],
   });
-
-  mockSwarm.swarmGenerateRoute.mockImplementation((params: any) => {
-    const routeName = params?.name || 'User';
-    return Promise.resolve({
-      success: true,
-      output: `${routeName} route generated successfully\nGenerated files:\n- src/routes/${routeName.toLowerCase()}.tsx`,
-      generatedFiles: [`src/routes/${routeName.toLowerCase()}.tsx`],
-      modifiedFiles: [],
-    });
-  });
-
-  mockSwarm.swarmGenerateApiNamespace.mockResolvedValue({
+  mockSwarmToolsInstance.generateApiNamespace.mockResolvedValue({
     success: true,
     output:
       'API namespace generated successfully\nGenerated files:\n- src/api/v1/index.ts',
@@ -100,7 +86,7 @@ export function setupSwarmMocks() {
     modifiedFiles: [],
   });
 
-  return mockSwarm;
+  return { ...mockSwarm, mockSwarmToolsInstance };
 }
 
 export function setSwarmError(
@@ -108,14 +94,15 @@ export function setSwarmError(
   functionName: string,
   errorMessage: string
 ) {
-  const mockFunction = mockSwarm[functionName];
+  const mockFunction = mockSwarm.mockSwarmToolsInstance?.[functionName];
+
   if (mockFunction) {
     mockFunction.mockRejectedValue(new Error(errorMessage));
   }
 }
 
-export function resetSwarmMocks(mockSwarm: any) {
-  Object.values(mockSwarm).forEach((mockFn: any) => {
+export function resetSwarmMocks(mockSwarmToolsInstance: any) {
+  Object.values(mockSwarmToolsInstance).forEach((mockFn: any) => {
     if (mockFn && typeof mockFn.mockReset === 'function') {
       mockFn.mockReset();
     }

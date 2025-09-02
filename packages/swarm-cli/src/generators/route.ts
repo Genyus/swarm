@@ -10,17 +10,18 @@ import {
   getTemplatesDir,
 } from '../utils/filesystem';
 import { formatDisplayName } from '../utils/strings';
-import { processTemplate } from '../utils/templates';
+import { TemplateUtility } from '../utils/templates';
 
 export class RouteGenerator implements NodeGenerator<RouteFlags> {
   private templatesDir: string;
-
+  private templateUtility: TemplateUtility;
   constructor(
     public logger: Logger,
     public fs: IFileSystem,
     private featureGenerator: IFeatureGenerator
   ) {
-    this.templatesDir = getTemplatesDir(this.fs);
+    this.templatesDir = getTemplatesDir(fs);
+    this.templateUtility = new TemplateUtility(fs);
   }
 
   async generate(featurePath: string, flags: RouteFlags): Promise<void> {
@@ -62,7 +63,10 @@ export class RouteGenerator implements NodeGenerator<RouteFlags> {
           ComponentName: componentName,
           DisplayName: formatDisplayName(componentName),
         };
-        const processed = processTemplate(template, replacements);
+        const processed = this.templateUtility.processTemplate(
+          template,
+          replacements
+        );
         this.fs.writeFileSync(pageFile, processed);
         this.logger.success(
           `${fileExists ? 'Overwrote' : 'Generated'} page file: ${pageFile}`

@@ -1,4 +1,12 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import {
+  afterEach,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from 'vitest';
 import { mockFileSystemTools } from './mock-filesystem.js';
 import {
   mockSwarmFunctions,
@@ -9,10 +17,22 @@ import {
 import { IntegrationTestEnvironment } from './setup.js';
 import { IntegrationValidator } from './validator.js';
 
+// Mock the Swarm functions before importing them
+mockSwarmFunctions();
+
+import { realFileSystem } from '@ingenyus/swarm-cli/dist/utils/filesystem.js';
+import { realLogger } from '@ingenyus/swarm-cli/dist/utils/logger.js';
+import { SwarmTools } from '../../src/server/tools/swarm.js';
+
 describe('Job Generation Integration Tests', () => {
   let testEnv: IntegrationTestEnvironment;
   let validator: IntegrationValidator;
   let mockSwarm: any;
+  let swarmTools: SwarmTools;
+
+  beforeAll(() => {
+    swarmTools = SwarmTools.create(realLogger, realFileSystem);
+  });
 
   beforeEach(async () => {
     testEnv = new IntegrationTestEnvironment();
@@ -20,7 +40,7 @@ describe('Job Generation Integration Tests', () => {
 
     // Setup mocks
     mockSwarmFunctions();
-    mockSwarm = setupSwarmMocks();
+    mockSwarm = await setupSwarmMocks();
     mockFileSystemTools(testEnv);
 
     // Setup test project
@@ -39,11 +59,13 @@ describe('Job Generation Integration Tests', () => {
         projectPath: testEnv.tempProjectDir,
       };
 
-      const result = await mockSwarm.swarmGenerateJob(params);
+      const result = await swarmTools.generateJob(params);
 
       expect(result.success).toBe(true);
       expect(result.output).toContain('cleanupJob');
-      expect(mockSwarm.swarmGenerateJob).toHaveBeenCalledWith(params);
+      expect(mockSwarm.mockSwarmToolsInstance.generateJob).toHaveBeenCalledWith(
+        params
+      );
     });
 
     it('should generate a job with force flag', async () => {
@@ -53,11 +75,13 @@ describe('Job Generation Integration Tests', () => {
         projectPath: testEnv.tempProjectDir,
       };
 
-      const result = await mockSwarm.swarmGenerateJob(params);
+      const result = await swarmTools.generateJob(params);
 
       expect(result.success).toBe(true);
       expect(result.output).toContain('forceJob');
-      expect(mockSwarm.swarmGenerateJob).toHaveBeenCalledWith(params);
+      expect(mockSwarm.mockSwarmToolsInstance.generateJob).toHaveBeenCalledWith(
+        params
+      );
     });
   });
 
@@ -69,11 +93,13 @@ describe('Job Generation Integration Tests', () => {
         projectPath: testEnv.tempProjectDir,
       };
 
-      const result = await mockSwarm.swarmGenerateJob(params);
+      const result = await swarmTools.generateJob(params);
 
       expect(result.success).toBe(true);
       expect(result.output).toContain('scheduledJob');
-      expect(mockSwarm.swarmGenerateJob).toHaveBeenCalledWith(params);
+      expect(mockSwarm.mockSwarmToolsInstance.generateJob).toHaveBeenCalledWith(
+        params
+      );
     });
 
     it('should generate a job with complex cron schedule', async () => {
@@ -83,11 +109,13 @@ describe('Job Generation Integration Tests', () => {
         projectPath: testEnv.tempProjectDir,
       };
 
-      const result = await mockSwarm.swarmGenerateJob(params);
+      const result = await swarmTools.generateJob(params);
 
       expect(result.success).toBe(true);
       expect(result.output).toContain('complexScheduledJob');
-      expect(mockSwarm.swarmGenerateJob).toHaveBeenCalledWith(params);
+      expect(mockSwarm.mockSwarmToolsInstance.generateJob).toHaveBeenCalledWith(
+        params
+      );
     });
 
     it('should generate a job with schedule arguments', async () => {
@@ -98,11 +126,13 @@ describe('Job Generation Integration Tests', () => {
         projectPath: testEnv.tempProjectDir,
       };
 
-      const result = await mockSwarm.swarmGenerateJob(params);
+      const result = await swarmTools.generateJob(params);
 
       expect(result.success).toBe(true);
       expect(result.output).toContain('argScheduledJob');
-      expect(mockSwarm.swarmGenerateJob).toHaveBeenCalledWith(params);
+      expect(mockSwarm.mockSwarmToolsInstance.generateJob).toHaveBeenCalledWith(
+        params
+      );
     });
   });
 
@@ -114,11 +144,13 @@ describe('Job Generation Integration Tests', () => {
         projectPath: testEnv.tempProjectDir,
       };
 
-      const result = await mockSwarm.swarmGenerateJob(params);
+      const result = await swarmTools.generateJob(params);
 
       expect(result.success).toBe(true);
       expect(result.output).toContain('userCleanupJob');
-      expect(mockSwarm.swarmGenerateJob).toHaveBeenCalledWith(params);
+      expect(mockSwarm.mockSwarmToolsInstance.generateJob).toHaveBeenCalledWith(
+        params
+      );
     });
 
     it('should generate a job with multiple entities', async () => {
@@ -128,11 +160,13 @@ describe('Job Generation Integration Tests', () => {
         projectPath: testEnv.tempProjectDir,
       };
 
-      const result = await mockSwarm.swarmGenerateJob(params);
+      const result = await swarmTools.generateJob(params);
 
       expect(result.success).toBe(true);
       expect(result.output).toContain('multiEntityJob');
-      expect(mockSwarm.swarmGenerateJob).toHaveBeenCalledWith(params);
+      expect(mockSwarm.mockSwarmToolsInstance.generateJob).toHaveBeenCalledWith(
+        params
+      );
     });
 
     it('should generate a job with entities and scheduling', async () => {
@@ -143,11 +177,13 @@ describe('Job Generation Integration Tests', () => {
         projectPath: testEnv.tempProjectDir,
       };
 
-      const result = await mockSwarm.swarmGenerateJob(params);
+      const result = await swarmTools.generateJob(params);
 
       expect(result.success).toBe(true);
       expect(result.output).toContain('scheduledEntityJob');
-      expect(mockSwarm.swarmGenerateJob).toHaveBeenCalledWith(params);
+      expect(mockSwarm.mockSwarmToolsInstance.generateJob).toHaveBeenCalledWith(
+        params
+      );
     });
   });
 
@@ -162,11 +198,13 @@ describe('Job Generation Integration Tests', () => {
         projectPath: testEnv.tempProjectDir,
       };
 
-      const result = await mockSwarm.swarmGenerateJob(params);
+      const result = await swarmTools.generateJob(params);
 
       expect(result.success).toBe(true);
       expect(result.output).toContain('comprehensiveJob');
-      expect(mockSwarm.swarmGenerateJob).toHaveBeenCalledWith(params);
+      expect(mockSwarm.mockSwarmToolsInstance.generateJob).toHaveBeenCalledWith(
+        params
+      );
     });
 
     it('should handle job generation with minimal parameters', async () => {
@@ -175,24 +213,26 @@ describe('Job Generation Integration Tests', () => {
         projectPath: testEnv.tempProjectDir,
       };
 
-      const result = await mockSwarm.swarmGenerateJob(params);
+      const result = await swarmTools.generateJob(params);
 
       expect(result.success).toBe(true);
       expect(result.output).toContain('minimalJob');
-      expect(mockSwarm.swarmGenerateJob).toHaveBeenCalledWith(params);
+      expect(mockSwarm.mockSwarmToolsInstance.generateJob).toHaveBeenCalledWith(
+        params
+      );
     });
   });
 
   describe('Error Handling', () => {
     it('should handle job generation errors gracefully', async () => {
-      setSwarmError(mockSwarm, 'swarmGenerateJob', 'Job generation failed');
+      setSwarmError(mockSwarm, 'generateJob', 'Job generation failed');
 
       const params = {
         name: 'errorJob',
         projectPath: testEnv.tempProjectDir,
       };
 
-      await expect(mockSwarm.swarmGenerateJob(params)).rejects.toThrow(
+      await expect(swarmTools.generateJob(params)).rejects.toThrow(
         'Job generation failed'
       );
     });
@@ -205,7 +245,7 @@ describe('Job Generation Integration Tests', () => {
       };
 
       // This would be handled by the Swarm CLI validation
-      const result = await mockSwarm.swarmGenerateJob(params);
+      const result = await swarmTools.generateJob(params);
       expect(result.success).toBe(true);
     });
   });
@@ -220,7 +260,7 @@ describe('Job Generation Integration Tests', () => {
         projectPath: testEnv.tempProjectDir,
       };
 
-      const result = await mockSwarm.swarmGenerateJob(params);
+      const result = await swarmTools.generateJob(params);
 
       expect(result.success).toBe(true);
       expect(result.output).toContain('templateJob');
@@ -236,7 +276,7 @@ describe('Job Generation Integration Tests', () => {
         projectPath: testEnv.tempProjectDir,
       };
 
-      const result = await mockSwarm.swarmGenerateJob(params);
+      const result = await swarmTools.generateJob(params);
 
       expect(result.success).toBe(true);
       expect(result.output).toContain('entityJob');

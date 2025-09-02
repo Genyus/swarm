@@ -12,14 +12,18 @@ import {
 } from '../utils/filesystem';
 import { getEntityMetadata, needsPrismaImport } from '../utils/prisma';
 import { getPlural } from '../utils/strings';
-import { getFileTemplatePath, processTemplate } from '../utils/templates';
+import { TemplateUtility } from '../utils/templates';
 
 export class OperationGenerator implements NodeGenerator<OperationFlags> {
+  private templateUtility: TemplateUtility;
+
   constructor(
     public logger: Logger,
     public fs: IFileSystem,
     private featureGenerator: IFeatureGenerator
-  ) {}
+  ) {
+    this.templateUtility = new TemplateUtility(fs);
+  }
 
   async generate(featurePath: string, flags: OperationFlags): Promise<void> {
     try {
@@ -214,7 +218,8 @@ export class OperationGenerator implements NodeGenerator<OperationFlags> {
     auth = false
   ): string {
     const operationType = this.getOperationType(operation);
-    const templatePath = getFileTemplatePath(operationType);
+    const templatePath =
+      this.templateUtility.getFileTemplatePath(operationType);
     const template = this.fs.readFileSync(templatePath, 'utf8');
 
     const replacements = {
@@ -224,7 +229,7 @@ export class OperationGenerator implements NodeGenerator<OperationFlags> {
       IMPORTS: this.generateImports(model, model.name, operation),
     };
 
-    return processTemplate(template, replacements);
+    return this.templateUtility.processTemplate(template, replacements);
   }
 
   /**

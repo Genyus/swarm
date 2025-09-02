@@ -1,3 +1,5 @@
+import { realFileSystem } from '@ingenyus/swarm-cli/dist/utils/filesystem.js';
+import { realLogger } from '@ingenyus/swarm-cli/dist/utils/logger.js';
 import type {
   DeleteFileParams,
   DeleteFileResult,
@@ -10,9 +12,7 @@ import type {
   WriteFileParams,
   WriteFileResult,
 } from '../types/mcp.js';
-
 import type {
-  GenerationResult,
   SwarmGenerateApiNamespaceParams,
   SwarmGenerateApiParams,
   SwarmGenerateCrudParams,
@@ -21,7 +21,6 @@ import type {
   SwarmGenerateOperationParams,
   SwarmGenerateRouteParams,
 } from '../types/swarm.js';
-
 import {
   deleteFile,
   listDirectory,
@@ -29,20 +28,12 @@ import {
   rollback,
   writeFile,
 } from './filesystem.js';
+import { SwarmTools } from './swarm.js';
 
-import {
-  swarmGenerateApi,
-  swarmGenerateApiNamespace,
-  swarmGenerateCrud,
-  swarmGenerateFeature,
-  swarmGenerateJob,
-  swarmGenerateOperation,
-  swarmGenerateRoute,
-} from './swarm.js';
+const swarmTools = SwarmTools.create(realLogger, realFileSystem);
 
 export * from './filesystem.js';
 export * from './swarm.js';
-
 export const tools = {
   readFile: readFile as (params: ReadFileParams) => Promise<ReadFileResult>,
   writeFile: writeFile as (params: WriteFileParams) => Promise<WriteFileResult>,
@@ -53,25 +44,18 @@ export const tools = {
     params: DeleteFileParams
   ) => Promise<DeleteFileResult>,
   rollback: rollback as (params: RollbackParams) => Promise<RollbackResult>,
-  swarm_generate_api: swarmGenerateApi as (
-    params: SwarmGenerateApiParams
-  ) => Promise<GenerationResult>,
-  swarm_generate_feature: swarmGenerateFeature as (
-    params: SwarmGenerateFeatureParams
-  ) => Promise<GenerationResult>,
-  swarm_generate_crud: swarmGenerateCrud as (
-    params: SwarmGenerateCrudParams
-  ) => Promise<GenerationResult>,
-  swarm_generate_job: swarmGenerateJob as (
-    params: SwarmGenerateJobParams
-  ) => Promise<GenerationResult>,
-  swarm_generate_operation: swarmGenerateOperation as (
-    params: SwarmGenerateOperationParams
-  ) => Promise<GenerationResult>,
-  swarm_generate_route: swarmGenerateRoute as (
-    params: SwarmGenerateRouteParams
-  ) => Promise<GenerationResult>,
-  swarm_generate_apinamespace: swarmGenerateApiNamespace as (
-    params: SwarmGenerateApiNamespaceParams
-  ) => Promise<GenerationResult>,
+  swarm_generate_api: (params: SwarmGenerateApiParams) =>
+    swarmTools.generateApi(params),
+  swarm_generate_feature: (params: SwarmGenerateFeatureParams) =>
+    swarmTools.generateFeature(params),
+  swarm_generate_crud: (params: SwarmGenerateCrudParams) =>
+    swarmTools.generateCrud(params),
+  swarm_generate_job: (params: SwarmGenerateJobParams) =>
+    swarmTools.generateJob(params),
+  swarm_generate_operation: (params: SwarmGenerateOperationParams) =>
+    swarmTools.generateOperation(params),
+  swarm_generate_route: (params: SwarmGenerateRouteParams) =>
+    swarmTools.generateRoute(params),
+  swarm_generate_apinamespace: (params: SwarmGenerateApiNamespaceParams) =>
+    swarmTools.generateApiNamespace(params),
 } as const;

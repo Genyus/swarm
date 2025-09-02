@@ -12,13 +12,17 @@ import {
   getTemplatesDir,
 } from '../utils/filesystem';
 import { getPlural, validateFeaturePath } from '../utils/strings';
-import { getConfigTemplatePath, processTemplate } from '../utils/templates';
+import { TemplateUtility } from '../utils/templates';
 
 export class FeatureGenerator implements IFeatureGenerator {
+  private templateUtility: TemplateUtility;
+
   constructor(
     private logger: Logger,
     private fs: IFileSystem
-  ) {}
+  ) {
+    this.templateUtility = new TemplateUtility(fs);
+  }
 
   /**
    * Generates a route definition for the feature configuration.
@@ -31,9 +35,10 @@ export class FeatureGenerator implements IFeatureGenerator {
     auth = false
   ): string {
     const featureDir = getFeatureImportPath(featurePath);
-    const templatePath = getConfigTemplatePath('route');
+    const templatePath = this.templateUtility.getConfigTemplatePath('route');
     const template = this.fs.readFileSync(templatePath, 'utf8');
-    return processTemplate(template, {
+
+    return this.templateUtility.processTemplate(template, {
       routeName,
       routePath,
       componentName,
@@ -56,9 +61,11 @@ export class FeatureGenerator implements IFeatureGenerator {
     }
     const directory = TYPE_DIRECTORIES[operationType];
     const featureDir = getFeatureImportPath(featurePath);
-    const templatePath = getConfigTemplatePath('operation');
+    const templatePath =
+      this.templateUtility.getConfigTemplatePath('operation');
     const template = this.fs.readFileSync(templatePath, 'utf8');
-    return processTemplate(template, {
+
+    return this.templateUtility.processTemplate(template, {
       operationName,
       featureDir,
       directory,
@@ -80,9 +87,10 @@ export class FeatureGenerator implements IFeatureGenerator {
     importPath: string,
     queueName: string
   ): string {
-    const templatePath = getConfigTemplatePath('job');
+    const templatePath = this.templateUtility.getConfigTemplatePath('job');
     const template = this.fs.readFileSync(templatePath, 'utf8');
-    return processTemplate(template, {
+
+    return this.templateUtility.processTemplate(template, {
       jobName,
       jobWorkerName,
       jobWorkerFile,
@@ -108,9 +116,10 @@ export class FeatureGenerator implements IFeatureGenerator {
     auth = false
   ): string {
     const featureDir = getFeatureImportPath(featurePath);
-    const templatePath = getConfigTemplatePath('api');
+    const templatePath = this.templateUtility.getConfigTemplatePath('api');
     const template = this.fs.readFileSync(templatePath, 'utf8');
-    return processTemplate(template, {
+
+    return this.templateUtility.processTemplate(template, {
       apiName,
       featureDir,
       entities: entities.map((e) => `"${e}"`).join(', '),
@@ -130,9 +139,11 @@ export class FeatureGenerator implements IFeatureGenerator {
     middlewareImportPath: string,
     pathValue: string
   ): string {
-    const templatePath = getConfigTemplatePath('apiNamespace');
+    const templatePath =
+      this.templateUtility.getConfigTemplatePath('apiNamespace');
     const template = this.fs.readFileSync(templatePath, 'utf8');
-    return processTemplate(template, {
+
+    return this.templateUtility.processTemplate(template, {
       namespaceName,
       middlewareFnName,
       middlewareImportPath,
@@ -156,6 +167,7 @@ export class FeatureGenerator implements IFeatureGenerator {
     const topLevelFeature = featurePath.split('/')[0];
     const configDir = getConfigDir(this.fs);
     const configPath = path.join(configDir, `${topLevelFeature}.wasp.ts`);
+
     if (!this.fs.existsSync(configPath)) {
       const templatesDir = getTemplatesDir(this.fs);
       const templatePath = path.join(templatesDir, 'config', 'feature.wasp.ts');
@@ -164,18 +176,21 @@ export class FeatureGenerator implements IFeatureGenerator {
       }
       this.fs.copyFileSync(templatePath, configPath);
     }
+
     let content = this.fs.readFileSync(configPath, 'utf8');
     let configSection: string = '';
     let definition: string = '';
+
     switch (type) {
       case 'route': {
-        configSection = 'routes';
         const {
           path: routePath,
           componentName,
           routeName,
           auth = false,
         } = options;
+
+        configSection = 'routes';
         definition = this.getRouteDefinition(
           routeName,
           routePath,
@@ -183,22 +198,24 @@ export class FeatureGenerator implements IFeatureGenerator {
           featurePath,
           auth
         );
+
         break;
       }
       case 'action':
       case 'query': {
-        configSection = getPlural(type);
         const { operationName, entities = [] } = options;
+
+        configSection = getPlural(type);
         definition = this.getOperationDefinition(
           operationName,
           featurePath,
           entities,
           type
         );
+
         break;
       }
       case 'job': {
-        configSection = 'jobs';
         const {
           jobName,
           jobWorkerName,
@@ -210,6 +227,8 @@ export class FeatureGenerator implements IFeatureGenerator {
           importPath = '',
           queueName = '',
         } = options;
+
+        configSection = 'jobs';
         definition = this.getJobDefinition(
           jobName,
           jobWorkerName,
@@ -221,10 +240,10 @@ export class FeatureGenerator implements IFeatureGenerator {
           importPath,
           queueName
         );
+
         break;
       }
       case 'api': {
-        configSection = 'apis';
         const {
           apiName,
           entities = [],
@@ -233,6 +252,8 @@ export class FeatureGenerator implements IFeatureGenerator {
           apiFile,
           auth = false,
         } = options;
+
+        configSection = 'apis';
         definition = this.getApiDefinition(
           apiName,
           featurePath,
@@ -245,42 +266,47 @@ export class FeatureGenerator implements IFeatureGenerator {
         break;
       }
       case 'apiNamespace': {
-        configSection = 'apiNamespaces';
         const {
           namespaceName,
           middlewareFnName,
           middlewareImportPath,
           path: pathValue,
         } = options;
+
+        configSection = 'apiNamespaces';
         definition = this.getApiNamespaceDefinition(
           namespaceName,
           middlewareFnName,
           middlewareImportPath,
           pathValue
         );
+
         break;
       }
       case 'crud': {
-        configSection = 'cruds';
         const { crudName, dataType, operations } = options;
-        const templatePath = getConfigTemplatePath('crud');
+        const templatePath = this.templateUtility.getConfigTemplatePath('crud');
         const template = this.fs.readFileSync(templatePath, 'utf8');
         const operationsStr = JSON.stringify(operations, null, 2)
           .replace(/"([^"]+)":/g, '$1:')
           .split('\n')
           .map((line, index) => (index === 0 ? line : '        ' + line))
           .join('\n');
-        definition = processTemplate(template, {
+
+        configSection = 'cruds';
+        definition = this.templateUtility.processTemplate(template, {
           crudName,
           dataType,
           operations: operationsStr,
         });
+
         break;
       }
       default:
         handleFatalError(`Unknown configuration type: ${type}`);
     }
     const configBlock = `\n    ${configSection}: {${definition},\n    },`;
+
     if (content.includes('return {};')) {
       content = content.replace('return {};', `return {${configBlock}\n  };`);
     } else if (!content.includes(`${configSection}:`)) {
@@ -291,28 +317,28 @@ export class FeatureGenerator implements IFeatureGenerator {
         `${configSection}: {${definition},`
       );
     }
+
     this.fs.writeFileSync(configPath, content);
+
     return configPath;
   }
 
-  /**
-   * Generates a feature configuration file for a top-level feature.
-   * @param featureName - The name of the feature
-   */
   public generateFeatureConfig(featureName: string): void {
     const configDir = getConfigDir(this.fs);
+
     if (!this.fs.existsSync(configDir)) {
       this.fs.mkdirSync(configDir, { recursive: true });
     }
 
-    // Check if config/utils.ts exists, if not copy it from templates
     const utilsPath = path.join(configDir, 'utils.ts');
+
     if (!this.fs.existsSync(utilsPath)) {
       const utilsTemplatePath = path.join(
         getTemplatesDir(this.fs),
         'config',
         'utils.ts'
       );
+
       if (this.fs.existsSync(utilsTemplatePath)) {
         this.fs.copyFileSync(utilsTemplatePath, utilsPath);
         this.logger.info(`✓ Created config/utils.ts`);
@@ -324,6 +350,7 @@ export class FeatureGenerator implements IFeatureGenerator {
 
     if (!this.fs.existsSync(templatePath)) {
       this.logger.error(`Template not found: ${templatePath}`);
+
       return;
     }
 
@@ -332,21 +359,17 @@ export class FeatureGenerator implements IFeatureGenerator {
       .readFileSync(templatePath, 'utf8')
       .replace(/\$\{FEATURE_NAME\}/g, featureName)
       .replace(/\$\{FEATURE_KEY\}/g, featureKey);
-
     const outputPath = path.join(configDir, `${featureName}.ts`);
+
     this.fs.writeFileSync(outputPath, content);
     this.logger.success(`Generated feature config: ${outputPath}`);
   }
 
-  /**
-   * Generates a new feature at the specified path.
-   * @param featurePath - The path of the feature
-   */
   public generateFeature(featurePath: string): void {
     const segments = validateFeaturePath(featurePath);
     if (segments.length > 1) {
       const parentPath = segments.slice(0, -1).join('/');
-      // featureExists logic (simplified)
+
       if (!this.fs.existsSync(parentPath)) {
         handleFatalError(
           `Parent feature '${parentPath}' does not exist. Please create it first.`
@@ -354,22 +377,26 @@ export class FeatureGenerator implements IFeatureGenerator {
         handleFatalError('Parent feature does not exist');
       }
     }
+
     const templateDir = path.join(
       getTemplatesDir(this.fs),
       'feature',
       segments.length === 1 ? '' : '_core'
     );
     const featureDir = path.join(
-      findWaspRoot(this.fs),
+      findWaspRoot(this.fs, featurePath),
       'src',
       'features',
       featurePath
     );
+
     copyDirectory(this.fs, templateDir, featureDir);
     this.logger.debug(`Copied template from ${templateDir} to ${featureDir}`);
+
     if (segments.length === 1) {
       this.generateFeatureConfig(featurePath);
     }
+
     this.logger.success(
       `Generated ${
         segments.length === 1 ? 'top-level ' : 'sub-'

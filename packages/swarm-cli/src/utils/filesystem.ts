@@ -12,6 +12,7 @@ export const realFileSystem: IFileSystem = {
   copyFileSync: fs.copyFileSync,
   mkdirSync: fs.mkdirSync,
   readdirSync: fs.readdirSync,
+  statSync: fs.statSync,
 };
 
 /**

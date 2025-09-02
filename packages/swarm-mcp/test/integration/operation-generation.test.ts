@@ -1,26 +1,38 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { mockFileSystemTools } from './mock-filesystem.js';
 import {
-  mockSwarmFunctions,
-  resetSwarmMocks,
-  setSwarmError,
-  setupSwarmMocks,
+    mockSwarmFunctions,
+    resetSwarmMocks,
+    setSwarmError,
+    setupSwarmMocks,
 } from './mock-swarm-functions.js';
 import { IntegrationTestEnvironment } from './setup.js';
 import { IntegrationValidator } from './validator.js';
+
+// Mock the Swarm functions before importing them
+mockSwarmFunctions();
+
+import { realFileSystem } from '@ingenyus/swarm-cli/dist/utils/filesystem.js';
+import { realLogger } from '@ingenyus/swarm-cli/dist/utils/logger.js';
+import { SwarmTools } from '../../src/server/tools/swarm.js';
 
 describe('Operation Generation Integration Tests', () => {
   let testEnv: IntegrationTestEnvironment;
   let validator: IntegrationValidator;
   let mockSwarm: any;
+  let swarmTools: SwarmTools;
 
-  beforeEach(async () => {
+  beforeAll(() => {
+    swarmTools = SwarmTools.create(realLogger, realFileSystem);
+  });
+
+beforeEach(async () => {
     testEnv = new IntegrationTestEnvironment();
     validator = new IntegrationValidator(testEnv);
 
     // Setup mocks
     mockSwarmFunctions();
-    mockSwarm = setupSwarmMocks();
+    mockSwarm = await setupSwarmMocks();
     mockFileSystemTools(testEnv);
 
     // Setup test project
@@ -41,11 +53,11 @@ describe('Operation Generation Integration Tests', () => {
         projectPath: testEnv.tempProjectDir,
       };
 
-      const result = await mockSwarm.swarmGenerateOperation(params);
+      const result = await swarmTools.generateOperation(params);
 
       expect(result.success).toBe(true);
-      expect(result.output).toContain('get');
-      expect(mockSwarm.swarmGenerateOperation).toHaveBeenCalledWith(params);
+      expect(result.output).toContain('Operation generated successfully');
+      expect(mockSwarm.mockSwarmToolsInstance.generateOperation).toHaveBeenCalledWith(params);
     });
 
     it('should generate a getAll query operation', async () => {
@@ -56,11 +68,11 @@ describe('Operation Generation Integration Tests', () => {
         projectPath: testEnv.tempProjectDir,
       };
 
-      const result = await mockSwarm.swarmGenerateOperation(params);
+      const result = await swarmTools.generateOperation(params);
 
       expect(result.success).toBe(true);
-      expect(result.output).toContain('getAll');
-      expect(mockSwarm.swarmGenerateOperation).toHaveBeenCalledWith(params);
+      expect(result.output).toContain('Operation generated successfully');
+      expect(mockSwarm.mockSwarmToolsInstance.generateOperation).toHaveBeenCalledWith(params);
     });
 
     it('should generate a query operation with entities', async () => {
@@ -72,11 +84,11 @@ describe('Operation Generation Integration Tests', () => {
         projectPath: testEnv.tempProjectDir,
       };
 
-      const result = await mockSwarm.swarmGenerateOperation(params);
+      const result = await swarmTools.generateOperation(params);
 
       expect(result.success).toBe(true);
-      expect(result.output).toContain('get');
-      expect(mockSwarm.swarmGenerateOperation).toHaveBeenCalledWith(params);
+      expect(result.output).toContain('Operation generated successfully');
+      expect(mockSwarm.mockSwarmToolsInstance.generateOperation).toHaveBeenCalledWith(params);
     });
   });
 
@@ -89,11 +101,11 @@ describe('Operation Generation Integration Tests', () => {
         projectPath: testEnv.tempProjectDir,
       };
 
-      const result = await mockSwarm.swarmGenerateOperation(params);
+      const result = await swarmTools.generateOperation(params);
 
       expect(result.success).toBe(true);
-      expect(result.output).toContain('create');
-      expect(mockSwarm.swarmGenerateOperation).toHaveBeenCalledWith(params);
+      expect(result.output).toContain('Operation generated successfully');
+      expect(mockSwarm.mockSwarmToolsInstance.generateOperation).toHaveBeenCalledWith(params);
     });
 
     it('should generate an update action operation', async () => {
@@ -104,11 +116,11 @@ describe('Operation Generation Integration Tests', () => {
         projectPath: testEnv.tempProjectDir,
       };
 
-      const result = await mockSwarm.swarmGenerateOperation(params);
+      const result = await swarmTools.generateOperation(params);
 
       expect(result.success).toBe(true);
-      expect(result.output).toContain('update');
-      expect(mockSwarm.swarmGenerateOperation).toHaveBeenCalledWith(params);
+      expect(result.output).toContain('Operation generated successfully');
+      expect(mockSwarm.mockSwarmToolsInstance.generateOperation).toHaveBeenCalledWith(params);
     });
 
     it('should generate a delete action operation', async () => {
@@ -119,11 +131,11 @@ describe('Operation Generation Integration Tests', () => {
         projectPath: testEnv.tempProjectDir,
       };
 
-      const result = await mockSwarm.swarmGenerateOperation(params);
+      const result = await swarmTools.generateOperation(params);
 
       expect(result.success).toBe(true);
-      expect(result.output).toContain('delete');
-      expect(mockSwarm.swarmGenerateOperation).toHaveBeenCalledWith(params);
+      expect(result.output).toContain('Operation generated successfully');
+      expect(mockSwarm.mockSwarmToolsInstance.generateOperation).toHaveBeenCalledWith(params);
     });
 
     it('should generate an action operation with entities', async () => {
@@ -135,11 +147,11 @@ describe('Operation Generation Integration Tests', () => {
         projectPath: testEnv.tempProjectDir,
       };
 
-      const result = await mockSwarm.swarmGenerateOperation(params);
+      const result = await swarmTools.generateOperation(params);
 
       expect(result.success).toBe(true);
-      expect(result.output).toContain('create');
-      expect(mockSwarm.swarmGenerateOperation).toHaveBeenCalledWith(params);
+      expect(result.output).toContain('Operation generated successfully');
+      expect(mockSwarm.mockSwarmToolsInstance.generateOperation).toHaveBeenCalledWith(params);
     });
   });
 
@@ -159,9 +171,9 @@ describe('Operation Generation Integration Tests', () => {
             projectPath: testEnv.tempProjectDir,
           };
 
-          const result = await mockSwarm.swarmGenerateOperation(params);
+          const result = await swarmTools.generateOperation(params);
           expect(result.success).toBe(true);
-          expect(mockSwarm.swarmGenerateOperation).toHaveBeenCalledWith(params);
+          expect(mockSwarm.mockSwarmToolsInstance.generateOperation).toHaveBeenCalledWith(params);
         }
       }
     });
@@ -174,11 +186,11 @@ describe('Operation Generation Integration Tests', () => {
         projectPath: testEnv.tempProjectDir,
       };
 
-      const result = await mockSwarm.swarmGenerateOperation(params);
+      const result = await swarmTools.generateOperation(params);
 
       expect(result.success).toBe(true);
-      expect(result.output).toContain('get');
-      expect(mockSwarm.swarmGenerateOperation).toHaveBeenCalledWith(params);
+      expect(result.output).toContain('Operation generated successfully');
+      expect(mockSwarm.mockSwarmToolsInstance.generateOperation).toHaveBeenCalledWith(params);
     });
   });
 
@@ -195,9 +207,9 @@ describe('Operation Generation Integration Tests', () => {
           projectPath: testEnv.tempProjectDir,
         };
 
-        const result = await mockSwarm.swarmGenerateOperation(params);
+        const result = await swarmTools.generateOperation(params);
         expect(result.success).toBe(true);
-        expect(mockSwarm.swarmGenerateOperation).toHaveBeenCalledWith(params);
+        expect(mockSwarm.mockSwarmToolsInstance.generateOperation).toHaveBeenCalledWith(params);
       }
     });
 
@@ -209,11 +221,11 @@ describe('Operation Generation Integration Tests', () => {
         projectPath: testEnv.tempProjectDir,
       };
 
-      const result = await mockSwarm.swarmGenerateOperation(params);
+      const result = await swarmTools.generateOperation(params);
 
       expect(result.success).toBe(true);
-      expect(result.output).toContain('get');
-      expect(mockSwarm.swarmGenerateOperation).toHaveBeenCalledWith(params);
+      expect(result.output).toContain('Operation generated successfully');
+      expect(mockSwarm.mockSwarmToolsInstance.generateOperation).toHaveBeenCalledWith(params);
     });
   });
 
@@ -227,11 +239,11 @@ describe('Operation Generation Integration Tests', () => {
         projectPath: testEnv.tempProjectDir,
       };
 
-      const result = await mockSwarm.swarmGenerateOperation(params);
+      const result = await swarmTools.generateOperation(params);
 
       expect(result.success).toBe(true);
-      expect(result.output).toContain('get');
-      expect(mockSwarm.swarmGenerateOperation).toHaveBeenCalledWith(params);
+      expect(result.output).toContain('Operation generated successfully');
+      expect(mockSwarm.mockSwarmToolsInstance.generateOperation).toHaveBeenCalledWith(params);
     });
 
     it('should handle operations with single entity', async () => {
@@ -243,11 +255,11 @@ describe('Operation Generation Integration Tests', () => {
         projectPath: testEnv.tempProjectDir,
       };
 
-      const result = await mockSwarm.swarmGenerateOperation(params);
+      const result = await swarmTools.generateOperation(params);
 
       expect(result.success).toBe(true);
-      expect(result.output).toContain('create');
-      expect(mockSwarm.swarmGenerateOperation).toHaveBeenCalledWith(params);
+      expect(result.output).toContain('Operation generated successfully');
+      expect(mockSwarm.mockSwarmToolsInstance.generateOperation).toHaveBeenCalledWith(params);
     });
   });
 
@@ -261,11 +273,11 @@ describe('Operation Generation Integration Tests', () => {
         projectPath: testEnv.tempProjectDir,
       };
 
-      const result = await mockSwarm.swarmGenerateOperation(params);
+      const result = await swarmTools.generateOperation(params);
 
       expect(result.success).toBe(true);
-      expect(result.output).toContain('update');
-      expect(mockSwarm.swarmGenerateOperation).toHaveBeenCalledWith(params);
+      expect(result.output).toContain('Operation generated successfully');
+      expect(mockSwarm.mockSwarmToolsInstance.generateOperation).toHaveBeenCalledWith(params);
     });
 
     it('should handle operations for nested feature structures', async () => {
@@ -277,11 +289,11 @@ describe('Operation Generation Integration Tests', () => {
         projectPath: testEnv.tempProjectDir,
       };
 
-      const result = await mockSwarm.swarmGenerateOperation(params);
+      const result = await swarmTools.generateOperation(params);
 
       expect(result.success).toBe(true);
-      expect(result.output).toContain('get');
-      expect(mockSwarm.swarmGenerateOperation).toHaveBeenCalledWith(params);
+      expect(result.output).toContain('Operation generated successfully');
+      expect(mockSwarm.mockSwarmToolsInstance.generateOperation).toHaveBeenCalledWith(params);
     });
   });
 
@@ -289,7 +301,7 @@ describe('Operation Generation Integration Tests', () => {
     it('should handle operation generation errors gracefully', async () => {
       setSwarmError(
         mockSwarm,
-        'swarmGenerateOperation',
+        'generateOperation',
         'Operation generation failed'
       );
 
@@ -300,7 +312,7 @@ describe('Operation Generation Integration Tests', () => {
         projectPath: testEnv.tempProjectDir,
       };
 
-      await expect(mockSwarm.swarmGenerateOperation(params)).rejects.toThrow(
+      await expect(swarmTools.generateOperation(params)).rejects.toThrow(
         'Operation generation failed'
       );
     });
@@ -314,7 +326,7 @@ describe('Operation Generation Integration Tests', () => {
       };
 
       // This would be handled by the Swarm CLI validation
-      const result = await mockSwarm.swarmGenerateOperation(params);
+      const result = await swarmTools.generateOperation(params);
       expect(result.success).toBe(true);
     });
   });
@@ -331,10 +343,10 @@ describe('Operation Generation Integration Tests', () => {
         projectPath: testEnv.tempProjectDir,
       };
 
-      const result = await mockSwarm.swarmGenerateOperation(params);
+      const result = await swarmTools.generateOperation(params);
 
       expect(result.success).toBe(true);
-      expect(result.output).toContain('get');
+      expect(result.output).toContain('Operation generated successfully');
     });
 
     it('should work with projects containing entities', async () => {
@@ -349,10 +361,10 @@ describe('Operation Generation Integration Tests', () => {
         projectPath: testEnv.tempProjectDir,
       };
 
-      const result = await mockSwarm.swarmGenerateOperation(params);
+      const result = await swarmTools.generateOperation(params);
 
       expect(result.success).toBe(true);
-      expect(result.output).toContain('create');
+      expect(result.output).toContain('Operation generated successfully');
     });
   });
 });
