@@ -59,7 +59,9 @@ describe('CRUD Generation Integration', () => {
       expect(result.output).toContain('CRUD operations generated successfully');
       expect(result.generatedFiles).toBeDefined();
 
-      expect(mockSwarm.mockSwarmToolsInstance.generateCrud).toHaveBeenCalledWith({
+      expect(
+        mockSwarm.mockSwarmToolsInstance.generateCrud
+      ).toHaveBeenCalledWith({
         dataType: 'User',
         public: ['id', 'name', 'email'],
         override: ['email'],
@@ -76,7 +78,9 @@ describe('CRUD Generation Integration', () => {
 
       expect(result.success).toBe(true);
 
-      expect(mockSwarm.mockSwarmToolsInstance.generateCrud).toHaveBeenCalledWith({
+      expect(
+        mockSwarm.mockSwarmToolsInstance.generateCrud
+      ).toHaveBeenCalledWith({
         dataType: 'Post',
         force: false,
       });
@@ -95,7 +99,9 @@ describe('CRUD Generation Integration', () => {
 
       expect(result.success).toBe(true);
 
-      expect(mockSwarm.mockSwarmToolsInstance.generateCrud).toHaveBeenCalledWith({
+      expect(
+        mockSwarm.mockSwarmToolsInstance.generateCrud
+      ).toHaveBeenCalledWith({
         dataType: 'Post',
         public: publicFields,
         force: false,
@@ -111,7 +117,9 @@ describe('CRUD Generation Integration', () => {
 
       expect(result.success).toBe(true);
 
-      expect(mockSwarm.mockSwarmToolsInstance.generateCrud).toHaveBeenCalledWith({
+      expect(
+        mockSwarm.mockSwarmToolsInstance.generateCrud
+      ).toHaveBeenCalledWith({
         dataType: 'User',
         public: ['id'],
         force: false,
@@ -127,7 +135,9 @@ describe('CRUD Generation Integration', () => {
 
       expect(result.success).toBe(true);
 
-      expect(mockSwarm.mockSwarmToolsInstance.generateCrud).toHaveBeenCalledWith({
+      expect(
+        mockSwarm.mockSwarmToolsInstance.generateCrud
+      ).toHaveBeenCalledWith({
         dataType: 'User',
         public: [],
         force: false,
@@ -147,7 +157,9 @@ describe('CRUD Generation Integration', () => {
 
       expect(result.success).toBe(true);
 
-      expect(mockSwarm.mockSwarmToolsInstance.generateCrud).toHaveBeenCalledWith({
+      expect(
+        mockSwarm.mockSwarmToolsInstance.generateCrud
+      ).toHaveBeenCalledWith({
         dataType: 'User',
         override: overrideFields,
         force: false,
@@ -163,7 +175,9 @@ describe('CRUD Generation Integration', () => {
 
       expect(result.success).toBe(true);
 
-      expect(mockSwarm.mockSwarmToolsInstance.generateCrud).toHaveBeenCalledWith({
+      expect(
+        mockSwarm.mockSwarmToolsInstance.generateCrud
+      ).toHaveBeenCalledWith({
         dataType: 'Post',
         override: ['title'],
         force: false,
@@ -183,7 +197,9 @@ describe('CRUD Generation Integration', () => {
 
       expect(result.success).toBe(true);
 
-      expect(mockSwarm.mockSwarmToolsInstance.generateCrud).toHaveBeenCalledWith({
+      expect(
+        mockSwarm.mockSwarmToolsInstance.generateCrud
+      ).toHaveBeenCalledWith({
         dataType: 'User',
         exclude: excludedFields,
         force: false,
@@ -199,7 +215,9 @@ describe('CRUD Generation Integration', () => {
 
       expect(result.success).toBe(true);
 
-      expect(mockSwarm.mockSwarmToolsInstance.generateCrud).toHaveBeenCalledWith({
+      expect(
+        mockSwarm.mockSwarmToolsInstance.generateCrud
+      ).toHaveBeenCalledWith({
         dataType: 'Post',
         exclude: ['draft'],
         force: false,
@@ -219,7 +237,9 @@ describe('CRUD Generation Integration', () => {
 
       expect(result.success).toBe(true);
 
-      expect(mockSwarm.mockSwarmToolsInstance.generateCrud).toHaveBeenCalledWith({
+      expect(
+        mockSwarm.mockSwarmToolsInstance.generateCrud
+      ).toHaveBeenCalledWith({
         dataType: 'ComplexEntity',
         public: ['id', 'name', 'description'],
         override: ['name', 'description'],
@@ -238,7 +258,9 @@ describe('CRUD Generation Integration', () => {
 
       expect(result.success).toBe(true);
 
-      expect(mockSwarm.mockSwarmToolsInstance.generateCrud).toHaveBeenCalledWith({
+      expect(
+        mockSwarm.mockSwarmToolsInstance.generateCrud
+      ).toHaveBeenCalledWith({
         dataType: 'OverlapEntity',
         public: ['id', 'name', 'email'],
         override: ['name', 'email'],
@@ -261,7 +283,9 @@ describe('CRUD Generation Integration', () => {
 
       expect(result.success).toBe(true);
 
-      expect(mockSwarm.mockSwarmToolsInstance.generateCrud).toHaveBeenCalledWith({
+      expect(
+        mockSwarm.mockSwarmToolsInstance.generateCrud
+      ).toHaveBeenCalledWith({
         dataType: 'User',
         force: true,
       });
@@ -277,11 +301,7 @@ describe('CRUD Generation Integration', () => {
         '// Existing action'
       );
 
-      setSwarmError(
-        mockSwarm,
-        'generateCrud',
-        'CRUD operations already exist'
-      );
+      setSwarmError(mockSwarm, 'generateCrud', 'CRUD operations already exist');
 
       await expect(
         swarmTools.generateCrud({
@@ -298,11 +318,7 @@ describe('CRUD Generation Integration', () => {
 
   describe('Error Handling', () => {
     it('should handle CRUD generation errors gracefully', async () => {
-      setSwarmError(
-        mockSwarm,
-        'generateCrud',
-        'Invalid data type specified'
-      );
+      setSwarmError(mockSwarm, 'generateCrud', 'Invalid data type specified');
 
       await expect(
         swarmTools.generateCrud({
@@ -317,11 +333,7 @@ describe('CRUD Generation Integration', () => {
     });
 
     it('should handle field configuration errors', async () => {
-      setSwarmError(
-        mockSwarm,
-        'generateCrud',
-        'Invalid field configuration'
-      );
+      setSwarmError(mockSwarm, 'generateCrud', 'Invalid field configuration');
 
       await expect(
         swarmTools.generateCrud({
@@ -388,7 +400,9 @@ describe('CRUD Generation Integration', () => {
 
       expect(result.success).toBe(true);
 
-      expect(mockSwarm.mockSwarmToolsInstance.generateCrud).toHaveBeenCalledWith({
+      expect(
+        mockSwarm.mockSwarmToolsInstance.generateCrud
+      ).toHaveBeenCalledWith({
         dataType: 'Post',
         public: ['id', 'title', 'content', 'author'],
         override: ['title', 'content'],
@@ -407,7 +421,9 @@ describe('CRUD Generation Integration', () => {
 
       expect(result.success).toBe(true);
 
-      expect(mockSwarm.mockSwarmToolsInstance.generateCrud).toHaveBeenCalledWith({
+      expect(
+        mockSwarm.mockSwarmToolsInstance.generateCrud
+      ).toHaveBeenCalledWith({
         dataType: 'User',
         public: ['id', 'name', 'email', 'posts'],
         exclude: ['password'],
@@ -428,7 +444,9 @@ describe('CRUD Generation Integration', () => {
 
       expect(result.success).toBe(true);
 
-      expect(mockSwarm.mockSwarmToolsInstance.generateCrud).toHaveBeenCalledWith({
+      expect(
+        mockSwarm.mockSwarmToolsInstance.generateCrud
+      ).toHaveBeenCalledWith({
         dataType: 'AdvancedEntity',
         public: ['id', 'metadata', 'tags', 'settings'],
         override: ['metadata', 'settings'],
@@ -448,7 +466,9 @@ describe('CRUD Generation Integration', () => {
 
       expect(result.success).toBe(true);
 
-      expect(mockSwarm.mockSwarmToolsInstance.generateCrud).toHaveBeenCalledWith({
+      expect(
+        mockSwarm.mockSwarmToolsInstance.generateCrud
+      ).toHaveBeenCalledWith({
         dataType: 'SystemConfig',
         public: ['id', 'key', 'value'],
         override: ['value'],

@@ -1,22 +1,22 @@
 import { describe, expect, it } from 'vitest';
 import {
-    HttpMethodSchema,
-    OperationTypeSchema,
-    SwarmGenerateApiParamsSchema,
-    SwarmGenerateCrudParamsSchema,
-    SwarmGenerateFeatureParamsSchema,
-    SwarmGenerateJobParamsSchema,
-    SwarmGenerateOperationParamsSchema,
-    SwarmGenerateRouteParamsSchema,
-    isActionOperation,
-    isHttpMethod,
-    isOperationType,
-    isQueryOperation,
-    isSwarmError,
-    type HttpMethod,
-    type OperationType,
-    type SwarmError,
-    type SwarmGenerateApiParams,
+  HttpMethodSchema,
+  OperationTypeSchema,
+  SwarmGenerateApiParamsSchema,
+  SwarmGenerateCrudParamsSchema,
+  SwarmGenerateFeatureParamsSchema,
+  SwarmGenerateJobParamsSchema,
+  SwarmGenerateOperationParamsSchema,
+  SwarmGenerateRouteParamsSchema,
+  isActionOperation,
+  isHttpMethod,
+  isOperationType,
+  isQueryOperation,
+  isSwarmError,
+  type HttpMethod,
+  type OperationType,
+  type SwarmError,
+  type SwarmGenerateApiParams,
 } from '../../src/server/types/swarm.js';
 
 describe('Swarm Types', () => {
@@ -271,8 +271,5 @@ describe('Swarm Types', () => {
         ).not.toThrow();
       });
     });
-
-
   });
-
 });

@@ -77,14 +77,18 @@ describe('ServerManager', () => {
       await serverManager.start();
 
       // Try to start again
-      await expect(serverManager.start()).rejects.toThrow('Internal error during start server');
+      await expect(serverManager.start()).rejects.toThrow(
+        'Internal error during start server'
+      );
     });
 
     it('should handle server start failure', async () => {
       // Mock start failure
       mockServer.start.mockRejectedValue(new Error('Start failed'));
 
-      await expect(serverManager.start()).rejects.toThrow('Internal error during start server');
+      await expect(serverManager.start()).rejects.toThrow(
+        'Internal error during start server'
+      );
       expect(serverManager.isServerRunning()).toBe(false);
     });
 
@@ -92,7 +96,9 @@ describe('ServerManager', () => {
       // Mock start failure with non-Error
       mockServer.start.mockRejectedValue('String error');
 
-      await expect(serverManager.start()).rejects.toThrow('Internal error during start server');
+      await expect(serverManager.start()).rejects.toThrow(
+        'Internal error during start server'
+      );
       expect(serverManager.isServerRunning()).toBe(false);
     });
   });
@@ -115,7 +121,9 @@ describe('ServerManager', () => {
       // Mock stop failure
       mockServer.stop.mockRejectedValue(new Error('Stop failed'));
 
-      await expect(serverManager.stop()).rejects.toThrow('Internal error during stop server');
+      await expect(serverManager.stop()).rejects.toThrow(
+        'Internal error during stop server'
+      );
       expect(serverManager.isServerRunning()).toBe(true); // Should remain running on failure
     });
 
@@ -126,7 +134,9 @@ describe('ServerManager', () => {
       // Mock stop failure with non-Error
       mockServer.stop.mockRejectedValue('String error');
 
-      await expect(serverManager.stop()).rejects.toThrow('Internal error during stop server');
+      await expect(serverManager.stop()).rejects.toThrow(
+        'Internal error during stop server'
+      );
       expect(serverManager.isServerRunning()).toBe(true); // Should remain running on failure
     });
   });
@@ -202,7 +212,9 @@ describe('ServerManager', () => {
       expect(serverManager.isServerRunning()).toBe(true);
 
       // Try to start again (should fail)
-      await expect(serverManager.start()).rejects.toThrow('Internal error during start server');
+      await expect(serverManager.start()).rejects.toThrow(
+        'Internal error during start server'
+      );
 
       // Stop
       await serverManager.stop();

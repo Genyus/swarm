@@ -1,17 +1,17 @@
 import { describe, expect, it } from 'vitest';
 import {
-    isErrorResponse,
-    isNotification,
-    isRequest,
-    isResponse,
-    MCPErrorCode,
-    MCPNotification,
-    MCPNotificationSchema,
-    MCPProtocolError,
-    MCPRequest,
-    MCPRequestSchema,
-    MCPResponse,
-    MCPResponseSchema,
+  isErrorResponse,
+  isNotification,
+  isRequest,
+  isResponse,
+  MCPErrorCode,
+  MCPNotification,
+  MCPNotificationSchema,
+  MCPProtocolError,
+  MCPRequest,
+  MCPRequestSchema,
+  MCPResponse,
+  MCPResponseSchema,
 } from '../../src/server/types/mcp.js';
 
 describe('MCP Protocol Types', () => {
@@ -63,7 +63,7 @@ describe('MCP Protocol Types', () => {
       };
 
       expect(isErrorResponse(errorResponse)).toBe(true);
-      
+
       // Test with a response that has no error
       const successResponse: MCPResponse = {
         jsonrpc: '2.0',

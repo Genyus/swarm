@@ -61,7 +61,7 @@ export async function setupSwarmMocks() {
     generatedFiles: ['src/routes/user.tsx'],
     modifiedFiles: [],
   });
-  mockSwarmToolsInstance.generateJob.mockImplementation((params) => {
+  mockSwarmToolsInstance.generateJob.mockImplementation(params => {
     const jobName = params.name || 'defaultJob';
     const fileName = jobName.toLowerCase().replace(/[^a-z0-9]/g, '') + '.ts';
     return Promise.resolve({

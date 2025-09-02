@@ -21,7 +21,10 @@ export class SwarmTools {
     private logger: Logger,
     private fileSystem: IFileSystem
   ) {
-    this.generatorsService = SwarmGeneratorsService.create(this.logger, this.fileSystem);
+    this.generatorsService = SwarmGeneratorsService.create(
+      this.logger,
+      this.fileSystem
+    );
   }
 
   static create(logger: Logger, fileSystem: IFileSystem): SwarmTools {
@@ -43,7 +46,9 @@ export class SwarmTools {
 
     const scanDirectory = (dirPath: string): void => {
       try {
-        const entries = this.fileSystem.readdirSync(dirPath, { withFileTypes: true });
+        const entries = this.fileSystem.readdirSync(dirPath, {
+          withFileTypes: true,
+        });
 
         for (const entry of entries) {
           const fullPath = path.join(dirPath, entry.name);
@@ -72,7 +77,9 @@ export class SwarmTools {
 
     const scanAfter = (dirPath: string): void => {
       try {
-        const entries = this.fileSystem.readdirSync(dirPath, { withFileTypes: true });
+        const entries = this.fileSystem.readdirSync(dirPath, {
+          withFileTypes: true,
+        });
 
         for (const entry of entries) {
           const fullPath = path.join(dirPath, entry.name);
@@ -141,7 +148,8 @@ export class SwarmTools {
         warnings: [],
       };
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
       this.logger.error(`Failed to generate API: ${errorMessage}`);
 
       throw ErrorFactory.swarmGeneration(
@@ -184,7 +192,8 @@ export class SwarmTools {
         warnings: [],
       };
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
       this.logger.error(`Failed to generate feature: ${errorMessage}`);
 
       throw ErrorFactory.swarmGeneration(
@@ -235,7 +244,8 @@ export class SwarmTools {
         warnings: [],
       };
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
       this.logger.error(`Failed to generate CRUD: ${errorMessage}`);
 
       throw ErrorFactory.swarmGeneration(
@@ -285,7 +295,8 @@ export class SwarmTools {
         warnings: [],
       };
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
       this.logger.error(`Failed to generate route: ${errorMessage}`);
 
       throw ErrorFactory.swarmGeneration(
@@ -336,7 +347,8 @@ export class SwarmTools {
         warnings: [],
       };
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
       this.logger.error(`Failed to generate job: ${errorMessage}`);
 
       throw ErrorFactory.swarmGeneration(
@@ -373,7 +385,10 @@ export class SwarmTools {
           // Use the feature path from the project root
           const featurePath = 'default'; // This should be configurable or derived from project structure
 
-          await this.generatorsService.generateOperation(featurePath, operationFlags);
+          await this.generatorsService.generateOperation(
+            featurePath,
+            operationFlags
+          );
         }
       );
 
@@ -388,7 +403,8 @@ export class SwarmTools {
         warnings: [],
       };
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
       this.logger.error(`Failed to generate operation: ${errorMessage}`);
 
       throw ErrorFactory.swarmGeneration(
@@ -440,7 +456,8 @@ export class SwarmTools {
         warnings: [],
       };
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
       this.logger.error(`Failed to generate API namespace: ${errorMessage}`);
 
       throw ErrorFactory.swarmGeneration(

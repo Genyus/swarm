@@ -231,11 +231,7 @@ describe('Feature Generation Integration', () => {
         '// Existing feature content'
       );
 
-      setSwarmError(
-        mockSwarm,
-        'generateFeature',
-        'Feature already exists'
-      );
+      setSwarmError(mockSwarm, 'generateFeature', 'Feature already exists');
 
       await expect(
         swarmTools.generateFeature({

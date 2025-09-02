@@ -69,7 +69,9 @@ describe('API Generation Integration', () => {
         expect(result.output).toContain('API generated successfully');
       }
 
-      expect(mockSwarm.mockSwarmToolsInstance.generateApi).toHaveBeenCalledTimes(4);
+      expect(
+        mockSwarm.mockSwarmToolsInstance.generateApi
+      ).toHaveBeenCalledTimes(4);
 
       const calls = mockSwarm.mockSwarmToolsInstance.generateApi.mock.calls;
       for (let i = 0; i < methods.length; i++) {
@@ -100,15 +102,17 @@ describe('API Generation Integration', () => {
       expect(result.generatedFiles).toBeDefined();
       expect(result.generatedFiles!.length).toBeGreaterThan(0);
 
-      expect(mockSwarm.mockSwarmToolsInstance.generateApi).toHaveBeenCalledWith({
-        name: 'UserPostAPI',
-        method: 'POST',
-        route: '/api/users/posts',
-        entities: ['User', 'Post'],
-        auth: true,
-        force: false,
-        projectPath: testEnv.tempProjectDir,
-      });
+      expect(mockSwarm.mockSwarmToolsInstance.generateApi).toHaveBeenCalledWith(
+        {
+          name: 'UserPostAPI',
+          method: 'POST',
+          route: '/api/users/posts',
+          entities: ['User', 'Post'],
+          auth: true,
+          force: false,
+          projectPath: testEnv.tempProjectDir,
+        }
+      );
     });
 
     it('should handle API generation with authentication', async () => {
@@ -124,15 +128,17 @@ describe('API Generation Integration', () => {
 
       expect(result.success).toBe(true);
 
-      expect(mockSwarm.mockSwarmToolsInstance.generateApi).toHaveBeenCalledWith({
-        name: 'ProtectedUserAPI',
-        method: 'GET',
-        route: '/api/users/protected',
-        entities: ['User'],
-        auth: true,
-        force: false,
-        projectPath: testEnv.tempProjectDir,
-      });
+      expect(mockSwarm.mockSwarmToolsInstance.generateApi).toHaveBeenCalledWith(
+        {
+          name: 'ProtectedUserAPI',
+          method: 'GET',
+          route: '/api/users/protected',
+          entities: ['User'],
+          auth: true,
+          force: false,
+          projectPath: testEnv.tempProjectDir,
+        }
+      );
     });
 
     it('should handle API generation without authentication', async () => {
@@ -148,15 +154,17 @@ describe('API Generation Integration', () => {
 
       expect(result.success).toBe(true);
 
-      expect(mockSwarm.mockSwarmToolsInstance.generateApi).toHaveBeenCalledWith({
-        name: 'PublicUserAPI',
-        method: 'GET',
-        route: '/api/users/public',
-        entities: ['User'],
-        auth: false,
-        force: false,
-        projectPath: testEnv.tempProjectDir,
-      });
+      expect(mockSwarm.mockSwarmToolsInstance.generateApi).toHaveBeenCalledWith(
+        {
+          name: 'PublicUserAPI',
+          method: 'GET',
+          route: '/api/users/public',
+          entities: ['User'],
+          auth: false,
+          force: false,
+          projectPath: testEnv.tempProjectDir,
+        }
+      );
     });
   });
 
@@ -172,7 +180,9 @@ describe('API Generation Integration', () => {
       expect(result.success).toBe(true);
       expect(result.output).toContain('API namespace generated successfully');
 
-      expect(mockSwarm.mockSwarmToolsInstance.generateApiNamespace).toHaveBeenCalledWith({
+      expect(
+        mockSwarm.mockSwarmToolsInstance.generateApiNamespace
+      ).toHaveBeenCalledWith({
         name: 'v1',
         path: '/api/v1',
         force: false,
@@ -190,7 +200,9 @@ describe('API Generation Integration', () => {
 
       expect(result.success).toBe(true);
 
-      expect(mockSwarm.mockSwarmToolsInstance.generateApiNamespace).toHaveBeenCalledWith({
+      expect(
+        mockSwarm.mockSwarmToolsInstance.generateApiNamespace
+      ).toHaveBeenCalledWith({
         name: 'admin',
         path: '/api/v1/admin',
         force: false,
@@ -250,15 +262,17 @@ describe('API Generation Integration', () => {
 
       expect(result.success).toBe(true);
 
-      expect(mockSwarm.mockSwarmToolsInstance.generateApi).toHaveBeenCalledWith({
-        name: 'ExistingAPI',
-        method: 'GET',
-        route: '/api/existing',
-        entities: ['User'],
-        auth: false,
-        force: true,
-        projectPath: testEnv.tempProjectDir,
-      });
+      expect(mockSwarm.mockSwarmToolsInstance.generateApi).toHaveBeenCalledWith(
+        {
+          name: 'ExistingAPI',
+          method: 'GET',
+          route: '/api/existing',
+          entities: ['User'],
+          auth: false,
+          force: true,
+          projectPath: testEnv.tempProjectDir,
+        }
+      );
     });
   });
 

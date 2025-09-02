@@ -1,17 +1,20 @@
 import { describe, expect, it } from 'vitest';
-import { MCPErrorCode, MCPProtocolError } from '../../../src/server/types/mcp.js';
 import {
-    AppError,
-    ConfigurationError,
-    createErrorContext,
-    ErrorFactory,
-    FileSystemError,
-    InternalError,
-    normalizeToMCPError,
-    PermissionDeniedError,
-    ResourceNotFoundError,
-    SwarmGenerationError,
-    ValidationError,
+  MCPErrorCode,
+  MCPProtocolError,
+} from '../../../src/server/types/mcp.js';
+import {
+  AppError,
+  ConfigurationError,
+  createErrorContext,
+  ErrorFactory,
+  FileSystemError,
+  InternalError,
+  normalizeToMCPError,
+  PermissionDeniedError,
+  ResourceNotFoundError,
+  SwarmGenerationError,
+  ValidationError,
 } from '../../../src/server/utils/errors.js';
 
 describe('Error Handling Framework', () => {
@@ -42,7 +45,9 @@ describe('Error Handling Framework', () => {
       const cause = new Error('Permission denied');
       const error = new FileSystemError('read', '/path/to/file', cause);
 
-      expect(error.message).toBe('File system error during read: /path/to/file');
+      expect(error.message).toBe(
+        'File system error during read: /path/to/file'
+      );
       expect(error.code).toBe(MCPErrorCode.PermissionDenied);
       expect(error.cause).toBe(cause);
     });
@@ -50,9 +55,15 @@ describe('Error Handling Framework', () => {
 
   describe('SwarmGenerationError', () => {
     it('should create a Swarm generation error', () => {
-      const error = new SwarmGenerationError('api', 'create', 'Invalid parameters');
+      const error = new SwarmGenerationError(
+        'api',
+        'create',
+        'Invalid parameters'
+      );
 
-      expect(error.message).toBe('Swarm generation failed: api create. Invalid parameters');
+      expect(error.message).toBe(
+        'Swarm generation failed: api create. Invalid parameters'
+      );
       expect(error.code).toBe(MCPErrorCode.InvalidToolCall);
     });
   });
@@ -61,7 +72,9 @@ describe('Error Handling Framework', () => {
     it('should create a configuration error', () => {
       const error = new ConfigurationError('port', 'abc', 'number');
 
-      expect(error.message).toBe('Configuration error: port="abc". Expected: number');
+      expect(error.message).toBe(
+        'Configuration error: port="abc". Expected: number'
+      );
       expect(error.code).toBe(MCPErrorCode.ValidationError);
     });
   });
@@ -79,14 +92,22 @@ describe('Error Handling Framework', () => {
     it('should create a permission denied error without reason', () => {
       const error = new PermissionDeniedError('write', '/path/to/file');
 
-      expect(error.message).toBe('Permission denied for write on /path/to/file');
+      expect(error.message).toBe(
+        'Permission denied for write on /path/to/file'
+      );
       expect(error.code).toBe(MCPErrorCode.PermissionDenied);
     });
 
     it('should create a permission denied error with reason', () => {
-      const error = new PermissionDeniedError('write', '/path/to/file', 'Insufficient privileges');
+      const error = new PermissionDeniedError(
+        'write',
+        '/path/to/file',
+        'Insufficient privileges'
+      );
 
-      expect(error.message).toBe('Permission denied for write on /path/to/file: Insufficient privileges');
+      expect(error.message).toBe(
+        'Permission denied for write on /path/to/file: Insufficient privileges'
+      );
       expect(error.code).toBe(MCPErrorCode.PermissionDenied);
     });
   });
@@ -115,22 +136,32 @@ describe('Error Handling Framework', () => {
       const error = ErrorFactory.fileSystem('read', '/path/to/file', cause);
 
       expect(error).toBeInstanceOf(FileSystemError);
-      expect(error.message).toBe('File system error during read: /path/to/file');
+      expect(error.message).toBe(
+        'File system error during read: /path/to/file'
+      );
       expect(error.cause).toBe(cause);
     });
 
     it('should create Swarm generation errors', () => {
-      const error = ErrorFactory.swarmGeneration('api', 'create', 'Invalid parameters');
+      const error = ErrorFactory.swarmGeneration(
+        'api',
+        'create',
+        'Invalid parameters'
+      );
 
       expect(error).toBeInstanceOf(SwarmGenerationError);
-      expect(error.message).toBe('Swarm generation failed: api create. Invalid parameters');
+      expect(error.message).toBe(
+        'Swarm generation failed: api create. Invalid parameters'
+      );
     });
 
     it('should create configuration errors', () => {
       const error = ErrorFactory.configuration('port', 'abc', 'number');
 
       expect(error).toBeInstanceOf(ConfigurationError);
-      expect(error.message).toBe('Configuration error: port="abc". Expected: number');
+      expect(error.message).toBe(
+        'Configuration error: port="abc". Expected: number'
+      );
     });
 
     it('should create resource not found errors', () => {
@@ -141,10 +172,16 @@ describe('Error Handling Framework', () => {
     });
 
     it('should create permission denied errors', () => {
-      const error = ErrorFactory.permissionDenied('write', '/path/to/file', 'Insufficient privileges');
+      const error = ErrorFactory.permissionDenied(
+        'write',
+        '/path/to/file',
+        'Insufficient privileges'
+      );
 
       expect(error).toBeInstanceOf(PermissionDeniedError);
-      expect(error.message).toBe('Permission denied for write on /path/to/file: Insufficient privileges');
+      expect(error.message).toBe(
+        'Permission denied for write on /path/to/file: Insufficient privileges'
+      );
     });
 
     it('should create internal errors', () => {
@@ -157,7 +194,10 @@ describe('Error Handling Framework', () => {
     });
 
     it('should create MCP protocol errors', () => {
-      const error = ErrorFactory.mcp(MCPErrorCode.InvalidRequest, 'Invalid request');
+      const error = ErrorFactory.mcp(
+        MCPErrorCode.InvalidRequest,
+        'Invalid request'
+      );
 
       expect(error).toBeInstanceOf(MCPProtocolError);
       expect(error.code).toBe(MCPErrorCode.InvalidRequest);
@@ -167,7 +207,10 @@ describe('Error Handling Framework', () => {
 
   describe('normalizeToMCPError', () => {
     it('should return MCPProtocolError as-is', () => {
-      const originalError = new MCPProtocolError(MCPErrorCode.InvalidRequest, 'Invalid request');
+      const originalError = new MCPProtocolError(
+        MCPErrorCode.InvalidRequest,
+        'Invalid request'
+      );
       const normalized = normalizeToMCPError(originalError);
 
       expect(normalized).toBe(originalError);
@@ -200,7 +243,9 @@ describe('Error Handling Framework', () => {
 
   describe('createErrorContext', () => {
     it('should create error context with all fields', () => {
-      const context = createErrorContext('test-tool', 'test-operation', { param: 'value' });
+      const context = createErrorContext('test-tool', 'test-operation', {
+        param: 'value',
+      });
 
       expect(context.tool).toBe('test-tool');
       expect(context.operation).toBe('test-operation');

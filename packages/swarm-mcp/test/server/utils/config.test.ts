@@ -46,7 +46,9 @@ describe('ConfigurationManager', () => {
     });
 
     it('should accept custom config path', () => {
-      const customManager = new ConfigurationManager('/custom/path/config.json');
+      const customManager = new ConfigurationManager(
+        '/custom/path/config.json'
+      );
       expect(customManager.getConfigPath()).toBe('/custom/path/config.json');
     });
   });
@@ -131,8 +133,6 @@ describe('ConfigurationManager', () => {
       expect(config1).not.toBe(config2); // Should be copies
     });
   });
-
-
 
   describe('getLoggingConfig', () => {
     it('should return logging configuration with defaults', async () => {

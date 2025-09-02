@@ -37,17 +37,21 @@ const app = new App('minimalApp', {
 });
 
 export default app;`,
-        'package.json': JSON.stringify({
-          name: 'minimal-app',
-          version: '0.1.0',
-          type: 'module',
-          dependencies: {},
-          devDependencies: {
-            'wasp-config': '^0.17.0'
-          }
-        }, null, 2),
-        'src/.gitkeep': ''
-      }
+        'package.json': JSON.stringify(
+          {
+            name: 'minimal-app',
+            version: '0.1.0',
+            type: 'module',
+            dependencies: {},
+            devDependencies: {
+              'wasp-config': '^0.17.0',
+            },
+          },
+          null,
+          2
+        ),
+        'src/.gitkeep': '',
+      },
     });
 
     this.projectTemplates.set('withAuth', {
@@ -69,17 +73,21 @@ app.auth({
 });
 
 export default app;`,
-        'package.json': JSON.stringify({
-          name: 'auth-app',
-          version: '0.1.0',
-          type: 'module',
-          dependencies: {},
-          devDependencies: {
-            'wasp-config': '^0.17.0'
-          }
-        }, null, 2),
-        'src/.gitkeep': ''
-      }
+        'package.json': JSON.stringify(
+          {
+            name: 'auth-app',
+            version: '0.1.0',
+            type: 'module',
+            dependencies: {},
+            devDependencies: {
+              'wasp-config': '^0.17.0',
+            },
+          },
+          null,
+          2
+        ),
+        'src/.gitkeep': '',
+      },
     });
 
     this.projectTemplates.set('withEntities', {
@@ -113,17 +121,21 @@ app.entity('Post', {
 });
 
 export default app;`,
-        'package.json': JSON.stringify({
-          name: 'entity-app',
-          version: '0.1.0',
-          type: 'module',
-          dependencies: {},
-          devDependencies: {
-            'wasp-config': '^0.17.0'
-          }
-        }, null, 2),
-        'src/.gitkeep': ''
-      }
+        'package.json': JSON.stringify(
+          {
+            name: 'entity-app',
+            version: '0.1.0',
+            type: 'module',
+            dependencies: {},
+            devDependencies: {
+              'wasp-config': '^0.17.0',
+            },
+          },
+          null,
+          2
+        ),
+        'src/.gitkeep': '',
+      },
     });
   }
 
@@ -134,7 +146,12 @@ export default app;`,
       throw new Error(`Template '${templateName}' not found`);
     }
 
-    this._tempProjectDir = path.join(process.cwd(), 'test', 'output', `test-${randomUUID()}`);
+    this._tempProjectDir = path.join(
+      process.cwd(),
+      'test',
+      'output',
+      `test-${randomUUID()}`
+    );
     await fs.promises.mkdir(this._tempProjectDir, { recursive: true });
     await this.createProjectFiles(template);
     // Don't change working directory to avoid conflicts in parallel tests
@@ -157,7 +174,10 @@ export default app;`,
 
   async teardown(): Promise<void> {
     if (this._tempProjectDir && fs.existsSync(this._tempProjectDir)) {
-      await fs.promises.rm(this._tempProjectDir, { recursive: true, force: true });
+      await fs.promises.rm(this._tempProjectDir, {
+        recursive: true,
+        force: true,
+      });
     }
   }
 
@@ -206,7 +226,9 @@ export default app;`,
   async listFiles(dir: string = '.'): Promise<string[]> {
     const fullPath = path.join(this._tempProjectDir, dir);
     try {
-      const entries = await fs.promises.readdir(fullPath, { withFileTypes: true });
+      const entries = await fs.promises.readdir(fullPath, {
+        withFileTypes: true,
+      });
 
       return entries.map(entry => entry.name);
     } catch (error) {

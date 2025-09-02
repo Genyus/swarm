@@ -1,10 +1,18 @@
-import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
+import {
+  afterEach,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from 'vitest';
 import { mockFileSystemTools } from './mock-filesystem.js';
 import {
-    mockSwarmFunctions,
-    resetSwarmMocks,
-    setSwarmError,
-    setupSwarmMocks,
+  mockSwarmFunctions,
+  resetSwarmMocks,
+  setSwarmError,
+  setupSwarmMocks,
 } from './mock-swarm-functions.js';
 import { IntegrationTestEnvironment } from './setup.js';
 import { IntegrationValidator } from './validator.js';
@@ -26,7 +34,7 @@ describe('Operation Generation Integration Tests', () => {
     swarmTools = SwarmTools.create(realLogger, realFileSystem);
   });
 
-beforeEach(async () => {
+  beforeEach(async () => {
     testEnv = new IntegrationTestEnvironment();
     validator = new IntegrationValidator(testEnv);
 
@@ -57,7 +65,9 @@ beforeEach(async () => {
 
       expect(result.success).toBe(true);
       expect(result.output).toContain('Operation generated successfully');
-      expect(mockSwarm.mockSwarmToolsInstance.generateOperation).toHaveBeenCalledWith(params);
+      expect(
+        mockSwarm.mockSwarmToolsInstance.generateOperation
+      ).toHaveBeenCalledWith(params);
     });
 
     it('should generate a getAll query operation', async () => {
@@ -72,7 +82,9 @@ beforeEach(async () => {
 
       expect(result.success).toBe(true);
       expect(result.output).toContain('Operation generated successfully');
-      expect(mockSwarm.mockSwarmToolsInstance.generateOperation).toHaveBeenCalledWith(params);
+      expect(
+        mockSwarm.mockSwarmToolsInstance.generateOperation
+      ).toHaveBeenCalledWith(params);
     });
 
     it('should generate a query operation with entities', async () => {
@@ -88,7 +100,9 @@ beforeEach(async () => {
 
       expect(result.success).toBe(true);
       expect(result.output).toContain('Operation generated successfully');
-      expect(mockSwarm.mockSwarmToolsInstance.generateOperation).toHaveBeenCalledWith(params);
+      expect(
+        mockSwarm.mockSwarmToolsInstance.generateOperation
+      ).toHaveBeenCalledWith(params);
     });
   });
 
@@ -105,7 +119,9 @@ beforeEach(async () => {
 
       expect(result.success).toBe(true);
       expect(result.output).toContain('Operation generated successfully');
-      expect(mockSwarm.mockSwarmToolsInstance.generateOperation).toHaveBeenCalledWith(params);
+      expect(
+        mockSwarm.mockSwarmToolsInstance.generateOperation
+      ).toHaveBeenCalledWith(params);
     });
 
     it('should generate an update action operation', async () => {
@@ -120,7 +136,9 @@ beforeEach(async () => {
 
       expect(result.success).toBe(true);
       expect(result.output).toContain('Operation generated successfully');
-      expect(mockSwarm.mockSwarmToolsInstance.generateOperation).toHaveBeenCalledWith(params);
+      expect(
+        mockSwarm.mockSwarmToolsInstance.generateOperation
+      ).toHaveBeenCalledWith(params);
     });
 
     it('should generate a delete action operation', async () => {
@@ -135,7 +153,9 @@ beforeEach(async () => {
 
       expect(result.success).toBe(true);
       expect(result.output).toContain('Operation generated successfully');
-      expect(mockSwarm.mockSwarmToolsInstance.generateOperation).toHaveBeenCalledWith(params);
+      expect(
+        mockSwarm.mockSwarmToolsInstance.generateOperation
+      ).toHaveBeenCalledWith(params);
     });
 
     it('should generate an action operation with entities', async () => {
@@ -151,7 +171,9 @@ beforeEach(async () => {
 
       expect(result.success).toBe(true);
       expect(result.output).toContain('Operation generated successfully');
-      expect(mockSwarm.mockSwarmToolsInstance.generateOperation).toHaveBeenCalledWith(params);
+      expect(
+        mockSwarm.mockSwarmToolsInstance.generateOperation
+      ).toHaveBeenCalledWith(params);
     });
   });
 
@@ -173,7 +195,9 @@ beforeEach(async () => {
 
           const result = await swarmTools.generateOperation(params);
           expect(result.success).toBe(true);
-          expect(mockSwarm.mockSwarmToolsInstance.generateOperation).toHaveBeenCalledWith(params);
+          expect(
+            mockSwarm.mockSwarmToolsInstance.generateOperation
+          ).toHaveBeenCalledWith(params);
         }
       }
     });
@@ -190,7 +214,9 @@ beforeEach(async () => {
 
       expect(result.success).toBe(true);
       expect(result.output).toContain('Operation generated successfully');
-      expect(mockSwarm.mockSwarmToolsInstance.generateOperation).toHaveBeenCalledWith(params);
+      expect(
+        mockSwarm.mockSwarmToolsInstance.generateOperation
+      ).toHaveBeenCalledWith(params);
     });
   });
 
@@ -209,7 +235,9 @@ beforeEach(async () => {
 
         const result = await swarmTools.generateOperation(params);
         expect(result.success).toBe(true);
-        expect(mockSwarm.mockSwarmToolsInstance.generateOperation).toHaveBeenCalledWith(params);
+        expect(
+          mockSwarm.mockSwarmToolsInstance.generateOperation
+        ).toHaveBeenCalledWith(params);
       }
     });
 
@@ -225,7 +253,9 @@ beforeEach(async () => {
 
       expect(result.success).toBe(true);
       expect(result.output).toContain('Operation generated successfully');
-      expect(mockSwarm.mockSwarmToolsInstance.generateOperation).toHaveBeenCalledWith(params);
+      expect(
+        mockSwarm.mockSwarmToolsInstance.generateOperation
+      ).toHaveBeenCalledWith(params);
     });
   });
 
@@ -243,7 +273,9 @@ beforeEach(async () => {
 
       expect(result.success).toBe(true);
       expect(result.output).toContain('Operation generated successfully');
-      expect(mockSwarm.mockSwarmToolsInstance.generateOperation).toHaveBeenCalledWith(params);
+      expect(
+        mockSwarm.mockSwarmToolsInstance.generateOperation
+      ).toHaveBeenCalledWith(params);
     });
 
     it('should handle operations with single entity', async () => {
@@ -259,7 +291,9 @@ beforeEach(async () => {
 
       expect(result.success).toBe(true);
       expect(result.output).toContain('Operation generated successfully');
-      expect(mockSwarm.mockSwarmToolsInstance.generateOperation).toHaveBeenCalledWith(params);
+      expect(
+        mockSwarm.mockSwarmToolsInstance.generateOperation
+      ).toHaveBeenCalledWith(params);
     });
   });
 
@@ -277,7 +311,9 @@ beforeEach(async () => {
 
       expect(result.success).toBe(true);
       expect(result.output).toContain('Operation generated successfully');
-      expect(mockSwarm.mockSwarmToolsInstance.generateOperation).toHaveBeenCalledWith(params);
+      expect(
+        mockSwarm.mockSwarmToolsInstance.generateOperation
+      ).toHaveBeenCalledWith(params);
     });
 
     it('should handle operations for nested feature structures', async () => {
@@ -293,7 +329,9 @@ beforeEach(async () => {
 
       expect(result.success).toBe(true);
       expect(result.output).toContain('Operation generated successfully');
-      expect(mockSwarm.mockSwarmToolsInstance.generateOperation).toHaveBeenCalledWith(params);
+      expect(
+        mockSwarm.mockSwarmToolsInstance.generateOperation
+      ).toHaveBeenCalledWith(params);
     });
   });
 

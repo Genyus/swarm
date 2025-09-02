@@ -1,10 +1,18 @@
-import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
+import {
+  afterEach,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from 'vitest';
 import { mockFileSystemTools } from './mock-filesystem.js';
 import {
-    mockSwarmFunctions,
-    resetSwarmMocks,
-    setSwarmError,
-    setupSwarmMocks,
+  mockSwarmFunctions,
+  resetSwarmMocks,
+  setSwarmError,
+  setupSwarmMocks,
 } from './mock-swarm-functions.js';
 import { IntegrationTestEnvironment } from './setup.js';
 import { IntegrationValidator } from './validator.js';
@@ -26,7 +34,7 @@ describe('Route Generation Integration Tests', () => {
     swarmTools = SwarmTools.create(realLogger, realFileSystem);
   });
 
-beforeEach(async () => {
+  beforeEach(async () => {
     testEnv = new IntegrationTestEnvironment();
     validator = new IntegrationValidator(testEnv);
     mockSwarmFunctions();
@@ -52,7 +60,9 @@ beforeEach(async () => {
 
       expect(result.success).toBe(true);
       expect(result.output).toContain('Route generated successfully');
-      expect(mockSwarm.mockSwarmToolsInstance.generateRoute).toHaveBeenCalledWith(params);
+      expect(
+        mockSwarm.mockSwarmToolsInstance.generateRoute
+      ).toHaveBeenCalledWith(params);
     });
 
     it('should generate a route with force flag', async () => {
@@ -66,7 +76,9 @@ beforeEach(async () => {
 
       expect(result.success).toBe(true);
       expect(result.output).toContain('Route generated successfully');
-      expect(mockSwarm.mockSwarmToolsInstance.generateRoute).toHaveBeenCalledWith(params);
+      expect(
+        mockSwarm.mockSwarmToolsInstance.generateRoute
+      ).toHaveBeenCalledWith(params);
     });
   });
 
@@ -83,7 +95,9 @@ beforeEach(async () => {
         const result = await swarmTools.generateRoute(params);
 
         expect(result.success).toBe(true);
-        expect(mockSwarm.mockSwarmToolsInstance.generateRoute).toHaveBeenCalledWith(params);
+        expect(
+          mockSwarm.mockSwarmToolsInstance.generateRoute
+        ).toHaveBeenCalledWith(params);
       }
     });
 
@@ -97,7 +111,8 @@ beforeEach(async () => {
 
       for (const path of dynamicPaths) {
         const routeName = path.split('/').pop()?.replace(':', '') || '';
-        const capitalizedName = routeName.charAt(0).toUpperCase() + routeName.slice(1);
+        const capitalizedName =
+          routeName.charAt(0).toUpperCase() + routeName.slice(1);
         const params = {
           name: `DynamicRoute${capitalizedName}`,
           path,
@@ -106,7 +121,9 @@ beforeEach(async () => {
         const result = await swarmTools.generateRoute(params);
 
         expect(result.success).toBe(true);
-        expect(mockSwarm.mockSwarmToolsInstance.generateRoute).toHaveBeenCalledWith(params);
+        expect(
+          mockSwarm.mockSwarmToolsInstance.generateRoute
+        ).toHaveBeenCalledWith(params);
       }
     });
 
@@ -120,7 +137,8 @@ beforeEach(async () => {
 
       for (const path of nestedPaths) {
         const routeName = path.split('/').pop()?.replace(':', '') || '';
-        const capitalizedName = routeName.charAt(0).toUpperCase() + routeName.slice(1);
+        const capitalizedName =
+          routeName.charAt(0).toUpperCase() + routeName.slice(1);
         const params = {
           name: `Admin${capitalizedName}`,
           path,
@@ -129,7 +147,9 @@ beforeEach(async () => {
         const result = await swarmTools.generateRoute(params);
 
         expect(result.success).toBe(true);
-        expect(mockSwarm.mockSwarmToolsInstance.generateRoute).toHaveBeenCalledWith(params);
+        expect(
+          mockSwarm.mockSwarmToolsInstance.generateRoute
+        ).toHaveBeenCalledWith(params);
       }
     });
   });
@@ -152,7 +172,9 @@ beforeEach(async () => {
         const result = await swarmTools.generateRoute(params);
 
         expect(result.success).toBe(true);
-        expect(mockSwarm.mockSwarmToolsInstance.generateRoute).toHaveBeenCalledWith(params);
+        expect(
+          mockSwarm.mockSwarmToolsInstance.generateRoute
+        ).toHaveBeenCalledWith(params);
       }
     });
 
@@ -166,7 +188,9 @@ beforeEach(async () => {
 
       expect(result.success).toBe(true);
       expect(result.output).toContain('Route generated successfully');
-      expect(mockSwarm.mockSwarmToolsInstance.generateRoute).toHaveBeenCalledWith(params);
+      expect(
+        mockSwarm.mockSwarmToolsInstance.generateRoute
+      ).toHaveBeenCalledWith(params);
     });
   });
 
@@ -182,7 +206,9 @@ beforeEach(async () => {
 
       expect(result.success).toBe(true);
       expect(result.output).toContain('Route generated successfully');
-      expect(mockSwarm.mockSwarmToolsInstance.generateRoute).toHaveBeenCalledWith(params);
+      expect(
+        mockSwarm.mockSwarmToolsInstance.generateRoute
+      ).toHaveBeenCalledWith(params);
     });
 
     it('should generate public routes', async () => {
@@ -196,7 +222,9 @@ beforeEach(async () => {
 
       expect(result.success).toBe(true);
       expect(result.output).toContain('Route generated successfully');
-      expect(mockSwarm.mockSwarmToolsInstance.generateRoute).toHaveBeenCalledWith(params);
+      expect(
+        mockSwarm.mockSwarmToolsInstance.generateRoute
+      ).toHaveBeenCalledWith(params);
     });
 
     it('should generate mixed authentication routes', async () => {
@@ -217,7 +245,9 @@ beforeEach(async () => {
         const result = await swarmTools.generateRoute(params);
 
         expect(result.success).toBe(true);
-        expect(mockSwarm.mockSwarmToolsInstance.generateRoute).toHaveBeenCalledWith(params);
+        expect(
+          mockSwarm.mockSwarmToolsInstance.generateRoute
+        ).toHaveBeenCalledWith(params);
       }
     });
   });
@@ -246,7 +276,9 @@ beforeEach(async () => {
         const result = await swarmTools.generateRoute(params);
 
         expect(result.success).toBe(true);
-        expect(mockSwarm.mockSwarmToolsInstance.generateRoute).toHaveBeenCalledWith(params);
+        expect(
+          mockSwarm.mockSwarmToolsInstance.generateRoute
+        ).toHaveBeenCalledWith(params);
       }
     });
 
@@ -269,7 +301,9 @@ beforeEach(async () => {
         const result = await swarmTools.generateRoute(params);
 
         expect(result.success).toBe(true);
-        expect(mockSwarm.mockSwarmToolsInstance.generateRoute).toHaveBeenCalledWith(params);
+        expect(
+          mockSwarm.mockSwarmToolsInstance.generateRoute
+        ).toHaveBeenCalledWith(params);
       }
     });
 
@@ -291,7 +325,9 @@ beforeEach(async () => {
         const result = await swarmTools.generateRoute(params);
 
         expect(result.success).toBe(true);
-        expect(mockSwarm.mockSwarmToolsInstance.generateRoute).toHaveBeenCalledWith(params);
+        expect(
+          mockSwarm.mockSwarmToolsInstance.generateRoute
+        ).toHaveBeenCalledWith(params);
       }
     });
   });
@@ -308,7 +344,9 @@ beforeEach(async () => {
 
       expect(result.success).toBe(true);
       expect(result.output).toContain('Route generated successfully');
-      expect(mockSwarm.mockSwarmToolsInstance.generateRoute).toHaveBeenCalledWith(params);
+      expect(
+        mockSwarm.mockSwarmToolsInstance.generateRoute
+      ).toHaveBeenCalledWith(params);
     });
 
     it('should handle routes without force flag', async () => {
@@ -322,7 +360,9 @@ beforeEach(async () => {
 
       expect(result.success).toBe(true);
       expect(result.output).toContain('Route generated successfully');
-      expect(mockSwarm.mockSwarmToolsInstance.generateRoute).toHaveBeenCalledWith(params);
+      expect(
+        mockSwarm.mockSwarmToolsInstance.generateRoute
+      ).toHaveBeenCalledWith(params);
     });
   });
 
@@ -409,7 +449,9 @@ beforeEach(async () => {
         const result = await swarmTools.generateRoute(params);
 
         expect(result.success).toBe(true);
-        expect(mockSwarm.mockSwarmToolsInstance.generateRoute).toHaveBeenCalledWith(params);
+        expect(
+          mockSwarm.mockSwarmToolsInstance.generateRoute
+        ).toHaveBeenCalledWith(params);
       }
     });
   });

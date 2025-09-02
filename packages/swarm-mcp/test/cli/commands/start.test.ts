@@ -9,7 +9,9 @@ vi.mock('../../../src/cli/server-manager.js', () => ({
 
 // Mock console methods
 const mockConsoleLog = vi.spyOn(console, 'log').mockImplementation(() => {});
-const mockConsoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
+const mockConsoleError = vi
+  .spyOn(console, 'error')
+  .mockImplementation(() => {});
 const mockProcessExit = vi.spyOn(process, 'exit').mockImplementation(() => {
   throw new Error('process.exit called');
 });
@@ -48,8 +50,12 @@ describe('Start Command', () => {
       await command.parseAsync(['start']);
 
       expect(mockServerManager.start).toHaveBeenCalledOnce();
-      expect(mockConsoleLog).toHaveBeenCalledWith('Starting Swarm MCP server in stdio mode...');
-      expect(mockConsoleLog).toHaveBeenCalledWith('✅ Server started successfully in stdio mode');
+      expect(mockConsoleLog).toHaveBeenCalledWith(
+        'Starting Swarm MCP server in stdio mode...'
+      );
+      expect(mockConsoleLog).toHaveBeenCalledWith(
+        '✅ Server started successfully in stdio mode'
+      );
     });
 
     it('should handle server start failure', async () => {
@@ -58,10 +64,14 @@ describe('Start Command', () => {
       (mockServerManager.start as any).mockRejectedValue(error);
 
       // Execute the command and expect it to throw due to process.exit
-      await expect(command.parseAsync(['start'])).rejects.toThrow('process.exit called');
+      await expect(command.parseAsync(['start'])).rejects.toThrow(
+        'process.exit called'
+      );
 
       expect(mockServerManager.start).toHaveBeenCalledOnce();
-      expect(mockConsoleError).toHaveBeenCalledWith('❌ Failed to start server: Server failed to start');
+      expect(mockConsoleError).toHaveBeenCalledWith(
+        '❌ Failed to start server: Server failed to start'
+      );
       expect(mockProcessExit).toHaveBeenCalledWith(1);
     });
 
@@ -70,10 +80,14 @@ describe('Start Command', () => {
       (mockServerManager.start as any).mockRejectedValue('Unknown error');
 
       // Execute the command and expect it to throw due to process.exit
-      await expect(command.parseAsync(['start'])).rejects.toThrow('process.exit called');
+      await expect(command.parseAsync(['start'])).rejects.toThrow(
+        'process.exit called'
+      );
 
       expect(mockServerManager.start).toHaveBeenCalledOnce();
-      expect(mockConsoleError).toHaveBeenCalledWith('❌ Failed to start server: Unknown error');
+      expect(mockConsoleError).toHaveBeenCalledWith(
+        '❌ Failed to start server: Unknown error'
+      );
       expect(mockProcessExit).toHaveBeenCalledWith(1);
     });
   });

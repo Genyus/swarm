@@ -1,15 +1,18 @@
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { MCPErrorCode, MCPProtocolError } from '../../../src/server/types/mcp.js';
 import {
-    createFileOperationError,
-    FileUriSchema,
-    MAX_FILE_SIZE,
-    sanitizeFileContents,
-    shouldReadAsText,
-    validateFileSize,
-    validateProjectFilePath,
-    WriteFileSchema
+  MCPErrorCode,
+  MCPProtocolError,
+} from '../../../src/server/types/mcp.js';
+import {
+  createFileOperationError,
+  FileUriSchema,
+  MAX_FILE_SIZE,
+  sanitizeFileContents,
+  shouldReadAsText,
+  validateFileSize,
+  validateProjectFilePath,
+  WriteFileSchema,
 } from '../../../src/server/utils/validation.js';
 
 describe('Validation Utilities', () => {
@@ -27,7 +30,11 @@ describe('Validation Utilities', () => {
 
       for (const inputPath of testCases) {
         const result = validateProjectFilePath(inputPath, testProjectRoot);
-        expect(result).toMatch(new RegExp(`^${testProjectRoot.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`));
+        expect(result).toMatch(
+          new RegExp(
+            `^${testProjectRoot.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`
+          )
+        );
       }
     });
 
@@ -35,8 +42,9 @@ describe('Validation Utilities', () => {
       const invalidCases = ['', '   ', '\t', '\n'];
 
       for (const invalidPath of invalidCases) {
-        expect(() => validateProjectFilePath(invalidPath, testProjectRoot))
-          .toThrow(MCPProtocolError);
+        expect(() =>
+          validateProjectFilePath(invalidPath, testProjectRoot)
+        ).toThrow(MCPProtocolError);
       }
     });
 
@@ -49,26 +57,27 @@ describe('Validation Utilities', () => {
       ];
 
       for (const maliciousPath of maliciousPaths) {
-        expect(() => validateProjectFilePath(maliciousPath, testProjectRoot))
-          .toThrow(MCPProtocolError);
-        expect(() => validateProjectFilePath(maliciousPath, testProjectRoot))
-          .toThrow(/Null byte detected/);
+        expect(() =>
+          validateProjectFilePath(maliciousPath, testProjectRoot)
+        ).toThrow(MCPProtocolError);
+        expect(() =>
+          validateProjectFilePath(maliciousPath, testProjectRoot)
+        ).toThrow(/Null byte detected/);
       }
     });
 
     it('should reject absolute paths', () => {
-      const absolutePaths = [
-        '/etc/passwd',
-        '/home/user/file.txt',
-      ];
+      const absolutePaths = ['/etc/passwd', '/home/user/file.txt'];
 
-      // Only test Unix-style absolute paths since path.isAbsolute() 
+      // Only test Unix-style absolute paths since path.isAbsolute()
       // behaves differently on different platforms
       for (const absolutePath of absolutePaths) {
-        expect(() => validateProjectFilePath(absolutePath, testProjectRoot))
-          .toThrow(MCPProtocolError);
-        expect(() => validateProjectFilePath(absolutePath, testProjectRoot))
-          .toThrow(/Absolute paths are not allowed/);
+        expect(() =>
+          validateProjectFilePath(absolutePath, testProjectRoot)
+        ).toThrow(MCPProtocolError);
+        expect(() =>
+          validateProjectFilePath(absolutePath, testProjectRoot)
+        ).toThrow(/Absolute paths are not allowed/);
       }
     });
 
@@ -81,10 +90,12 @@ describe('Validation Utilities', () => {
       ];
 
       for (const traversalPath of traversalPaths) {
-        expect(() => validateProjectFilePath(traversalPath, testProjectRoot))
-          .toThrow(MCPProtocolError);
-        expect(() => validateProjectFilePath(traversalPath, testProjectRoot))
-          .toThrow(/outside project directory/);
+        expect(() =>
+          validateProjectFilePath(traversalPath, testProjectRoot)
+        ).toThrow(MCPProtocolError);
+        expect(() =>
+          validateProjectFilePath(traversalPath, testProjectRoot)
+        ).toThrow(/outside project directory/);
       }
     });
 
@@ -98,14 +109,18 @@ describe('Validation Utilities', () => {
 
       for (const complexPath of complexPaths) {
         const result = validateProjectFilePath(complexPath, testProjectRoot);
-        expect(result).toMatch(new RegExp(`^${testProjectRoot.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`));
+        expect(result).toMatch(
+          new RegExp(
+            `^${testProjectRoot.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`
+          )
+        );
       }
     });
 
     it('should return absolute resolved paths', () => {
       const inputPath = 'dir/file.txt';
       const result = validateProjectFilePath(inputPath, testProjectRoot);
-      
+
       expect(path.isAbsolute(result)).toBe(true);
       expect(result).toBe(path.join(testProjectRoot, inputPath));
     });
@@ -113,7 +128,13 @@ describe('Validation Utilities', () => {
 
   describe('validateFileSize', () => {
     it('should accept files within size limit', () => {
-      const validSizes = [0, 1024, 100 * 1024, MAX_FILE_SIZE - 1, MAX_FILE_SIZE];
+      const validSizes = [
+        0,
+        1024,
+        100 * 1024,
+        MAX_FILE_SIZE - 1,
+        MAX_FILE_SIZE,
+      ];
 
       for (const size of validSizes) {
         expect(() => validateFileSize(size)).not.toThrow();
@@ -121,7 +142,11 @@ describe('Validation Utilities', () => {
     });
 
     it('should reject files exceeding size limit', () => {
-      const invalidSizes = [MAX_FILE_SIZE + 1, MAX_FILE_SIZE * 2, 1024 * 1024 * 10];
+      const invalidSizes = [
+        MAX_FILE_SIZE + 1,
+        MAX_FILE_SIZE * 2,
+        1024 * 1024 * 10,
+      ];
 
       for (const size of invalidSizes) {
         expect(() => validateFileSize(size)).toThrow(MCPProtocolError);
@@ -131,10 +156,12 @@ describe('Validation Utilities', () => {
 
     it('should accept custom size limits', () => {
       const customLimit = 1024;
-      
+
       expect(() => validateFileSize(500, customLimit)).not.toThrow();
       expect(() => validateFileSize(customLimit, customLimit)).not.toThrow();
-      expect(() => validateFileSize(customLimit + 1, customLimit)).toThrow(MCPProtocolError);
+      expect(() => validateFileSize(customLimit + 1, customLimit)).toThrow(
+        MCPProtocolError
+      );
     });
   });
 
@@ -180,21 +207,21 @@ describe('Validation Utilities', () => {
     it('should pass through text content for text MIME types', () => {
       const textContent = 'Hello, world!\nThis is a test file.';
       const result = sanitizeFileContents(textContent, 'text/plain');
-      
+
       expect(result).toBe(textContent);
     });
 
     it('should replace binary content with descriptive message', () => {
       const binaryContent = 'binary data here';
       const result = sanitizeFileContents(binaryContent, 'image/png');
-      
+
       expect(result).toBe('[Binary file: 16 bytes, MIME type: image/png]');
     });
 
     it('should truncate very large text files', () => {
       const largeContent = 'x'.repeat(60000); // 60KB
       const result = sanitizeFileContents(largeContent, 'text/plain');
-      
+
       expect(result.length).toBeLessThan(largeContent.length);
       expect(result).toContain('[Content truncated');
       expect(result).toContain('showing first 50000');
@@ -203,7 +230,7 @@ describe('Validation Utilities', () => {
     it('should not truncate reasonably sized text files', () => {
       const reasonableContent = 'x'.repeat(30000); // 30KB
       const result = sanitizeFileContents(reasonableContent, 'text/plain');
-      
+
       expect(result).toBe(reasonableContent);
     });
   });
@@ -212,7 +239,7 @@ describe('Validation Utilities', () => {
     it('should create ResourceNotFound errors for ENOENT', () => {
       const error = new Error('ENOENT: no such file or directory');
       const result = createFileOperationError('read', 'test.txt', error);
-      
+
       expect(result).toBeInstanceOf(MCPProtocolError);
       expect(result.code).toBe(MCPErrorCode.ResourceNotFound);
       expect(result.message).toContain('File not found');
@@ -221,7 +248,7 @@ describe('Validation Utilities', () => {
     it('should create PermissionDenied errors for EACCES', () => {
       const error = new Error('EACCES: permission denied');
       const result = createFileOperationError('read', 'test.txt', error);
-      
+
       expect(result).toBeInstanceOf(MCPProtocolError);
       expect(result.code).toBe(MCPErrorCode.PermissionDenied);
       expect(result.message).toContain('Permission denied');
@@ -230,7 +257,7 @@ describe('Validation Utilities', () => {
     it('should create InvalidParams errors for EISDIR', () => {
       const error = new Error('EISDIR: illegal operation on a directory');
       const result = createFileOperationError('read', 'directory', error);
-      
+
       expect(result).toBeInstanceOf(MCPProtocolError);
       expect(result.code).toBe(MCPErrorCode.InvalidParams);
       expect(result.message).toContain('is a directory');
@@ -239,7 +266,7 @@ describe('Validation Utilities', () => {
     it('should create InternalError for unknown errors', () => {
       const error = new Error('Unknown filesystem error');
       const result = createFileOperationError('read', 'test.txt', error);
-      
+
       expect(result).toBeInstanceOf(MCPProtocolError);
       expect(result.code).toBe(MCPErrorCode.InternalError);
       expect(result.message).toContain('Failed to read');
@@ -248,7 +275,7 @@ describe('Validation Utilities', () => {
     it('should handle non-Error objects', () => {
       const error = 'String error message';
       const result = createFileOperationError('write', 'test.txt', error);
-      
+
       expect(result).toBeInstanceOf(MCPProtocolError);
       expect(result.message).toContain('String error message');
     });
