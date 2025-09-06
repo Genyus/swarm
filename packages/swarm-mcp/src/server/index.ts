@@ -403,49 +403,6 @@ export class SwarmMCPServer {
             required: ['name', 'path'],
           },
         },
-        {
-          name: 'swarm_analyze_project',
-          description: 'Analyze Wasp project structure and dependencies',
-          inputSchema: {
-            type: 'object',
-            properties: {
-              projectPath: {
-                type: 'string',
-                description: 'Project directory path',
-              },
-              includeDependencies: {
-                type: 'boolean',
-                description: 'Include dependency analysis',
-              },
-              includeStructure: {
-                type: 'boolean',
-                description: 'Include structure analysis',
-              },
-              deep: { type: 'boolean', description: 'Perform deep analysis' },
-            },
-          },
-        },
-        {
-          name: 'swarm_validate_config',
-          description: 'Validate Wasp project configuration',
-          inputSchema: {
-            type: 'object',
-            properties: {
-              configPath: {
-                type: 'string',
-                description: 'Configuration file path',
-              },
-              strict: {
-                type: 'boolean',
-                description: 'Strict validation mode',
-              },
-              checkDependencies: {
-                type: 'boolean',
-                description: 'Check dependencies',
-              },
-            },
-          },
-        },
       ],
     }));
   }
