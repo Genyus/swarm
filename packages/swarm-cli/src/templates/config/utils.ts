@@ -6,7 +6,7 @@ import {
   ApiNamespaceConfig,
   App,
   AppConfig,
-  Crud,
+  CrudConfig,
   JobConfig,
   QueryConfig,
   RouteConfig,
@@ -19,7 +19,7 @@ export interface FeatureConfig {
   actions?: Record<string, ActionConfig>;
   apiNamespaces?: Record<string, ApiNamespaceConfig>;
   apis?: Record<string, ApiConfig>;
-  cruds?: Record<string, Crud>;
+  cruds?: Record<string, CrudConfig>;
   jobs?: Record<string, JobConfig>;
   queries?: Record<string, QueryConfig>;
   routes?: Record<string, RouteConfig>;

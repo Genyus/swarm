@@ -45,9 +45,7 @@ export interface CommonGeneratorFlags {
 export type OperationFlags = Pick<
   CommonGeneratorFlags,
   'entities' | 'force' | 'auth' | 'operation' | 'dataType'
-> & {
-  feature: string;
-};
+>;
 
 /**
  * API-specific flags

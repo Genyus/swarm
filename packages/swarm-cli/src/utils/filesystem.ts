@@ -26,19 +26,20 @@ export function findWaspRoot(
   fileSystem: IFileSystem,
   startDir: string = process.cwd()
 ): string {
-  let currentDir = path.resolve(startDir);
-  const root = path.parse(currentDir).root;
+  const startDirPath = path.resolve(startDir);
+  let currentDirPath = startDirPath;
+  const root = path.parse(currentDirPath).root;
 
-  while (currentDir !== root) {
-    const waspRootPath = path.join(currentDir, '.wasproot');
+  while (currentDirPath !== root) {
+    const waspRootPath = path.join(currentDirPath, '.wasproot');
     if (fileSystem.existsSync(waspRootPath)) {
-      return currentDir;
+      return currentDirPath;
     }
-    currentDir = path.dirname(currentDir);
+    currentDirPath = path.dirname(currentDirPath);
   }
 
   throw new Error(
-    "Couldn't find Wasp application root. Make sure you are running this command from within a Wasp project directory."
+    `Couldn't find Wasp application root from ${startDirPath}. Make sure you are running this command from within a Wasp project directory.`
   );
 }
 

@@ -75,7 +75,6 @@ function makeOperationCommand({
           return;
         }
         await generator.generate(opts.feature, {
-          feature: opts.feature,
           dataType: opts.dataType,
           operation: normalizedOperation,
           entities: opts.entities,

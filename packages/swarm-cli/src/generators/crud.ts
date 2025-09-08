@@ -6,6 +6,7 @@ import {
   ensureDirectoryExists,
   getFeatureTargetDir,
 } from '../utils/filesystem';
+import { getPlural } from '../utils/strings';
 import { TemplateUtility } from '../utils/templates';
 
 const CRUD_OPERATIONS = [
@@ -30,9 +31,7 @@ export class CrudGenerator implements NodeGenerator<CrudFlags> {
   async generate(featurePath: string, flags: CrudFlags): Promise<void> {
     try {
       const { dataType, force } = flags;
-      const pluralName = dataType.endsWith('y')
-        ? `${dataType.slice(0, -1)}ies`
-        : `${dataType}s`;
+      const pluralName = getPlural(dataType);
       const crudName = pluralName;
       const { targetDir: crudsDir, importPath } = getFeatureTargetDir(
         this.fs,
