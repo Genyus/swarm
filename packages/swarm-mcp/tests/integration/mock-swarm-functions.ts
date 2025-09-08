@@ -61,16 +61,18 @@ export async function setupSwarmMocks() {
     generatedFiles: ['src/routes/user.tsx'],
     modifiedFiles: [],
   });
-  mockSwarmToolsInstance.generateJob.mockImplementation((params: { name: string; }) => {
-    const jobName = params.name || 'defaultJob';
-    const fileName = jobName.toLowerCase().replace(/[^a-z0-9]/g, '') + '.ts';
-    return Promise.resolve({
-      success: true,
-      output: `Job ${jobName} generated successfully\nGenerated files:\n- src/jobs/${fileName}`,
-      generatedFiles: [`src/jobs/${fileName}`],
-      modifiedFiles: [],
-    });
-  });
+  mockSwarmToolsInstance.generateJob.mockImplementation(
+    (params: { name: string }) => {
+      const jobName = params.name || 'defaultJob';
+      const fileName = jobName.toLowerCase().replace(/[^a-z0-9]/g, '') + '.ts';
+      return Promise.resolve({
+        success: true,
+        output: `Job ${jobName} generated successfully\nGenerated files:\n- src/jobs/${fileName}`,
+        generatedFiles: [`src/jobs/${fileName}`],
+        modifiedFiles: [],
+      });
+    }
+  );
   mockSwarmToolsInstance.generateOperation.mockResolvedValue({
     success: true,
     output:

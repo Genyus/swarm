@@ -120,7 +120,6 @@ export class SwarmTools {
       const { generatedFiles, modifiedFiles } = await this.trackGeneratedFiles(
         projectRoot,
         async () => {
-          // Map CLI parameters to generator flags
           const apiFlags = {
             name: validParams.name,
             method: validParams.method,
@@ -130,10 +129,10 @@ export class SwarmTools {
             force: validParams.force || false,
           };
 
-          // Use the feature path from the project root
-          const featurePath = 'default'; // This should be configurable or derived from project structure
-
-          await this.generatorsService.generateApi(featurePath, apiFlags);
+          await this.generatorsService.generateApi(
+            validParams.feature,
+            apiFlags
+          );
         }
       );
 
@@ -173,9 +172,7 @@ export class SwarmTools {
       const { generatedFiles, modifiedFiles } = await this.trackGeneratedFiles(
         projectRoot,
         () => {
-          // Use the feature path from the project root
           const featurePath = validParams.name;
-
           this.generatorsService.generateFeature(featurePath);
           return Promise.resolve();
         }
@@ -217,7 +214,6 @@ export class SwarmTools {
       const { generatedFiles, modifiedFiles } = await this.trackGeneratedFiles(
         projectRoot,
         async () => {
-          // Map CLI parameters to generator flags
           const crudFlags = {
             dataType: validParams.dataType,
             public: validParams.public || [],
@@ -226,10 +222,10 @@ export class SwarmTools {
             force: validParams.force || false,
           };
 
-          // Use the feature path from the project root
-          const featurePath = 'default'; // This should be configurable or derived from project structure
-
-          await this.generatorsService.generateCrud(featurePath, crudFlags);
+          await this.generatorsService.generateCrud(
+            validParams.feature,
+            crudFlags
+          );
         }
       );
 
@@ -269,7 +265,6 @@ export class SwarmTools {
       const { generatedFiles, modifiedFiles } = await this.trackGeneratedFiles(
         projectRoot,
         async () => {
-          // Map CLI parameters to generator flags
           const routeFlags = {
             path: validParams.path,
             name: validParams.name,
@@ -277,10 +272,10 @@ export class SwarmTools {
             force: validParams.force || false,
           };
 
-          // Use the feature path from the project root
-          const featurePath = 'default'; // This should be configurable or derived from project structure
-
-          await this.generatorsService.generateRoute(featurePath, routeFlags);
+          await this.generatorsService.generateRoute(
+            validParams.feature,
+            routeFlags
+          );
         }
       );
 
@@ -320,7 +315,6 @@ export class SwarmTools {
       const { generatedFiles, modifiedFiles } = await this.trackGeneratedFiles(
         projectRoot,
         async () => {
-          // Map CLI parameters to generator flags
           const jobFlags = {
             name: validParams.name,
             schedule: validParams.schedule || '',
@@ -329,10 +323,10 @@ export class SwarmTools {
             force: validParams.force || false,
           };
 
-          // Use the feature path from the project root
-          const featurePath = 'default'; // This should be configurable or derived from project structure
-
-          await this.generatorsService.generateJob(featurePath, jobFlags);
+          await this.generatorsService.generateJob(
+            validParams.feature,
+            jobFlags
+          );
         }
       );
 
@@ -372,9 +366,7 @@ export class SwarmTools {
       const { generatedFiles, modifiedFiles } = await this.trackGeneratedFiles(
         projectRoot,
         async () => {
-          // Map CLI parameters to generator flags
           const operationFlags = {
-            feature: validParams.feature,
             dataType: validParams.dataType,
             operation: validParams.operation,
             entities: validParams.entities || [],
@@ -382,11 +374,8 @@ export class SwarmTools {
             force: validParams.force || false,
           };
 
-          // Use the feature path from the project root
-          const featurePath = 'default'; // This should be configurable or derived from project structure
-
           await this.generatorsService.generateOperation(
-            featurePath,
+            validParams.feature,
             operationFlags
           );
         }
@@ -428,18 +417,14 @@ export class SwarmTools {
       const { generatedFiles, modifiedFiles } = await this.trackGeneratedFiles(
         projectRoot,
         async () => {
-          // Map CLI parameters to generator flags
           const apiNamespaceFlags = {
             name: validParams.name,
             path: validParams.path,
             force: validParams.force || false,
           };
 
-          // Use the feature path from the project root
-          const featurePath = 'default'; // This should be configurable or derived from project structure
-
           await this.generatorsService.generateApiNamespace(
-            featurePath,
+            validParams.feature,
             apiNamespaceFlags
           );
         }

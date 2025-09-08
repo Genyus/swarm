@@ -1,5 +1,7 @@
 import { realLogger } from '@ingenyus/swarm-cli/dist/utils/logger.js';
 import fs from 'node:fs';
+import type { Dirent, Stats } from 'node:fs';
+import type { Buffer as NodeBuffer } from 'node:buffer';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 // Mock the SwarmGeneratorsService before importing SwarmTools
@@ -30,12 +32,7 @@ vi.mock('node:fs', () => ({
     existsSync: vi.fn(),
   },
 }));
-vi.mock('../utils/logger.js', () => ({
-  realLogger: {
-    error: vi.fn(),
-    warn: vi.fn(),
-  },
-}));
+// No need to mock internal logger module: we pass a mocked logger instance directly
 
 const mockFs = vi.mocked(fs);
 const mockLogger = vi.mocked(realLogger);
@@ -67,6 +64,7 @@ describe('Swarm Tools', () => {
 
     it('should accept valid parameters', async () => {
       const validParams = {
+        feature: 'user-dashboard',
         name: 'UserAPI',
         method: 'GET',
         route: '/api/users',
@@ -78,10 +76,16 @@ describe('Swarm Tools', () => {
       mockFs.readdirSync
         .mockReturnValueOnce([]) // before scan
         .mockReturnValueOnce([
-          { name: 'UserAPI.ts', isFile: () => true, isDirectory: () => false },
-        ] as any); // after scan
+          {
+            name: 'UserAPI.ts',
+            isFile: (): boolean => true,
+            isDirectory: (): boolean => false,
+          },
+        ] as unknown as Dirent<NodeBuffer>[]); // after scan
 
-      mockFs.statSync.mockReturnValue({ mtime: new Date() } as any);
+      mockFs.statSync.mockReturnValue({
+        mtime: new Date(),
+      } as unknown as Stats);
 
       const result = await swarmTools.generateApi(validParams);
 
@@ -91,6 +95,7 @@ describe('Swarm Tools', () => {
 
     it('should handle command execution errors', async () => {
       const validParams = {
+        feature: 'user-dashboard',
         name: 'UserAPI',
         method: 'GET',
         route: '/api/users',
@@ -102,6 +107,7 @@ describe('Swarm Tools', () => {
 
     it('should build correct command arguments', async () => {
       const params = {
+        feature: 'catalog',
         name: 'ProductAPI',
         method: 'POST',
         route: '/api/products',
@@ -117,10 +123,6 @@ describe('Swarm Tools', () => {
     it('should generate feature with correct parameters', async () => {
       const params = {
         name: 'user-dashboard', // Use kebab-case as required by Swarm CLI
-        dataType: 'User',
-        components: ['UserList', 'UserForm'],
-        withTests: true,
-        force: false,
       };
 
       mockFs.readdirSync
@@ -128,12 +130,14 @@ describe('Swarm Tools', () => {
         .mockReturnValueOnce([
           {
             name: 'UserDashboard.tsx',
-            isFile: () => true,
-            isDirectory: () => false,
+            isFile: (): boolean => true,
+            isDirectory: (): boolean => false,
           },
-        ] as any); // after scan
+        ] as unknown as Dirent<NodeBuffer>[]); // after scan
 
-      mockFs.statSync.mockReturnValue({ mtime: new Date() } as any);
+      mockFs.statSync.mockReturnValue({
+        mtime: new Date(),
+      } as unknown as Stats);
 
       const result = await swarmTools.generateFeature(params);
 
@@ -143,6 +147,7 @@ describe('Swarm Tools', () => {
 
     it('should generate CRUD operations with correct parameters', async () => {
       const params = {
+        feature: 'catalog',
         dataType: 'Product',
         public: ['create', 'read'],
         exclude: ['delete'],
@@ -158,6 +163,7 @@ describe('Swarm Tools', () => {
 
     it('should generate job with correct parameters', async () => {
       const params = {
+        feature: 'user-dashboard',
         name: 'EmailSender',
         schedule: '0 9 * * *',
         entities: ['User', 'Email'],
@@ -188,6 +194,7 @@ describe('Swarm Tools', () => {
 
     it('should generate route with correct parameters', async () => {
       const params = {
+        feature: 'user-dashboard',
         name: 'UserProfile',
         path: '/user/:id/profile',
         force: true,
@@ -202,6 +209,7 @@ describe('Swarm Tools', () => {
 
     it('should generate API namespace with correct parameters', async () => {
       const params = {
+        feature: 'api-root',
         name: 'UserAPI',
         path: '/api/users',
         force: true,

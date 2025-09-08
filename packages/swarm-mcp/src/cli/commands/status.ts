@@ -1,11 +1,22 @@
 import { Command } from 'commander';
 import { ServerManager } from '../server-manager.js';
+import {
+  realLogger as logger,
+  configureLogger,
+  LogLevel,
+  LogFormat,
+} from '@ingenyus/swarm-cli/dist/utils/logger.js';
 
 interface StatusOptions {
   json?: boolean;
 }
 
 export function createStatusCommand(serverManager: ServerManager): Command {
+  configureLogger({
+    stream: 'stderr',
+    level: (process.env['SWARM_MCP_LOG_LEVEL'] || 'info') as LogLevel,
+    format: (process.env['SWARM_MCP_LOG_FORMAT'] || 'text') as LogFormat,
+  });
   return new Command('status')
     .description('Check server status')
     .option('--json', 'Output status in JSON format')
@@ -14,31 +25,31 @@ export function createStatusCommand(serverManager: ServerManager): Command {
         const status = serverManager.getStatus();
 
         if (options.json) {
-          console.log(JSON.stringify(status, null, 2));
+          logger.info(JSON.stringify(status, null, 2));
           return;
         }
 
-        console.log('🔄 Swarm MCP Server Status');
-        console.log('========================');
+        logger.info('🔄 Swarm MCP Server Status');
+        logger.info('========================');
 
         if (status.isRunning) {
-          console.log(`✅ Status: Running`);
-          console.log(`🆔 PID: ${status.pid}`);
+          logger.info(`✅ Status: Running`);
+          logger.info(`🆔 PID: ${status.pid}`);
           if (status.uptime) {
             const hours = Math.floor(status.uptime / 3600);
             const minutes = Math.floor((status.uptime % 3600) / 60);
             const seconds = Math.floor(status.uptime % 60);
-            console.log(`⏱️  Uptime: ${hours}h ${minutes}m ${seconds}s`);
+            logger.info(`⏱️  Uptime: ${hours}h ${minutes}m ${seconds}s`);
           }
         } else {
-          console.log(`❌ Status: Not running`);
+          logger.info(`❌ Status: Not running`);
         }
 
-        console.log('========================');
+        logger.info('========================');
       } catch (error) {
         const errorMessage =
           error instanceof Error ? error.message : String(error);
-        console.error(`❌ Failed to get server status: ${errorMessage}`);
+        logger.error(`❌ Failed to get server status: ${errorMessage}`);
         process.exit(1);
       }
     });

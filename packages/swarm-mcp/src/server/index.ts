@@ -1,4 +1,9 @@
-import { realLogger as logger } from '@ingenyus/swarm-cli/dist/utils/logger.js';
+import {
+  realLogger as logger,
+  configureLogger,
+  LogLevel,
+  LogFormat,
+} from '@ingenyus/swarm-cli/dist/utils/logger.js';
 import {
   Server as MCPServer,
   ServerOptions,
@@ -30,6 +35,12 @@ export class SwarmMCPServer {
   private transport?: MCPTransport;
 
   constructor(config: ServerConfig) {
+    // Ensure logging goes to stderr to avoid corrupting MCP stdio transport.
+    configureLogger({
+      stream: 'stderr',
+      level: (process.env['SWARM_MCP_LOG_LEVEL'] || 'info') as LogLevel,
+      format: (process.env['SWARM_MCP_LOG_FORMAT'] || 'text') as LogFormat,
+    });
     this.config = config;
     this.state = {
       isRunning: false,
@@ -129,135 +140,40 @@ export class SwarmMCPServer {
     this.mcpServer.setRequestHandler(ListToolsRequestSchema, () => ({
       tools: [
         {
-          name: 'readFile',
-          description: 'Read file contents with security validation',
-          inputSchema: {
-            type: 'object',
-            properties: {
-              uri: { type: 'string', description: 'File URI to read' },
-            },
-            required: ['uri'],
-          },
-        },
-        {
-          name: 'writeFile',
-          description: 'Write file contents with backup and rollback support',
-          inputSchema: {
-            type: 'object',
-            properties: {
-              uri: { type: 'string', description: 'File URI to write' },
-              content: { type: 'string', description: 'Content to write' },
-              backup: {
-                type: 'boolean',
-                description: 'Create backup before writing',
-              },
-              dryRun: {
-                type: 'boolean',
-                description: 'Simulate the operation',
-              },
-              rollbackToken: {
-                type: 'string',
-                description: 'Token for rollback capability',
-              },
-            },
-            required: ['uri', 'content'],
-          },
-        },
-        {
-          name: 'listDirectory',
-          description: 'List directory contents with filtering and pagination',
-          inputSchema: {
-            type: 'object',
-            properties: {
-              uri: { type: 'string', description: 'Directory URI to list' },
-              recursive: { type: 'boolean', description: 'Recursive listing' },
-              maxDepth: {
-                type: 'number',
-                description: 'Maximum recursion depth',
-              },
-              filterName: {
-                type: 'string',
-                description: 'Name filter pattern',
-              },
-              filterExtension: {
-                type: 'string',
-                description: 'Extension filter',
-              },
-              sortBy: {
-                type: 'string',
-                enum: ['name', 'size', 'type', 'modified'],
-                description: 'Sort criteria',
-              },
-              sortOrder: {
-                type: 'string',
-                enum: ['asc', 'desc'],
-                description: 'Sort order',
-              },
-              offset: { type: 'number', description: 'Pagination offset' },
-              limit: { type: 'number', description: 'Pagination limit' },
-            },
-            required: ['uri'],
-          },
-        },
-        {
-          name: 'deleteFile',
-          description: 'Delete file with backup and rollback support',
-          inputSchema: {
-            type: 'object',
-            properties: {
-              uri: { type: 'string', description: 'File URI to delete' },
-              backup: {
-                type: 'boolean',
-                description: 'Create backup before deletion',
-              },
-              dryRun: {
-                type: 'boolean',
-                description: 'Simulate the operation',
-              },
-              rollbackToken: {
-                type: 'string',
-                description: 'Token for rollback capability',
-              },
-            },
-            required: ['uri'],
-          },
-        },
-        {
-          name: 'rollback',
-          description: 'Rollback file operations using a rollback token',
-          inputSchema: {
-            type: 'object',
-            properties: {
-              rollbackToken: { type: 'string', description: 'Rollback token' },
-            },
-            required: ['rollbackToken'],
-          },
-        },
-        {
           name: 'swarm_generate_api',
           description: 'Generate API endpoints for Wasp projects',
           inputSchema: {
             type: 'object',
             properties: {
-              name: { type: 'string', description: 'API name' },
+              feature: { type: 'string', description: "Feature name (e.g., 'users')" },
+              name: {
+                type: 'string',
+                description: "API name (e.g., 'UserAPI')",
+              },
               method: {
                 type: 'string',
                 enum: ['GET', 'POST', 'PUT', 'DELETE', 'ALL'],
-                description: 'HTTP method',
+                description: 'HTTP method (GET | POST | PUT | DELETE | ALL)',
               },
-              route: { type: 'string', description: 'API route path' },
+              route: {
+                type: 'string',
+                description: "API route path (e.g., '/api/users')",
+              },
               entities: {
                 type: 'array',
                 items: { type: 'string' },
                 description: 'Related entities',
               },
-              auth: { type: 'boolean', description: 'Require authentication' },
+              auth: {
+                type: 'boolean',
+                description: 'Require authentication',
+              },
               force: {
                 type: 'boolean',
                 description: 'Force overwrite existing files',
               },
             },
-            required: ['name', 'method', 'route'],
+            required: ['feature', 'name', 'method', 'route'],
           },
         },
         {
@@ -266,21 +182,7 @@ export class SwarmMCPServer {
           inputSchema: {
             type: 'object',
             properties: {
-              name: { type: 'string', description: 'Feature name' },
-              dataType: { type: 'string', description: 'Data type/model name' },
-              components: {
-                type: 'array',
-                items: { type: 'string' },
-                description: 'Component names to generate',
-              },
-              withTests: {
-                type: 'boolean',
-                description: 'Generate test files',
-              },
-              force: {
-                type: 'boolean',
-                description: 'Force overwrite existing files',
-              },
+              name: { type: 'string', description: "Feature name (e.g., 'users')" },
             },
             required: ['name'],
           },
@@ -291,7 +193,11 @@ export class SwarmMCPServer {
           inputSchema: {
             type: 'object',
             properties: {
-              dataType: { type: 'string', description: 'Data type/model name' },
+              feature: { type: 'string', description: "Feature name (e.g., 'users')" },
+              dataType: {
+                type: 'string',
+                description: "Data type(e.g., 'User')",
+              },
               public: {
                 type: 'array',
                 items: { type: 'string' },
@@ -312,7 +218,7 @@ export class SwarmMCPServer {
                 description: 'Force overwrite existing files',
               },
             },
-            required: ['dataType'],
+            required: ['feature', 'dataType'],
           },
         },
         {
@@ -321,14 +227,18 @@ export class SwarmMCPServer {
           inputSchema: {
             type: 'object',
             properties: {
-              name: { type: 'string', description: 'Job name' },
+              feature: { type: 'string', description: "Feature name (e.g., 'users')" },
+              name: {
+                type: 'string',
+                description: "Job name (e.g., 'EmailSender')",
+              },
               schedule: {
                 type: 'string',
-                description: 'Cron schedule expression',
+                description: "Cron schedule expression (e.g., '0 9 * * *')",
               },
               scheduleArgs: {
                 type: 'string',
-                description: 'Schedule arguments JSON',
+                description: 'Schedule arguments JSON (e.g., \'{"retry":3}\')',
               },
               entities: {
                 type: 'array',
@@ -340,7 +250,7 @@ export class SwarmMCPServer {
                 description: 'Force overwrite existing files',
               },
             },
-            required: ['name'],
+            required: ['feature', 'name'],
           },
         },
         {
@@ -349,19 +259,29 @@ export class SwarmMCPServer {
           inputSchema: {
             type: 'object',
             properties: {
-              feature: { type: 'string', description: 'Feature name' },
+              feature: {
+                type: 'string',
+                description: "Feature name (e.g., 'users')",
+              },
               operation: {
                 type: 'string',
                 enum: ['create', 'update', 'delete', 'get', 'getAll'],
-                description: 'Operation type',
+                description:
+                  'Operation type (create | update | delete | get | getAll)',
               },
-              dataType: { type: 'string', description: 'Data type/model name' },
+              dataType: {
+                type: 'string',
+                description: "Data type (e.g., 'User')",
+              },
               entities: {
                 type: 'array',
                 items: { type: 'string' },
                 description: 'Related entities',
               },
-              auth: { type: 'boolean', description: 'Require authentication' },
+              auth: {
+                type: 'boolean',
+                description: 'Require authentication',
+              },
               force: {
                 type: 'boolean',
                 description: 'Force overwrite existing files',
@@ -376,15 +296,25 @@ export class SwarmMCPServer {
           inputSchema: {
             type: 'object',
             properties: {
-              name: { type: 'string', description: 'Route name' },
-              path: { type: 'string', description: 'Route path' },
-              auth: { type: 'boolean', description: 'Require authentication' },
+              feature: { type: 'string', description: "Feature name (e.g., 'users')" },
+              name: {
+                type: 'string',
+                description: "Route name (e.g., 'UserProfile')",
+              },
+              path: {
+                type: 'string',
+                description: "Route path (e.g., '/users/:id')",
+              },
+              auth: {
+                type: 'boolean',
+                description: 'Require authentication',
+              },
               force: {
                 type: 'boolean',
                 description: 'Force overwrite existing files',
               },
             },
-            required: ['name', 'path'],
+            required: ['feature', 'name', 'path'],
           },
         },
         {
@@ -393,14 +323,21 @@ export class SwarmMCPServer {
           inputSchema: {
             type: 'object',
             properties: {
-              name: { type: 'string', description: 'API namespace name' },
-              path: { type: 'string', description: 'API namespace path' },
+              feature: { type: 'string', description: "Feature name (e.g., 'users')" },
+              name: {
+                type: 'string',
+                description: "API namespace name (e.g., 'UserAPI')",
+              },
+              path: {
+                type: 'string',
+                description: "API namespace path (e.g., '/api/users')",
+              },
               force: {
                 type: 'boolean',
                 description: 'Force overwrite existing files',
               },
             },
-            required: ['name', 'path'],
+            required: ['feature', 'name', 'path'],
           },
         },
       ],

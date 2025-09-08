@@ -19,6 +19,7 @@ export type ActionOperation = 'create' | 'update' | 'delete';
 export type QueryOperation = 'get' | 'getAll';
 
 export interface SwarmGenerateApiParams extends SwarmCliParams {
+  feature: string;
   name: string;
   method: HttpMethod;
   route: string;
@@ -29,13 +30,10 @@ export interface SwarmGenerateApiParams extends SwarmCliParams {
 
 export interface SwarmGenerateFeatureParams extends SwarmCliParams {
   name: string;
-  dataType?: string;
-  components?: string[];
-  withTests?: boolean;
-  force?: boolean;
 }
 
 export interface SwarmGenerateCrudParams extends SwarmCliParams {
+  feature: string;
   dataType: string;
   public?: string[];
   override?: string[];
@@ -44,6 +42,7 @@ export interface SwarmGenerateCrudParams extends SwarmCliParams {
 }
 
 export interface SwarmGenerateJobParams extends SwarmCliParams {
+  feature: string;
   name: string;
   schedule?: string;
   scheduleArgs?: string;
@@ -61,6 +60,7 @@ export interface SwarmGenerateOperationParams extends SwarmCliParams {
 }
 
 export interface SwarmGenerateRouteParams extends SwarmCliParams {
+  feature: string;
   name: string;
   path: string;
   auth?: boolean;
@@ -68,50 +68,10 @@ export interface SwarmGenerateRouteParams extends SwarmCliParams {
 }
 
 export interface SwarmGenerateApiNamespaceParams extends SwarmCliParams {
+  feature: string;
   name: string;
   path: string;
   force?: boolean;
-}
-
-export interface FeatureDefinition {
-  name: string;
-  path: string;
-  type: 'full-stack' | 'client-only' | 'server-only';
-  components: string[];
-  operations: {
-    queries: string[];
-    actions: string[];
-  };
-  routes: string[];
-  dependencies: string[];
-}
-
-export interface EntityDefinition {
-  name: string;
-  fields: FieldDefinition[];
-  relationships: RelationshipDefinition[];
-}
-
-export interface FieldDefinition {
-  name: string;
-  type: 'string' | 'number' | 'boolean' | 'date' | 'json' | 'optional';
-  defaultValue?: unknown;
-  constraints?: {
-    unique?: boolean;
-    required?: boolean;
-    minLength?: number;
-    maxLength?: number;
-    min?: number;
-    max?: number;
-  };
-}
-
-export interface RelationshipDefinition {
-  name: string;
-  type: 'one-to-one' | 'one-to-many' | 'many-to-many';
-  target: string;
-  fields?: string[];
-  references?: string[];
 }
 
 export interface GenerationResult extends SwarmCliResult {
@@ -124,12 +84,6 @@ export interface GenerationResult extends SwarmCliResult {
     reason: string;
     resolution?: 'overwrite' | 'skip' | 'merge';
   }[];
-}
-
-export interface TemplateProcessingResult {
-  content: string;
-  variables: Record<string, unknown>;
-  dependencies: string[];
 }
 
 export type SwarmErrorType =
@@ -196,6 +150,7 @@ export const SwarmCliParamsSchema = z.object({
 });
 
 export const SwarmGenerateApiParamsSchema = SwarmCliParamsSchema.extend({
+  feature: z.string().min(1),
   name: z.string().min(1),
   method: HttpMethodSchema,
   route: z.string().min(1),
@@ -206,13 +161,10 @@ export const SwarmGenerateApiParamsSchema = SwarmCliParamsSchema.extend({
 
 export const SwarmGenerateFeatureParamsSchema = SwarmCliParamsSchema.extend({
   name: z.string().min(1),
-  dataType: z.string().optional(),
-  components: z.array(z.string()).optional(),
-  withTests: z.boolean().optional(),
-  force: z.boolean().optional(),
 });
 
 export const SwarmGenerateCrudParamsSchema = SwarmCliParamsSchema.extend({
+  feature: z.string().min(1),
   dataType: z.string().min(1),
   public: z.array(z.string()).optional(),
   override: z.array(z.string()).optional(),
@@ -221,6 +173,7 @@ export const SwarmGenerateCrudParamsSchema = SwarmCliParamsSchema.extend({
 });
 
 export const SwarmGenerateJobParamsSchema = SwarmCliParamsSchema.extend({
+  feature: z.string().min(1),
   name: z.string().min(1),
   schedule: z.string().optional(),
   scheduleArgs: z.string().optional(),
@@ -238,6 +191,7 @@ export const SwarmGenerateOperationParamsSchema = SwarmCliParamsSchema.extend({
 });
 
 export const SwarmGenerateRouteParamsSchema = SwarmCliParamsSchema.extend({
+  feature: z.string().min(1),
   name: z.string().min(1),
   path: z.string().min(1),
   auth: z.boolean().optional(),
@@ -246,6 +200,7 @@ export const SwarmGenerateRouteParamsSchema = SwarmCliParamsSchema.extend({
 
 export const SwarmGenerateApiNamespaceParamsSchema =
   SwarmCliParamsSchema.extend({
+    feature: z.string().min(1),
     name: z.string().min(1),
     path: z.string().min(1),
     force: z.boolean().optional(),

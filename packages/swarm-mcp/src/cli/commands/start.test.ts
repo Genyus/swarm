@@ -1,17 +1,20 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createStartCommand } from './start.js';
 import { ServerManager } from '../server-manager.js';
+import { realLogger as logger } from '@ingenyus/swarm-cli/dist/utils/logger.js';
 
 // Mock the ServerManager
 vi.mock('../server-manager.js', () => ({
   ServerManager: vi.fn(),
 }));
 
-// Mock console methods
-const mockConsoleLog = vi.spyOn(console, 'log').mockImplementation(() => {});
-const mockConsoleError = vi
-  .spyOn(console, 'error')
-  .mockImplementation(() => {});
+vi.mock('@ingenyus/swarm-cli/dist/utils/logger.js', () => ({
+  realLogger: {
+    info: vi.fn(),
+    error: vi.fn(),
+  },
+  configureLogger: vi.fn(),
+}));
 const mockProcessExit = vi.spyOn(process, 'exit').mockImplementation(() => {
   throw new Error('process.exit called');
 });
@@ -50,10 +53,10 @@ describe('Start Command', () => {
       await command.parseAsync(['start']);
 
       expect(mockServerManager.start).toHaveBeenCalledOnce();
-      expect(mockConsoleLog).toHaveBeenCalledWith(
+      expect((logger as any).info).toHaveBeenCalledWith(
         'Starting Swarm MCP server in stdio mode...'
       );
-      expect(mockConsoleLog).toHaveBeenCalledWith(
+      expect((logger as any).info).toHaveBeenCalledWith(
         '✅ Server started successfully in stdio mode'
       );
     });
@@ -69,7 +72,7 @@ describe('Start Command', () => {
       );
 
       expect(mockServerManager.start).toHaveBeenCalledOnce();
-      expect(mockConsoleError).toHaveBeenCalledWith(
+      expect((logger as any).error).toHaveBeenCalledWith(
         '❌ Failed to start server: Server failed to start'
       );
       expect(mockProcessExit).toHaveBeenCalledWith(1);
@@ -85,7 +88,7 @@ describe('Start Command', () => {
       );
 
       expect(mockServerManager.start).toHaveBeenCalledOnce();
-      expect(mockConsoleError).toHaveBeenCalledWith(
+      expect((logger as any).error).toHaveBeenCalledWith(
         '❌ Failed to start server: Unknown error'
       );
       expect(mockProcessExit).toHaveBeenCalledWith(1);

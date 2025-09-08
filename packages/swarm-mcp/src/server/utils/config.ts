@@ -3,6 +3,12 @@ import { readFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { z } from 'zod';
 import { ErrorFactory, createErrorContext } from './errors.js';
+import {
+  realLogger as logger,
+  configureLogger,
+  LogLevel,
+  LogFormat,
+} from '@ingenyus/swarm-cli/dist/utils/logger.js';
 
 const ENV_PREFIX = 'SWARM_MCP_';
 
@@ -99,19 +105,25 @@ export class ConfigurationManager {
       const parsedConfig = JSON.parse(configData) as unknown;
       const validatedConfig = ServerConfigSchema.parse(parsedConfig);
 
+      // Ensure logging goes to stderr to avoid corrupting MCP stdio transport.
+      configureLogger({
+        stream: 'stderr',
+        level: (process.env['SWARM_MCP_LOG_LEVEL'] || 'info') as LogLevel,
+        format: (process.env['SWARM_MCP_LOG_FORMAT'] || 'text') as LogFormat,
+      });
       finalConfig = this.mergeConfig(DEFAULT_CONFIG, validatedConfig);
-      console.log(`[INFO] Configuration loaded from file: ${this.configPath}`);
+      logger.info(`[INFO] Configuration loaded from file: ${this.configPath}`);
     } catch (error) {
       if (error instanceof z.ZodError) {
-        console.warn(
+        logger.warn(
           `[WARN] Invalid configuration format in file, using defaults. Config path: ${this.configPath}`
         );
       } else if ((error as { code?: string }).code === 'ENOENT') {
-        console.log(
+        logger.info(
           `[INFO] No configuration file found, using defaults. Config path: ${this.configPath}`
         );
       } else {
-        console.error(
+        logger.error(
           `[ERROR] Failed to load configuration file, using defaults. Config path: ${this.configPath}, Error: ${error instanceof Error ? error.message : String(error)}`
         );
       }

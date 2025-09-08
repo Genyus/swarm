@@ -141,6 +141,7 @@ describe('Swarm Types', () => {
       it('should validate correct API generation parameters', () => {
         const validParams: SwarmGenerateApiParams = {
           name: 'UserAPI',
+          feature: 'default',
           method: 'GET',
           route: '/api/users',
           entities: ['User'],
@@ -171,10 +172,6 @@ describe('Swarm Types', () => {
       it('should validate correct feature generation parameters', () => {
         const validParams = {
           name: 'UserManagement',
-          dataType: 'User',
-          components: ['UserList', 'UserForm'],
-          withTests: true,
-          force: false,
         };
         expect(() =>
           SwarmGenerateFeatureParamsSchema.parse(validParams)
@@ -184,7 +181,6 @@ describe('Swarm Types', () => {
       it('should reject parameters with empty name', () => {
         const invalidParams = {
           name: '',
-          dataType: 'User',
         };
         expect(() =>
           SwarmGenerateFeatureParamsSchema.parse(invalidParams)
@@ -195,6 +191,7 @@ describe('Swarm Types', () => {
     describe('SwarmGenerateCRUDParamsSchema', () => {
       it('should validate correct CRUD generation parameters', () => {
         const validParams = {
+          feature: 'user-management',
           dataType: 'User',
           public: ['create', 'read'],
           override: ['update'],
@@ -219,6 +216,7 @@ describe('Swarm Types', () => {
     describe('SwarmGenerateJobParamsSchema', () => {
       it('should validate correct job generation parameters', () => {
         const validParams = {
+          feature: 'maintenance',
           name: 'EmailSender',
           schedule: '0 */6 * * *',
           scheduleArgs: '{"retryLimit": 3}',
@@ -261,6 +259,7 @@ describe('Swarm Types', () => {
     describe('SwarmGenerateRouteParamsSchema', () => {
       it('should validate correct route generation parameters', () => {
         const validParams = {
+          feature: 'ui',
           name: 'UserDashboard',
           path: '/dashboard/users',
           auth: true,

@@ -6,134 +6,6 @@ The Swarm MCP Server provides programmatic access to Swarm CLI capabilities thro
 
 ## Available Tools
 
-### Filesystem Operations
-
-#### `readFile`
-Reads a file from the project directory with safety validations.
-
-**Parameters:**
-```typescript
-{
-  uri: string;        // File URI relative to project root
-  projectPath?: string; // Optional project root path
-}
-```
-
-**Returns:**
-```typescript
-{
-  contents: string;   // File contents
-  mimeType: string;   // Detected MIME type
-}
-```
-
-**Example:**
-```typescript
-const result = await mcp.readFile({
-  uri: "src/components/UserList.tsx",
-  projectPath: "/path/to/project"
-});
-```
-
-#### `writeFile`
-Writes content to a file with atomic operations and optional backup.
-
-**Parameters:**
-```typescript
-{
-  uri: string;        // File URI relative to project root
-  contents: string;   // File contents to write
-  projectPath?: string; // Optional project root path
-  backup?: boolean;   // Enable backup (default: true)
-}
-```
-
-**Returns:**
-```typescript
-{
-  success: boolean;   // Operation success status
-  rollbackToken?: string; // Token for rollback operations
-}
-```
-
-**Example:**
-```typescript
-const result = await mcp.writeFile({
-  uri: "src/components/NewComponent.tsx",
-  contents: "export const NewComponent = () => <div>Hello</div>;",
-  backup: true
-});
-```
-
-#### `listDirectory`
-Lists directory contents with metadata.
-
-**Parameters:**
-```typescript
-{
-  uri: string;        // Directory URI relative to project root
-  projectPath?: string; // Optional project root path
-}
-```
-
-**Returns:**
-```typescript
-{
-  entries: Array<{
-    name: string;     // File/directory name
-    type: "file" | "directory";
-    size?: number;    // File size in bytes
-    modifiedTime?: string; // Last modification time
-  }>;
-}
-```
-
-**Example:**
-```typescript
-const result = await mcp.listDirectory({
-  uri: "src/components"
-});
-```
-
-#### `deleteFile`
-Deletes a file with optional backup.
-
-**Parameters:**
-```typescript
-{
-  uri: string;        // File URI relative to project root
-  projectPath?: string; // Optional project root path
-  backup?: boolean;   // Enable backup (default: true)
-}
-```
-
-**Returns:**
-```typescript
-{
-  success: boolean;   // Operation success status
-  rollbackToken?: string; // Token for rollback operations
-}
-```
-
-#### `rollback`
-Restores a file from backup using a rollback token.
-
-**Parameters:**
-```typescript
-{
-  token: string;      // Rollback token from previous operation
-  projectPath?: string; // Optional project root path
-}
-```
-
-**Returns:**
-```typescript
-{
-  success: boolean;   // Rollback success status
-  message: string;    // Status message
-}
-```
-
 ### Swarm Generation Tools
 
 #### `swarm_generate_api`
@@ -142,6 +14,7 @@ Generates API endpoints for Wasp applications.
 **Parameters:**
 ```typescript
 {
+  feature: string;   // Feature name
   name: string;       // API name
   method: "GET" | "POST" | "PUT" | "DELETE" | "ALL";
   route: string;      // API route path
@@ -166,6 +39,7 @@ Generates API endpoints for Wasp applications.
 **Example:**
 ```typescript
 const result = await mcp.swarm_generate_api({
+  feature: "UserManagement",
   name: "UserAPI",
   method: "ALL",
   route: "/api/users",
@@ -218,6 +92,7 @@ Generates CRUD operations for entities.
 **Parameters:**
 ```typescript
 {
+  feature: string;    // Feature name
   entity: string;     // Entity name
   dataType: string;   // Data type name
   publicFields?: string[]; // Public fields
@@ -242,6 +117,7 @@ Generates CRUD operations for entities.
 **Example:**
 ```typescript
 const result = await mcp.swarm_generate_crud({
+  feature: "UserManagement",
   entity: "User",
   dataType: "User",
   publicFields: ["id", "name", "email"],
@@ -256,6 +132,7 @@ Generates scheduled jobs for Wasp applications.
 **Parameters:**
 ```typescript
 {
+  feature: string;    // Feature name
   name: string;       // Job name
   schedule?: string;  // Cron schedule expression
   args?: string[];    // Job arguments
@@ -279,6 +156,7 @@ Generates scheduled jobs for Wasp applications.
 **Example:**
 ```typescript
 const result = await mcp.swarm_generate_job({
+  feature: "Maintenance",
   name: "CleanupJob",
   schedule: "0 2 * * *", // Daily at 2 AM
   entities: ["User", "Post"],
@@ -331,6 +209,7 @@ Generates page routes for Wasp applications.
 **Parameters:**
 ```typescript
 {
+  feature: string;    // Feature name
   name: string;       // Route name
   path: string;       // Route path
   auth?: boolean;     // Require authentication
@@ -353,6 +232,7 @@ Generates page routes for Wasp applications.
 **Example:**
 ```typescript
 const result = await mcp.swarm_generate_route({
+  feature: "UserManagement",
   name: "UserProfile",
   path: "/profile/:id",
   auth: true,
@@ -366,6 +246,7 @@ Generates API namespace structures.
 **Parameters:**
 ```typescript
 {
+  feature: string;    // Feature name
   name: string;       // Namespace name
   path: string;       // Namespace path
   force: boolean;     // Overwrite existing files
@@ -387,6 +268,7 @@ Generates API namespace structures.
 **Example:**
 ```typescript
 const result = await mcp.swarm_generate_apinamespace({
+  feature: "ApiRoot",
   name: "v1",
   path: "/api/v1",
   force: false
