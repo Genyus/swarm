@@ -1,7 +1,6 @@
-import type { {{ApiType}} } from "wasp/server/api";
+{{imports}}
 
-export const {{apiName}}: {{ApiType}} = async (req, res, context) => {
-  {{AuthCheck}}
-  // TODO: Implement your API logic here
+export const {{apiName}}: {{apiType}} = async (req, res, context) => {
+{{authCheck}}{{methodCheck}}  // TODO: Implement your API logic here
   res.json({ message: "OK" });
 };

@@ -6,6 +6,7 @@ import {
   ensureDirectoryExists,
   getFeatureTargetDir,
 } from '../utils/filesystem';
+import { toCamelCase, toPascalCase } from '../utils/strings';
 import { TemplateUtility } from '../utils/templates';
 
 export class ApiGenerator implements NodeGenerator<ApiFlags> {
@@ -21,13 +22,15 @@ export class ApiGenerator implements NodeGenerator<ApiFlags> {
 
   async generate(featurePath: string, flags: ApiFlags): Promise<void> {
     try {
-      let baseName = flags.name;
-      if (!baseName.endsWith('Api')) {
-        baseName = baseName + 'Api';
+      let baseName = toCamelCase(flags.name);
+
+      if (baseName.toLowerCase().endsWith('api')) {
+        baseName = baseName.slice(0, -3);
       }
-      const apiName = baseName;
-      const apiFile = `${apiName}.ts`;
-      const ApiType = apiName.charAt(0).toUpperCase() + apiName.slice(1);
+
+      const apiName = baseName + 'Api';
+      const apiFile = `${baseName}.ts`;
+      const apiType = toPascalCase(apiName);
       const {
         method,
         route,
@@ -53,18 +56,32 @@ export class ApiGenerator implements NodeGenerator<ApiFlags> {
           return;
         }
         const template = this.fs.readFileSync(templatePath, 'utf8');
-        const entitiesStr = Array.isArray(entities)
-          ? entities.map((e: string) => `"${e}"`).join(', ')
-          : entities
-            ? `"${entities}"`
+        const authCheck = auth
+          ? `  if (!context.user) {
+    throw new HttpError(401);
+  }
+
+`
+          : '';
+        const methodCheck =
+          method !== 'ALL'
+            ? `  if (req.method !== '${method}') {
+    throw new HttpError(405);
+  }
+
+`
             : '';
+        const errorImport =
+          auth || method !== 'ALL'
+            ? 'import { HttpError } from "wasp/server";\n'
+            : '';
+        const imports = `${errorImport}import type { ${apiType} } from "wasp/server/api";`;
         const processed = this.templateUtility.processTemplate(template, {
-          ApiType,
+          imports,
+          apiType,
           apiName,
-          method,
-          route,
-          entities: entitiesStr,
-          auth: String(auth),
+          methodCheck,
+          authCheck,
         });
         this.fs.writeFileSync(handlerFile, processed);
         this.logger.success(
