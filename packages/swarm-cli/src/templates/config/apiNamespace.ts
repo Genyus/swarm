@@ -1,8 +1,8 @@
 
       {{namespaceName}}: {
         middlewareConfigFn: {
-            import: "{{middlewareFnName}}",
-            from: "{{middlewareImportPath}}",
+          import: "{{middlewareFnName}}",
+          from: "{{middlewareImportPath}}",
         },
         path: "{{pathValue}}",
       }

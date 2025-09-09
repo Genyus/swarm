@@ -6,6 +6,7 @@ import {
   ensureDirectoryExists,
   getFeatureTargetDir,
 } from '../utils/filesystem';
+import { toCamelCase } from '../utils/strings';
 import { TemplateUtility } from '../utils/templates';
 
 export class ApiNamespaceGenerator implements NodeGenerator<ApiNamespaceFlags> {
@@ -28,7 +29,7 @@ export class ApiNamespaceGenerator implements NodeGenerator<ApiNamespaceFlags> {
         );
         return;
       }
-      const namespaceName = name;
+      const namespaceName = toCamelCase(name);
       const middlewareFnName = `${name}Middleware`;
       const { targetDir: middlewareDir, importPath } = getFeatureTargetDir(
         this.fs,
@@ -52,7 +53,6 @@ export class ApiNamespaceGenerator implements NodeGenerator<ApiNamespaceFlags> {
         const processed = this.templateUtility.processTemplate(template, {
           middlewareFnName,
           namespaceName,
-          apiPath,
         });
         this.fs.writeFileSync(middlewareFile, processed);
         this.logger.success(
