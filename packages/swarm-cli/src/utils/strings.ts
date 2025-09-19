@@ -91,13 +91,20 @@ export function toKebabCase(str: string): string {
 
 /**
  * Converts a string to PascalCase.
+ * Splits the string into tokens using the following patterns:
+ * - Separators: hyphen, underscore, space
+ * - camelCase boundaries: any lower-case letter followed by an upper-case letter
  * @param str - The string to convert
  * @returns The PascalCase string
  */
 export function toPascalCase(str: string): string {
   return str
-    .split(/[-_\s]+/)
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .split(/[-_\s]+|(?<=[a-z])(?=[A-Z])/)
+    .map((token) => {
+      return token.length === 0
+        ? token
+        : token.charAt(0).toUpperCase() + token.slice(1).toLowerCase();
+    })
     .join('');
 }
 
