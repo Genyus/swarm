@@ -145,7 +145,10 @@ export class SwarmMCPServer {
           inputSchema: {
             type: 'object',
             properties: {
-              feature: { type: 'string', description: "Feature name (e.g., 'users')" },
+              feature: {
+                type: 'string',
+                description: "Feature name (e.g., 'users')",
+              },
               name: {
                 type: 'string',
                 description: "API name (e.g., 'UserAPI')",
@@ -182,7 +185,10 @@ export class SwarmMCPServer {
           inputSchema: {
             type: 'object',
             properties: {
-              name: { type: 'string', description: "Feature name (e.g., 'users')" },
+              name: {
+                type: 'string',
+                description: "Feature name (e.g., 'users')",
+              },
             },
             required: ['name'],
           },
@@ -193,7 +199,10 @@ export class SwarmMCPServer {
           inputSchema: {
             type: 'object',
             properties: {
-              feature: { type: 'string', description: "Feature name (e.g., 'users')" },
+              feature: {
+                type: 'string',
+                description: "Feature name (e.g., 'users')",
+              },
               dataType: {
                 type: 'string',
                 description: "Data type(e.g., 'User')",
@@ -227,7 +236,10 @@ export class SwarmMCPServer {
           inputSchema: {
             type: 'object',
             properties: {
-              feature: { type: 'string', description: "Feature name (e.g., 'users')" },
+              feature: {
+                type: 'string',
+                description: "Feature name (e.g., 'users')",
+              },
               name: {
                 type: 'string',
                 description: "Job name (e.g., 'EmailSender')",
@@ -296,7 +308,10 @@ export class SwarmMCPServer {
           inputSchema: {
             type: 'object',
             properties: {
-              feature: { type: 'string', description: "Feature name (e.g., 'users')" },
+              feature: {
+                type: 'string',
+                description: "Feature name (e.g., 'users')",
+              },
               name: {
                 type: 'string',
                 description: "Route name (e.g., 'UserProfile')",
@@ -323,7 +338,10 @@ export class SwarmMCPServer {
           inputSchema: {
             type: 'object',
             properties: {
-              feature: { type: 'string', description: "Feature name (e.g., 'users')" },
+              feature: {
+                type: 'string',
+                description: "Feature name (e.g., 'users')",
+              },
               name: {
                 type: 'string',
                 description: "API namespace name (e.g., 'UserAPI')",

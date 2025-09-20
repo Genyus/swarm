@@ -17,6 +17,7 @@ export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'ALL';
 export type OperationType = 'query' | 'action';
 export type ActionOperation = 'create' | 'update' | 'delete';
 export type QueryOperation = 'get' | 'getAll';
+export type CrudOperation = ActionOperation | QueryOperation;
 
 export interface SwarmGenerateApiParams extends SwarmCliParams {
   feature: string;
@@ -35,9 +36,9 @@ export interface SwarmGenerateFeatureParams extends SwarmCliParams {
 export interface SwarmGenerateCrudParams extends SwarmCliParams {
   feature: string;
   dataType: string;
-  public?: string[];
-  override?: string[];
-  exclude?: string[];
+  public?: CrudOperation[];
+  override?: CrudOperation[];
+  exclude?: CrudOperation[];
   force?: boolean;
 }
 
@@ -143,6 +144,13 @@ export const HttpMethodSchema = z.enum(['GET', 'POST', 'PUT', 'DELETE', 'ALL']);
 export const OperationTypeSchema = z.enum(['query', 'action']);
 export const ActionOperationSchema = z.enum(['create', 'update', 'delete']);
 export const QueryOperationSchema = z.enum(['get', 'getAll']);
+export const CrudOperationSchema = z.enum([
+  'create',
+  'update',
+  'delete',
+  'get',
+  'getAll',
+]);
 
 export const SwarmCliParamsSchema = z.object({
   projectPath: z.string().optional(),
@@ -166,9 +174,9 @@ export const SwarmGenerateFeatureParamsSchema = SwarmCliParamsSchema.extend({
 export const SwarmGenerateCrudParamsSchema = SwarmCliParamsSchema.extend({
   feature: z.string().min(1),
   dataType: z.string().min(1),
-  public: z.array(z.string()).optional(),
-  override: z.array(z.string()).optional(),
-  exclude: z.array(z.string()).optional(),
+  public: z.array(CrudOperationSchema).optional(),
+  override: z.array(CrudOperationSchema).optional(),
+  exclude: z.array(CrudOperationSchema).optional(),
   force: z.boolean().optional(),
 });
 

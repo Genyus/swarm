@@ -1,7 +1,7 @@
 import { realLogger } from '@ingenyus/swarm-cli/dist/utils/logger.js';
-import fs from 'node:fs';
-import type { Dirent, Stats } from 'node:fs';
 import type { Buffer as NodeBuffer } from 'node:buffer';
+import type { Dirent, Stats } from 'node:fs';
+import fs from 'node:fs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 // Mock the SwarmGeneratorsService before importing SwarmTools
@@ -149,7 +149,7 @@ describe('Swarm Tools', () => {
       const params = {
         feature: 'catalog',
         dataType: 'Product',
-        public: ['create', 'read'],
+        public: ['create', 'get'],
         exclude: ['delete'],
         force: true,
       };

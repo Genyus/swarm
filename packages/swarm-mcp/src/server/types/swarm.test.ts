@@ -193,7 +193,7 @@ describe('Swarm Types', () => {
         const validParams = {
           feature: 'user-management',
           dataType: 'User',
-          public: ['create', 'read'],
+          public: ['create', 'get'],
           override: ['update'],
           exclude: ['delete'],
           force: true,
