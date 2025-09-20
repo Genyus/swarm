@@ -1,0 +1,77 @@
+{
+  "name": "@ingenyus/swarm-core",
+  "type": "module",
+  "version": "0.1.0",
+  "description": "Core Swarm logic - Shared generators, templates, utilities, and types for Wasp development",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "rm -rf dist && tsup && cp -r src/templates dist/",
+    "build:watch": "tsc --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "eslint src --ext .ts",
+    "lint:fix": "eslint src --ext .ts --fix",
+    "format": "prettier --write src",
+    "format:check": "prettier --check src",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "pnpm run typecheck && pnpm run lint && pnpm run build && pnpm test"
+  },
+  "keywords": [
+    "wasp",
+    "codegen",
+    "generators",
+    "templates",
+    "typescript",
+    "fullstack",
+    "react",
+    "nodejs",
+    "prisma",
+    "boilerplate",
+    "shared-library"
+  ],
+  "author": "Gary McPherson",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/genyus/swarm.git",
+    "directory": "packages/swarm"
+  },
+  "homepage": "https://github.com/genyus/swarm/tree/main/packages/swarm#readme",
+  "bugs": {
+    "url": "https://github.com/genyus/swarm/issues"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.28.0",
+    "@prisma/client": "5.19.1",
+    "@types/glob": "^8.1.0",
+    "@types/node": "^22.15.29",
+    "@types/signale": "^1.4.7",
+    "@typescript-eslint/eslint-plugin": "^8.33.1",
+    "@typescript-eslint/parser": "^8.33.1",
+    "eslint": "^9.28.0",
+    "eslint-config-prettier": "^10.1.5",
+    "eslint-plugin-prettier": "^5.4.1",
+    "glob": "^11.0.3",
+    "prettier": "^3.5.3",
+    "prisma": "^5.19.1",
+    "tsup": "^8.5.0",
+    "typescript": "^5.0.0",
+    "vitest": "^3.1.4"
+  },
+  "dependencies": {
+    "chalk": "^5.0.0",
+    "signale": "^1.4.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
