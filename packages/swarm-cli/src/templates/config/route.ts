@@ -5,7 +5,7 @@
           authRequired: {{auth}},
           component: {
             import: "{{componentName}}",
-            from: "@src/features/{{featureDir}}/client/pages/{{componentName}}",
+            from: "{{importPath}}",
           },
         }),
       }

@@ -19,8 +19,10 @@ vi.mock('../utils/io', () => ({
 }));
 
 vi.mock('../utils/templates', () => ({
-  getFileTemplatePath: vi.fn().mockReturnValue('/mock/template/path'),
-  processTemplate: vi.fn().mockReturnValue('processed template content'),
+  TemplateUtility: vi.fn().mockImplementation(() => ({
+    getFileTemplatePath: vi.fn().mockReturnValue('/mock/template/path'),
+    processTemplate: vi.fn().mockReturnValue('processed template content'),
+  })),
 }));
 
 vi.mock('../utils/prisma', () => ({
@@ -50,5 +52,76 @@ describe('CrudGenerator', () => {
     await gen.generate('foo', { dataType: 'User', force: true });
     expect(fs.writeFileSync).toHaveBeenCalled();
     expect(featureGen.updateFeatureConfig).toHaveBeenCalled();
+  });
+
+  it('should apply public, override, and exclude flags correctly', async () => {
+    fs.existsSync = vi.fn((p) => !p.includes('notfound'));
+    fs.readFileSync = vi.fn(() => 'template');
+    fs.writeFileSync = vi.fn();
+
+    const mockProcessTemplate = vi.fn().mockReturnValue('processed template');
+    const mockTemplateUtility = {
+      getFileTemplatePath: vi.fn().mockReturnValue('/mock/template/path'),
+      processTemplate: mockProcessTemplate,
+    };
+
+    (
+      gen as unknown as { templateUtility: typeof mockTemplateUtility }
+    ).templateUtility = mockTemplateUtility;
+    await gen.generate('foo', {
+      dataType: 'User',
+      force: true,
+      public: ['get', 'getAll'],
+      override: ['create'],
+      exclude: ['delete'],
+    });
+
+    expect(mockProcessTemplate).toHaveBeenCalledWith('template', {
+      crudName: 'Users',
+      dataType: 'User',
+      operations: expect.any(String),
+    });
+
+    const callArgs = mockProcessTemplate.mock.calls[0][1];
+    const operationsObj = JSON.parse(callArgs.operations);
+
+    expect(operationsObj).toHaveProperty('get');
+    expect(operationsObj).toHaveProperty('getAll');
+    expect(operationsObj).toHaveProperty('create');
+    expect(operationsObj).toHaveProperty('update', {});
+    expect(operationsObj).not.toHaveProperty('delete');
+    expect(operationsObj.get).toEqual({ isPublic: true });
+    expect(operationsObj.getAll).toEqual({ isPublic: true });
+    expect(operationsObj.create).toHaveProperty('overrideFn');
+    expect(operationsObj.create.overrideFn).toContain('import { createUser }');
+  });
+
+  it('should handle default flags correctly', async () => {
+    fs.existsSync = vi.fn((p) => !p.includes('notfound'));
+    fs.readFileSync = vi.fn(() => 'template');
+    fs.writeFileSync = vi.fn();
+
+    const mockProcessTemplate = vi.fn().mockReturnValue('processed template');
+    const mockTemplateUtility = {
+      getFileTemplatePath: vi.fn().mockReturnValue('/mock/template/path'),
+      processTemplate: mockProcessTemplate,
+    };
+
+    (
+      gen as unknown as { templateUtility: typeof mockTemplateUtility }
+    ).templateUtility = mockTemplateUtility;
+    await gen.generate('foo', {
+      dataType: 'User',
+      force: true,
+    });
+
+    const callArgs = mockProcessTemplate.mock.calls[0][1];
+    const operationsObj = JSON.parse(callArgs.operations);
+
+    expect(operationsObj).toHaveProperty('get', {});
+    expect(operationsObj).toHaveProperty('getAll', {});
+    expect(operationsObj).toHaveProperty('create', {});
+    expect(operationsObj).toHaveProperty('update', {});
+    expect(operationsObj).toHaveProperty('delete', {});
   });
 });

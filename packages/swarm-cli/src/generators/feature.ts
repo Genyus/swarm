@@ -152,6 +152,62 @@ export class FeatureGenerator implements IFeatureGenerator {
   }
 
   /**
+   * Removes an existing definition from the content by finding the opening line
+   * and matching closing brace with the same indentation.
+   * @param content - The file content
+   * @param definition - The new definition to find the opening line from
+   * @returns The content with the existing definition removed
+   */
+  private removeExistingDefinition(
+    content: string,
+    definition: string
+  ): string {
+    const lines = definition.split('\n');
+    const firstNonEmptyLine = lines.find((line) => line.trim() !== '');
+
+    if (!firstNonEmptyLine) {
+      return content;
+    }
+
+    const openingLineIndex = content
+      .split('\n')
+      .findIndex((line) => line.trim() === firstNonEmptyLine.trim());
+
+    if (openingLineIndex === -1) {
+      return content;
+    }
+
+    const contentLines = content.split('\n');
+    const openingLine = contentLines[openingLineIndex];
+    const leadingSpaces = openingLine.match(/^(\s*)/)?.[1] || '';
+
+    let closingLineIndex = -1;
+    for (let i = openingLineIndex + 1; i < contentLines.length; i++) {
+      const line = contentLines[i];
+      const trimmedLine = line.trim();
+
+      if (
+        line.startsWith(leadingSpaces) &&
+        (trimmedLine === '}' || trimmedLine === '},')
+      ) {
+        closingLineIndex = i;
+        break;
+      }
+    }
+
+    if (closingLineIndex === -1) {
+      return content;
+    }
+
+    const newContentLines = [
+      ...contentLines.slice(0, openingLineIndex),
+      ...contentLines.slice(closingLineIndex + 1),
+    ];
+
+    return newContentLines.join('\n');
+  }
+
+  /**
    * Updates or creates a feature configuration file with new definitions.
    * @param featurePath - The path of the feature
    * @param type - The type of the configuration
@@ -305,6 +361,10 @@ export class FeatureGenerator implements IFeatureGenerator {
       default:
         handleFatalError(`Unknown configuration type: ${type}`);
     }
+
+    // Remove existing definition before adding new one
+    content = this.removeExistingDefinition(content, definition);
+
     const configBlock = `\n    ${configSection}: {${definition},\n    },`;
 
     if (content.includes('return {};')) {

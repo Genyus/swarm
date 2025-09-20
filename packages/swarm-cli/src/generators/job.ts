@@ -53,11 +53,12 @@ export class JobGenerator implements NodeGenerator<JobFlags> {
         imports += `import { ${entitiesArray.join(', ')} } from 'wasp/entities';\n`;
       }
 
-      const { targetDir: jobsDir, importPath } = getFeatureTargetDir(
+      const { targetDirectory: jobsDir, importDirectory } = getFeatureTargetDir(
         this.fs,
         featurePath,
         'job'
       );
+      const importPath = path.join(importDirectory, jobWorkerFile);
       ensureDirectoryExists(this.fs, jobsDir);
       const workerFilePath = `${jobsDir}/${jobWorkerFile}.ts`;
       const workerExists = this.fs.existsSync(workerFilePath);

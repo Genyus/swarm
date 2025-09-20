@@ -55,12 +55,18 @@ describe('Status Command', () => {
       await command.parseAsync(['status']);
 
       expect(mockServerManager.getStatus).toHaveBeenCalledOnce();
-      expect((logger as any).info).toHaveBeenCalledWith('🔄 Swarm MCP Server Status');
-      expect( (logger as any).info).toHaveBeenCalledWith('========================');
+      expect((logger as any).info).toHaveBeenCalledWith(
+        '🔄 Swarm MCP Server Status'
+      );
+      expect((logger as any).info).toHaveBeenCalledWith(
+        '========================'
+      );
       expect((logger as any).info).toHaveBeenCalledWith('✅ Status: Running');
       expect((logger as any).info).toHaveBeenCalledWith('🆔 PID: 12345');
       expect((logger as any).info).toHaveBeenCalledWith('⏱️  Uptime: 1h 1m 1s');
-      expect((logger as any).info).toHaveBeenCalledWith('========================');
+      expect((logger as any).info).toHaveBeenCalledWith(
+        '========================'
+      );
     });
 
     it('should execute status action when not running', async () => {
@@ -76,10 +82,18 @@ describe('Status Command', () => {
       await command.parseAsync(['status']);
 
       expect(mockServerManager.getStatus).toHaveBeenCalledOnce();
-      expect((logger as any).info).toHaveBeenCalledWith('🔄 Swarm MCP Server Status');
-      expect((logger as any).info).toHaveBeenCalledWith('========================');
-      expect((logger as any).info).toHaveBeenCalledWith('❌ Status: Not running');
-      expect((logger as any).info).toHaveBeenCalledWith('========================');
+      expect((logger as any).info).toHaveBeenCalledWith(
+        '🔄 Swarm MCP Server Status'
+      );
+      expect((logger as any).info).toHaveBeenCalledWith(
+        '========================'
+      );
+      expect((logger as any).info).toHaveBeenCalledWith(
+        '❌ Status: Not running'
+      );
+      expect((logger as any).info).toHaveBeenCalledWith(
+        '========================'
+      );
     });
   });
 });

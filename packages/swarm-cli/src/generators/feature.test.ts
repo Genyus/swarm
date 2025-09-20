@@ -21,8 +21,16 @@ vi.mock('../utils/strings', () => ({
 }));
 
 vi.mock('../utils/templates', () => ({
-  getConfigTemplatePath: vi.fn().mockReturnValue('/mock/template/path'),
+  TemplateUtility: vi.fn().mockImplementation(() => ({
+    processTemplate: vi.fn().mockReturnValue('processed template content'),
+    getFileTemplatePath: vi.fn().mockReturnValue('/mock/template/path'),
+    getConfigTemplatePath: vi
+      .fn()
+      .mockReturnValue('/mock/config/template/path'),
+  })),
+  getFileTemplatePath: vi.fn().mockReturnValue('/mock/template/path'),
   processTemplate: vi.fn().mockReturnValue('processed template content'),
+  getConfigTemplatePath: vi.fn().mockReturnValue('/mock/template/path'),
 }));
 
 describe('FeatureGenerator', () => {

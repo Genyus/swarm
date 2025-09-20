@@ -62,15 +62,15 @@ describe('filesystem utils', () => {
     expect(filesystem.getFeatureImportPath('foo/bar')).toBe('foo/bar');
   });
 
-  it('getFeatureTargetDir returns correct targetDir and importPath', () => {
+  it('getFeatureTargetDir returns correct targetDir and importDirectory', () => {
     fs.existsSync = vi.fn(() => true);
-    const { targetDir, importPath } = filesystem.getFeatureTargetDir(
+    const { targetDirectory, importDirectory } = filesystem.getFeatureTargetDir(
       fs,
       'foo',
       'page'
     );
-    expect(targetDir).toMatch(/features\/foo\/_core/);
-    expect(importPath).toContain('@src/features/foo/_core');
+    expect(targetDirectory).toMatch(/features\/foo\/_core/);
+    expect(importDirectory).toContain('@src/features/foo/_core');
   });
 
   it('getRouteNameFromPath returns PascalCase Page', () => {

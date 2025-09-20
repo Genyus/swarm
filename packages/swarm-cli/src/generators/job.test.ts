@@ -21,6 +21,13 @@ vi.mock('../utils/io', () => ({
 }));
 
 vi.mock('../utils/templates', () => ({
+  TemplateUtility: vi.fn().mockImplementation(() => ({
+    processTemplate: vi.fn().mockReturnValue('processed template content'),
+    getFileTemplatePath: vi.fn().mockReturnValue('/mock/template/path'),
+    getConfigTemplatePath: vi
+      .fn()
+      .mockReturnValue('/mock/config/template/path'),
+  })),
   getFileTemplatePath: vi.fn().mockReturnValue('/mock/template/path'),
   processTemplate: vi.fn().mockReturnValue('processed template content'),
 }));

@@ -1,3 +1,4 @@
+import path from 'path';
 import { ApiNamespaceFlags } from '../types';
 import { IFileSystem } from '../types/filesystem';
 import { IFeatureGenerator, NodeGenerator } from '../types/generator';
@@ -31,11 +32,9 @@ export class ApiNamespaceGenerator implements NodeGenerator<ApiNamespaceFlags> {
       }
       const namespaceName = toCamelCase(name);
       const middlewareFnName = `${name}Middleware`;
-      const { targetDir: middlewareDir, importPath } = getFeatureTargetDir(
-        this.fs,
-        featurePath,
-        'middleware'
-      );
+      const { targetDirectory: middlewareDir, importDirectory } =
+        getFeatureTargetDir(this.fs, featurePath, 'middleware');
+      const importPath = path.join(importDirectory, middlewareFnName);
       ensureDirectoryExists(this.fs, middlewareDir);
       const middlewareFile = `${middlewareDir}/${middlewareFnName}.ts`;
       const fileExists = this.fs.existsSync(middlewareFile);
@@ -73,7 +72,7 @@ export class ApiNamespaceGenerator implements NodeGenerator<ApiNamespaceFlags> {
         this.featureGenerator.updateFeatureConfig(featurePath, 'apiNamespace', {
           namespaceName,
           middlewareFnName,
-          middlewareImportPath: importPath,
+          importPath,
           path: apiPath,
         });
         this.logger.success(

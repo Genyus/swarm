@@ -4,7 +4,7 @@
         perform: {
           fn: {
             import: "{{jobWorkerName}}",
-            from: "{{importPath}}/{{jobWorkerFile}}",
+            from: "{{importPath}}",
           }
         },
         schedule: {

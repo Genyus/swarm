@@ -1,4 +1,11 @@
-import { OPERATIONS, OperationConfigEntry, OperationFlags } from '../types';
+import path from 'path';
+import {
+  ActionOperation,
+  OPERATIONS,
+  OperationConfigEntry,
+  OperationFlags,
+  QueryOperation,
+} from '../types';
 import { IFileSystem } from '../types/filesystem';
 import { IFeatureGenerator, NodeGenerator } from '../types/generator';
 import { Logger } from '../types/logger';
@@ -44,11 +51,9 @@ export class OperationGenerator implements NodeGenerator<OperationFlags> {
           flags.auth,
           entities
         );
-      const { targetDir: operationsDir, importPath } = getFeatureTargetDir(
-        this.fs,
-        featurePath,
-        operationType
-      );
+      const { targetDirectory: operationsDir, importDirectory } =
+        getFeatureTargetDir(this.fs, featurePath, operationType);
+      const importPath = path.join(importDirectory, operationName);
       ensureDirectoryExists(this.fs, operationsDir);
       const operationFile = `${operationsDir}/${operationName}.ts`;
       const fileExists = this.fs.existsSync(operationFile);
@@ -88,7 +93,6 @@ export class OperationGenerator implements NodeGenerator<OperationFlags> {
         this.featureGenerator.updateFeatureConfig(featurePath, operationType, {
           ...configEntry,
           importPath,
-          entities,
         });
         this.logger.success(
           `${
@@ -106,7 +110,10 @@ export class OperationGenerator implements NodeGenerator<OperationFlags> {
   /**
    * Gets the operation name based on operation type and model name.
    */
-  getOperationName(operation: string, modelName: string): string {
+  getOperationName(
+    operation: ActionOperation | QueryOperation,
+    modelName: string
+  ): string {
     switch (operation) {
       case OPERATIONS.GETALL:
         return `getAll${getPlural(modelName)}`;
@@ -142,7 +149,7 @@ export class OperationGenerator implements NodeGenerator<OperationFlags> {
   generateImports(
     model: EntityMetadata,
     modelName: string,
-    operation: string,
+    operation: ActionOperation | QueryOperation,
     isCrudOverride = false,
     crudName: string | null = null
   ): string {
@@ -170,7 +177,9 @@ export class OperationGenerator implements NodeGenerator<OperationFlags> {
   /**
    * Gets the operation type ("query" or "action") for a given operation.
    */
-  getOperationType(operation: string): 'query' | 'action' {
+  getOperationType(
+    operation: ActionOperation | QueryOperation
+  ): 'query' | 'action' {
     return operation === OPERATIONS.GETALL || operation === OPERATIONS.GET
       ? 'query'
       : 'action';
@@ -181,7 +190,7 @@ export class OperationGenerator implements NodeGenerator<OperationFlags> {
    */
   async generateOperationComponents(
     modelName: string,
-    operation: string,
+    operation: ActionOperation | QueryOperation,
     auth = false,
     entities = [modelName]
   ): Promise<{
@@ -214,7 +223,7 @@ export class OperationGenerator implements NodeGenerator<OperationFlags> {
    */
   generateOperationCode(
     model: EntityMetadata,
-    operation: string,
+    operation: ActionOperation | QueryOperation,
     auth = false
   ): string {
     const operationType = this.getOperationType(operation);

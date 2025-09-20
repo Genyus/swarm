@@ -1,4 +1,4 @@
-import { CrudFlags } from '../types';
+import { CrudFlags, CrudOperation } from '../types';
 import { IFileSystem } from '../types/filesystem';
 import { IFeatureGenerator, NodeGenerator } from '../types/generator';
 import { Logger } from '../types/logger';
@@ -9,7 +9,7 @@ import {
 import { getPlural } from '../utils/strings';
 import { TemplateUtility } from '../utils/templates';
 
-const CRUD_OPERATIONS = [
+const CRUD_OPERATIONS: readonly CrudOperation[] = [
   'get',
   'getAll',
   'create',
@@ -28,16 +28,51 @@ export class CrudGenerator implements NodeGenerator<CrudFlags> {
     this.templateUtility = new TemplateUtility(fs);
   }
 
+  private buildOperations(flags: CrudFlags): Record<string, unknown> {
+    const {
+      public: publicOps = [],
+      override: overrideOps = [],
+      exclude: excludeOps = [],
+      dataType,
+    } = flags;
+
+    return CRUD_OPERATIONS.reduce(
+      (acc, operation) => {
+        if (excludeOps.includes(operation)) {
+          return acc;
+        }
+
+        const operationConfig: Record<string, unknown> = {};
+
+        if (publicOps.includes(operation)) {
+          operationConfig.isPublic = true;
+        }
+
+        if (overrideOps.includes(operation)) {
+          const operationDataType =
+            operation === 'getAll' ? getPlural(dataType) : dataType;
+
+          operationConfig.overrideFn = `import { ${operation}${operationDataType} } from '@src/operations/${operation}.js'`;
+        }
+
+        acc[operation] = operationConfig;
+
+        return acc;
+      },
+      {} as Record<string, unknown>
+    );
+  }
+
   async generate(featurePath: string, flags: CrudFlags): Promise<void> {
     try {
       const { dataType, force } = flags;
       const pluralName = getPlural(dataType);
       const crudName = pluralName;
-      const { targetDir: crudsDir, importPath } = getFeatureTargetDir(
+      const crudsDir = getFeatureTargetDir(
         this.fs,
         featurePath,
         'crud'
-      );
+      ).targetDirectory;
       ensureDirectoryExists(this.fs, crudsDir);
       const crudFile = `${crudsDir}/${crudName}.ts`;
       const fileExists = this.fs.existsSync(crudFile);
@@ -53,10 +88,11 @@ export class CrudGenerator implements NodeGenerator<CrudFlags> {
         return;
       }
       const template = this.fs.readFileSync(templatePath, 'utf8');
+      const operations = this.buildOperations(flags);
       const crudCode = this.templateUtility.processTemplate(template, {
         crudName,
         dataType,
-        operations: JSON.stringify(CRUD_OPERATIONS, null, 2),
+        operations: JSON.stringify(operations, null, 2),
       });
       this.fs.writeFileSync(crudFile, crudCode);
       this.logger.success(
@@ -77,8 +113,7 @@ export class CrudGenerator implements NodeGenerator<CrudFlags> {
       this.featureGenerator.updateFeatureConfig(featurePath, 'crud', {
         crudName,
         dataType,
-        operations: CRUD_OPERATIONS,
-        importPath,
+        operations,
       });
       this.logger.success(
         `${configExists ? 'Updated' : 'Added'} CRUD config in: ${configPath}`

@@ -13,8 +13,8 @@ import { OperationGenerator } from './operation';
 // Mock the filesystem utils
 vi.mock('../utils/filesystem', () => ({
   getFeatureTargetDir: vi.fn().mockReturnValue({
-    targetDir: 'features/test/server/queries',
-    importPath: '@src/features/test/_core/server/queries',
+    targetDirectory: 'features/test/server/queries',
+    importDirectory: '@src/features/test/_core/server/queries',
   }),
   ensureDirectoryExists: vi.fn(),
   getConfigDir: vi.fn().mockReturnValue('config'),
@@ -44,8 +44,15 @@ vi.mock('../utils/prisma', () => ({
 
 // Mock template utils
 vi.mock('../utils/templates', () => ({
-  getFileTemplatePath: vi.fn().mockReturnValue('template/path'),
-  processTemplate: vi.fn().mockReturnValue('processed template'),
+  TemplateUtility: vi.fn().mockImplementation(() => ({
+    processTemplate: vi.fn().mockReturnValue('processed template content'),
+    getFileTemplatePath: vi.fn().mockReturnValue('/mock/template/path'),
+    getConfigTemplatePath: vi
+      .fn()
+      .mockReturnValue('/mock/config/template/path'),
+  })),
+  getFileTemplatePath: vi.fn().mockReturnValue('/mock/template/path'),
+  processTemplate: vi.fn().mockReturnValue('processed template content'),
 }));
 
 describe('OperationGenerator', () => {

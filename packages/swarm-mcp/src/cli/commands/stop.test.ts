@@ -55,8 +55,12 @@ describe('Stop Command', () => {
 
       expect(mockServerManager.isServerRunning).toHaveBeenCalledOnce();
       expect(mockServerManager.stop).toHaveBeenCalledOnce();
-      expect((logger as any).info).toHaveBeenCalledWith('Stopping Swarm MCP server...');
-      expect((logger as any).info).toHaveBeenCalledWith('✅ Server stopped successfully');
+      expect((logger as any).info).toHaveBeenCalledWith(
+        'Stopping Swarm MCP server...'
+      );
+      expect((logger as any).info).toHaveBeenCalledWith(
+        '✅ Server stopped successfully'
+      );
     });
 
     it('should execute stop action when not running', async () => {
@@ -68,7 +72,9 @@ describe('Stop Command', () => {
 
       expect(mockServerManager.isServerRunning).toHaveBeenCalledOnce();
       expect(mockServerManager.stop).not.toHaveBeenCalled();
-      expect((logger as any).info).toHaveBeenCalledWith('ℹ️  Server is not currently running');
+      expect((logger as any).info).toHaveBeenCalledWith(
+        'ℹ️  Server is not currently running'
+      );
     });
 
     it('should handle server stop failure', async () => {
@@ -84,8 +90,12 @@ describe('Stop Command', () => {
 
       expect(mockServerManager.isServerRunning).toHaveBeenCalledOnce();
       expect(mockServerManager.stop).toHaveBeenCalledOnce();
-      expect((logger as any).info).toHaveBeenCalledWith('Stopping Swarm MCP server...');
-      expect((logger as any).error).toHaveBeenCalledWith('❌ Failed to stop server: Stop failed');
+      expect((logger as any).info).toHaveBeenCalledWith(
+        'Stopping Swarm MCP server...'
+      );
+      expect((logger as any).error).toHaveBeenCalledWith(
+        '❌ Failed to stop server: Stop failed'
+      );
       expect(mockProcessExit).toHaveBeenCalledWith(1);
     });
   });

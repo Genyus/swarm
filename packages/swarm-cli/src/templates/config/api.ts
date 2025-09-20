@@ -2,7 +2,7 @@
       {{apiName}}: {
         fn: {
           import: "{{apiName}}",
-          from: "@src/features/{{featureDir}}/server/api/{{apiFile}}",
+          from: "{{importPath}}",
         },
         entities: [{{entities}}],
         httpRoute: { method: "{{method}}", route: "{{route}}" },

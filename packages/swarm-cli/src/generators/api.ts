@@ -1,3 +1,4 @@
+import path from 'path';
 import { ApiFlags } from '../types';
 import { IFileSystem } from '../types/filesystem';
 import { IFeatureGenerator, NodeGenerator } from '../types/generator';
@@ -38,11 +39,12 @@ export class ApiGenerator implements NodeGenerator<ApiFlags> {
         auth = false,
         force = false,
       } = flags;
-      const { targetDir: apiDir, importPath } = getFeatureTargetDir(
+      const { targetDirectory: apiDir, importDirectory } = getFeatureTargetDir(
         this.fs,
         featurePath,
         'api'
       );
+      const importPath = path.join(importDirectory, apiFile);
       ensureDirectoryExists(this.fs, apiDir);
       const handlerFile = `${apiDir}/${apiFile}`;
       const fileExists = this.fs.existsSync(handlerFile);
@@ -52,8 +54,11 @@ export class ApiGenerator implements NodeGenerator<ApiFlags> {
       } else {
         const templatePath = this.templateUtility.getFileTemplatePath('api');
         if (!this.fs.existsSync(templatePath)) {
-          this.logger.error('API endpoint template not found');
-          return;
+          const message = 'API endpoint template not found';
+
+          this.logger.error(message);
+
+          throw new Error(message);
         }
         const template = this.fs.readFileSync(templatePath, 'utf8');
         const authCheck = auth
@@ -90,8 +95,11 @@ export class ApiGenerator implements NodeGenerator<ApiFlags> {
       }
       const configPath = `config/${featurePath.split('/')[0]}.wasp.ts`;
       if (!this.fs.existsSync(configPath)) {
-        this.logger.error(`Feature config file not found: ${configPath}`);
-        return;
+        const message = `Feature config file not found: ${configPath}`;
+
+        this.logger.error(message);
+
+        throw new Error(message);
       }
       const configContent = this.fs.readFileSync(configPath, 'utf8');
       const configExists = configContent.includes(`${apiName}: {`);

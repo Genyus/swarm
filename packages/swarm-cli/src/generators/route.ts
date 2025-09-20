@@ -35,12 +35,10 @@ export class RouteGenerator implements NodeGenerator<RouteFlags> {
           : componentName
       }Route`;
       // Get the appropriate directory for the page component
-      const { targetDir: pagesDir, importPath } = getFeatureTargetDir(
-        this.fs,
-        featurePath,
-        'page'
-      );
+      const { targetDirectory: pagesDir, importDirectory } =
+        getFeatureTargetDir(this.fs, featurePath, 'page');
       ensureDirectoryExists(this.fs, pagesDir);
+      const importPath = path.join(importDirectory, componentName);
       const pageFile = `${pagesDir}/${componentName}.tsx`;
       const fileExists = this.fs.existsSync(pageFile);
       if (fileExists && !force) {

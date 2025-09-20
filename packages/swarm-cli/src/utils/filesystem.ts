@@ -142,16 +142,20 @@ export function getFeatureTargetDir(
   fileSystem: IFileSystem,
   featurePath: string,
   type: string
-): { targetDir: string; importPath: string } {
+): { targetDirectory: string; importDirectory: string } {
   const segments = featurePath.split('/').filter(Boolean);
   const isTopLevel = segments.length === 1;
   const featureDir = getFeatureDir(fileSystem, featurePath);
   const baseDir = isTopLevel ? '_core' : '';
-  const targetDir = path.join(featureDir, baseDir, TYPE_DIRECTORIES[type]);
-  const importPath = `@src/features/${segments[0]}/${
-    isTopLevel ? '_core' : segments.slice(1).join('/')
-  }/${TYPE_DIRECTORIES[type]}`;
-  return { targetDir, importPath };
+  const targetDirectory = path.join(
+    featureDir,
+    baseDir,
+    TYPE_DIRECTORIES[type]
+  );
+  const subDir = isTopLevel ? '_core' : segments.slice(1).join('/');
+  const importDirectory = `@src/features/${segments[0]}/${subDir}/${TYPE_DIRECTORIES[type]}`;
+
+  return { targetDirectory, importDirectory };
 }
 
 /**

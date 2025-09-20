@@ -32,11 +32,11 @@ export interface CommonGeneratorFlags {
   /** Schedule arguments (for jobs) */
   scheduleArgs?: string;
   /** Public operations (for CRUD) */
-  public?: string[];
+  public?: CrudOperation[];
   /** Override operations (for CRUD) */
-  override?: string[];
+  override?: CrudOperation[];
   /** Exclude operations (for CRUD) */
-  exclude?: string[];
+  exclude?: CrudOperation[];
 }
 
 /**
@@ -209,6 +209,11 @@ export const OPERATIONS = {
  * Type for valid operation values.
  */
 export type Operation = (typeof OPERATIONS)[keyof typeof OPERATIONS];
+
+/**
+ * Type for valid CRUD operation values.
+ */
+export type CrudOperation = 'create' | 'get' | 'getAll' | 'update' | 'delete';
 
 /**
  * Map of valid action operations.
