@@ -1,7 +1,7 @@
 import type { IFileSystem } from '@ingenyus/swarm-core/dist/types/filesystem.js';
 import type { Logger } from '@ingenyus/swarm-core/dist/types/logger.js';
 import * as path from 'path';
-import { SwarmGeneratorsService } from '../services/swarm-generators.service.js';
+import { GeneratorService } from '../types/generator-service.js';
 import {
   GenerationResult,
   SwarmGenerateApiNamespaceParamsSchema,
@@ -15,13 +15,13 @@ import {
 import { ErrorFactory, createErrorContext } from '../utils/errors.js';
 
 export class SwarmTools {
-  private generatorsService: SwarmGeneratorsService;
+  private generatorService: GeneratorService;
 
   constructor(
     private logger: Logger,
     private fileSystem: IFileSystem
   ) {
-    this.generatorsService = SwarmGeneratorsService.create(
+    this.generatorService = GeneratorService.create(
       this.logger,
       this.fileSystem
     );
@@ -129,7 +129,7 @@ export class SwarmTools {
             force: validParams.force || false,
           };
 
-          await this.generatorsService.generateApi(
+          await this.generatorService.generateApi(
             validParams.feature,
             apiFlags
           );
@@ -173,7 +173,7 @@ export class SwarmTools {
         projectRoot,
         () => {
           const featurePath = validParams.name;
-          this.generatorsService.generateFeature(featurePath);
+          this.generatorService.generateFeature(featurePath);
           return Promise.resolve();
         }
       );
@@ -222,7 +222,7 @@ export class SwarmTools {
             force: validParams.force || false,
           };
 
-          await this.generatorsService.generateCrud(
+          await this.generatorService.generateCrud(
             validParams.feature,
             crudFlags
           );
@@ -272,7 +272,7 @@ export class SwarmTools {
             force: validParams.force || false,
           };
 
-          await this.generatorsService.generateRoute(
+          await this.generatorService.generateRoute(
             validParams.feature,
             routeFlags
           );
@@ -323,7 +323,7 @@ export class SwarmTools {
             force: validParams.force || false,
           };
 
-          await this.generatorsService.generateJob(
+          await this.generatorService.generateJob(
             validParams.feature,
             jobFlags
           );
@@ -374,7 +374,7 @@ export class SwarmTools {
             force: validParams.force || false,
           };
 
-          await this.generatorsService.generateOperation(
+          await this.generatorService.generateOperation(
             validParams.feature,
             operationFlags
           );
@@ -423,7 +423,7 @@ export class SwarmTools {
             force: validParams.force || false,
           };
 
-          await this.generatorsService.generateApiNamespace(
+          await this.generatorService.generateApiNamespace(
             validParams.feature,
             apiNamespaceFlags
           );

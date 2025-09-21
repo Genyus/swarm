@@ -17,7 +17,7 @@ import type {
   RouteFlags,
 } from '@ingenyus/swarm-core/dist/types/index.js';
 
-export class SwarmGeneratorsService {
+export class GeneratorService {
   private featureGenerator: FeatureGenerator;
   private apiGenerator?: ApiGenerator;
   private apiNamespaceGenerator?: ApiNamespaceGenerator;
@@ -36,8 +36,8 @@ export class SwarmGeneratorsService {
   static create(
     logger: Logger,
     fileSystem: IFileSystem
-  ): SwarmGeneratorsService {
-    return new SwarmGeneratorsService(logger, fileSystem);
+  ): GeneratorService {
+    return new GeneratorService(logger, fileSystem);
   }
 
   private getApiGenerator(): ApiGenerator {
