@@ -1,7 +1,10 @@
+import type {
+  IFeatureGenerator,
+  IFileSystem,
+  Logger,
+} from '@ingenyus/swarm-core';
+import { Stats } from 'fs';
 import { vi } from 'vitest';
-import type { IFileSystem } from '../src/types/filesystem';
-import type { IFeatureGenerator } from '../src/types/generator';
-import type { Logger } from '../src/types/logger';
 
 /**
  * Creates a mock filesystem implementation for testing.
@@ -16,6 +19,7 @@ export function createMockFS(): IFileSystem {
     copyFileSync: vi.fn(),
     mkdirSync: vi.fn(),
     readdirSync: vi.fn(() => []),
+    statSync: vi.fn(() => ({}) as Stats),
   };
 }
 
