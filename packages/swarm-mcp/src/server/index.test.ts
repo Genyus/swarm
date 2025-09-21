@@ -92,7 +92,6 @@ describe('SwarmMCPServer', () => {
       const status = server.getStatus();
       if (!status.isRunning) {
         // Simulate the running state for this test
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
         (server as any).state.isRunning = true;
       }
 

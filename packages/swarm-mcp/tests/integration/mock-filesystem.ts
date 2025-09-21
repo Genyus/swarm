@@ -97,18 +97,11 @@ export class MockFileSystem {
     }
   }
 
-  async rollback(_rollbackToken: string): Promise<MockFileSystemResult> {
-    try {
-      // Mock rollback - in a real implementation, this would restore the file
-      return {
-        success: true,
-      };
-    } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : String(error),
-      };
-    }
+  async rollback(): Promise<MockFileSystemResult> {
+    // Mock rollback - in a real implementation, this would restore the file
+    return {
+      success: true,
+    };
   }
 }
 
@@ -124,7 +117,7 @@ export function mockFileSystemTools(testEnv: IntegrationTestEnvironment) {
     deleteFile: vi.fn((params: any) =>
       mockFS.deleteFile(params.uri, params.backup)
     ),
-    rollback: vi.fn((params: any) => mockFS.rollback(params.rollbackToken)),
+    rollback: vi.fn(() => mockFS.rollback()),
   }));
 
   return mockFS;

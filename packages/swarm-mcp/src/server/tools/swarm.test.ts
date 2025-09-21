@@ -1,6 +1,6 @@
 import { realLogger } from '@ingenyus/swarm-core/dist/utils/logger.js';
 import type { Buffer as NodeBuffer } from 'node:buffer';
-import type { Dirent, Stats } from 'node:fs';
+import type { Dirent, PathLike, Stats } from 'node:fs';
 import fs from 'node:fs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -30,6 +30,10 @@ vi.mock('node:fs', () => ({
     readdirSync: vi.fn(),
     statSync: vi.fn(),
     existsSync: vi.fn(),
+    mkdirSync: vi.fn(),
+    copyFileSync: vi.fn(),
+    writeFileSync: vi.fn(),
+    readFileSync: vi.fn(),
   },
 }));
 // No need to mock internal logger module: we pass a mocked logger instance directly
@@ -124,6 +128,10 @@ describe('Swarm Tools', () => {
       const params = {
         name: 'user-dashboard', // Use kebab-case as required by Swarm CLI
       };
+
+      mockFs.existsSync.mockImplementation((path: PathLike) => {
+        return path.toString().endsWith('.wasproot');
+      });
 
       mockFs.readdirSync
         .mockReturnValueOnce([]) // before scan

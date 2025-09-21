@@ -7,7 +7,7 @@ import prettier from 'eslint-plugin-prettier';
 export default [
   js.configs.recommended,
   {
-    files: ['src/**/*.ts'],
+    files: ['src/**/*.ts', 'tests/**/*.ts'],
     languageOptions: {
       parser: typescriptParser,
       parserOptions: {
@@ -23,6 +23,15 @@ export default [
         require: 'readonly',
         module: 'readonly',
         BufferEncoding: 'readonly',
+        vi: 'readonly',
+        describe: 'readonly',
+        it: 'readonly',
+        test: 'readonly',
+        expect: 'readonly',
+        beforeEach: 'readonly',
+        afterEach: 'readonly',
+        beforeAll: 'readonly',
+        afterAll: 'readonly',
       },
     },
     plugins: {

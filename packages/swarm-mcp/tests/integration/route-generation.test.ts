@@ -1,17 +1,15 @@
 import { afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
+import { SwarmTools } from '../../src/server/tools/swarm.js';
 import { mockFileSystemTools } from './mock-filesystem.js';
 import {
   mockSwarmFunctions,
   resetSwarmMocks,
-  setSwarmError,
   setupSwarmMocks,
 } from './mock-swarm-functions.js';
 import { IntegrationTestEnvironment } from './setup.js';
 
 // Mock the Swarm functions before importing them
 mockSwarmFunctions();
-
-import { SwarmTools } from '../../src/server/tools/swarm.js';
 
 describe('Route Generation Integration Tests', () => {
   let testEnv: IntegrationTestEnvironment;

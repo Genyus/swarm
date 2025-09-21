@@ -2,15 +2,15 @@ import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
-  cleanupOldBackups,
-  clearRollbackRegistry,
-  createBackup,
-  generateRollbackToken,
-  getRollbackInfo,
-  initializeBackup,
-  listRollbackTokens,
-  performRollback,
-  simulateFileOperation,
+    cleanupOldBackups,
+    clearRollbackRegistry,
+    createBackup,
+    generateRollbackToken,
+    getRollbackInfo,
+    initializeBackup,
+    listRollbackTokens,
+    performRollback,
+    simulateFileOperation,
 } from './backup.js';
 
 vi.mock('node:fs', () => ({
@@ -33,7 +33,7 @@ vi.mock('./logger.js', () => ({
 }));
 
 vi.mock('./validation.js', () => ({
-  createFileOperationError: vi.fn((operation, path, _error) => {
+  createFileOperationError: vi.fn((operation, path) => {
     const mcpError = new Error(`File operation failed: ${operation} ${path}`);
     (mcpError as any).code = -32603;
     return mcpError;

@@ -208,7 +208,7 @@ export default app;`,
       const fullPath = path.join(this._tempProjectDir, relativePath);
 
       await fs.promises.unlink(fullPath);
-    } catch (error) {
+    } catch {
       // Ignore errors if file doesn't exist
     }
   }
