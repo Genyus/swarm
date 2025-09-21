@@ -49,6 +49,10 @@
   "engines": {
     "node": ">=18.0.0"
   },
+  "dependencies": {
+    "chalk": "^5.0.0",
+    "signale": "^1.4.0"
+  },
   "devDependencies": {
     "@eslint/js": "^9.28.0",
     "@prisma/client": "5.19.1",
@@ -66,10 +70,6 @@
     "tsup": "^8.5.0",
     "typescript": "^5.0.0",
     "vitest": "^3.1.4"
-  },
-  "dependencies": {
-    "chalk": "^5.0.0",
-    "signale": "^1.4.0"
   },
   "publishConfig": {
     "access": "public"
