@@ -1,10 +1,12 @@
+import {
+  FeatureGenerator,
+  IFeatureGenerator,
+  IFileSystem,
+  Logger,
+  validateFeaturePath,
+} from '@ingenyus/swarm-core';
 import { Command } from 'commander';
-import { FeatureGenerator } from '../../generators/feature';
-import { FeatureGeneratorCommand } from '../../types';
-import { IFileSystem } from '../../types/filesystem';
-import { IFeatureGenerator } from '../../types/generator';
-import { Logger } from '../../types/logger';
-import { validateFeaturePath } from '../../utils/strings';
+import { FeatureGeneratorCommand } from '../../types/commands';
 import { withPathOption } from '../options';
 
 /**

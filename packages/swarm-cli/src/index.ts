@@ -1,6 +1,6 @@
 #!/usr/bin/env node
+import { handleFatalError } from '@ingenyus/swarm-core';
 import { main } from './cli/index';
-import { handleFatalError } from './utils/errors';
 
 main().catch((err) => {
   handleFatalError('Swarm CLI failed to start', err);
