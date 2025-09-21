@@ -1,11 +1,11 @@
+import {
+  configureLogger,
+  LogFormat,
+  realLogger as logger,
+  LogLevel,
+} from '@ingenyus/swarm-core/dist/utils/logger.js';
 import { Command } from 'commander';
 import { ServerManager } from '../server-manager.js';
-import {
-  realLogger as logger,
-  configureLogger,
-  LogLevel,
-  LogFormat,
-} from '@ingenyus/swarm-cli/dist/utils/logger.js';
 
 interface StopOptions {
   force?: boolean;

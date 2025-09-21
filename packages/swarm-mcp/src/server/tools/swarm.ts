@@ -1,5 +1,5 @@
-import type { IFileSystem } from '@ingenyus/swarm-cli/dist/types/filesystem.js';
-import type { Logger } from '@ingenyus/swarm-cli/dist/types/logger.js';
+import type { IFileSystem } from '@ingenyus/swarm-core/dist/types/filesystem.js';
+import type { Logger } from '@ingenyus/swarm-core/dist/types/logger.js';
 import * as path from 'path';
 import { SwarmGeneratorsService } from '../services/swarm-generators.service.js';
 import {

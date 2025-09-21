@@ -2,7 +2,6 @@ import { afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import {
   mockSwarmFunctions,
   resetSwarmMocks,
-  setSwarmError,
   setupSwarmMocks,
 } from './mock-swarm-functions.js';
 import { IntegrationTestEnvironment } from './setup.js';
@@ -11,9 +10,8 @@ import { IntegrationValidator } from './validator.js';
 // Mock the Swarm functions before importing them
 mockSwarmFunctions();
 
-import { realFileSystem } from '@ingenyus/swarm-cli/dist/utils/filesystem.js';
-import { realLogger } from '@ingenyus/swarm-cli/dist/utils/logger.js';
 import { SwarmTools } from '../../src/server/tools/swarm.js';
+import { mockFileSystemTools } from './mock-filesystem.js';
 
 describe('API Generation Integration', () => {
   let testEnv: IntegrationTestEnvironment;
@@ -21,15 +19,41 @@ describe('API Generation Integration', () => {
   let mockSwarm: any;
   let swarmTools: SwarmTools;
 
-  beforeAll(() => {
-    swarmTools = SwarmTools.create(realLogger, realFileSystem);
+  beforeAll(async () => {
+    mockSwarmFunctions();
+    mockSwarm = await setupSwarmMocks();
+    swarmTools = mockSwarm.mockSwarmToolsInstance;
   });
 
   beforeEach(async () => {
     testEnv = new IntegrationTestEnvironment();
     await testEnv.setup('withEntities');
     validator = new IntegrationValidator(testEnv);
-    mockSwarm = await setupSwarmMocks();
+
+    mockFileSystemTools(testEnv);
+
+    mockSwarm.mockSwarmToolsInstance.generateApi.mockClear();
+    mockSwarm.mockSwarmToolsInstance.generateApiNamespace.mockClear();
+    mockSwarm.mockSwarmToolsInstance.generateApi.mockImplementation(
+      (params: any) => {
+        return Promise.resolve({
+          success: true,
+          output: `API generated successfully for ${params.name}`,
+          generatedFiles: ['src/api/user.ts', 'src/operations/user.ts'],
+          modifiedFiles: [],
+        });
+      }
+    );
+    mockSwarm.mockSwarmToolsInstance.generateApiNamespace.mockImplementation(
+      (params: any) => {
+        return Promise.resolve({
+          success: true,
+          output: `API namespace generated successfully for ${params.name}`,
+          generatedFiles: [`src/api/${params.name}/index.ts`],
+          modifiedFiles: [],
+        });
+      }
+    );
   });
 
   afterEach(async () => {
@@ -48,6 +72,7 @@ describe('API Generation Integration', () => {
 
       for (const method of methods) {
         const result = await swarmTools.generateApi({
+          feature: 'main',
           name: `User${method}API`,
           method,
           route: `/api/users/${method.toLowerCase()}`,
@@ -81,6 +106,7 @@ describe('API Generation Integration', () => {
 
     it('should generate API with entity relationships', async () => {
       const result = await swarmTools.generateApi({
+        feature: 'main',
         name: 'UserPostAPI',
         method: 'POST',
         route: '/api/users/posts',
@@ -102,6 +128,7 @@ describe('API Generation Integration', () => {
           entities: ['User', 'Post'],
           auth: true,
           force: false,
+          feature: 'main',
           projectPath: testEnv.tempProjectDir,
         }
       );
@@ -109,6 +136,7 @@ describe('API Generation Integration', () => {
 
     it('should handle API generation with authentication', async () => {
       const result = await swarmTools.generateApi({
+        feature: 'main',
         name: 'ProtectedUserAPI',
         method: 'GET',
         route: '/api/users/protected',
@@ -128,6 +156,7 @@ describe('API Generation Integration', () => {
           entities: ['User'],
           auth: true,
           force: false,
+          feature: 'main',
           projectPath: testEnv.tempProjectDir,
         }
       );
@@ -135,6 +164,7 @@ describe('API Generation Integration', () => {
 
     it('should handle API generation without authentication', async () => {
       const result = await swarmTools.generateApi({
+        feature: 'main',
         name: 'PublicUserAPI',
         method: 'GET',
         route: '/api/users/public',
@@ -154,6 +184,7 @@ describe('API Generation Integration', () => {
           entities: ['User'],
           auth: false,
           force: false,
+          feature: 'main',
           projectPath: testEnv.tempProjectDir,
         }
       );
@@ -163,6 +194,7 @@ describe('API Generation Integration', () => {
   describe('API Namespace Generation', () => {
     it('should generate API namespace with proper structure', async () => {
       const result = await swarmTools.generateApiNamespace({
+        feature: 'main',
         name: 'v1',
         path: '/api/v1',
         force: false,
@@ -178,12 +210,14 @@ describe('API Generation Integration', () => {
         name: 'v1',
         path: '/api/v1',
         force: false,
+        feature: 'main',
         projectPath: testEnv.tempProjectDir,
       });
     });
 
     it('should handle nested API namespace generation', async () => {
       const result = await swarmTools.generateApiNamespace({
+        feature: 'main',
         name: 'admin',
         path: '/api/v1/admin',
         force: false,
@@ -198,6 +232,7 @@ describe('API Generation Integration', () => {
         name: 'admin',
         path: '/api/v1/admin',
         force: false,
+        feature: 'main',
         projectPath: testEnv.tempProjectDir,
       });
     });
@@ -205,10 +240,14 @@ describe('API Generation Integration', () => {
 
   describe('Error Handling', () => {
     it('should handle API generation errors gracefully', async () => {
-      setSwarmError(mockSwarm, 'generateApi', 'Invalid entity specified');
+      // Set up the error condition for this specific test
+      mockSwarm.mockSwarmToolsInstance.generateApi.mockImplementation(() =>
+        Promise.reject(new Error('Invalid entity specified'))
+      );
 
       await expect(
         swarmTools.generateApi({
+          feature: 'main',
           name: 'InvalidAPI',
           method: 'GET',
           route: '/api/invalid',
@@ -221,14 +260,14 @@ describe('API Generation Integration', () => {
     });
 
     it('should handle namespace generation errors', async () => {
-      setSwarmError(
-        mockSwarm,
-        'generateApiNamespace',
-        'Invalid namespace path'
+      // Set up the error condition for this specific test
+      mockSwarm.mockSwarmToolsInstance.generateApiNamespace.mockImplementation(
+        () => Promise.reject(new Error('Invalid namespace path'))
       );
 
       await expect(
         swarmTools.generateApiNamespace({
+          feature: 'main',
           name: 'invalid',
           path: '/invalid/path',
           force: false,
@@ -243,6 +282,7 @@ describe('API Generation Integration', () => {
       await testEnv.addFile('src/api/existing.ts', '// Existing API content');
 
       const result = await swarmTools.generateApi({
+        feature: 'main',
         name: 'ExistingAPI',
         method: 'GET',
         route: '/api/existing',
@@ -256,6 +296,7 @@ describe('API Generation Integration', () => {
 
       expect(mockSwarm.mockSwarmToolsInstance.generateApi).toHaveBeenCalledWith(
         {
+          feature: 'main',
           name: 'ExistingAPI',
           method: 'GET',
           route: '/api/existing',
@@ -271,6 +312,7 @@ describe('API Generation Integration', () => {
   describe('Project Integration', () => {
     it('should integrate generated APIs with project structure', async () => {
       const result = await swarmTools.generateApi({
+        feature: 'main',
         name: 'IntegrationAPI',
         method: 'ALL',
         route: '/api/integration',
@@ -290,6 +332,7 @@ describe('API Generation Integration', () => {
       const beforeFiles = await testEnv.listFiles('src');
 
       await swarmTools.generateApi({
+        feature: 'main',
         name: 'ConsistencyAPI',
         method: 'GET',
         route: '/api/consistency',

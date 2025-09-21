@@ -11,8 +11,6 @@ import { IntegrationTestEnvironment } from './setup.js';
 // Mock the Swarm functions before importing them
 mockSwarmFunctions();
 
-import { realFileSystem } from '@ingenyus/swarm-cli/dist/utils/filesystem.js';
-import { realLogger } from '@ingenyus/swarm-cli/dist/utils/logger.js';
 import { SwarmTools } from '../../src/server/tools/swarm.js';
 
 describe('Route Generation Integration Tests', () => {
@@ -20,17 +18,30 @@ describe('Route Generation Integration Tests', () => {
   let mockSwarm: any;
   let swarmTools: SwarmTools;
 
-  beforeAll(() => {
-    swarmTools = SwarmTools.create(realLogger, realFileSystem);
+  beforeAll(async () => {
+    mockSwarmFunctions();
+    mockSwarm = await setupSwarmMocks();
+    swarmTools = mockSwarm.mockSwarmToolsInstance;
   });
 
   beforeEach(async () => {
     testEnv = new IntegrationTestEnvironment();
-    mockSwarmFunctions();
-    mockSwarm = await setupSwarmMocks();
+
     mockFileSystemTools(testEnv);
 
     await testEnv.setup('withEntities');
+
+    mockSwarm.mockSwarmToolsInstance.generateRoute.mockClear();
+    mockSwarm.mockSwarmToolsInstance.generateRoute.mockImplementation(
+      (params: any) => {
+        return Promise.resolve({
+          success: true,
+          output: `Route generated successfully for ${params.name}`,
+          generatedFiles: [`src/routes/${params.name.toLowerCase()}.tsx`],
+          modifiedFiles: [],
+        });
+      }
+    );
   });
 
   afterEach(async () => {
@@ -41,6 +52,7 @@ describe('Route Generation Integration Tests', () => {
   describe('Basic Route Generation', () => {
     it('should generate a simple route', async () => {
       const params = {
+        feature: 'main',
         name: 'HomePage',
         path: '/',
         projectPath: testEnv.tempProjectDir,
@@ -56,6 +68,7 @@ describe('Route Generation Integration Tests', () => {
 
     it('should generate a route with force flag', async () => {
       const params = {
+        feature: 'main',
         name: 'UserProfile',
         path: '/profile',
         force: true,
@@ -77,6 +90,7 @@ describe('Route Generation Integration Tests', () => {
 
       for (const path of paths) {
         const params = {
+          feature: 'main',
           name: `Route${path.replace('/', '').charAt(0).toUpperCase() + path.replace('/', '').slice(1)}`,
           path,
           projectPath: testEnv.tempProjectDir,
@@ -103,6 +117,7 @@ describe('Route Generation Integration Tests', () => {
         const capitalizedName =
           routeName.charAt(0).toUpperCase() + routeName.slice(1);
         const params = {
+          feature: 'main',
           name: `DynamicRoute${capitalizedName}`,
           path,
           projectPath: testEnv.tempProjectDir,
@@ -129,6 +144,7 @@ describe('Route Generation Integration Tests', () => {
         const capitalizedName =
           routeName.charAt(0).toUpperCase() + routeName.slice(1);
         const params = {
+          feature: 'main',
           name: `Admin${capitalizedName}`,
           path,
           projectPath: testEnv.tempProjectDir,
@@ -154,6 +170,7 @@ describe('Route Generation Integration Tests', () => {
 
       for (const config of routeConfigs) {
         const params = {
+          feature: 'main',
           name: config.name,
           path: config.path,
           projectPath: testEnv.tempProjectDir,
@@ -169,6 +186,7 @@ describe('Route Generation Integration Tests', () => {
 
     it('should handle route names with special characters', async () => {
       const params = {
+        feature: 'main',
         name: 'User_Profile_Page',
         path: '/user-profile',
         projectPath: testEnv.tempProjectDir,
@@ -186,6 +204,7 @@ describe('Route Generation Integration Tests', () => {
   describe('Authentication Integration', () => {
     it('should generate authenticated routes', async () => {
       const params = {
+        feature: 'main',
         name: 'ProtectedPage',
         path: '/protected',
         auth: true,
@@ -202,6 +221,7 @@ describe('Route Generation Integration Tests', () => {
 
     it('should generate public routes', async () => {
       const params = {
+        feature: 'main',
         name: 'PublicPage',
         path: '/public',
         auth: false,
@@ -226,6 +246,7 @@ describe('Route Generation Integration Tests', () => {
 
       for (const route of routes) {
         const params = {
+          feature: 'main',
           name: route.name,
           path: route.path,
           auth: route.auth,
@@ -257,6 +278,7 @@ describe('Route Generation Integration Tests', () => {
 
       for (const route of ecommerceRoutes) {
         const params = {
+          feature: 'main',
           name: route.name,
           path: route.path,
           auth: route.auth || false,
@@ -282,6 +304,7 @@ describe('Route Generation Integration Tests', () => {
 
       for (const route of adminRoutes) {
         const params = {
+          feature: 'main',
           name: route.name,
           path: route.path,
           auth: route.auth,
@@ -307,6 +330,7 @@ describe('Route Generation Integration Tests', () => {
 
       for (const route of blogRoutes) {
         const params = {
+          feature: 'main',
           name: route.name,
           path: route.path,
           projectPath: testEnv.tempProjectDir,
@@ -324,6 +348,7 @@ describe('Route Generation Integration Tests', () => {
   describe('Force Override', () => {
     it('should generate routes with force flag', async () => {
       const params = {
+        feature: 'main',
         name: 'OverriddenRoute',
         path: '/overridden',
         force: true,
@@ -340,6 +365,7 @@ describe('Route Generation Integration Tests', () => {
 
     it('should handle routes without force flag', async () => {
       const params = {
+        feature: 'main',
         name: 'NormalRoute',
         path: '/normal',
         force: false,
@@ -357,9 +383,12 @@ describe('Route Generation Integration Tests', () => {
 
   describe('Error Handling', () => {
     it('should handle route generation errors gracefully', async () => {
-      setSwarmError(mockSwarm, 'generateRoute', 'Route generation failed');
+      mockSwarm.mockSwarmToolsInstance.generateRoute.mockImplementation(() =>
+        Promise.reject(new Error('Route generation failed'))
+      );
 
       const params = {
+        feature: 'main',
         name: 'ErrorRoute',
         path: '/error',
         projectPath: testEnv.tempProjectDir,
@@ -372,6 +401,7 @@ describe('Route Generation Integration Tests', () => {
 
     it('should handle invalid path formats', async () => {
       const params = {
+        feature: 'main',
         name: 'InvalidRoute',
         path: 'invalid-path-without-slash',
         projectPath: testEnv.tempProjectDir,
@@ -390,6 +420,7 @@ describe('Route Generation Integration Tests', () => {
       await testEnv.setup('minimal');
 
       const params = {
+        feature: 'main',
         name: 'MinimalRoute',
         path: '/minimal',
         projectPath: testEnv.tempProjectDir,
@@ -405,6 +436,7 @@ describe('Route Generation Integration Tests', () => {
       await testEnv.setup('withEntities');
 
       const params = {
+        feature: 'main',
         name: 'EntityRoute',
         path: '/entities',
         projectPath: testEnv.tempProjectDir,
@@ -430,6 +462,7 @@ describe('Route Generation Integration Tests', () => {
 
       for (const route of navigationFlow) {
         const params = {
+          feature: 'main',
           name: route.name,
           path: route.path,
           auth: route.auth,

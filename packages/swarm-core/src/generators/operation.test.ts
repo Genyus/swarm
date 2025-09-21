@@ -3,7 +3,7 @@ import {
   createMockFeatureGen,
   createMockFS,
   createMockLogger,
-} from '../../test/utils';
+} from '../../tests/utils';
 import type { IFileSystem } from '../types/filesystem';
 import type { IFeatureGenerator } from '../types/generator';
 import type { Logger } from '../types/logger';
@@ -81,7 +81,6 @@ describe('OperationGenerator', () => {
     fs.mkdirSync = vi.fn();
     gen = new OperationGenerator(logger, fs, featureGen);
     await gen.generate('foo', {
-      feature: 'foo',
       dataType: 'User',
       operation: 'get',
       entities: 'User',
@@ -104,7 +103,6 @@ describe('OperationGenerator', () => {
     fs.writeFileSync = vi.fn();
     gen = new OperationGenerator(logger, fs, featureGen);
     await gen.generate('bar', {
-      feature: 'bar',
       dataType: 'User',
       operation: 'get',
       entities: 'User',

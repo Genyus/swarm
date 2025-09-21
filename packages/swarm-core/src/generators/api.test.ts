@@ -3,21 +3,19 @@ import {
   createMockFeatureGen,
   createMockFS,
   createMockLogger,
-} from '../../test/utils';
+} from '../../tests/utils';
 import type { IFileSystem } from '../types/filesystem';
 import type { IFeatureGenerator } from '../types/generator';
 import type { Logger } from '../types/logger';
-import { JobGenerator } from './job';
+import { ApiGenerator } from './api';
 
-// Mock the utilities
+// Mock the io and templates utilities
 vi.mock('../utils/io', () => ({
   ensureDirectoryExists: vi.fn(),
-  findWaspRoot: vi.fn().mockReturnValue('/mock/wasp/root'),
   getFeatureTargetDir: vi.fn().mockReturnValue({
     targetDir: '/mock/target/dir',
-    importPath: '@src/features/test/_core/server/jobs',
+    importPath: '@src/features/test/_core/server/apis',
   }),
-  getTemplatesDir: vi.fn().mockReturnValue('/mock/templates'),
 }));
 
 vi.mock('../utils/templates', () => ({
@@ -32,24 +30,29 @@ vi.mock('../utils/templates', () => ({
   processTemplate: vi.fn().mockReturnValue('processed template content'),
 }));
 
-describe('JobGenerator', () => {
+describe('ApiGenerator', () => {
   let fs: IFileSystem;
   let logger: Logger;
   let featureGen: IFeatureGenerator;
-  let gen: JobGenerator;
+  let gen: ApiGenerator;
 
   beforeEach(() => {
     fs = createMockFS();
     logger = createMockLogger();
     featureGen = createMockFeatureGen();
-    gen = new JobGenerator(logger, fs, featureGen);
+    gen = new ApiGenerator(logger, fs, featureGen);
   });
 
-  it('generate writes worker file and updates config', async () => {
+  it('generate writes handler and updates config', async () => {
     fs.existsSync = vi.fn((p) => !p.includes('notfound'));
     fs.readFileSync = vi.fn(() => 'template');
     fs.writeFileSync = vi.fn();
-    await gen.generate('foo', { name: 'Job', force: true });
+    await gen.generate('foo', {
+      name: 'api',
+      method: 'GET',
+      route: '/api',
+      force: true,
+    });
     expect(fs.writeFileSync).toHaveBeenCalled();
     expect(featureGen.updateFeatureConfig).toHaveBeenCalled();
   });

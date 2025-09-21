@@ -1,18 +1,18 @@
-import { Command } from 'commander';
-import { OperationGenerator } from '../../generators/operation';
 import {
   ACTION_OPERATIONS,
   ActionOperation,
-  NodeGeneratorCommand,
+  error,
+  IFeatureGenerator,
+  IFileSystem,
+  Logger,
   OperationFlags,
+  OperationGenerator,
   QUERY_OPERATIONS,
   QueryOperation,
-} from '../../types';
-import { IFileSystem } from '../../types/filesystem';
-import { IFeatureGenerator } from '../../types/generator';
-import { Logger } from '../../types/logger';
-import { error } from '../../utils/errors';
-import { validateFeaturePath } from '../../utils/strings';
+  validateFeaturePath,
+} from '@ingenyus/swarm-core';
+import { Command } from 'commander';
+import { NodeGeneratorCommand } from '../../types/commands';
 import {
   withAuthOption,
   withEntitiesOption,

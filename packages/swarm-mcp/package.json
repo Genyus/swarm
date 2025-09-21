@@ -33,7 +33,7 @@
   "license": "MIT",
   "type": "module",
   "dependencies": {
-    "@ingenyus/swarm-cli": "workspace:*",
+    "@ingenyus/swarm-core": "workspace:*",
     "@modelcontextprotocol/sdk": "^1.17.4",
     "chalk": "^5.6.0",
     "commander": "^14.0.0",

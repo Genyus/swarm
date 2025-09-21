@@ -1,99 +1,67 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
-import { ApiGenerator } from "../src/generators/api";
-import { ApiNamespaceGenerator } from "../src/generators/apinamespace";
-import { CrudGenerator } from "../src/generators/crud";
-import { FeatureGenerator } from "../src/generators/feature";
-import { JobGenerator } from "../src/generators/job";
-import { OperationGenerator } from "../src/generators/operation";
-import { RouteGenerator } from "../src/generators/route";
-import type { IFileSystem } from "../src/types/filesystem";
-import type { Logger } from "../src/types/logger";
+import {
+  ApiGenerator,
+  ApiNamespaceGenerator,
+  CrudGenerator,
+  FeatureGenerator,
+  IFileSystem,
+  JobGenerator,
+  Logger,
+  OperationGenerator,
+  RouteGenerator,
+} from '@ingenyus/swarm-core';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 // Mock all external dependencies
-vi.mock("../src/utils/prisma", () => ({
-  getEntityMetadata: vi.fn().mockResolvedValue({
-    name: "Document",
-    fields: [
-      {
-        name: "id",
-        type: "String",
-        tsType: "string",
-        isId: true,
-        isRequired: true,
-      },
-      { name: "title", type: "String", tsType: "string", isRequired: true },
-      { name: "content", type: "String", tsType: "string", isRequired: false },
-      {
-        name: "settings",
-        type: "Json",
-        tsType: "Prisma.JsonValue",
-        isRequired: true,
-        hasDefaultValue: true,
-      },
-      {
-        name: "createdAt",
-        type: "DateTime",
-        tsType: "Date",
-        isRequired: true,
-        hasDefaultValue: true,
-      },
-    ],
-  }),
-  getIdField: vi.fn().mockReturnValue({ name: "id", tsType: "string" }),
-  getOmitFields: vi.fn().mockReturnValue('"id" | "createdAt"'),
-  getJsonFields: vi.fn().mockReturnValue(["settings"]),
-  needsPrismaImport: vi.fn().mockReturnValue(true),
-  generateJsonTypeHandling: vi
-    .fn()
-    .mockReturnValue(
-      ",\n        settings: (data.settings as Prisma.JsonValue) || Prisma.JsonNull"
-    ),
-}));
-
-vi.mock("../src/utils/templates", () => {
-  const mockTemplateUtility = {
-    processTemplate: vi.fn().mockReturnValue("processed template content"),
-    getFileTemplatePath: vi.fn().mockReturnValue("templates/files/server/api.ts"),
-    getConfigTemplatePath: vi.fn().mockReturnValue("config/template/path"),
-  };
-
+vi.mock('@ingenyus/swarm-core', async () => {
+  const actual = await vi.importActual('@ingenyus/swarm-core');
   return {
-    TemplateUtility: vi.fn().mockImplementation(() => mockTemplateUtility),
-    getFileTemplatePath: vi.fn().mockReturnValue("template/path"),
-    getConfigTemplatePath: vi.fn().mockReturnValue("config/template/path"),
-    processTemplate: vi.fn().mockReturnValue("processed template content"),
+    ...actual,
+    getEntityMetadata: vi.fn().mockResolvedValue({
+      name: 'Document',
+      fields: [
+        {
+          name: 'id',
+          type: 'String',
+          tsType: 'string',
+          isId: true,
+          isRequired: true,
+        },
+        { name: 'title', type: 'String', tsType: 'string', isRequired: true },
+        {
+          name: 'content',
+          type: 'String',
+          tsType: 'string',
+          isRequired: false,
+        },
+        {
+          name: 'settings',
+          type: 'Json',
+          tsType: 'Prisma.JsonValue',
+          isRequired: true,
+          hasDefaultValue: true,
+        },
+        {
+          name: 'createdAt',
+          type: 'DateTime',
+          tsType: 'Date',
+          isRequired: true,
+          hasDefaultValue: true,
+        },
+      ],
+    }),
+    getIdField: vi.fn().mockReturnValue({ name: 'id', tsType: 'string' }),
+    getOmitFields: vi.fn().mockReturnValue('"id" | "createdAt"'),
+    getJsonFields: vi.fn().mockReturnValue(['settings']),
+    needsPrismaImport: vi.fn().mockReturnValue(true),
+    generateJsonTypeHandling: vi
+      .fn()
+      .mockReturnValue(
+        ',\n        settings: (data.settings as Prisma.JsonValue) || Prisma.JsonNull'
+      ),
   };
 });
 
-vi.mock("../src/utils/strings", () => ({
-  validateFeaturePath: vi.fn().mockImplementation((featurePath: string) => {
-    if (featurePath.startsWith("documents")) {
-      return featurePath.split("/");
-    }
-    throw new Error(`Feature ${featurePath} does not exist`);
-  }),
-  toPascalCase: vi.fn().mockImplementation((str: string) => str),
-  getPlural: vi.fn().mockImplementation((str: string) => str + "s"),
-}));
-
-vi.mock("../src/utils/filesystem", () => ({
-  getFeatureTargetDir: vi
-    .fn()
-    .mockImplementation((fileSystem: any, featurePath: string, type: string) => ({
-      targetDirectory: `features/${featurePath}/_core/server/${type}s`,
-      importDirectory: `@src/features/${featurePath}/_core/server/${type}s`,
-    })),
-  ensureDirectoryExists: vi.fn(),
-  getConfigDir: vi.fn().mockReturnValue("config"),
-  copyDirectory: vi.fn(),
-  getFeatureImportPath: vi.fn().mockReturnValue("documents/_core"),
-  getTemplatesDir: vi.fn().mockReturnValue("templates"),
-  findWaspRoot: vi.fn().mockReturnValue("/mock/wasp/root"),
-  featureExists: vi.fn().mockReturnValue(true),
-  getFeatureDir: vi.fn().mockReturnValue("features/documents"),
-}));
-
-describe("Integration Tests - Full Feature Creation", () => {
+describe('Integration Tests - Full Feature Creation', () => {
   let fs: IFileSystem;
   let logger: Logger;
   let featureGenerator: FeatureGenerator;
@@ -113,42 +81,51 @@ describe("Integration Tests - Full Feature Creation", () => {
     // Create comprehensive mock filesystem
     fs = {
       readFileSync: vi.fn((path: string) => {
-        if (typeof path === "string") {
-          if (path.includes("feature.wasp.ts")) {
-            return "export default function getConfig(app: App) { return {}; }";
+        if (typeof path === 'string') {
+          if (path.includes('feature.wasp.ts')) {
+            return 'export default function getConfig(app: App) { return {}; }';
           }
-          if (path.includes(".wasp.ts")) {
-            return mockFiles[path] || "export default function getConfig(app: App) { return {}; }";
+          if (path.includes('.wasp.ts')) {
+            return (
+              mockFiles[path] ||
+              'export default function getConfig(app: App) { return {}; }'
+            );
           }
           if (mockFiles[path]) {
             return mockFiles[path];
           }
         }
-        return "template content";
+        return 'template content';
       }),
       writeFileSync: vi.fn((path: string, content: string) => {
-        if (typeof path === "string") {
+        if (typeof path === 'string') {
           mockFiles[path] = content;
         }
       }),
       existsSync: vi.fn((path: string) => {
-        if (typeof path === "string") {
+        if (typeof path === 'string') {
+          // Mock .wasproot file to make findWaspRoot work
+          if (path.includes('.wasproot')) return true;
           // Config files exist after feature creation
-          if (path.includes(".wasp.ts")) return true;
+          if (path.includes('.wasp.ts')) return true;
           // Template files always exist
-          if (path.includes("template")) return true;
+          if (path.includes('template')) return true;
           // Feature directories exist after creation
-          if (path.includes("features/documents")) return true;
+          if (path.includes('features/documents')) return true;
           // Check if file exists in our mock filesystem
           return Boolean(mockFiles[path]);
         }
         return false;
       }),
       copyFileSync: vi.fn((src: string, dest: string) => {
-        mockFiles[dest] = mockFiles[src] || "copied content";
+        mockFiles[dest] = mockFiles[src] || 'copied content';
       }),
       mkdirSync: vi.fn(),
       readdirSync: vi.fn().mockReturnValue([]),
+      statSync: vi.fn().mockReturnValue({
+        isDirectory: () => false,
+        isFile: () => true,
+      }),
     };
 
     logger = {
@@ -173,23 +150,23 @@ describe("Integration Tests - Full Feature Creation", () => {
     );
   });
 
-  describe("Feature Creation", () => {
-    it("should create a top-level feature with config", async () => {
-      featureGenerator.generateFeature("documents");
+  describe('Feature Creation', () => {
+    it('should create a top-level feature with config', async () => {
+      featureGenerator.generateFeature('documents');
 
       expect(fs.copyFileSync).toHaveBeenCalled();
       expect(logger.success).toHaveBeenCalledWith(
-        expect.stringContaining("Generated top-level feature: documents")
+        expect.stringContaining('Generated top-level feature: documents')
       );
     });
 
-    it("should create a sub-feature without config", async () => {
+    it('should create a sub-feature without config', async () => {
       // First create parent feature
-      featureGenerator.generateFeature("documents");
+      featureGenerator.generateFeature('documents');
 
       // Test that sub-features require proper setup
       try {
-        featureGenerator.generateFeature("documents/admin");
+        featureGenerator.generateFeature('documents/admin');
         // If it succeeds, that's fine
         expect(true).toBe(true);
       } catch (error) {
@@ -198,21 +175,21 @@ describe("Integration Tests - Full Feature Creation", () => {
       }
     });
 
-    it("should fail to create sub-feature without parent", async () => {
+    it('should fail to create sub-feature without parent', async () => {
       expect(() => {
-        featureGenerator.generateFeature("documents/admin");
+        featureGenerator.generateFeature('documents/admin');
       }).toThrow();
     });
   });
 
-  describe("Route Creation", () => {
+  describe('Route Creation', () => {
     beforeEach(async () => {
-      featureGenerator.generateFeature("documents");
+      featureGenerator.generateFeature('documents');
     });
 
-    it("should create a route with default settings", async () => {
-      await routeGenerator.generate("documents", {
-        path: "/documents",
+    it('should create a route with default settings', async () => {
+      await routeGenerator.generate('documents', {
+        path: '/documents',
         force: false,
       });
 
@@ -221,10 +198,10 @@ describe("Integration Tests - Full Feature Creation", () => {
       expect(logger.success).toHaveBeenCalled();
     });
 
-    it("should create a route with auth required", async () => {
-      await routeGenerator.generate("documents", {
-        path: "/documents/admin",
-        name: "AdminPage",
+    it('should create a route with auth required', async () => {
+      await routeGenerator.generate('documents', {
+        path: '/documents/admin',
+        name: 'AdminPage',
         auth: true,
         force: false,
       });
@@ -233,15 +210,15 @@ describe("Integration Tests - Full Feature Creation", () => {
       expect(logger.success).toHaveBeenCalled();
     });
 
-    it("should handle duplicate route creation without force", async () => {
-      await routeGenerator.generate("documents", {
-        path: "/documents",
+    it('should handle duplicate route creation without force', async () => {
+      await routeGenerator.generate('documents', {
+        path: '/documents',
         force: false,
       });
 
       // Create again without force
-      await routeGenerator.generate("documents", {
-        path: "/documents",
+      await routeGenerator.generate('documents', {
+        path: '/documents',
         force: false,
       });
 
@@ -249,14 +226,14 @@ describe("Integration Tests - Full Feature Creation", () => {
       expect(fs.writeFileSync).toHaveBeenCalled();
     });
 
-    it("should overwrite route with force flag", async () => {
-      await routeGenerator.generate("documents", {
-        path: "/documents",
+    it('should overwrite route with force flag', async () => {
+      await routeGenerator.generate('documents', {
+        path: '/documents',
         force: false,
       });
 
-      await routeGenerator.generate("documents", {
-        path: "/documents",
+      await routeGenerator.generate('documents', {
+        path: '/documents',
         force: true,
       });
 
@@ -265,17 +242,17 @@ describe("Integration Tests - Full Feature Creation", () => {
     });
   });
 
-  describe("API Creation", () => {
+  describe('API Creation', () => {
     beforeEach(async () => {
-      featureGenerator.generateFeature("documents");
+      featureGenerator.generateFeature('documents');
     });
 
-    it("should create an API endpoint", async () => {
-      await apiGenerator.generate("documents", {
-        name: "searchApi",
-        method: "GET",
-        route: "/api/documents/search",
-        entities: ["Document"],
+    it('should create an API endpoint', async () => {
+      await apiGenerator.generate('documents', {
+        name: 'searchApi',
+        method: 'GET',
+        route: '/api/documents/search',
+        entities: ['Document'],
         auth: false,
         force: false,
       });
@@ -284,12 +261,12 @@ describe("Integration Tests - Full Feature Creation", () => {
       expect(logger.success).toHaveBeenCalled();
     });
 
-    it("should create an authenticated API endpoint", async () => {
-      await apiGenerator.generate("documents", {
-        name: "createDocument",
-        method: "POST",
-        route: "/api/documents",
-        entities: ["Document"],
+    it('should create an authenticated API endpoint', async () => {
+      await apiGenerator.generate('documents', {
+        name: 'createDocument',
+        method: 'POST',
+        route: '/api/documents',
+        entities: ['Document'],
         auth: true,
         force: false,
       });
@@ -299,17 +276,17 @@ describe("Integration Tests - Full Feature Creation", () => {
     });
   });
 
-  describe("Job Creation", () => {
+  describe('Job Creation', () => {
     beforeEach(async () => {
-      featureGenerator.generateFeature("documents");
+      featureGenerator.generateFeature('documents');
     });
 
-    it("should create a scheduled job", async () => {
-      await jobGenerator.generate("documents", {
-        name: "archiveDocuments",
-        entities: ["Document"],
-        schedule: "0 2 * * *", // Daily at 2 AM
-        scheduleArgs: "{}",
+    it('should create a scheduled job', async () => {
+      await jobGenerator.generate('documents', {
+        name: 'archiveDocuments',
+        entities: ['Document'],
+        schedule: '0 2 * * *', // Daily at 2 AM
+        scheduleArgs: '{}',
         force: false,
       });
 
@@ -317,10 +294,10 @@ describe("Integration Tests - Full Feature Creation", () => {
       expect(logger.success).toHaveBeenCalled();
     });
 
-    it("should create a job without schedule", async () => {
-      await jobGenerator.generate("documents", {
-        name: "processDocument",
-        entities: ["Document"],
+    it('should create a job without schedule', async () => {
+      await jobGenerator.generate('documents', {
+        name: 'processDocument',
+        entities: ['Document'],
         force: false,
       });
 
@@ -329,14 +306,14 @@ describe("Integration Tests - Full Feature Creation", () => {
     });
   });
 
-  describe("CRUD Operations", () => {
+  describe('CRUD Operations', () => {
     beforeEach(async () => {
-      featureGenerator.generateFeature("documents");
+      featureGenerator.generateFeature('documents');
     });
 
-    it("should create a complete CRUD set", async () => {
-      await crudGenerator.generate("documents", {
-        dataType: "Document",
+    it('should create a complete CRUD set', async () => {
+      await crudGenerator.generate('documents', {
+        dataType: 'Document',
         force: false,
       });
 
@@ -344,12 +321,12 @@ describe("Integration Tests - Full Feature Creation", () => {
       expect(logger.success).toHaveBeenCalled();
     });
 
-    it("should create CRUD with custom operations", async () => {
-      await crudGenerator.generate("documents", {
-        dataType: "Document",
-        public: ["get", "getAll"],
-        override: ["create", "update"],
-        exclude: ["delete"],
+    it('should create CRUD with custom operations', async () => {
+      await crudGenerator.generate('documents', {
+        dataType: 'Document',
+        public: ['get', 'getAll'],
+        override: ['create', 'update'],
+        exclude: ['delete'],
         force: false,
       });
 
@@ -358,17 +335,16 @@ describe("Integration Tests - Full Feature Creation", () => {
     });
   });
 
-  describe("Operation Creation (Queries & Actions)", () => {
+  describe('Operation Creation (Queries & Actions)', () => {
     beforeEach(async () => {
-      featureGenerator.generateFeature("documents");
+      featureGenerator.generateFeature('documents');
     });
 
-    it("should create a query operation", async () => {
-      await operationGenerator.generate("documents", {
-        feature: "documents",
-        dataType: "Document",
-        operation: "get",
-        entities: "Document",
+    it('should create a query operation', async () => {
+      await operationGenerator.generate('documents', {
+        dataType: 'Document',
+        operation: 'get',
+        entities: 'Document',
         auth: false,
         force: false,
       });
@@ -378,12 +354,11 @@ describe("Integration Tests - Full Feature Creation", () => {
       expect(logger.success).toHaveBeenCalled();
     });
 
-    it("should create an action operation", async () => {
-      await operationGenerator.generate("documents", {
-        feature: "documents",
-        dataType: "Document",
-        operation: "create",
-        entities: "Document",
+    it('should create an action operation', async () => {
+      await operationGenerator.generate('documents', {
+        dataType: 'Document',
+        operation: 'create',
+        entities: 'Document',
         auth: true,
         force: false,
       });
@@ -393,12 +368,11 @@ describe("Integration Tests - Full Feature Creation", () => {
       expect(logger.success).toHaveBeenCalled();
     });
 
-    it("should create multiple entity operation", async () => {
-      await operationGenerator.generate("documents", {
-        feature: "documents",
-        dataType: "Document",
-        operation: "getAll",
-        entities: "Document,User",
+    it('should create multiple entity operation', async () => {
+      await operationGenerator.generate('documents', {
+        dataType: 'Document',
+        operation: 'getAll',
+        entities: 'Document,User',
         auth: false,
         force: false,
       });
@@ -409,15 +383,15 @@ describe("Integration Tests - Full Feature Creation", () => {
     });
   });
 
-  describe("API Namespace Creation", () => {
+  describe('API Namespace Creation', () => {
     beforeEach(async () => {
-      featureGenerator.generateFeature("documents");
+      featureGenerator.generateFeature('documents');
     });
 
-    it("should create an API namespace with middleware", async () => {
-      await apiNamespaceGenerator.generate("documents", {
-        name: "api",
-        path: "/api",
+    it('should create an API namespace with middleware', async () => {
+      await apiNamespaceGenerator.generate('documents', {
+        name: 'api',
+        path: '/api',
         force: false,
       });
 
@@ -426,63 +400,60 @@ describe("Integration Tests - Full Feature Creation", () => {
     });
   });
 
-  describe("Complete Feature Workflow", () => {
-    it("should create a fully populated feature like the example", async () => {
-      featureGenerator.generateFeature("documents");
+  describe('Complete Feature Workflow', () => {
+    it('should create a fully populated feature like the example', async () => {
+      featureGenerator.generateFeature('documents');
 
       // Create route
-      await routeGenerator.generate("documents", {
-        path: "/documents",
+      await routeGenerator.generate('documents', {
+        path: '/documents',
         force: false,
       });
 
       // Create API
-      await apiGenerator.generate("documents", {
-        name: "searchApi",
-        method: "GET",
-        route: "/api/documents/search",
-        entities: ["Document"],
+      await apiGenerator.generate('documents', {
+        name: 'searchApi',
+        method: 'GET',
+        route: '/api/documents/search',
+        entities: ['Document'],
         auth: false,
         force: false,
       });
 
       // Create job
-      await jobGenerator.generate("documents", {
-        name: "archiveDocuments",
-        entities: ["Document"],
+      await jobGenerator.generate('documents', {
+        name: 'archiveDocuments',
+        entities: ['Document'],
         force: false,
       });
 
       // Create CRUD
-      await crudGenerator.generate("documents", {
-        dataType: "Document",
+      await crudGenerator.generate('documents', {
+        dataType: 'Document',
         force: false,
       });
 
       // Create operations
-      await operationGenerator.generate("documents", {
-        feature: "documents",
-        dataType: "Document",
-        operation: "get",
-        entities: "Document",
+      await operationGenerator.generate('documents', {
+        dataType: 'Document',
+        operation: 'get',
+        entities: 'Document',
         auth: false,
         force: false,
       });
 
-      await operationGenerator.generate("documents", {
-        feature: "documents",
-        dataType: "Document",
-        operation: "getAll",
-        entities: "Document",
+      await operationGenerator.generate('documents', {
+        dataType: 'Document',
+        operation: 'getAll',
+        entities: 'Document',
         auth: false,
         force: false,
       });
 
-      await operationGenerator.generate("documents", {
-        feature: "documents",
-        dataType: "Document",
-        operation: "create",
-        entities: "Document",
+      await operationGenerator.generate('documents', {
+        dataType: 'Document',
+        operation: 'create',
+        entities: 'Document',
         auth: true,
         force: false,
       });
@@ -492,21 +463,24 @@ describe("Integration Tests - Full Feature Creation", () => {
       expect(logger.success).toHaveBeenCalled();
 
       // Verify feature config was updated multiple times (should exist after generators run)
-      expect(mockFiles["config/documents.wasp.ts"]).toBeDefined();
+      const actualPath = Object.keys(mockFiles).find((key) =>
+        key.includes('documents.wasp.ts')
+      );
+      expect(actualPath).toBeDefined();
     });
 
-    it("should handle force flag across multiple generators", async () => {
-      featureGenerator.generateFeature("documents");
+    it('should handle force flag across multiple generators', async () => {
+      featureGenerator.generateFeature('documents');
 
       // Create route
-      await routeGenerator.generate("documents", {
-        path: "/documents",
+      await routeGenerator.generate('documents', {
+        path: '/documents',
         force: false,
       });
 
       // Try to create same route again with force
-      await routeGenerator.generate("documents", {
-        path: "/documents",
+      await routeGenerator.generate('documents', {
+        path: '/documents',
         force: true,
       });
 
@@ -515,12 +489,12 @@ describe("Integration Tests - Full Feature Creation", () => {
     });
   });
 
-  describe("Error Handling", () => {
-    it("should handle missing feature directory", async () => {
+  describe('Error Handling', () => {
+    it('should handle missing feature directory', async () => {
       // Test that generator handles nonexistent features gracefully
       try {
-        await routeGenerator.generate("nonexistent", {
-          path: "/test",
+        await routeGenerator.generate('nonexistent', {
+          path: '/test',
           force: false,
         });
         // If it doesn't throw, that's fine too
@@ -531,30 +505,14 @@ describe("Integration Tests - Full Feature Creation", () => {
       }
     });
 
-    it("should handle invalid operation types", async () => {
-      featureGenerator.generateFeature("documents");
-
-      // Test that generator handles invalid operations gracefully
-      await operationGenerator.generate("documents", {
-        feature: "documents",
-        dataType: "Document",
-        operation: "invalidOperation" as any,
-        entities: "Document",
-        force: false,
-      });
-
-      // Should still complete without fatal errors in test environment
-      expect(fs.writeFileSync).toHaveBeenCalled();
-    });
-
-    it("should handle missing required parameters", async () => {
-      featureGenerator.generateFeature("documents");
+    it('should handle missing required parameters', async () => {
+      featureGenerator.generateFeature('documents');
 
       // Test that generator handles missing parameters gracefully
-      await apiGenerator.generate("documents", {
-        name: "",
-        method: "GET",
-        route: "/api/test",
+      await apiGenerator.generate('documents', {
+        name: '',
+        method: 'GET',
+        route: '/api/test',
         force: false,
       });
 
@@ -562,43 +520,43 @@ describe("Integration Tests - Full Feature Creation", () => {
       expect(fs.writeFileSync).toHaveBeenCalled();
     });
 
-    it("should handle duplicate CRUD creation without force", async () => {
-      featureGenerator.generateFeature("documents");
+    it('should handle duplicate CRUD creation without force', async () => {
+      featureGenerator.generateFeature('documents');
 
       // Create CRUD first time
-      await crudGenerator.generate("documents", {
-        dataType: "Document",
+      await crudGenerator.generate('documents', {
+        dataType: 'Document',
         force: false,
       });
 
       // Try to create again without force
-      await crudGenerator.generate("documents", {
-        dataType: "Document",
+      await crudGenerator.generate('documents', {
+        dataType: 'Document',
         force: false,
       });
 
       expect(logger.info).toHaveBeenCalled();
     });
 
-    it("should handle duplicate API creation without force", async () => {
-      featureGenerator.generateFeature("documents");
+    it('should handle duplicate API creation without force', async () => {
+      featureGenerator.generateFeature('documents');
 
       // Create API first time
-      await apiGenerator.generate("documents", {
-        name: "searchApi",
-        method: "GET",
-        route: "/api/documents/search",
-        entities: ["Document"],
+      await apiGenerator.generate('documents', {
+        name: 'searchApi',
+        method: 'GET',
+        route: '/api/documents/search',
+        entities: ['Document'],
         auth: false,
         force: false,
       });
 
       // Try to create again without force
-      await apiGenerator.generate("documents", {
-        name: "searchApi",
-        method: "GET",
-        route: "/api/documents/search",
-        entities: ["Document"],
+      await apiGenerator.generate('documents', {
+        name: 'searchApi',
+        method: 'GET',
+        route: '/api/documents/search',
+        entities: ['Document'],
         auth: false,
         force: false,
       });
@@ -608,20 +566,20 @@ describe("Integration Tests - Full Feature Creation", () => {
       expect(logger.info).toHaveBeenCalled();
     });
 
-    it("should handle duplicate job creation without force", async () => {
-      featureGenerator.generateFeature("documents");
+    it('should handle duplicate job creation without force', async () => {
+      featureGenerator.generateFeature('documents');
 
       // Create job first time
-      await jobGenerator.generate("documents", {
-        name: "archiveDocuments",
-        entities: ["Document"],
+      await jobGenerator.generate('documents', {
+        name: 'archiveDocuments',
+        entities: ['Document'],
         force: false,
       });
 
       // Try to create again without force
-      await jobGenerator.generate("documents", {
-        name: "archiveDocuments",
-        entities: ["Document"],
+      await jobGenerator.generate('documents', {
+        name: 'archiveDocuments',
+        entities: ['Document'],
         force: false,
       });
 
@@ -629,25 +587,23 @@ describe("Integration Tests - Full Feature Creation", () => {
       expect(logger.info).toHaveBeenCalled();
     });
 
-    it("should handle duplicate operation creation without force", async () => {
-      featureGenerator.generateFeature("documents");
+    it('should handle duplicate operation creation without force', async () => {
+      featureGenerator.generateFeature('documents');
 
       // Create operation first time
-      await operationGenerator.generate("documents", {
-        feature: "documents",
-        dataType: "Document",
-        operation: "get",
-        entities: "Document",
+      await operationGenerator.generate('documents', {
+        dataType: 'Document',
+        operation: 'get',
+        entities: 'Document',
         auth: false,
         force: false,
       });
 
       // Try to create again without force
-      await operationGenerator.generate("documents", {
-        feature: "documents",
-        dataType: "Document",
-        operation: "get",
-        entities: "Document",
+      await operationGenerator.generate('documents', {
+        dataType: 'Document',
+        operation: 'get',
+        entities: 'Document',
         auth: false,
         force: false,
       });
@@ -656,20 +612,20 @@ describe("Integration Tests - Full Feature Creation", () => {
       expect(fs.writeFileSync).toHaveBeenCalled();
     });
 
-    it("should handle duplicate API namespace creation without force", async () => {
-      featureGenerator.generateFeature("documents");
+    it('should handle duplicate API namespace creation without force', async () => {
+      featureGenerator.generateFeature('documents');
 
       // Create API namespace first time
-      await apiNamespaceGenerator.generate("documents", {
-        name: "api",
-        path: "/api",
+      await apiNamespaceGenerator.generate('documents', {
+        name: 'api',
+        path: '/api',
         force: false,
       });
 
       // Try to create again without force
-      await apiNamespaceGenerator.generate("documents", {
-        name: "api",
-        path: "/api",
+      await apiNamespaceGenerator.generate('documents', {
+        name: 'api',
+        path: '/api',
         force: false,
       });
 
@@ -677,46 +633,46 @@ describe("Integration Tests - Full Feature Creation", () => {
     });
   });
 
-  describe("Force Flag Behavior", () => {
+  describe('Force Flag Behavior', () => {
     beforeEach(async () => {
-      featureGenerator.generateFeature("documents");
+      featureGenerator.generateFeature('documents');
     });
 
-    it("should overwrite CRUD with force flag", async () => {
+    it('should overwrite CRUD with force flag', async () => {
       // Create CRUD first time
-      await crudGenerator.generate("documents", {
-        dataType: "Document",
+      await crudGenerator.generate('documents', {
+        dataType: 'Document',
         force: false,
       });
 
       // Overwrite with force
-      await crudGenerator.generate("documents", {
-        dataType: "Document",
+      await crudGenerator.generate('documents', {
+        dataType: 'Document',
         force: true,
       });
 
       expect(logger.success).toHaveBeenCalledWith(
-        expect.stringContaining("Overwrote CRUD file")
+        expect.stringContaining('Overwrote CRUD file')
       );
     });
 
-    it("should overwrite API with force flag", async () => {
+    it('should overwrite API with force flag', async () => {
       // Create API first time
-      await apiGenerator.generate("documents", {
-        name: "searchApi",
-        method: "GET",
-        route: "/api/documents/search",
-        entities: ["Document"],
+      await apiGenerator.generate('documents', {
+        name: 'searchApi',
+        method: 'GET',
+        route: '/api/documents/search',
+        entities: ['Document'],
         auth: false,
         force: false,
       });
 
       // Overwrite with force
-      await apiGenerator.generate("documents", {
-        name: "searchApi",
-        method: "GET",
-        route: "/api/documents/search",
-        entities: ["Document"],
+      await apiGenerator.generate('documents', {
+        name: 'searchApi',
+        method: 'GET',
+        route: '/api/documents/search',
+        entities: ['Document'],
         auth: false,
         force: true,
       });
@@ -724,18 +680,18 @@ describe("Integration Tests - Full Feature Creation", () => {
       expect(logger.success).toHaveBeenCalled();
     });
 
-    it("should overwrite job with force flag", async () => {
+    it('should overwrite job with force flag', async () => {
       // Create job first time
-      await jobGenerator.generate("documents", {
-        name: "archiveDocuments",
-        entities: ["Document"],
+      await jobGenerator.generate('documents', {
+        name: 'archiveDocuments',
+        entities: ['Document'],
         force: false,
       });
 
       // Overwrite with force
-      await jobGenerator.generate("documents", {
-        name: "archiveDocuments",
-        entities: ["Document"],
+      await jobGenerator.generate('documents', {
+        name: 'archiveDocuments',
+        entities: ['Document'],
         force: true,
       });
 
@@ -743,23 +699,21 @@ describe("Integration Tests - Full Feature Creation", () => {
       expect(logger.success).toHaveBeenCalled();
     });
 
-    it("should overwrite operation with force flag", async () => {
+    it('should overwrite operation with force flag', async () => {
       // Create operation first time
-      await operationGenerator.generate("documents", {
-        feature: "documents",
-        dataType: "Document",
-        operation: "get",
-        entities: "Document",
+      await operationGenerator.generate('documents', {
+        dataType: 'Document',
+        operation: 'get',
+        entities: 'Document',
         auth: false,
         force: false,
       });
 
       // Overwrite with force
-      await operationGenerator.generate("documents", {
-        feature: "documents",
-        dataType: "Document",
-        operation: "get",
-        entities: "Document",
+      await operationGenerator.generate('documents', {
+        dataType: 'Document',
+        operation: 'get',
+        entities: 'Document',
         auth: false,
         force: true,
       });
@@ -768,18 +722,18 @@ describe("Integration Tests - Full Feature Creation", () => {
       expect(logger.success).toHaveBeenCalled();
     });
 
-    it("should overwrite API namespace with force flag", async () => {
+    it('should overwrite API namespace with force flag', async () => {
       // Create API namespace first time
-      await apiNamespaceGenerator.generate("documents", {
-        name: "api",
-        path: "/api",
+      await apiNamespaceGenerator.generate('documents', {
+        name: 'api',
+        path: '/api',
         force: false,
       });
 
       // Overwrite with force
-      await apiNamespaceGenerator.generate("documents", {
-        name: "api",
-        path: "/api",
+      await apiNamespaceGenerator.generate('documents', {
+        name: 'api',
+        path: '/api',
         force: true,
       });
 
@@ -787,14 +741,14 @@ describe("Integration Tests - Full Feature Creation", () => {
     });
   });
 
-  describe("Complex Feature Scenarios", () => {
-    it("should create a feature with all CRUD override operations like the example", async () => {
-      featureGenerator.generateFeature("documents");
+  describe('Complex Feature Scenarios', () => {
+    it('should create a feature with all CRUD override operations like the example', async () => {
+      featureGenerator.generateFeature('documents');
 
       // Create CRUD with all override operations (like the temp.wasp.ts example)
-      await crudGenerator.generate("documents", {
-        dataType: "Document",
-        override: ["get", "getAll", "create", "update", "delete"],
+      await crudGenerator.generate('documents', {
+        dataType: 'Document',
+        override: ['get', 'getAll', 'create', 'update', 'delete'],
         force: false,
       });
 
@@ -802,42 +756,42 @@ describe("Integration Tests - Full Feature Creation", () => {
       expect(logger.success).toHaveBeenCalled();
     });
 
-    it("should create multiple APIs with different HTTP methods", async () => {
-      featureGenerator.generateFeature("documents");
+    it('should create multiple APIs with different HTTP methods', async () => {
+      featureGenerator.generateFeature('documents');
 
       // Create multiple APIs like in the example
-      await apiGenerator.generate("documents", {
-        name: "searchApi",
-        method: "GET",
-        route: "/api/documents/search",
-        entities: ["Document"],
+      await apiGenerator.generate('documents', {
+        name: 'searchApi',
+        method: 'GET',
+        route: '/api/documents/search',
+        entities: ['Document'],
         auth: false,
         force: false,
       });
 
-      await apiGenerator.generate("documents", {
-        name: "createDocumentApi",
-        method: "POST",
-        route: "/api/documents",
-        entities: ["Document"],
+      await apiGenerator.generate('documents', {
+        name: 'createDocumentApi',
+        method: 'POST',
+        route: '/api/documents',
+        entities: ['Document'],
         auth: true,
         force: false,
       });
 
-      await apiGenerator.generate("documents", {
-        name: "updateDocumentApi",
-        method: "PUT",
-        route: "/api/documents/:id",
-        entities: ["Document"],
+      await apiGenerator.generate('documents', {
+        name: 'updateDocumentApi',
+        method: 'PUT',
+        route: '/api/documents/:id',
+        entities: ['Document'],
         auth: true,
         force: false,
       });
 
-      await apiGenerator.generate("documents", {
-        name: "deleteDocumentApi",
-        method: "DELETE",
-        route: "/api/documents/:id",
-        entities: ["Document"],
+      await apiGenerator.generate('documents', {
+        name: 'deleteDocumentApi',
+        method: 'DELETE',
+        route: '/api/documents/:id',
+        entities: ['Document'],
         auth: true,
         force: false,
       });
@@ -846,52 +800,47 @@ describe("Integration Tests - Full Feature Creation", () => {
       expect(fs.writeFileSync).toHaveBeenCalled();
     });
 
-    it("should create both queries and actions for the same entity", async () => {
-      featureGenerator.generateFeature("documents");
+    it('should create both queries and actions for the same entity', async () => {
+      featureGenerator.generateFeature('documents');
 
       // Create queries (like in the example)
-      await operationGenerator.generate("documents", {
-        feature: "documents",
-        dataType: "Document",
-        operation: "get",
-        entities: "Document",
+      await operationGenerator.generate('documents', {
+        dataType: 'Document',
+        operation: 'get',
+        entities: 'Document',
         auth: false,
         force: false,
       });
 
-      await operationGenerator.generate("documents", {
-        feature: "documents",
-        dataType: "Document",
-        operation: "getAll",
-        entities: "Document",
+      await operationGenerator.generate('documents', {
+        dataType: 'Document',
+        operation: 'getAll',
+        entities: 'Document',
         auth: false,
         force: false,
       });
 
       // Create actions (like in the example)
-      await operationGenerator.generate("documents", {
-        feature: "documents",
-        dataType: "Document",
-        operation: "create",
-        entities: "Document",
+      await operationGenerator.generate('documents', {
+        dataType: 'Document',
+        operation: 'create',
+        entities: 'Document',
         auth: true,
         force: false,
       });
 
-      await operationGenerator.generate("documents", {
-        feature: "documents",
-        dataType: "Document",
-        operation: "update",
-        entities: "Document",
+      await operationGenerator.generate('documents', {
+        dataType: 'Document',
+        operation: 'update',
+        entities: 'Document',
         auth: true,
         force: false,
       });
 
-      await operationGenerator.generate("documents", {
-        feature: "documents",
-        dataType: "Document",
-        operation: "delete",
-        entities: "Document",
+      await operationGenerator.generate('documents', {
+        dataType: 'Document',
+        operation: 'delete',
+        entities: 'Document',
         auth: true,
         force: false,
       });
@@ -900,22 +849,22 @@ describe("Integration Tests - Full Feature Creation", () => {
       expect(fs.writeFileSync).toHaveBeenCalled();
     });
 
-    it("should create jobs with and without schedules", async () => {
-      featureGenerator.generateFeature("documents");
+    it('should create jobs with and without schedules', async () => {
+      featureGenerator.generateFeature('documents');
 
       // Create scheduled job (like in the example)
-      await jobGenerator.generate("documents", {
-        name: "archiveDocuments",
-        entities: ["Document"],
-        schedule: "0 2 * * *",
-        scheduleArgs: "{}",
+      await jobGenerator.generate('documents', {
+        name: 'archiveDocuments',
+        entities: ['Document'],
+        schedule: '0 2 * * *',
+        scheduleArgs: '{}',
         force: false,
       });
 
       // Create on-demand job
-      await jobGenerator.generate("documents", {
-        name: "processDocument",
-        entities: ["Document"],
+      await jobGenerator.generate('documents', {
+        name: 'processDocument',
+        entities: ['Document'],
         force: false,
       });
 
@@ -923,65 +872,67 @@ describe("Integration Tests - Full Feature Creation", () => {
       expect(fs.writeFileSync).toHaveBeenCalled();
     });
 
-    it("should handle nested feature paths correctly", async () => {
+    it('should handle nested feature paths correctly', async () => {
       // Create parent feature
-      featureGenerator.generateFeature("documents");
+      featureGenerator.generateFeature('documents');
 
       // Test that we can create routes in the main feature
-      await routeGenerator.generate("documents", {
-        path: "/documents/admin/dashboard",
-        name: "AdminDashboard",
+      await routeGenerator.generate('documents', {
+        path: '/documents/admin/dashboard',
+        name: 'AdminDashboard',
         auth: true,
         force: false,
       });
 
-      await routeGenerator.generate("documents", {
-        path: "/documents/browse",
-        name: "BrowseDocuments",
+      await routeGenerator.generate('documents', {
+        path: '/documents/browse',
+        name: 'BrowseDocuments',
         auth: false,
         force: false,
       });
 
       expect(logger.success).toHaveBeenCalledWith(
-        expect.stringContaining("Generated top-level feature: documents")
+        expect.stringContaining('Generated top-level feature: documents')
       );
       expect(fs.writeFileSync).toHaveBeenCalled();
     });
   });
 
-  describe("Configuration Validation", () => {
-    it("should validate that feature config is properly updated", async () => {
-      featureGenerator.generateFeature("documents");
+  describe('Configuration Validation', () => {
+    it('should validate that feature config is properly updated', async () => {
+      featureGenerator.generateFeature('documents');
 
       // Create various components that will trigger config updates
-      await routeGenerator.generate("documents", {
-        path: "/documents",
+      await routeGenerator.generate('documents', {
+        path: '/documents',
         force: false,
       });
 
-      await apiGenerator.generate("documents", {
-        name: "searchApi",
-        method: "GET",
-        route: "/api/documents/search",
-        entities: ["Document"],
+      await apiGenerator.generate('documents', {
+        name: 'searchApi',
+        method: 'GET',
+        route: '/api/documents/search',
+        entities: ['Document'],
         auth: false,
         force: false,
       });
 
       // Verify config file exists and was updated (should exist after generators run)
-      expect(mockFiles["config/documents.wasp.ts"]).toBeDefined();
+      const actualPath = Object.keys(mockFiles).find((key) =>
+        key.includes('documents.wasp.ts')
+      );
+      expect(actualPath).toBeDefined();
       // Config updates trigger success messages
       expect(logger.success).toHaveBeenCalled();
     });
 
-    it("should handle multiple entities in operations", async () => {
-      featureGenerator.generateFeature("documents");
+    it('should handle multiple entities in operations', async () => {
+      featureGenerator.generateFeature('documents');
 
-      await operationGenerator.generate("documents", {
-        feature: "documents",
-        dataType: "Document",
-        operation: "getAll",
-        entities: "Document,User,Category",
+      await operationGenerator.generate('documents', {
+        dataType: 'Document',
+        operation: 'getAll',
+        entities: 'Document,User,Category',
         auth: false,
         force: false,
       });
@@ -992,14 +943,14 @@ describe("Integration Tests - Full Feature Creation", () => {
     });
   });
 
-  describe("JSON Field Handling", () => {
+  describe('JSON Field Handling', () => {
     beforeEach(async () => {
-      featureGenerator.generateFeature("documents");
+      featureGenerator.generateFeature('documents');
     });
 
-    it("should properly handle JSON fields in CRUD operations", async () => {
-      await crudGenerator.generate("documents", {
-        dataType: "Document",
+    it('should properly handle JSON fields in CRUD operations', async () => {
+      await crudGenerator.generate('documents', {
+        dataType: 'Document',
         force: false,
       });
 
@@ -1010,12 +961,11 @@ describe("Integration Tests - Full Feature Creation", () => {
       // This test verifies that CRUD generation completes successfully
     });
 
-    it("should handle JSON fields in operation generation", async () => {
-      await operationGenerator.generate("documents", {
-        feature: "documents",
-        dataType: "Document",
-        operation: "create",
-        entities: "Document",
+    it('should handle JSON fields in operation generation', async () => {
+      await operationGenerator.generate('documents', {
+        dataType: 'Document',
+        operation: 'create',
+        entities: 'Document',
         auth: true,
         force: false,
       });
@@ -1027,12 +977,12 @@ describe("Integration Tests - Full Feature Creation", () => {
       // This test verifies that operation generation completes successfully
     });
 
-    it("should include JSON fields in API generation with proper type handling", async () => {
-      await apiGenerator.generate("documents", {
-        name: "createDocument",
-        method: "POST",
-        route: "/api/documents",
-        entities: ["Document"],
+    it('should include JSON fields in API generation with proper type handling', async () => {
+      await apiGenerator.generate('documents', {
+        name: 'createDocument',
+        method: 'POST',
+        route: '/api/documents',
+        entities: ['Document'],
         auth: true,
         force: false,
       });
@@ -1044,10 +994,10 @@ describe("Integration Tests - Full Feature Creation", () => {
       // This test verifies that API generation completes successfully
     });
 
-    it("should handle JSON fields correctly in all CRUD override operations", async () => {
-      await crudGenerator.generate("documents", {
-        dataType: "Document",
-        override: ["get", "getAll", "create", "update", "delete"],
+    it('should handle JSON fields correctly in all CRUD override operations', async () => {
+      await crudGenerator.generate('documents', {
+        dataType: 'Document',
+        override: ['get', 'getAll', 'create', 'update', 'delete'],
         force: false,
       });
 
@@ -1058,48 +1008,48 @@ describe("Integration Tests - Full Feature Creation", () => {
       // This test verifies that CRUD generation with overrides completes successfully
     });
 
-    it("should validate JSON field metadata is correctly extracted", async () => {
-      const { getEntityMetadata } = await import("../src/utils/prisma");
-      const metadata = await getEntityMetadata("Document");
+    it('should validate JSON field metadata is correctly extracted', async () => {
+      const { getEntityMetadata } = await import('@ingenyus/swarm-core');
+      const metadata = await getEntityMetadata('Document');
 
       // Verify the settings JSON field is present with correct properties
       const settingsField = metadata.fields.find(
-        (field) => field.name === "settings"
+        (field) => field.name === 'settings'
       );
       expect(settingsField).toBeDefined();
-      expect(settingsField?.type).toBe("Json");
-      expect(settingsField?.tsType).toBe("Prisma.JsonValue");
+      expect(settingsField?.type).toBe('Json');
+      expect(settingsField?.tsType).toBe('Prisma.JsonValue');
       expect(settingsField?.hasDefaultValue).toBe(true);
     });
 
-    it("should ensure Prisma import is required when JSON fields are present", async () => {
+    it('should ensure Prisma import is required when JSON fields are present', async () => {
       const { needsPrismaImport, getEntityMetadata } = await import(
-        "../src/utils/prisma"
+        '@ingenyus/swarm-core'
       );
-      const metadata = await getEntityMetadata("Document");
+      const metadata = await getEntityMetadata('Document');
 
       // Should require Prisma import for JSON field handling
       expect(needsPrismaImport(metadata)).toBe(true);
     });
 
-    it("should generate appropriate JSON type handling code", async () => {
-      const { generateJsonTypeHandling } = await import("../src/utils/prisma");
-      const jsonHandling = generateJsonTypeHandling(["settings"]);
+    it('should generate appropriate JSON type handling code', async () => {
+      const { generateJsonTypeHandling } = await import('@ingenyus/swarm-core');
+      const jsonHandling = generateJsonTypeHandling(['settings']);
 
       // Verify JSON handling code is generated
-      expect(jsonHandling).toContain("settings");
-      expect(jsonHandling).toContain("Prisma.JsonValue");
+      expect(jsonHandling).toContain('settings');
+      expect(jsonHandling).toContain('Prisma.JsonValue');
     });
 
-    it("should identify JSON fields correctly", async () => {
+    it('should identify JSON fields correctly', async () => {
       const { getJsonFields, getEntityMetadata } = await import(
-        "../src/utils/prisma"
+        '@ingenyus/swarm-core'
       );
-      const metadata = await getEntityMetadata("Document");
+      const metadata = await getEntityMetadata('Document');
       const jsonFields = getJsonFields(metadata);
 
       // Verify settings field is identified as JSON
-      expect(jsonFields).toContain("settings");
+      expect(jsonFields).toContain('settings');
       expect(jsonFields).toHaveLength(1);
     });
   });

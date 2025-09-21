@@ -1,9 +1,9 @@
 import {
-  realLogger as logger,
   configureLogger,
-  LogLevel,
   LogFormat,
-} from '@ingenyus/swarm-cli/dist/utils/logger.js';
+  realLogger as logger,
+  LogLevel,
+} from '@ingenyus/swarm-core/dist/utils/logger.js';
 import {
   Server as MCPServer,
   ServerOptions,
@@ -26,7 +26,7 @@ import {
   Tool,
 } from './types/mcp.js';
 import { configManager } from './utils/config.js';
-import { ErrorFactory, createErrorContext } from './utils/errors.js';
+import { createErrorContext, ErrorFactory } from './utils/errors.js';
 
 export class SwarmMCPServer {
   private mcpServer: MCPServer;

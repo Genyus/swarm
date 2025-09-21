@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { createMockFS, createMockLogger } from '../../test/utils';
+import { createMockFS, createMockLogger } from '../../tests/utils';
 import type { IFileSystem } from '../types/filesystem';
 import type { Logger } from '../types/logger';
 import { FeatureGenerator } from './feature';

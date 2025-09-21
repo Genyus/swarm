@@ -1,14 +1,14 @@
+import {
+  configureLogger,
+  LogFormat,
+  realLogger as logger,
+  LogLevel,
+} from '@ingenyus/swarm-core/dist/utils/logger.js';
 import { existsSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { z } from 'zod';
-import { ErrorFactory, createErrorContext } from './errors.js';
-import {
-  realLogger as logger,
-  configureLogger,
-  LogLevel,
-  LogFormat,
-} from '@ingenyus/swarm-cli/dist/utils/logger.js';
+import { createErrorContext, ErrorFactory } from './errors.js';
 
 const ENV_PREFIX = 'SWARM_MCP_';
 

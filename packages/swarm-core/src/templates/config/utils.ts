@@ -1,5 +1,5 @@
-import fs from 'node:fs';
-import path from 'node:path';
+import fs from "node:fs";
+import path from "node:path";
 import {
   ActionConfig,
   ApiConfig,
@@ -10,7 +10,7 @@ import {
   JobConfig,
   QueryConfig,
   RouteConfig,
-} from 'wasp-config';
+} from "wasp-config";
 
 /**
  * Configuration type for a feature module containing all possible Wasp configurations
@@ -55,7 +55,7 @@ function configureFeature(app: App, config: FeatureConfig): void {
     Object.entries(config.apiNamespaces).forEach(
       ([name, apiNamespaceConfig]) => {
         app.apiNamespace(name, apiNamespaceConfig);
-      }
+      },
     );
   config.cruds &&
     Object.entries(config.cruds).forEach(([name, crudConfig]) => {
@@ -71,16 +71,16 @@ function configureFeature(app: App, config: FeatureConfig): void {
  */
 export async function initialiseApp(
   appName: string,
-  appConfig: AppConfig
+  appConfig: AppConfig,
 ): Promise<App> {
   const app = new App(appName, appConfig);
   const featureFiles = fs
-    .readdirSync(path.join(process.cwd(), 'config'))
-    .filter((file) => file.endsWith('.wasp.ts'));
+    .readdirSync(path.join(process.cwd(), "config"))
+    .filter((file) => file.endsWith(".wasp.ts"));
 
   for (const file of featureFiles) {
     try {
-      const modulePath = `./${file.replace('.ts', '.js')}`;
+      const modulePath = `./${file.replace(".ts", ".js")}`;
       const module = await import(modulePath);
 
       if (module.default) {

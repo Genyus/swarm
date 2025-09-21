@@ -15,15 +15,15 @@
     "LICENSE"
   ],
   "scripts": {
-    "build": "rm -rf dist && tsup && cp -r src/templates dist/",
+    "build": "rm -rf dist && tsup",
     "build:watch": "tsc --watch",
     "repack": "rm -rf ingenyus-swarm-cli-* && pnpm pack",
     "test": "vitest run",
     "test:watch": "vitest",
-    "lint": "eslint src --ext .ts",
-    "lint:fix": "eslint src --ext .ts --fix",
-    "format": "prettier --write src",
-    "format:check": "prettier --check src",
+    "lint": "eslint src test --ext .ts",
+    "lint:fix": "eslint src test --ext .ts --fix",
+    "format": "prettier --write src test",
+    "format:check": "prettier --check src test",
     "typecheck": "tsc --noEmit",
     "postinstall": "prisma generate",
     "prepublishOnly": "pnpm run typecheck && pnpm run lint && pnpm run build && pnpm test"
@@ -73,6 +73,7 @@
     "vitest": "^3.1.4"
   },
   "dependencies": {
+    "@ingenyus/swarm-core": "workspace:*",
     "chalk": "^5.0.0",
     "commander": "^14.0.0",
     "signale": "^1.4.0"

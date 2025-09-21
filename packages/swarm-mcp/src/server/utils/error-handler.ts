@@ -1,4 +1,4 @@
-import { realLogger as logger } from '@ingenyus/swarm-cli/dist/utils/logger.js';
+import { realLogger as logger } from '@ingenyus/swarm-core/dist/utils/logger.js';
 import { MCPProtocolError } from '../types/mcp.js';
 import { createErrorContext, normalizeToMCPError } from './errors.js';
 

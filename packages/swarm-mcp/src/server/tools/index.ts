@@ -1,5 +1,5 @@
-import { realFileSystem } from '@ingenyus/swarm-cli/dist/utils/filesystem.js';
-import { realLogger } from '@ingenyus/swarm-cli/dist/utils/logger.js';
+import { realFileSystem } from '@ingenyus/swarm-core/dist/utils/filesystem.js';
+import { realLogger } from '@ingenyus/swarm-core/dist/utils/logger.js';
 import type {
   SwarmGenerateApiNamespaceParams,
   SwarmGenerateApiParams,

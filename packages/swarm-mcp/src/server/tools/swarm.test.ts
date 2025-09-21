@@ -1,4 +1,4 @@
-import { realLogger } from '@ingenyus/swarm-cli/dist/utils/logger.js';
+import { realLogger } from '@ingenyus/swarm-core/dist/utils/logger.js';
 import type { Buffer as NodeBuffer } from 'node:buffer';
 import type { Dirent, Stats } from 'node:fs';
 import fs from 'node:fs';

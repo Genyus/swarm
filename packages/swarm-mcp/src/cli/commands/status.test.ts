@@ -1,14 +1,14 @@
+import { realLogger as logger } from '@ingenyus/swarm-core/dist/utils/logger.js';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { createStatusCommand } from './status.js';
 import { ServerManager } from '../server-manager.js';
-import { realLogger as logger } from '@ingenyus/swarm-cli/dist/utils/logger.js';
+import { createStatusCommand } from './status.js';
 
 // Mock the ServerManager
 vi.mock('../server-manager.js', () => ({
   ServerManager: vi.fn(),
 }));
 
-vi.mock('@ingenyus/swarm-cli/dist/utils/logger.js', () => ({
+vi.mock('@ingenyus/swarm-core/dist/utils/logger.js', () => ({
   realLogger: {
     info: vi.fn(),
     error: vi.fn(),

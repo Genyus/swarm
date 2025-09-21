@@ -1,4 +1,4 @@
-import { realLogger as logger } from '@ingenyus/swarm-cli/dist/utils/logger.js';
+import { realLogger as logger } from '@ingenyus/swarm-core/dist/utils/logger.js';
 import { SwarmMCPServer } from '../server/index.js';
 import type { ServerConfig } from '../server/types/mcp.js';
 import { configManager } from '../server/utils/config.js';

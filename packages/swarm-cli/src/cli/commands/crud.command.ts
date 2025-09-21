@@ -1,10 +1,13 @@
+import {
+  CrudGenerator,
+  IFeatureGenerator,
+  IFileSystem,
+  Logger,
+  NodeGenerator,
+  validateFeaturePath,
+} from '@ingenyus/swarm-core';
 import { Command } from 'commander';
-import { CrudGenerator } from '../../generators/crud';
-import { NodeGeneratorCommand } from '../../types';
-import { IFileSystem } from '../../types/filesystem';
-import { IFeatureGenerator, NodeGenerator } from '../../types/generator';
-import { Logger } from '../../types/logger';
-import { validateFeaturePath } from '../../utils/strings';
+import { NodeGeneratorCommand } from '../../types/commands';
 import { withFeatureOption, withForceOption, withNameOption } from '../options';
 
 export function createCrudCommand(

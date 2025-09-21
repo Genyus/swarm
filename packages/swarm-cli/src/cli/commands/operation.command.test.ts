@@ -4,7 +4,7 @@ import {
   createMockFS,
   createMockLogger,
 } from '../../../test/utils';
-import type { NodeGenerator } from '../../types/generator';
+import type { NodeGenerator } from '@ingenyus/swarm-core';
 import { createActionCommand } from './operation.command';
 
 describe('createActionCommand', () => {

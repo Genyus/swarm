@@ -5,7 +5,7 @@ import type { Logger } from '../src/types/logger';
 
 /**
  * Creates a mock filesystem implementation for testing.
- *
+ * 
  * @returns A mock IFileSystem object with all methods stubbed using Vitest's vi.fn()
  */
 export function createMockFS(): IFileSystem {
@@ -21,7 +21,7 @@ export function createMockFS(): IFileSystem {
 
 /**
  * Creates a mock logger implementation for testing.
- *
+ * 
  * @returns A mock Logger object with all logging methods stubbed using Vitest's vi.fn()
  */
 export function createMockLogger(): Logger {
@@ -36,7 +36,7 @@ export function createMockLogger(): Logger {
 
 /**
  * Creates a mock feature generator implementation for testing.
- *
+ * 
  * @returns A mock IFeatureGenerator object with methods stubbed using Vitest's vi.fn()
  */
 export function createMockFeatureGen(): IFeatureGenerator {
@@ -45,4 +45,4 @@ export function createMockFeatureGen(): IFeatureGenerator {
     generateFeatureConfig: vi.fn(() => 'config'),
     generateFeature: vi.fn(() => 'config'),
   };
-}
+} 

@@ -30,6 +30,47 @@ export async function setupSwarmMocks() {
   const mockSwarmToolsInstance = mockSwarm.SwarmTools.create();
 
   mockSwarm.mockSwarmToolsInstance = mockSwarmToolsInstance;
+  setupMockImplementations(mockSwarmToolsInstance);
+
+  return { ...mockSwarm, mockSwarmToolsInstance };
+}
+
+export function setSwarmError(
+  mockSwarm: any,
+  functionName: string,
+  errorMessage: string
+) {
+  const mockFunction = mockSwarm.mockSwarmToolsInstance?.[functionName];
+
+  if (mockFunction) {
+    mockFunction.mockRejectedValue(new Error(errorMessage));
+  }
+}
+
+export function clearSwarmError(mockSwarm: any, functionName: string) {
+  const mockFunction = mockSwarm.mockSwarmToolsInstance?.[functionName];
+
+  if (mockFunction) {
+    mockFunction.mockReset();
+    // Re-setup the mock implementation
+    setupMockImplementations(mockSwarm.mockSwarmToolsInstance);
+  }
+}
+
+export function resetSwarmMocks(mockSwarm: any) {
+  if (mockSwarm?.mockSwarmToolsInstance) {
+    Object.values(mockSwarm.mockSwarmToolsInstance).forEach((mockFn: any) => {
+      if (mockFn && typeof mockFn.mockReset === 'function') {
+        mockFn.mockReset();
+      }
+    });
+
+    // Re-setup the mock implementations
+    setupMockImplementations(mockSwarm.mockSwarmToolsInstance);
+  }
+}
+
+export function setupMockImplementations(mockSwarmToolsInstance: any) {
   mockSwarmToolsInstance.generateApi.mockResolvedValue({
     success: true,
     output:
@@ -86,27 +127,5 @@ export async function setupSwarmMocks() {
       'API namespace generated successfully\nGenerated files:\n- src/api/v1/index.ts',
     generatedFiles: ['src/api/v1/index.ts'],
     modifiedFiles: [],
-  });
-
-  return { ...mockSwarm, mockSwarmToolsInstance };
-}
-
-export function setSwarmError(
-  mockSwarm: any,
-  functionName: string,
-  errorMessage: string
-) {
-  const mockFunction = mockSwarm.mockSwarmToolsInstance?.[functionName];
-
-  if (mockFunction) {
-    mockFunction.mockRejectedValue(new Error(errorMessage));
-  }
-}
-
-export function resetSwarmMocks(mockSwarmToolsInstance: any) {
-  Object.values(mockSwarmToolsInstance).forEach((mockFn: any) => {
-    if (mockFn && typeof mockFn.mockReset === 'function') {
-      mockFn.mockReset();
-    }
   });
 }

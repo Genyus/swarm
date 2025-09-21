@@ -1,12 +1,12 @@
-import { ApiGenerator } from '@ingenyus/swarm-cli/dist/generators/api.js';
-import { ApiNamespaceGenerator } from '@ingenyus/swarm-cli/dist/generators/apinamespace.js';
-import { CrudGenerator } from '@ingenyus/swarm-cli/dist/generators/crud.js';
-import { FeatureGenerator } from '@ingenyus/swarm-cli/dist/generators/feature.js';
-import { JobGenerator } from '@ingenyus/swarm-cli/dist/generators/job.js';
-import { OperationGenerator } from '@ingenyus/swarm-cli/dist/generators/operation.js';
-import { RouteGenerator } from '@ingenyus/swarm-cli/dist/generators/route.js';
-import type { IFileSystem } from '@ingenyus/swarm-cli/dist/types/filesystem.js';
-import type { Logger } from '@ingenyus/swarm-cli/dist/types/logger.js';
+import { ApiGenerator } from '@ingenyus/swarm-core/dist/generators/api.js';
+import { ApiNamespaceGenerator } from '@ingenyus/swarm-core/dist/generators/apinamespace.js';
+import { CrudGenerator } from '@ingenyus/swarm-core/dist/generators/crud.js';
+import { FeatureGenerator } from '@ingenyus/swarm-core/dist/generators/feature.js';
+import { JobGenerator } from '@ingenyus/swarm-core/dist/generators/job.js';
+import { OperationGenerator } from '@ingenyus/swarm-core/dist/generators/operation.js';
+import { RouteGenerator } from '@ingenyus/swarm-core/dist/generators/route.js';
+import type { IFileSystem } from '@ingenyus/swarm-core/dist/types/filesystem.js';
+import type { Logger } from '@ingenyus/swarm-core/dist/types/logger.js';
 
 import type {
   ApiFlags,
@@ -15,7 +15,7 @@ import type {
   JobFlags,
   OperationFlags,
   RouteFlags,
-} from '@ingenyus/swarm-cli/dist/types/index.js';
+} from '@ingenyus/swarm-core/dist/types/index.js';
 
 export class SwarmGeneratorsService {
   private featureGenerator: FeatureGenerator;

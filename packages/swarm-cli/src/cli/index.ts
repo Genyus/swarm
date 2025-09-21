@@ -1,7 +1,7 @@
 import { Command } from 'commander';
 import * as path from 'path';
-import { getAppRootDir, realFileSystem } from '../utils/filesystem';
-import { realLogger } from '../utils/logger';
+import { getAppRootDir, realFileSystem } from '@ingenyus/swarm-core';
+import { realLogger } from '@ingenyus/swarm-core';
 import { createFeatureCommand } from './commands/feature.command';
 
 /**

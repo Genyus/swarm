@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { createMockFS } from '../../test/utils';
+import { createMockFS } from '../../tests/utils';
 import type { IFileSystem } from '../types/filesystem';
 import * as filesystem from './filesystem';
 

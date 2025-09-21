@@ -17,6 +17,9 @@ importers:
 
   packages/swarm-cli:
     dependencies:
+      '@ingenyus/swarm-core':
+        specifier: workspace:*
+        version: link:../swarm-core
       chalk:
         specifier: ^5.0.0
         version: 5.4.1
@@ -76,11 +79,69 @@ importers:
         specifier: ^3.1.4
         version: 3.2.3(@types/node@22.15.31)
 
+  packages/swarm-core:
+    dependencies:
+      chalk:
+        specifier: ^5.0.0
+        version: 5.6.0
+      signale:
+        specifier: ^1.4.0
+        version: 1.4.0
+    devDependencies:
+      '@eslint/js':
+        specifier: ^9.28.0
+        version: 9.34.0
+      '@prisma/client':
+        specifier: 5.19.1
+        version: 5.19.1(prisma@5.19.1)
+      '@types/glob':
+        specifier: ^8.1.0
+        version: 8.1.0
+      '@types/node':
+        specifier: ^22.15.29
+        version: 22.15.31
+      '@types/signale':
+        specifier: ^1.4.7
+        version: 1.4.7
+      '@typescript-eslint/eslint-plugin':
+        specifier: ^8.33.1
+        version: 8.41.0(@typescript-eslint/parser@8.41.0(eslint@9.34.0)(typescript@5.9.2))(eslint@9.34.0)(typescript@5.9.2)
+      '@typescript-eslint/parser':
+        specifier: ^8.33.1
+        version: 8.41.0(eslint@9.34.0)(typescript@5.9.2)
+      eslint:
+        specifier: ^9.28.0
+        version: 9.34.0
+      eslint-config-prettier:
+        specifier: ^10.1.5
+        version: 10.1.5(eslint@9.34.0)
+      eslint-plugin-prettier:
+        specifier: ^5.4.1
+        version: 5.4.1(eslint-config-prettier@10.1.5(eslint@9.34.0))(eslint@9.34.0)(prettier@3.6.2)
+      glob:
+        specifier: ^11.0.3
+        version: 11.0.3
+      prettier:
+        specifier: ^3.5.3
+        version: 3.6.2
+      prisma:
+        specifier: ^5.19.1
+        version: 5.19.1
+      tsup:
+        specifier: ^8.5.0
+        version: 8.5.0(postcss@8.5.5)(typescript@5.9.2)
+      typescript:
+        specifier: ^5.0.0
+        version: 5.9.2
+      vitest:
+        specifier: ^3.1.4
+        version: 3.2.3(@types/node@22.15.31)
+
   packages/swarm-mcp:
     dependencies:
-      '@ingenyus/swarm-cli':
+      '@ingenyus/swarm-core':
         specifier: workspace:*
-        version: link:../swarm-cli
+        version: link:../swarm-core
       '@modelcontextprotocol/sdk':
         specifier: ^1.17.4
         version: 1.17.4
@@ -3135,7 +3196,7 @@ snapshots:
   '@types/glob@8.1.0':
     dependencies:
       '@types/minimatch': 5.1.2
-      '@types/node': 22.15.31
+      '@types/node': 24.3.0
 
   '@types/json-schema@7.0.15': {}
 
@@ -3155,7 +3216,7 @@ snapshots:
 
   '@types/signale@1.4.7':
     dependencies:
-      '@types/node': 22.15.31
+      '@types/node': 24.3.0
 
   '@typescript-eslint/eslint-plugin@8.34.0(@typescript-eslint/parser@8.34.0(eslint@9.29.0)(typescript@5.8.3))(eslint@9.29.0)(typescript@5.8.3)':
     dependencies:
@@ -3737,6 +3798,10 @@ snapshots:
     dependencies:
       eslint: 9.29.0
 
+  eslint-config-prettier@10.1.5(eslint@9.34.0):
+    dependencies:
+      eslint: 9.34.0
+
   eslint-plugin-prettier@5.4.1(eslint-config-prettier@10.1.5(eslint@9.29.0))(eslint@9.29.0)(prettier@3.5.3):
     dependencies:
       eslint: 9.29.0
@@ -3745,6 +3810,15 @@ snapshots:
       synckit: 0.11.8
     optionalDependencies:
       eslint-config-prettier: 10.1.5(eslint@9.29.0)
+
+  eslint-plugin-prettier@5.4.1(eslint-config-prettier@10.1.5(eslint@9.34.0))(eslint@9.34.0)(prettier@3.6.2):
+    dependencies:
+      eslint: 9.34.0
+      prettier: 3.6.2
+      prettier-linter-helpers: 1.0.0
+      synckit: 0.11.8
+    optionalDependencies:
+      eslint-config-prettier: 10.1.5(eslint@9.34.0)
 
   eslint-scope@8.4.0:
     dependencies:
@@ -4789,6 +4863,34 @@ snapshots:
     optionalDependencies:
       postcss: 8.5.5
       typescript: 5.8.3
+    transitivePeerDependencies:
+      - jiti
+      - supports-color
+      - tsx
+      - yaml
+
+  tsup@8.5.0(postcss@8.5.5)(typescript@5.9.2):
+    dependencies:
+      bundle-require: 5.1.0(esbuild@0.25.5)
+      cac: 6.7.14
+      chokidar: 4.0.3
+      consola: 3.4.2
+      debug: 4.4.1
+      esbuild: 0.25.5
+      fix-dts-default-cjs-exports: 1.0.1
+      joycon: 3.1.1
+      picocolors: 1.1.1
+      postcss-load-config: 6.0.1(postcss@8.5.5)
+      resolve-from: 5.0.0
+      rollup: 4.43.0
+      source-map: 0.8.0-beta.0
+      sucrase: 3.35.0
+      tinyexec: 0.3.2
+      tinyglobby: 0.2.14
+      tree-kill: 1.2.2
+    optionalDependencies:
+      postcss: 8.5.5
+      typescript: 5.9.2
     transitivePeerDependencies:
       - jiti
       - supports-color

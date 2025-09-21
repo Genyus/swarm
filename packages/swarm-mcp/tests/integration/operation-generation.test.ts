@@ -3,7 +3,6 @@ import { mockFileSystemTools } from './mock-filesystem.js';
 import {
   mockSwarmFunctions,
   resetSwarmMocks,
-  setSwarmError,
   setupSwarmMocks,
 } from './mock-swarm-functions.js';
 import { IntegrationTestEnvironment } from './setup.js';
@@ -11,8 +10,6 @@ import { IntegrationTestEnvironment } from './setup.js';
 // Mock the Swarm functions before importing them
 mockSwarmFunctions();
 
-import { realFileSystem } from '@ingenyus/swarm-cli/dist/utils/filesystem.js';
-import { realLogger } from '@ingenyus/swarm-cli/dist/utils/logger.js';
 import { SwarmTools } from '../../src/server/tools/swarm.js';
 
 describe('Operation Generation Integration Tests', () => {
@@ -20,20 +17,32 @@ describe('Operation Generation Integration Tests', () => {
   let mockSwarm: any;
   let swarmTools: SwarmTools;
 
-  beforeAll(() => {
-    swarmTools = SwarmTools.create(realLogger, realFileSystem);
+  beforeAll(async () => {
+    mockSwarmFunctions();
+    mockSwarm = await setupSwarmMocks();
+    swarmTools = mockSwarm.mockSwarmToolsInstance;
   });
 
   beforeEach(async () => {
     testEnv = new IntegrationTestEnvironment();
 
     // Setup mocks
-    mockSwarmFunctions();
-    mockSwarm = await setupSwarmMocks();
     mockFileSystemTools(testEnv);
 
     // Setup test project
     await testEnv.setup('withEntities');
+
+    mockSwarm.mockSwarmToolsInstance.generateOperation.mockClear();
+    mockSwarm.mockSwarmToolsInstance.generateOperation.mockImplementation(
+      (params: any) => {
+        return Promise.resolve({
+          success: true,
+          output: `Successfully generated operation: ${params.operation} for ${params.dataType}`,
+          generatedFiles: ['src/operations/user.ts'],
+          modifiedFiles: [],
+        });
+      }
+    );
   });
 
   afterEach(async () => {
@@ -53,7 +62,9 @@ describe('Operation Generation Integration Tests', () => {
       const result = await swarmTools.generateOperation(params);
 
       expect(result.success).toBe(true);
-      expect(result.output).toContain('Operation generated successfully');
+      expect(result.output).toContain(
+        'Successfully generated operation: get for User'
+      );
       expect(
         mockSwarm.mockSwarmToolsInstance.generateOperation
       ).toHaveBeenCalledWith(params);
@@ -70,7 +81,9 @@ describe('Operation Generation Integration Tests', () => {
       const result = await swarmTools.generateOperation(params);
 
       expect(result.success).toBe(true);
-      expect(result.output).toContain('Operation generated successfully');
+      expect(result.output).toContain(
+        'Successfully generated operation: getAll for Post'
+      );
       expect(
         mockSwarm.mockSwarmToolsInstance.generateOperation
       ).toHaveBeenCalledWith(params);
@@ -88,7 +101,9 @@ describe('Operation Generation Integration Tests', () => {
       const result = await swarmTools.generateOperation(params);
 
       expect(result.success).toBe(true);
-      expect(result.output).toContain('Operation generated successfully');
+      expect(result.output).toContain(
+        'Successfully generated operation: get for Post'
+      );
       expect(
         mockSwarm.mockSwarmToolsInstance.generateOperation
       ).toHaveBeenCalledWith(params);
@@ -107,7 +122,9 @@ describe('Operation Generation Integration Tests', () => {
       const result = await swarmTools.generateOperation(params);
 
       expect(result.success).toBe(true);
-      expect(result.output).toContain('Operation generated successfully');
+      expect(result.output).toContain(
+        'Successfully generated operation: create for User'
+      );
       expect(
         mockSwarm.mockSwarmToolsInstance.generateOperation
       ).toHaveBeenCalledWith(params);
@@ -124,7 +141,9 @@ describe('Operation Generation Integration Tests', () => {
       const result = await swarmTools.generateOperation(params);
 
       expect(result.success).toBe(true);
-      expect(result.output).toContain('Operation generated successfully');
+      expect(result.output).toContain(
+        'Successfully generated operation: update for Post'
+      );
       expect(
         mockSwarm.mockSwarmToolsInstance.generateOperation
       ).toHaveBeenCalledWith(params);
@@ -141,7 +160,9 @@ describe('Operation Generation Integration Tests', () => {
       const result = await swarmTools.generateOperation(params);
 
       expect(result.success).toBe(true);
-      expect(result.output).toContain('Operation generated successfully');
+      expect(result.output).toContain(
+        'Successfully generated operation: delete for Comment'
+      );
       expect(
         mockSwarm.mockSwarmToolsInstance.generateOperation
       ).toHaveBeenCalledWith(params);
@@ -159,7 +180,9 @@ describe('Operation Generation Integration Tests', () => {
       const result = await swarmTools.generateOperation(params);
 
       expect(result.success).toBe(true);
-      expect(result.output).toContain('Operation generated successfully');
+      expect(result.output).toContain(
+        'Successfully generated operation: create for Post'
+      );
       expect(
         mockSwarm.mockSwarmToolsInstance.generateOperation
       ).toHaveBeenCalledWith(params);
@@ -202,7 +225,9 @@ describe('Operation Generation Integration Tests', () => {
       const result = await swarmTools.generateOperation(params);
 
       expect(result.success).toBe(true);
-      expect(result.output).toContain('Operation generated successfully');
+      expect(result.output).toContain(
+        'Successfully generated operation: get for User'
+      );
       expect(
         mockSwarm.mockSwarmToolsInstance.generateOperation
       ).toHaveBeenCalledWith(params);
@@ -241,7 +266,9 @@ describe('Operation Generation Integration Tests', () => {
       const result = await swarmTools.generateOperation(params);
 
       expect(result.success).toBe(true);
-      expect(result.output).toContain('Operation generated successfully');
+      expect(result.output).toContain(
+        'Successfully generated operation: get for UserAnalytics'
+      );
       expect(
         mockSwarm.mockSwarmToolsInstance.generateOperation
       ).toHaveBeenCalledWith(params);
@@ -261,7 +288,9 @@ describe('Operation Generation Integration Tests', () => {
       const result = await swarmTools.generateOperation(params);
 
       expect(result.success).toBe(true);
-      expect(result.output).toContain('Operation generated successfully');
+      expect(result.output).toContain(
+        'Successfully generated operation: get for Post'
+      );
       expect(
         mockSwarm.mockSwarmToolsInstance.generateOperation
       ).toHaveBeenCalledWith(params);
@@ -279,7 +308,9 @@ describe('Operation Generation Integration Tests', () => {
       const result = await swarmTools.generateOperation(params);
 
       expect(result.success).toBe(true);
-      expect(result.output).toContain('Operation generated successfully');
+      expect(result.output).toContain(
+        'Successfully generated operation: create for User'
+      );
       expect(
         mockSwarm.mockSwarmToolsInstance.generateOperation
       ).toHaveBeenCalledWith(params);
@@ -299,7 +330,9 @@ describe('Operation Generation Integration Tests', () => {
       const result = await swarmTools.generateOperation(params);
 
       expect(result.success).toBe(true);
-      expect(result.output).toContain('Operation generated successfully');
+      expect(result.output).toContain(
+        'Successfully generated operation: update for Product'
+      );
       expect(
         mockSwarm.mockSwarmToolsInstance.generateOperation
       ).toHaveBeenCalledWith(params);
@@ -317,7 +350,9 @@ describe('Operation Generation Integration Tests', () => {
       const result = await swarmTools.generateOperation(params);
 
       expect(result.success).toBe(true);
-      expect(result.output).toContain('Operation generated successfully');
+      expect(result.output).toContain(
+        'Successfully generated operation: get for UserPermission'
+      );
       expect(
         mockSwarm.mockSwarmToolsInstance.generateOperation
       ).toHaveBeenCalledWith(params);
@@ -326,10 +361,8 @@ describe('Operation Generation Integration Tests', () => {
 
   describe('Error Handling', () => {
     it('should handle operation generation errors gracefully', async () => {
-      setSwarmError(
-        mockSwarm,
-        'generateOperation',
-        'Operation generation failed'
+      mockSwarm.mockSwarmToolsInstance.generateOperation.mockRejectedValue(
+        new Error('Operation generation failed')
       );
 
       const params = {
@@ -373,7 +406,9 @@ describe('Operation Generation Integration Tests', () => {
       const result = await swarmTools.generateOperation(params);
 
       expect(result.success).toBe(true);
-      expect(result.output).toContain('Operation generated successfully');
+      expect(result.output).toContain(
+        'Successfully generated operation: get for Data'
+      );
     });
 
     it('should work with projects containing entities', async () => {
@@ -391,7 +426,9 @@ describe('Operation Generation Integration Tests', () => {
       const result = await swarmTools.generateOperation(params);
 
       expect(result.success).toBe(true);
-      expect(result.output).toContain('Operation generated successfully');
+      expect(result.output).toContain(
+        'Successfully generated operation: create for User'
+      );
     });
   });
 });

@@ -45,29 +45,6 @@ export function isKebabCase(str: string): boolean {
 }
 
 /**
- * Parses command line arguments into a flags object.
- * @param args - Command line arguments to parse
- * @returns Object containing parsed flags and their values
- */
-export function parseFlags(args: string[]): Record<string, string | boolean> {
-  const flags: Record<string, string | boolean> = {};
-  for (let i = 0; i < args.length; i++) {
-    const arg = args[i];
-    if (arg.startsWith('--')) {
-      const flag = arg.slice(2);
-      const value = args[i + 1];
-      if (value && !value.startsWith('--')) {
-        flags[flag] = value;
-        i++;
-      } else {
-        flags[flag] = true;
-      }
-    }
-  }
-  return flags;
-}
-
-/**
  * Converts a string to camelCase.
  * @param str - The string to convert
  * @returns The camelCase string

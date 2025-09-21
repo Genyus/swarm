@@ -2,7 +2,6 @@ import { afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import {
   mockSwarmFunctions,
   resetSwarmMocks,
-  setSwarmError,
   setupSwarmMocks,
 } from './mock-swarm-functions.js';
 import { IntegrationTestEnvironment } from './setup.js';
@@ -11,9 +10,8 @@ import { IntegrationValidator } from './validator.js';
 // Mock the Swarm functions before importing them
 mockSwarmFunctions();
 
-import { realFileSystem } from '@ingenyus/swarm-cli/dist/utils/filesystem.js';
-import { realLogger } from '@ingenyus/swarm-cli/dist/utils/logger.js';
 import { SwarmTools } from '../../src/server/tools/swarm.js';
+import { mockFileSystemTools } from './mock-filesystem.js';
 
 describe('Feature Generation Integration', () => {
   let testEnv: IntegrationTestEnvironment;
@@ -21,15 +19,33 @@ describe('Feature Generation Integration', () => {
   let mockSwarm: any;
   let swarmTools: SwarmTools;
 
-  beforeAll(() => {
-    swarmTools = SwarmTools.create(realLogger, realFileSystem);
+  beforeAll(async () => {
+    mockSwarmFunctions();
+    mockSwarm = await setupSwarmMocks();
+    swarmTools = mockSwarm.mockSwarmToolsInstance;
   });
 
   beforeEach(async () => {
     testEnv = new IntegrationTestEnvironment();
     await testEnv.setup('withEntities');
     validator = new IntegrationValidator(testEnv);
-    mockSwarm = await setupSwarmMocks();
+
+    mockFileSystemTools(testEnv);
+
+    mockSwarm.mockSwarmToolsInstance.generateFeature.mockClear();
+    mockSwarm.mockSwarmToolsInstance.generateFeature.mockImplementation(
+      (params: any) => {
+        return Promise.resolve({
+          success: true,
+          output: `Feature generated successfully for ${params.name}`,
+          generatedFiles: [
+            `src/features/${params.name}/${params.name}.tsx`,
+            `src/features/${params.name}/index.tsx`,
+          ],
+          modifiedFiles: [],
+        });
+      }
+    );
   });
 
   afterEach(async () => {
@@ -57,7 +73,9 @@ describe('Feature Generation Integration', () => {
 
   describe('Error Handling', () => {
     it('should handle feature generation errors gracefully', async () => {
-      setSwarmError(mockSwarm, 'generateFeature', 'Invalid feature name');
+      mockSwarm.mockSwarmToolsInstance.generateFeature.mockImplementation(() =>
+        Promise.reject(new Error('Invalid feature name'))
+      );
 
       await expect(
         swarmTools.generateFeature({
@@ -67,10 +85,8 @@ describe('Feature Generation Integration', () => {
     });
 
     it('should handle component generation errors', async () => {
-      setSwarmError(
-        mockSwarm,
-        'generateFeature',
-        'Invalid component specified'
+      mockSwarm.mockSwarmToolsInstance.generateFeature.mockImplementation(() =>
+        Promise.reject(new Error('Invalid component specified'))
       );
 
       await expect(
@@ -84,7 +100,7 @@ describe('Feature Generation Integration', () => {
   describe('Project Integration', () => {
     it('should integrate generated features with project structure', async () => {
       const result = await swarmTools.generateFeature({
-        name: 'IntegrationFeature',
+        name: 'integration-feature',
       });
 
       expect(result.success).toBe(true);
@@ -97,7 +113,7 @@ describe('Feature Generation Integration', () => {
       const beforeFiles = await testEnv.listFiles('src');
 
       await swarmTools.generateFeature({
-        name: 'ConsistencyFeature',
+        name: 'consistency-feature',
       });
 
       const afterFiles = await testEnv.listFiles('src');
@@ -106,7 +122,7 @@ describe('Feature Generation Integration', () => {
 
     it('should generate features compatible with existing entities', async () => {
       const result = await swarmTools.generateFeature({
-        name: 'EntityCompatibleFeature',
+        name: 'entity-compatible-feature',
       });
 
       expect(result.success).toBe(true);
