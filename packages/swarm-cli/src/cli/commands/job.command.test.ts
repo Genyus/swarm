@@ -1,10 +1,10 @@
+import type { NodeGenerator } from '@ingenyus/swarm-core';
 import { describe, expect, it, vi } from 'vitest';
 import {
   createMockFeatureGen,
   createMockFS,
   createMockLogger,
-} from '../../../test/utils';
-import type { NodeGenerator } from '@ingenyus/swarm-core';
+} from '../../../tests/utils';
 import { createJobCommand } from './job.command';
 
 describe('createJobCommand', () => {
