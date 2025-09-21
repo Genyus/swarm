@@ -33,10 +33,7 @@ export class GeneratorService {
     this.featureGenerator = new FeatureGenerator(this.logger, this.fileSystem);
   }
 
-  static create(
-    logger: Logger,
-    fileSystem: IFileSystem
-  ): GeneratorService {
+  static create(logger: Logger, fileSystem: IFileSystem): GeneratorService {
     return new GeneratorService(logger, fileSystem);
   }
 
