@@ -6,8 +6,6 @@ export default defineConfig({
     'src/index.ts',
     'src/cli/index.ts',
     ...glob.sync('src/cli/commands/*.command.ts'),
-    ...glob.sync('src/generators/*.ts', { ignore: 'src/generators/*.test.ts' }),
-    ...glob.sync('src/utils/*.ts', { ignore: 'src/utils/*.test.ts' }),
     ...glob.sync('src/types/*.ts'),
   ],
   format: ['esm'],
@@ -25,4 +23,4 @@ export default defineConfig({
       js: '.js',
     };
   },
-}); 
+});

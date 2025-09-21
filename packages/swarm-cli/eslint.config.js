@@ -7,7 +7,7 @@ import prettier from 'eslint-plugin-prettier';
 export default [
   js.configs.recommended,
   {
-    files: ['src/**/*.ts'],
+    files: ['src/**/*.ts', 'tests/**/*.ts'],
     languageOptions: {
       parser: typescriptParser,
       parserOptions: {
@@ -48,4 +48,4 @@ export default [
   {
     ignores: ['dist/', 'node_modules/', '*.js', 'src/templates/'],
   },
-]; 
+];

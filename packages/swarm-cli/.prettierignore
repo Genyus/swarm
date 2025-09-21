@@ -5,5 +5,4 @@ node_modules/
 *.tgz
 .DS_Store
 pnpm-lock.yaml
-src/templates/
-CHANGELOG.md 
+CHANGELOG.md
