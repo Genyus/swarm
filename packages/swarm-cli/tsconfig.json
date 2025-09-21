@@ -13,6 +13,6 @@
     "strict": true,
     "skipLibCheck": true
   },
-  "include": ["src", "test"],
+  "include": ["src", "tests"],
   "exclude": ["src/templates/**/*", "dist", "node_modules"]
-} 
+}
