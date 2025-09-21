@@ -1,7 +1,7 @@
+import { realFileSystem, realLogger } from '@ingenyus/swarm-core';
 import { Command } from 'commander';
 import * as path from 'path';
-import { getAppRootDir, realFileSystem } from '@ingenyus/swarm-core';
-import { realLogger } from '@ingenyus/swarm-core';
+import { fileURLToPath } from 'url';
 import { createFeatureCommand } from './commands/feature.command';
 
 /**
@@ -16,7 +16,7 @@ export async function main(): Promise<void> {
   const featureGenerator = featureCmd.generator;
 
   // Read version from package.json and setup __dirname
-  const __dirname = getAppRootDir(realFileSystem);
+  const __dirname = path.dirname(fileURLToPath(import.meta.url));
   const packageJsonPath = path.join(__dirname, '../package.json');
   const version = JSON.parse(
     realFileSystem.readFileSync(packageJsonPath, 'utf8')
@@ -26,7 +26,7 @@ export async function main(): Promise<void> {
   featureCmd.register(program, featureGenerator);
 
   // Dynamically load all other commands except feature.command.ts/js
-  const commandsDir = path.join(__dirname, './cli/commands');
+  const commandsDir = path.join(__dirname, 'cli', 'commands');
   const files = realFileSystem
     .readdirSync(commandsDir)
     .filter(
