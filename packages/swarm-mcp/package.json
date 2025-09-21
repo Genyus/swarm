@@ -1,6 +1,6 @@
 {
   "name": "@ingenyus/swarm-mcp",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Model Context Protocol (MCP) server for Swarm CLI integration, enabling AI agents to programmatically generate Wasp application code",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
