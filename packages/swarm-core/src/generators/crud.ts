@@ -26,6 +26,9 @@ export class CrudGenerator implements NodeGenerator<CrudFlags> {
     private featureGenerator: IFeatureGenerator
   ) {
     this.templateUtility = new TemplateUtility(fs);
+    this.logger = logger;
+    this.fs = fs;
+    this.featureGenerator = featureGenerator;
   }
 
   private buildOperations(flags: CrudFlags): Record<string, unknown> {
@@ -119,7 +122,6 @@ export class CrudGenerator implements NodeGenerator<CrudFlags> {
         `${configExists ? 'Updated' : 'Added'} CRUD config in: ${configPath}`
       );
       this.logger.info(`\nCRUD ${crudName} processing complete.`);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       this.logger.error('Failed to generate CRUD: ' + error.stack);
     }

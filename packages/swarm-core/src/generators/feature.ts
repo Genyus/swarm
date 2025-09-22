@@ -1,4 +1,4 @@
-import path from 'path';
+import path from 'node:path';
 import { OPERATION_TYPES, TYPE_DIRECTORIES } from '../types';
 import { IFileSystem } from '../types/filesystem';
 import { IFeatureGenerator } from '../types/generator';
@@ -22,6 +22,8 @@ export class FeatureGenerator implements IFeatureGenerator {
     private fs: IFileSystem
   ) {
     this.templateUtility = new TemplateUtility(fs);
+    this.logger = logger;
+    this.fs = fs;
   }
 
   /**
@@ -217,7 +219,6 @@ export class FeatureGenerator implements IFeatureGenerator {
   public updateFeatureConfig(
     featurePath: string,
     type: string,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     options: Record<string, any> = {}
   ): string {
     const topLevelFeature = featurePath.split('/')[0];

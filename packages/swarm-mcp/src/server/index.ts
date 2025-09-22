@@ -3,7 +3,7 @@ import {
   LogFormat,
   realLogger as logger,
   LogLevel,
-} from '@ingenyus/swarm-core/dist/utils/logger.js';
+} from '@ingenyus/swarm-core';
 import {
   Server as MCPServer,
   ServerOptions,
@@ -118,7 +118,6 @@ export class SwarmMCPServer {
 
       if (name in tools) {
         try {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
           const result = await (tools as any)[name](args);
           return {
             content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
@@ -437,5 +436,5 @@ export class SwarmMCPServer {
   }
 }
 
-export { MCPErrorCode, MCPProtocolError, ServerConfig, ServerState, Tool };
+export type { MCPErrorCode, MCPProtocolError, ServerConfig, ServerState, Tool };
 export default SwarmMCPServer;

@@ -1,4 +1,4 @@
-import path from 'path';
+import path from 'node:path';
 import {
   ActionOperation,
   OPERATIONS,
@@ -30,6 +30,9 @@ export class OperationGenerator implements NodeGenerator<OperationFlags> {
     private featureGenerator: IFeatureGenerator
   ) {
     this.templateUtility = new TemplateUtility(fs);
+    this.logger = logger;
+    this.fs = fs;
+    this.featureGenerator = featureGenerator;
   }
 
   async generate(featurePath: string, flags: OperationFlags): Promise<void> {
@@ -101,7 +104,6 @@ export class OperationGenerator implements NodeGenerator<OperationFlags> {
         );
       }
       this.logger.info(`\nOperation ${operationName} processing complete.`);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       this.logger.error('Failed to generate operation: ' + error.stack);
     }

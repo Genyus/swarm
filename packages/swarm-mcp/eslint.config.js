@@ -1,11 +1,11 @@
-import js from '@eslint/js';
 import typescript from '@typescript-eslint/eslint-plugin';
 import typescriptParser from '@typescript-eslint/parser';
+import baseConfig from '../../eslint.config.js';
 
 export default [
-  js.configs.recommended,
+  ...baseConfig,
   {
-    files: ['src/**/*.ts'],
+    files: ['src/**/*.ts', 'tests/**/*.ts'],
     languageOptions: {
       parser: typescriptParser,
       parserOptions: {
@@ -14,42 +14,13 @@ export default [
         project: './tsconfig.json',
       },
       globals: {
-        console: 'readonly',
+        __dirname: 'readonly',
         process: 'readonly',
-        Buffer: 'readonly',
-        BufferEncoding: 'readonly',
-      },
-    },
-    plugins: {
-      '@typescript-eslint': typescript,
-    },
-    rules: {
-      ...typescript.configs.recommended.rules,
-      ...typescript.configs['recommended-requiring-type-checking'].rules,
-      '@typescript-eslint/no-unused-vars': 'error',
-      '@typescript-eslint/no-explicit-any': 'warn',
-      '@typescript-eslint/explicit-function-return-type': 'warn',
-      '@typescript-eslint/no-floating-promises': 'error',
-      '@typescript-eslint/await-thenable': 'error',
-      'prefer-const': 'error',
-      'no-var': 'error',
-      'no-console': 'warn',
-    },
-  },
-  {
-    files: ['tests/**/*.ts', '**/*.test.ts'],
-    languageOptions: {
-      parser: typescriptParser,
-      parserOptions: {
-        ecmaVersion: 2022,
-        sourceType: 'module',
-      },
-      globals: {
         console: 'readonly',
-        process: 'readonly',
         Buffer: 'readonly',
+        require: 'readonly',
+        module: 'readonly',
         BufferEncoding: 'readonly',
-        global: 'readonly',
         vi: 'readonly',
         describe: 'readonly',
         it: 'readonly',
@@ -60,41 +31,19 @@ export default [
         beforeAll: 'readonly',
         afterAll: 'readonly',
         NodeJS: 'readonly',
+        global: 'readonly',
       },
     },
     plugins: {
       '@typescript-eslint': typescript,
     },
     rules: {
-      ...typescript.configs.recommended.rules,
-      '@typescript-eslint/no-unused-vars': 'error',
-      '@typescript-eslint/no-explicit-any': 'off',
-      '@typescript-eslint/no-unsafe-assignment': 'off',
-      '@typescript-eslint/no-unsafe-member-access': 'off',
-      '@typescript-eslint/no-unsafe-call': 'off',
-      '@typescript-eslint/no-unsafe-return': 'off',
-      '@typescript-eslint/no-unsafe-argument': 'off',
-      '@typescript-eslint/unbound-method': 'off',
-      '@typescript-eslint/explicit-function-return-type': 'off',
-      'prefer-const': 'error',
-      'no-var': 'error',
-      'no-console': 'off',
+      // Disable base no-unused-vars in favor of @typescript-eslint/no-unused-vars
+      'no-unused-vars': 'off',
+      // Package-specific overrides can go here
     },
   },
-  {
-    files: ['src/cli/**/*.ts'],
-    rules: {
-      'no-console': 'off',
-      '@typescript-eslint/no-unsafe-argument': 'off',
+    {
+      ignores: ['dist/', 'node_modules/', 'coverage/', 'tests/output/', 'tests/**/*.d.ts', 'tests/**/*.d.ts.map', 'tests/**/*.js'],
     },
-  },
-  {
-    files: ['src/server/utils/config.ts'],
-    rules: {
-      'no-console': 'off',
-    },
-  },
-  {
-    ignores: ['dist/', 'node_modules/', 'coverage/', 'tests/output/'],
-  },
 ];
