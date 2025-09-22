@@ -1,8 +1,5 @@
-
-      {{operationName}}: {
-        fn: {
-          import: "{{operationName}}",
-          from: "{{importPath}}",
-        },
-        entities: [{{entities}}],
-      }
+    .addAction(
+      '{{operationName}}',
+      '{{importPath}}',
+      [{{entities}}]
+    )

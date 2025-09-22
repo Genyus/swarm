@@ -5,11 +5,13 @@ import { IFeatureGenerator, NodeGenerator } from '../types/generator';
 import { Logger } from '../types/logger';
 import {
   ensureDirectoryExists,
+  getFeatureDir,
+  getFeatureImportPath,
   getFeatureTargetDir,
   getRouteNameFromPath,
   getTemplatesDir,
 } from '../utils/filesystem';
-import { formatDisplayName } from '../utils/strings';
+import { formatDisplayName, hasHelperMethodCall } from '../utils/strings';
 import { TemplateUtility } from '../utils/templates';
 
 export class RouteGenerator implements NodeGenerator<RouteFlags> {
@@ -30,35 +32,37 @@ export class RouteGenerator implements NodeGenerator<RouteFlags> {
   async generate(featurePath: string, flags: RouteFlags): Promise<void> {
     try {
       const { path: routePath, name, auth, force } = flags;
-      // Generate component name from path if not provided
       const componentName = name || getRouteNameFromPath(routePath);
       const routeName = `${
         componentName.endsWith('Page')
           ? componentName.slice(0, -4)
           : componentName
       }Route`;
-      // Get the appropriate directory for the page component
       const { targetDirectory: pagesDir, importDirectory } =
         getFeatureTargetDir(this.fs, featurePath, 'page');
+
       ensureDirectoryExists(this.fs, pagesDir);
+
       const importPath = path.join(importDirectory, componentName);
       const pageFile = `${pagesDir}/${componentName}.tsx`;
       const fileExists = this.fs.existsSync(pageFile);
+
       if (fileExists && !force) {
         this.logger.info(`Page file already exists: ${pageFile}`);
         this.logger.info('Use --force to overwrite');
       } else {
-        // Generate the page component
         const templatePath = path.join(
           this.templatesDir,
           'files',
           'client',
           'page.tsx'
         );
+
         if (!this.fs.existsSync(templatePath)) {
           this.logger.error(`Page template not found: ${templatePath}`);
           return;
         }
+
         const template = this.fs.readFileSync(templatePath, 'utf8');
         const replacements = {
           ComponentName: componentName,
@@ -68,49 +72,77 @@ export class RouteGenerator implements NodeGenerator<RouteFlags> {
           template,
           replacements
         );
+
         this.fs.writeFileSync(pageFile, processed);
         this.logger.success(
           `${fileExists ? 'Overwrote' : 'Generated'} page file: ${pageFile}`
         );
       }
-      const configPath = `config/${featurePath.split('/')[0]}.wasp.ts`;
+
+      const featureName = featurePath.split('/')[0];
+      const featureDir = getFeatureDir(this.fs, featureName);
+      const configPath = path.join(featureDir, `${featureName}.wasp.ts`);
+
       if (!this.fs.existsSync(configPath)) {
         this.logger.error(`Feature config file not found: ${configPath}`);
+
         return;
       }
+
       let configContent = this.fs.readFileSync(configPath, 'utf8');
-      // Look for the route definition in the format "pageName: {"
-      const configExists = configContent.includes(`${componentName}: {`);
+      const configExists = hasHelperMethodCall(
+        configContent,
+        'addRoute',
+        routeName
+      );
+
       if (configExists && !force) {
         this.logger.info(`Route config already exists in ${configPath}`);
         this.logger.info('Use --force to overwrite');
       } else if (!configExists || force) {
-        if (configExists && force) {
-          // Remove existing route definition including the closing brace on its own line
-          const regex = new RegExp(
-            `\\s*${componentName}:\\s*{[^}]*}\\s*[,]?[^}]*}[,]?(?:\\r?\\n)`,
-            'g'
-          );
-          configContent = configContent.replace(regex, '\n');
-          // Clean up any double newlines that might have been left behind
-          configContent = configContent.replace(/\n\s*\n\s*\n/g, '\n\n');
-          this.fs.writeFileSync(configPath, configContent);
-        }
-        // Update feature config with new route
-        this.featureGenerator.updateFeatureConfig(featurePath, 'route', {
-          path: routePath,
-          componentName,
+        const definition = this.getDefinition(
           routeName,
-          importPath,
+          routePath,
+          componentName,
+          featurePath,
           auth,
-        });
+          importPath
+        );
+
+        this.featureGenerator.updateFeatureConfig(featurePath, definition);
         this.logger.success(
           `${configExists ? 'Updated' : 'Added'} route config in: ${configPath}`
         );
       }
+
       this.logger.info(`\nRoute ${routeName} processing complete.`);
     } catch (error: any) {
       this.logger.error('Failed to generate route: ' + error.stack);
     }
+  }
+
+  /**
+   * Generates a route definition for the feature configuration.
+   */
+  getDefinition(
+    routeName: string,
+    routePath: string,
+    componentName: string,
+    featurePath: string,
+    auth = false,
+    importPath: string
+  ): string {
+    const featureDir = getFeatureImportPath(featurePath);
+    const templatePath = this.templateUtility.getConfigTemplatePath('route');
+    const template = this.fs.readFileSync(templatePath, 'utf8');
+
+    return this.templateUtility.processTemplate(template, {
+      routeName,
+      routePath,
+      componentName,
+      featureDir,
+      auth: String(auth),
+      importPath,
+    });
   }
 }

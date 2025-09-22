@@ -18,6 +18,12 @@ vi.mock('../utils/io', () => ({
   }),
 }));
 
+vi.mock('../utils/strings', () => ({
+  toCamelCase: vi.fn().mockImplementation((str: string) => str),
+  toPascalCase: vi.fn().mockImplementation((str: string) => str),
+  hasHelperMethodCall: vi.fn().mockReturnValue(false),
+}));
+
 vi.mock('../utils/templates', () => ({
   TemplateUtility: vi.fn().mockImplementation(() => ({
     processTemplate: vi.fn().mockReturnValue('processed template content'),
@@ -55,5 +61,29 @@ describe('ApiGenerator', () => {
     });
     expect(fs.writeFileSync).toHaveBeenCalled();
     expect(featureGen.updateFeatureConfig).toHaveBeenCalled();
+  });
+
+  it('getDefinition returns processed template', () => {
+    const result = gen.getDefinition(
+      'testApi',
+      'test',
+      ['User'],
+      'GET',
+      '/api/test',
+      'features/test/_core/server/apis/test',
+      false,
+      'features/test/_core/server/apis/test'
+    );
+    expect(typeof result).toBe('string');
+  });
+
+  it('getApiNamespaceDefinition returns processed template', () => {
+    const result = gen.getApiNamespaceDefinition(
+      'testNamespace',
+      'middleware',
+      'features/test/_core/server/middleware/middleware',
+      '/api/test'
+    );
+    expect(typeof result).toBe('string');
   });
 });

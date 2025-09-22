@@ -1,8 +1,5 @@
-
-      {{namespaceName}}: {
-        middlewareConfigFn: {
-          import: "{{middlewareFnName}}",
-          from: "{{importPath}}",
-        },
-        path: "{{pathValue}}",
-      }
+    .addApiNamespace(
+      '{{namespaceName}}',
+      '{{pathValue}}',
+      '{{importPath}}'
+    )

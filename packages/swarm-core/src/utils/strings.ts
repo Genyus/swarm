@@ -163,3 +163,147 @@ export function validateRoutePath(path: string): void {
 export function capitalise(str: string): string {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
+
+/**
+ * Checks if a helper method call exists in the content, handling multi-line definitions
+ * and various formatting styles. This is more robust than simple string includes().
+ *
+ * @param content - The file content to search in
+ * @param methodName - The helper method name (e.g., 'addApi', 'addRoute')
+ * @param objectName - The name of the object being checked (e.g., 'getUsers', 'MainRoute')
+ * @returns True if the method call with the object name exists
+ *
+ * @example
+ * // Detects both single-line and multi-line definitions:
+ * // .addApi('getUsers', ...)
+ * // .addApi(
+ * //   'getUsers',
+ * //   ...
+ * // )
+ */
+export function hasHelperMethodCall(
+  content: string,
+  methodName: string,
+  objectName: string
+): boolean {
+  // Create a regex pattern that matches the method call with flexible whitespace
+  // Pattern breakdown:
+  // \. - literal dot
+  // methodName - the method name
+  // \s* - optional whitespace
+  // \( - opening parenthesis
+  // \s* - optional whitespace (including newlines)
+  // ['"`] - quote character (single, double, or backtick)
+  // objectName - the object name
+  // ['"`] - matching quote character
+  const pattern = new RegExp(
+    `\\.${methodName}\\s*\\(\\s*['"\`]${objectName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}['"\`]`,
+    's' // 's' flag allows . to match newlines
+  );
+
+  return pattern.test(content);
+}
+
+/**
+ * Checks if an API namespace definition exists in the content.
+ * This handles the special case where API namespaces use a different pattern.
+ *
+ * @param content - The file content to search in
+ * @param namespaceName - The namespace name to check for
+ * @returns True if the namespace definition exists
+ */
+export function hasApiNamespaceDefinition(
+  content: string,
+  namespaceName: string
+): boolean {
+  // API namespaces use a different pattern: namespaceName: {
+  // We need to handle various whitespace and formatting styles
+  const pattern = new RegExp(
+    `${namespaceName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*:\\s*\\{`,
+    's'
+  );
+
+  return pattern.test(content);
+}
+
+/**
+ * Extracts the method name and first parameter from a helper method definition.
+ * This is used by the removeExistingDefinition method to identify what to remove.
+ *
+ * @param definition - The definition string to parse
+ * @returns Object with methodName and firstParam, or null if parsing fails
+ */
+export function parseHelperMethodDefinition(definition: string): {
+  methodName: string;
+  firstParam: string;
+} | null {
+  const lines = definition.split('\n');
+  const firstNonEmptyLine = lines.find((line) => line.trim() !== '');
+
+  if (!firstNonEmptyLine) {
+    return null;
+  }
+
+  // Extract the method name
+  const methodMatch = firstNonEmptyLine.match(/\.(\w+)\s*\(/);
+  if (!methodMatch) {
+    return null;
+  }
+
+  const methodName = methodMatch[1];
+
+  // Extract the first parameter - check the first line first, then subsequent lines
+  let firstParamMatch = firstNonEmptyLine.match(/\(\s*['"`]([^'"`]+)['"`]/);
+
+  if (!firstParamMatch) {
+    // Look for the first parameter in subsequent lines (multi-line case)
+    const remainingLines = lines.slice(lines.indexOf(firstNonEmptyLine) + 1);
+    for (const line of remainingLines) {
+      const trimmedLine = line.trim();
+      if (trimmedLine) {
+        firstParamMatch = trimmedLine.match(/['"`]([^'"`]+)['"`]/);
+        if (firstParamMatch) {
+          break;
+        }
+      }
+    }
+  }
+
+  if (!firstParamMatch) {
+    return null;
+  }
+
+  return {
+    methodName,
+    firstParam: firstParamMatch[1],
+  };
+}
+
+/**
+ * Test cases for the object detection functions:
+ *
+ * // Single line detection
+ * hasHelperMethodCall('.addApi("getUsers", ...)', 'addApi', 'getUsers') // true
+ * hasHelperMethodCall('.addRoute(\'MainRoute\', ...)', 'addRoute', 'MainRoute') // true
+ *
+ * // Multi-line detection
+ * hasHelperMethodCall(`
+ *   .addApi(
+ *     "getUsers",
+ *     "GET",
+ *     "/api/users"
+ *   )
+ * `, 'addApi', 'getUsers') // true
+ *
+ * // Various quote styles
+ * hasHelperMethodCall('.addApi(`getUsers`, ...)', 'addApi', 'getUsers') // true
+ * hasHelperMethodCall('.addApi( "getUsers" , ...)', 'addApi', 'getUsers') // true
+ *
+ * // API namespace detection
+ * hasApiNamespaceDefinition('apiNamespace: {', 'apiNamespace') // true
+ * hasApiNamespaceDefinition('  apiNamespace  :  {', 'apiNamespace') // true
+ *
+ * // Definition parsing
+ * parseHelperMethodDefinition('.addApi("getUsers", ...)')
+ * // Returns: { methodName: 'addApi', firstParam: 'getUsers' }
+ */

@@ -1,5 +1,4 @@
 import path from 'node:path';
-import { OPERATION_TYPES, TYPE_DIRECTORIES } from '../types';
 import { IFileSystem } from '../types/filesystem';
 import { IFeatureGenerator } from '../types/generator';
 import { Logger } from '../types/logger';
@@ -7,11 +6,13 @@ import { handleFatalError } from '../utils/errors';
 import {
   copyDirectory,
   findWaspRoot,
-  getConfigDir,
-  getFeatureImportPath,
+  getFeatureDir,
   getTemplatesDir,
 } from '../utils/filesystem';
-import { getPlural, validateFeaturePath } from '../utils/strings';
+import {
+  parseHelperMethodDefinition,
+  validateFeaturePath,
+} from '../utils/strings';
 import { TemplateUtility } from '../utils/templates';
 
 export class FeatureGenerator implements IFeatureGenerator {
@@ -27,391 +28,171 @@ export class FeatureGenerator implements IFeatureGenerator {
   }
 
   /**
-   * Generates a route definition for the feature configuration.
-   */
-  getRouteDefinition(
-    routeName: string,
-    routePath: string,
-    componentName: string,
-    featurePath: string,
-    auth = false
-  ): string {
-    const featureDir = getFeatureImportPath(featurePath);
-    const templatePath = this.templateUtility.getConfigTemplatePath('route');
-    const template = this.fs.readFileSync(templatePath, 'utf8');
-
-    return this.templateUtility.processTemplate(template, {
-      routeName,
-      routePath,
-      componentName,
-      featureDir,
-      auth: String(auth),
-    });
-  }
-
-  /**
-   * Generates an operation definition for the feature configuration.
-   */
-  getOperationDefinition(
-    operationName: string,
-    featurePath: string,
-    entities: string[],
-    operationType: 'query' | 'action'
-  ): string {
-    if (!OPERATION_TYPES.includes(operationType)) {
-      handleFatalError(`Unknown operation type: ${operationType}`);
-    }
-    const directory = TYPE_DIRECTORIES[operationType];
-    const featureDir = getFeatureImportPath(featurePath);
-    const templatePath =
-      this.templateUtility.getConfigTemplatePath('operation');
-    const template = this.fs.readFileSync(templatePath, 'utf8');
-
-    return this.templateUtility.processTemplate(template, {
-      operationName,
-      featureDir,
-      directory,
-      entities: entities.map((e) => `"${e}"`).join(', '),
-    });
-  }
-
-  /**
-   * Generates a job definition for the feature configuration.
-   */
-  getJobDefinition(
-    jobName: string,
-    jobWorkerName: string,
-    jobWorkerFile: string,
-    entitiesList: string,
-    schedule: string,
-    cron: string,
-    args: string,
-    importPath: string,
-    queueName: string
-  ): string {
-    const templatePath = this.templateUtility.getConfigTemplatePath('job');
-    const template = this.fs.readFileSync(templatePath, 'utf8');
-
-    return this.templateUtility.processTemplate(template, {
-      jobName,
-      jobWorkerName,
-      jobWorkerFile,
-      entitiesList,
-      schedule,
-      cron,
-      args,
-      importPath,
-      queueName,
-    });
-  }
-
-  /**
-   * Generates an API definition for the feature configuration.
-   */
-  getApiDefinition(
-    apiName: string,
-    featurePath: string,
-    entities: string[],
-    method: string,
-    route: string,
-    apiFile: string,
-    auth = false
-  ): string {
-    const featureDir = getFeatureImportPath(featurePath);
-    const templatePath = this.templateUtility.getConfigTemplatePath('api');
-    const template = this.fs.readFileSync(templatePath, 'utf8');
-
-    return this.templateUtility.processTemplate(template, {
-      apiName,
-      featureDir,
-      entities: entities.map((e) => `"${e}"`).join(', '),
-      method,
-      route,
-      apiFile,
-      auth: String(auth),
-    });
-  }
-
-  /**
-   * Generates an apiNamespace definition for the feature configuration.
-   */
-  getApiNamespaceDefinition(
-    namespaceName: string,
-    middlewareFnName: string,
-    middlewareImportPath: string,
-    pathValue: string
-  ): string {
-    const templatePath =
-      this.templateUtility.getConfigTemplatePath('apiNamespace');
-    const template = this.fs.readFileSync(templatePath, 'utf8');
-
-    return this.templateUtility.processTemplate(template, {
-      namespaceName,
-      middlewareFnName,
-      middlewareImportPath,
-      pathValue,
-    });
-  }
-
-  /**
-   * Removes an existing definition from the content by finding the opening line
-   * and matching closing brace with the same indentation.
+   * Removes an existing definition from the content by finding the helper method call
+   * and removing the entire method call block.
    * @param content - The file content
-   * @param definition - The new definition to find the opening line from
+   * @param definition - The new definition to find the existing one from
    * @returns The content with the existing definition removed
    */
   private removeExistingDefinition(
     content: string,
     definition: string
   ): string {
-    const lines = definition.split('\n');
-    const firstNonEmptyLine = lines.find((line) => line.trim() !== '');
-
-    if (!firstNonEmptyLine) {
+    // Use the utility function to parse the definition
+    const parsed = parseHelperMethodDefinition(definition);
+    if (!parsed) {
       return content;
     }
 
-    const openingLineIndex = content
-      .split('\n')
-      .findIndex((line) => line.trim() === firstNonEmptyLine.trim());
+    const { methodName, firstParam } = parsed;
 
-    if (openingLineIndex === -1) {
-      return content;
-    }
+    let contentLines = content.split('\n');
+    let hasRemoved = true;
 
-    const contentLines = content.split('\n');
-    const openingLine = contentLines[openingLineIndex];
-    const leadingSpaces = openingLine.match(/^(\s*)/)?.[1] || '';
+    while (hasRemoved) {
+      hasRemoved = false;
 
-    let closingLineIndex = -1;
-    for (let i = openingLineIndex + 1; i < contentLines.length; i++) {
-      const line = contentLines[i];
-      const trimmedLine = line.trim();
+      let openingLineIndex = -1;
+      for (let i = 0; i < contentLines.length; i++) {
+        const line = contentLines[i];
+        if (line.includes(`.${methodName}(`)) {
+          let searchContent = line;
+          let j = i;
+          while (j < contentLines.length && j < i + 5) {
+            searchContent = contentLines.slice(i, j + 1).join('\n');
+            const singleQuoteMatch = new RegExp(
+              `['"]${firstParam.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}['"]`
+            );
+            const backtickMatch = new RegExp(
+              `\`${firstParam.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\``
+            );
 
-      if (
-        line.startsWith(leadingSpaces) &&
-        (trimmedLine === '}' || trimmedLine === '},')
-      ) {
-        closingLineIndex = i;
+            if (
+              singleQuoteMatch.test(searchContent) ||
+              backtickMatch.test(searchContent)
+            ) {
+              openingLineIndex = i;
+              break;
+            }
+            j++;
+          }
+          if (openingLineIndex !== -1) break;
+        }
+      }
+
+      if (openingLineIndex === -1) {
         break;
       }
+
+      let closingLineIndex = -1;
+      let parenCount = 0;
+      let foundOpeningParen = false;
+
+      for (let i = openingLineIndex; i < contentLines.length; i++) {
+        const line = contentLines[i];
+
+        for (const char of line) {
+          if (char === '(') {
+            parenCount++;
+            foundOpeningParen = true;
+          } else if (char === ')') {
+            parenCount--;
+            if (foundOpeningParen && parenCount === 0) {
+              closingLineIndex = i;
+              break;
+            }
+          }
+        }
+
+        if (closingLineIndex !== -1) {
+          break;
+        }
+      }
+
+      if (closingLineIndex === -1) {
+        break;
+      }
+
+      contentLines = [
+        ...contentLines.slice(0, openingLineIndex),
+        ...contentLines.slice(closingLineIndex + 1),
+      ];
+
+      hasRemoved = true;
     }
 
-    if (closingLineIndex === -1) {
-      return content;
-    }
-
-    const newContentLines = [
-      ...contentLines.slice(0, openingLineIndex),
-      ...contentLines.slice(closingLineIndex + 1),
-    ];
-
-    return newContentLines.join('\n');
+    return contentLines.join('\n');
   }
 
   /**
-   * Updates or creates a feature configuration file with new definitions.
+   * Updates or creates a feature configuration file with a pre-built definition.
    * @param featurePath - The path of the feature
-   * @param type - The type of the configuration
-   * @param options - The options for the configuration
+   * @param definition - The pre-built definition string to add
    * @returns The path of the configuration file
    */
-  public updateFeatureConfig(
-    featurePath: string,
-    type: string,
-    options: Record<string, any> = {}
-  ): string {
-    const topLevelFeature = featurePath.split('/')[0];
-    const configDir = getConfigDir(this.fs);
-    const configPath = path.join(configDir, `${topLevelFeature}.wasp.ts`);
+  public updateFeatureConfig(featurePath: string, definition: string): string {
+    const configFilePrefix = featurePath.split('/').join('.');
+    const configDir = getFeatureDir(this.fs, featurePath);
+    const configFilePath = path.join(configDir, `${configFilePrefix}.wasp.ts`);
 
-    if (!this.fs.existsSync(configPath)) {
+    if (!this.fs.existsSync(configFilePath)) {
       const templatesDir = getTemplatesDir(this.fs);
       const templatePath = path.join(templatesDir, 'config', 'feature.wasp.ts');
       if (!this.fs.existsSync(templatePath)) {
         handleFatalError(`Feature config template not found: ${templatePath}`);
       }
-      this.fs.copyFileSync(templatePath, configPath);
+      this.fs.copyFileSync(templatePath, configFilePath);
     }
 
-    let content = this.fs.readFileSync(configPath, 'utf8');
-    let configSection: string = '';
-    let definition: string = '';
-
-    switch (type) {
-      case 'route': {
-        const {
-          path: routePath,
-          componentName,
-          routeName,
-          auth = false,
-        } = options;
-
-        configSection = 'routes';
-        definition = this.getRouteDefinition(
-          routeName,
-          routePath,
-          componentName,
-          featurePath,
-          auth
-        );
-
-        break;
-      }
-      case 'action':
-      case 'query': {
-        const { operationName, entities = [] } = options;
-
-        configSection = getPlural(type);
-        definition = this.getOperationDefinition(
-          operationName,
-          featurePath,
-          entities,
-          type
-        );
-
-        break;
-      }
-      case 'job': {
-        const {
-          jobName,
-          jobWorkerName,
-          jobWorkerFile,
-          entitiesList = '',
-          schedule = '',
-          cron = '',
-          args = '',
-          importPath = '',
-          queueName = '',
-        } = options;
-
-        configSection = 'jobs';
-        definition = this.getJobDefinition(
-          jobName,
-          jobWorkerName,
-          jobWorkerFile,
-          entitiesList,
-          schedule,
-          cron,
-          args,
-          importPath,
-          queueName
-        );
-
-        break;
-      }
-      case 'api': {
-        const {
-          apiName,
-          entities = [],
-          method,
-          route,
-          apiFile,
-          auth = false,
-        } = options;
-
-        configSection = 'apis';
-        definition = this.getApiDefinition(
-          apiName,
-          featurePath,
-          entities,
-          method,
-          route,
-          apiFile,
-          auth
-        );
-        break;
-      }
-      case 'apiNamespace': {
-        const {
-          namespaceName,
-          middlewareFnName,
-          middlewareImportPath,
-          path: pathValue,
-        } = options;
-
-        configSection = 'apiNamespaces';
-        definition = this.getApiNamespaceDefinition(
-          namespaceName,
-          middlewareFnName,
-          middlewareImportPath,
-          pathValue
-        );
-
-        break;
-      }
-      case 'crud': {
-        const { crudName, dataType, operations } = options;
-        const templatePath = this.templateUtility.getConfigTemplatePath('crud');
-        const template = this.fs.readFileSync(templatePath, 'utf8');
-        const operationsStr = JSON.stringify(operations, null, 2)
-          .replace(/"([^"]+)":/g, '$1:')
-          .split('\n')
-          .map((line, index) => (index === 0 ? line : '        ' + line))
-          .join('\n');
-
-        configSection = 'cruds';
-        definition = this.templateUtility.processTemplate(template, {
-          crudName,
-          dataType,
-          operations: operationsStr,
-        });
-
-        break;
-      }
-      default:
-        handleFatalError(`Unknown configuration type: ${type}`);
-    }
+    let content = this.fs.readFileSync(configFilePath, 'utf8');
 
     // Remove existing definition before adding new one
     content = this.removeExistingDefinition(content, definition);
 
-    const configBlock = `\n    ${configSection}: {${definition},\n    },`;
+    // Find the position to insert the new definition
+    const lines = content.split('\n');
+    const configureFunctionStart = lines.findIndex((line) =>
+      line
+        .trim()
+        .startsWith('export default function configure(app: App): void {')
+    );
 
-    if (content.includes('return {};')) {
-      content = content.replace('return {};', `return {${configBlock}\n  };`);
-    } else if (!content.includes(`${configSection}:`)) {
-      content = content.replace(/return\s*{/, `return {${configBlock}`);
-    } else {
-      content = content.replace(
-        new RegExp(`${configSection}:\\s*{`),
-        `${configSection}: {${definition},`
-      );
+    if (configureFunctionStart === -1) {
+      handleFatalError('Could not find configure function in feature config');
     }
 
-    this.fs.writeFileSync(configPath, content);
+    // Find the app line inside the configure function
+    const appLineIndex = lines.findIndex(
+      (line, index) => index > configureFunctionStart && line.trim() === 'app'
+    );
 
-    return configPath;
+    if (appLineIndex === -1) {
+      // No existing app chain, add it after the opening brace
+      const insertIndex = configureFunctionStart + 1;
+      lines.splice(insertIndex, 0, '  app', definition);
+    } else {
+      // Insert after the existing app line
+      lines.splice(appLineIndex + 1, 0, definition);
+    }
+
+    this.fs.writeFileSync(configFilePath, lines.join('\n'));
+
+    return configFilePath;
   }
 
   public generateFeatureConfig(featureName: string): void {
-    const configDir = getConfigDir(this.fs);
-
-    if (!this.fs.existsSync(configDir)) {
-      this.fs.mkdirSync(configDir, { recursive: true });
+    // Create feature directory if it doesn't exist
+    const featureDir = getFeatureDir(this.fs, featureName);
+    if (!this.fs.existsSync(featureDir)) {
+      this.fs.mkdirSync(featureDir, { recursive: true });
     }
 
-    const utilsPath = path.join(configDir, 'utils.ts');
-
-    if (!this.fs.existsSync(utilsPath)) {
-      const utilsTemplatePath = path.join(
-        getTemplatesDir(this.fs),
-        'config',
-        'utils.ts'
-      );
-
-      if (this.fs.existsSync(utilsTemplatePath)) {
-        this.fs.copyFileSync(utilsTemplatePath, utilsPath);
-        this.logger.info(`✓ Created config/utils.ts`);
-      }
-    }
-
+    // Generate feature config in the feature directory
     const templatesDir = getTemplatesDir(this.fs);
     const templatePath = path.join(templatesDir, 'config', 'feature.wasp.ts');
 
     if (!this.fs.existsSync(templatePath)) {
       this.logger.error(`Template not found: ${templatePath}`);
-
       return;
     }
 
@@ -420,7 +201,9 @@ export class FeatureGenerator implements IFeatureGenerator {
       .readFileSync(templatePath, 'utf8')
       .replace(/\$\{FEATURE_NAME\}/g, featureName)
       .replace(/\$\{FEATURE_KEY\}/g, featureKey);
-    const outputPath = path.join(configDir, `${featureName}.wasp.ts`);
+
+    // Place config file in feature directory: features/{featureName}/{featureName}.wasp.ts
+    const outputPath = path.join(featureDir, `${featureName}.wasp.ts`);
 
     this.fs.writeFileSync(outputPath, content);
     this.logger.success(`Generated feature config: ${outputPath}`);
@@ -453,11 +236,7 @@ export class FeatureGenerator implements IFeatureGenerator {
 
     copyDirectory(this.fs, templateDir, featureDir);
     this.logger.debug(`Copied template from ${templateDir} to ${featureDir}`);
-
-    if (segments.length === 1) {
-      this.generateFeatureConfig(featurePath);
-    }
-
+    this.generateFeatureConfig(featurePath);
     this.logger.success(
       `Generated ${
         segments.length === 1 ? 'top-level ' : 'sub-'

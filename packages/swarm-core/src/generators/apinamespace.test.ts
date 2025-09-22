@@ -18,6 +18,11 @@ vi.mock('../utils/io', () => ({
   }),
 }));
 
+vi.mock('../utils/strings', () => ({
+  toCamelCase: vi.fn().mockImplementation((str: string) => str),
+  hasApiNamespaceDefinition: vi.fn().mockReturnValue(false),
+}));
+
 vi.mock('../utils/templates', () => ({
   TemplateUtility: vi.fn().mockImplementation(() => ({
     processTemplate: vi.fn().mockReturnValue('processed template content'),
@@ -50,5 +55,15 @@ describe('ApiNamespaceGenerator', () => {
     await gen.generate('foo', { name: 'ns', path: '/api', force: true });
     expect(fs.writeFileSync).toHaveBeenCalled();
     expect(featureGen.updateFeatureConfig).toHaveBeenCalled();
+  });
+
+  it('getDefinition returns processed template', () => {
+    const result = gen.getDefinition(
+      'testNamespace',
+      'testMiddleware',
+      'features/test/_core/server/middleware/testMiddleware',
+      '/api/test'
+    );
+    expect(typeof result).toBe('string');
   });
 });

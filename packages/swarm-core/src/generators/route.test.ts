@@ -19,6 +19,11 @@ vi.mock('../utils/io', () => ({
   getTemplatesDir: vi.fn().mockReturnValue('/mock/templates'),
 }));
 
+vi.mock('../utils/strings', () => ({
+  formatDisplayName: vi.fn().mockImplementation((str: string) => str),
+  hasHelperMethodCall: vi.fn().mockReturnValue(false),
+}));
+
 vi.mock('../utils/templates', () => ({
   TemplateUtility: vi.fn().mockImplementation(() => ({
     processTemplate: vi.fn().mockReturnValue('processed template content'),
@@ -51,5 +56,17 @@ describe('RouteGenerator', () => {
     await gen.generate('foo', { name: 'route', path: '/foo', force: true });
     expect(fs.writeFileSync).toHaveBeenCalled();
     expect(featureGen.updateFeatureConfig).toHaveBeenCalled();
+  });
+
+  it('getDefinition returns processed template', () => {
+    const result = gen.getDefinition(
+      'testRoute',
+      '/test',
+      'TestPage',
+      'test',
+      false,
+      'features/test/_core/client/pages/Test'
+    );
+    expect(typeof result).toBe('string');
   });
 });

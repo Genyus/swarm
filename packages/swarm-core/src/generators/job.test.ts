@@ -20,6 +20,15 @@ vi.mock('../utils/io', () => ({
   getTemplatesDir: vi.fn().mockReturnValue('/mock/templates'),
 }));
 
+vi.mock('../utils/strings', () => ({
+  capitalise: vi
+    .fn()
+    .mockImplementation(
+      (str: string) => str.charAt(0).toUpperCase() + str.slice(1)
+    ),
+  hasHelperMethodCall: vi.fn().mockReturnValue(false),
+}));
+
 vi.mock('../utils/templates', () => ({
   TemplateUtility: vi.fn().mockImplementation(() => ({
     processTemplate: vi.fn().mockReturnValue('processed template content'),
@@ -52,5 +61,20 @@ describe('JobGenerator', () => {
     await gen.generate('foo', { name: 'Job', force: true });
     expect(fs.writeFileSync).toHaveBeenCalled();
     expect(featureGen.updateFeatureConfig).toHaveBeenCalled();
+  });
+
+  it('getDefinition returns processed template', () => {
+    const result = gen.getDefinition(
+      'testJob',
+      'testWorker',
+      'features/test/_core/server/jobs/testWorker',
+      '[]',
+      '',
+      '',
+      '{}',
+      'features/test/_core/server/jobs/testWorker',
+      'testJob'
+    );
+    expect(typeof result).toBe('string');
   });
 });

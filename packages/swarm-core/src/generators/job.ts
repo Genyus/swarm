@@ -6,10 +6,11 @@ import { Logger } from '../types/logger';
 import {
   ensureDirectoryExists,
   findWaspRoot,
+  getFeatureDir,
   getFeatureTargetDir,
   getTemplatesDir,
 } from '../utils/filesystem';
-import { capitalise } from '../utils/strings';
+import { capitalise, hasHelperMethodCall } from '../utils/strings';
 import { TemplateUtility } from '../utils/templates';
 
 export class JobGenerator implements NodeGenerator<JobFlags> {
@@ -31,9 +32,11 @@ export class JobGenerator implements NodeGenerator<JobFlags> {
   async generate(featurePath: string, flags: JobFlags): Promise<void> {
     try {
       let baseName = flags.name;
+
       if (!baseName.endsWith('Job')) {
         baseName = baseName + 'Job';
       }
+
       const jobName = baseName;
       const jobWorkerName = baseName;
       const jobWorkerFile = baseName;
@@ -46,12 +49,12 @@ export class JobGenerator implements NodeGenerator<JobFlags> {
       const entitiesList = entitiesArray
         .map((e: string) => `"${e}"`)
         .join(', ');
-      const schedule = flags.schedule;
+      const schedule = flags.schedule || '';
       const scheduleArgs = flags.scheduleArgs || '{}';
       const cron = schedule;
       const queueName = jobName;
-
       let imports = `import type { ${JobType} } from 'wasp/server/jobs';\n`;
+
       if (entitiesArray.length > 0) {
         imports += `import { ${entitiesArray.join(', ')} } from 'wasp/entities';\n`;
       }
@@ -62,9 +65,12 @@ export class JobGenerator implements NodeGenerator<JobFlags> {
         'job'
       );
       const importPath = path.join(importDirectory, jobWorkerFile);
+
       ensureDirectoryExists(this.fs, jobsDir);
+
       const workerFilePath = `${jobsDir}/${jobWorkerFile}.ts`;
       const workerExists = this.fs.existsSync(workerFilePath);
+
       if (workerExists && !flags.force) {
         this.logger.info(`Job worker file already exists: ${workerFilePath}`);
         this.logger.info('Use --force to overwrite');
@@ -75,10 +81,12 @@ export class JobGenerator implements NodeGenerator<JobFlags> {
           'server',
           'job.ts'
         );
+
         if (!this.fs.existsSync(workerTemplatePath)) {
           this.logger.error('Job worker template not found');
           return;
         }
+
         const workerTemplate = this.fs.readFileSync(workerTemplatePath, 'utf8');
         const workerCode = this.templateUtility.processTemplate(
           workerTemplate,
@@ -88,6 +96,7 @@ export class JobGenerator implements NodeGenerator<JobFlags> {
             jobWorkerName,
           }
         );
+
         this.fs.writeFileSync(workerFilePath, workerCode);
         this.logger.success(
           `${
@@ -95,51 +104,38 @@ export class JobGenerator implements NodeGenerator<JobFlags> {
           } job worker: ${workerFilePath}`
         );
       }
-      const waspRoot = findWaspRoot(this.fs);
-      const configPath = path.join(
-        waspRoot,
-        'config',
-        `${featurePath.split('/')[0]}.wasp.ts`
-      );
+
+      const featureName = featurePath.split('/')[0];
+      const featureDir = getFeatureDir(this.fs, featureName);
+      const configPath = path.join(featureDir, `${featureName}.wasp.ts`);
+
       if (!this.fs.existsSync(configPath)) {
         this.logger.error(`Feature config file not found: ${configPath}`);
         return;
       }
+
       let configContent = this.fs.readFileSync(configPath, 'utf8');
-      const configExists = configContent.includes(`${jobName}: {`);
+      const configExists = hasHelperMethodCall(configContent, 'job', jobName);
+
       if (configExists && !flags.force) {
         this.logger.info(`Job config already exists in ${configPath}`);
         this.logger.info('Use --force to overwrite');
         return;
-      } else if (configExists && flags.force) {
-        // Remove existing job definition (single job entry in jobs object)
-        const jobsSectionRegex = /(jobs\s*:\s*{)([\s\S]*?)(^\s*}\s*[},])/m;
-        const jobsMatch = configContent.match(jobsSectionRegex);
-        if (jobsMatch) {
-          let jobsBlock = jobsMatch[2];
-          const jobKeyRegex = new RegExp(
-            `(\\s*${jobName}\\s*:\\s*{[\\s\\S]*?^\\s*},?)`,
-            'm'
-          );
-          jobsBlock = jobsBlock.replace(jobKeyRegex, '');
-          configContent = configContent.replace(
-            jobsSectionRegex,
-            `$1${jobsBlock}$3`
-          );
-          this.fs.writeFileSync(configPath, configContent);
-        }
       }
-      this.featureGenerator.updateFeatureConfig(featurePath, 'job', {
+
+      const definition = this.getDefinition(
         jobName,
         jobWorkerName,
         jobWorkerFile,
         entitiesList,
         schedule,
         cron,
-        args: scheduleArgs,
+        scheduleArgs || '{}',
         importPath,
-        queueName,
-      });
+        queueName
+      );
+
+      this.featureGenerator.updateFeatureConfig(featurePath, definition);
       this.logger.success(
         `${configExists ? 'Updated' : 'Added'} job config in: ${configPath}`
       );
@@ -147,5 +143,35 @@ export class JobGenerator implements NodeGenerator<JobFlags> {
     } catch (error: any) {
       this.logger.error('Failed to generate job: ' + error.stack);
     }
+  }
+
+  /**
+   * Generates a job definition for the feature configuration.
+   */
+  getDefinition(
+    jobName: string,
+    jobWorkerName: string,
+    jobWorkerFile: string,
+    entitiesList: string,
+    schedule: string,
+    cron: string,
+    args: string,
+    importPath: string,
+    queueName: string
+  ): string {
+    const templatePath = this.templateUtility.getConfigTemplatePath('job');
+    const template = this.fs.readFileSync(templatePath, 'utf8');
+
+    return this.templateUtility.processTemplate(template, {
+      jobName,
+      jobWorkerName,
+      jobWorkerFile,
+      entitiesList,
+      schedule,
+      cron,
+      args,
+      importPath,
+      queueName,
+    });
   }
 }

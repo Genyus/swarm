@@ -1,5 +1,5 @@
-
-      {{crudName}}: {
-        entity: "{{dataType}}",
-        operations: {{operations}}
-      }
+    .addCrud(
+      '{{crudName}}',
+      '{{dataType}}',
+      {{operations}}
+    )

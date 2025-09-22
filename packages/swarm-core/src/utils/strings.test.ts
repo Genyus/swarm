@@ -45,5 +45,199 @@ describe('strings utils', () => {
     expect(strings.validateFeaturePath('foo/bar')).toEqual(['foo', 'bar']);
   });
 
-  // Add more tests for other string utilities as needed
+  describe('hasHelperMethodCall', () => {
+    it('detects single-line helper method calls', () => {
+      const content = '.addApi("getUsers", "GET", "/api/users")';
+      expect(strings.hasHelperMethodCall(content, 'addApi', 'getUsers')).toBe(
+        true
+      );
+    });
+
+    it('detects single-line calls with single quotes', () => {
+      const content = ".addRoute('MainRoute', '/main', 'Main')";
+      expect(
+        strings.hasHelperMethodCall(content, 'addRoute', 'MainRoute')
+      ).toBe(true);
+    });
+
+    it('detects single-line calls with backticks', () => {
+      const content =
+        '.addAction(`createUser`, "features/user/actions/createUser")';
+      expect(
+        strings.hasHelperMethodCall(content, 'addAction', 'createUser')
+      ).toBe(true);
+    });
+
+    it('detects multi-line helper method calls', () => {
+      const content = `
+        .addApi(
+          "getUsers",
+          "GET",
+          "/api/users"
+        )
+      `;
+      expect(strings.hasHelperMethodCall(content, 'addApi', 'getUsers')).toBe(
+        true
+      );
+    });
+
+    it('detects multi-line calls with various indentation', () => {
+      const content = `
+        .addRoute(
+            'MainRoute',
+            '/main',
+            'Main'
+        )
+      `;
+      expect(
+        strings.hasHelperMethodCall(content, 'addRoute', 'MainRoute')
+      ).toBe(true);
+    });
+
+    it('detects calls with extra whitespace', () => {
+      const content = '.addApi( "getUsers" , "GET", "/api/users" )';
+      expect(strings.hasHelperMethodCall(content, 'addApi', 'getUsers')).toBe(
+        true
+      );
+    });
+
+    it('detects calls with newlines and whitespace', () => {
+      const content = '.addApi(\n  "getUsers",\n  "GET",\n  "/api/users"\n)';
+      expect(strings.hasHelperMethodCall(content, 'addApi', 'getUsers')).toBe(
+        true
+      );
+    });
+
+    it('returns false for non-matching method names', () => {
+      const content = '.addApi("getUsers", "GET", "/api/users")';
+      expect(strings.hasHelperMethodCall(content, 'addRoute', 'getUsers')).toBe(
+        false
+      );
+    });
+
+    it('returns false for non-matching object names', () => {
+      const content = '.addApi("getUsers", "GET", "/api/users")';
+      expect(strings.hasHelperMethodCall(content, 'addApi', 'getPosts')).toBe(
+        false
+      );
+    });
+
+    it('handles special regex characters in object names', () => {
+      const content = '.addApi("get-users", "GET", "/api/users")';
+      expect(strings.hasHelperMethodCall(content, 'addApi', 'get-users')).toBe(
+        true
+      );
+    });
+
+    it('handles object names with dots', () => {
+      const content = '.addApi("api.v1.getUsers", "GET", "/api/users")';
+      expect(
+        strings.hasHelperMethodCall(content, 'addApi', 'api.v1.getUsers')
+      ).toBe(true);
+    });
+  });
+
+  describe('hasApiNamespaceDefinition', () => {
+    it('detects API namespace definitions', () => {
+      const content = 'apiNamespace: {';
+      expect(strings.hasApiNamespaceDefinition(content, 'apiNamespace')).toBe(
+        true
+      );
+    });
+
+    it('detects definitions with extra whitespace', () => {
+      const content = '  apiNamespace  :  {';
+      expect(strings.hasApiNamespaceDefinition(content, 'apiNamespace')).toBe(
+        true
+      );
+    });
+
+    it('detects definitions with newlines', () => {
+      const content = 'apiNamespace\n: {';
+      expect(strings.hasApiNamespaceDefinition(content, 'apiNamespace')).toBe(
+        true
+      );
+    });
+
+    it('returns false for non-matching names', () => {
+      const content = 'otherNamespace: {';
+      expect(strings.hasApiNamespaceDefinition(content, 'apiNamespace')).toBe(
+        false
+      );
+    });
+
+    it('handles special regex characters in namespace names', () => {
+      const content = 'api-namespace: {';
+      expect(strings.hasApiNamespaceDefinition(content, 'api-namespace')).toBe(
+        true
+      );
+    });
+  });
+
+  describe('parseHelperMethodDefinition', () => {
+    it('parses single-line definitions', () => {
+      const definition = '.addApi("getUsers", "GET", "/api/users")';
+      const result = strings.parseHelperMethodDefinition(definition);
+      expect(result).toEqual({
+        methodName: 'addApi',
+        firstParam: 'getUsers',
+      });
+    });
+
+    it('parses definitions with single quotes', () => {
+      const definition = ".addRoute('MainRoute', '/main', 'Main')";
+      const result = strings.parseHelperMethodDefinition(definition);
+      expect(result).toEqual({
+        methodName: 'addRoute',
+        firstParam: 'MainRoute',
+      });
+    });
+
+    it('parses definitions with backticks', () => {
+      const definition =
+        '.addAction(`createUser`, "features/user/actions/createUser")';
+      const result = strings.parseHelperMethodDefinition(definition);
+      expect(result).toEqual({
+        methodName: 'addAction',
+        firstParam: 'createUser',
+      });
+    });
+
+    it('parses multi-line definitions', () => {
+      const definition = `.addApi(
+        "getUsers",
+        "GET",
+        "/api/users"
+      )`;
+      const result = strings.parseHelperMethodDefinition(definition);
+      expect(result).toEqual({
+        methodName: 'addApi',
+        firstParam: 'getUsers',
+      });
+    });
+
+    it('parses definitions with extra whitespace', () => {
+      const definition = '.addApi( "getUsers" , "GET", "/api/users" )';
+      const result = strings.parseHelperMethodDefinition(definition);
+      expect(result).toEqual({
+        methodName: 'addApi',
+        firstParam: 'getUsers',
+      });
+    });
+
+    it('returns null for invalid definitions', () => {
+      expect(strings.parseHelperMethodDefinition('')).toBe(null);
+      expect(strings.parseHelperMethodDefinition('invalid')).toBe(null);
+      expect(strings.parseHelperMethodDefinition('.addApi()')).toBe(null);
+    });
+
+    it('handles special characters in parameters', () => {
+      const definition = '.addApi("get-users", "GET", "/api/users")';
+      const result = strings.parseHelperMethodDefinition(definition);
+      expect(result).toEqual({
+        methodName: 'addApi',
+        firstParam: 'get-users',
+      });
+    });
+  });
 });

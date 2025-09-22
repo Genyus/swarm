@@ -1,11 +1,7 @@
-
-      {{routeName}}: {
-        path: "{{routePath}}",
-        to: app.page("{{componentName}}", {
-          authRequired: {{auth}},
-          component: {
-            import: "{{componentName}}",
-            from: "{{importPath}}",
-          },
-        }),
-      }
+    .addRoute(
+      '{{routeName}}',
+      '{{routePath}}',
+      '{{componentName}}',
+      '{{importPath}}',
+      {{auth}}
+    )

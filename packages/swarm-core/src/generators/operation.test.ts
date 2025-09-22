@@ -18,6 +18,8 @@ vi.mock('../utils/filesystem', () => ({
   }),
   ensureDirectoryExists: vi.fn(),
   getConfigDir: vi.fn().mockReturnValue('config'),
+  getFeatureDir: vi.fn().mockReturnValue('features/test'),
+  getFeatureImportPath: vi.fn().mockReturnValue('test/_core'),
 }));
 
 // Mock the prisma utils
@@ -40,6 +42,12 @@ vi.mock('../utils/prisma', () => ({
   getJsonFields: vi.fn().mockReturnValue([]),
   needsPrismaImport: vi.fn().mockReturnValue(false),
   generateJsonTypeHandling: vi.fn().mockReturnValue(''),
+}));
+
+// Mock strings utils
+vi.mock('../utils/strings', () => ({
+  getPlural: vi.fn().mockImplementation((str: string) => str + 's'),
+  hasHelperMethodCall: vi.fn().mockReturnValue(false),
 }));
 
 // Mock template utils
@@ -110,5 +118,16 @@ describe('OperationGenerator', () => {
     });
     expect(ioUtils.ensureDirectoryExists).toHaveBeenCalled();
     expect(fs.writeFileSync).toHaveBeenCalled();
+  });
+
+  it('getDefinition returns processed template', () => {
+    const result = gen.getDefinition(
+      'testOperation',
+      'test',
+      ['User'],
+      'query',
+      'features/test/_core/server/queries/testOperation'
+    );
+    expect(typeof result).toBe('string');
   });
 });

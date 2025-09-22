@@ -5,9 +5,15 @@ import { IFeatureGenerator, NodeGenerator } from '../types/generator';
 import { Logger } from '../types/logger';
 import {
   ensureDirectoryExists,
+  getFeatureDir,
+  getFeatureImportPath,
   getFeatureTargetDir,
 } from '../utils/filesystem';
-import { toCamelCase, toPascalCase } from '../utils/strings';
+import {
+  hasHelperMethodCall,
+  toCamelCase,
+  toPascalCase,
+} from '../utils/strings';
 import { TemplateUtility } from '../utils/templates';
 
 export class ApiGenerator implements NodeGenerator<ApiFlags> {
@@ -48,9 +54,12 @@ export class ApiGenerator implements NodeGenerator<ApiFlags> {
         'api'
       );
       const importPath = path.join(importDirectory, apiFile);
+
       ensureDirectoryExists(this.fs, apiDir);
+
       const handlerFile = `${apiDir}/${apiFile}`;
       const fileExists = this.fs.existsSync(handlerFile);
+
       if (fileExists && !force) {
         this.logger.info(`API endpoint file already exists: ${handlerFile}`);
         this.logger.info('Use --force to overwrite');
@@ -96,36 +105,102 @@ export class ApiGenerator implements NodeGenerator<ApiFlags> {
           `${fileExists ? 'Overwrote' : 'Generated'} API endpoint file: ${handlerFile}`
         );
       }
-      const configPath = `config/${featurePath.split('/')[0]}.wasp.ts`;
-      if (!this.fs.existsSync(configPath)) {
-        const message = `Feature config file not found: ${configPath}`;
+
+      const configFilePrefix = featurePath.split('/').join('.');
+      const configDir = getFeatureDir(this.fs, configFilePrefix);
+      const configFilePath = path.join(
+        configDir,
+        `${configFilePrefix}.wasp.ts`
+      );
+
+      if (!this.fs.existsSync(configFilePath)) {
+        const message = `Feature config file not found: ${configFilePath}`;
 
         this.logger.error(message);
 
         throw new Error(message);
       }
-      const configContent = this.fs.readFileSync(configPath, 'utf8');
-      const configExists = configContent.includes(`${apiName}: {`);
+
+      const configContent = this.fs.readFileSync(configFilePath, 'utf8');
+      const configExists = hasHelperMethodCall(
+        configContent,
+        'addApi',
+        apiName
+      );
+
       if (configExists && !force) {
-        this.logger.info(`API config already exists in ${configPath}`);
+        this.logger.info(`API config already exists in ${configFilePath}`);
         this.logger.info('Use --force to overwrite');
       } else {
-        this.featureGenerator.updateFeatureConfig(featurePath, 'api', {
+        const definition = this.getDefinition(
           apiName,
-          entities,
+          featurePath,
+          Array.isArray(entities) ? entities : entities ? [entities] : [],
           method,
           route,
           apiFile,
           auth,
-          importPath,
-        });
+          importPath
+        );
+        this.featureGenerator.updateFeatureConfig(featurePath, definition);
         this.logger.success(
-          `${configExists ? 'Updated' : 'Added'} API config in: ${configPath}`
+          `${configExists ? 'Updated' : 'Added'} API config in: ${configFilePath}`
         );
       }
+
       this.logger.info(`\nAPI ${apiName} processing complete.`);
     } catch (error: any) {
       this.logger.error('Failed to generate API: ' + error.stack);
     }
+  }
+
+  /**
+   * Generates an API definition for the feature configuration.
+   */
+  getDefinition(
+    apiName: string,
+    featurePath: string,
+    entities: string[],
+    method: string,
+    route: string,
+    apiFile: string,
+    auth = false,
+    importPath: string
+  ): string {
+    const featureDir = getFeatureImportPath(featurePath);
+    const templatePath = this.templateUtility.getConfigTemplatePath('api');
+    const template = this.fs.readFileSync(templatePath, 'utf8');
+
+    return this.templateUtility.processTemplate(template, {
+      apiName,
+      featureDir,
+      entities: entities.map((e) => `"${e}"`).join(', '),
+      method,
+      route,
+      apiFile,
+      auth: String(auth),
+      importPath,
+    });
+  }
+
+  /**
+   * Generates an apiNamespace definition for the feature configuration.
+   */
+  getApiNamespaceDefinition(
+    namespaceName: string,
+    middlewareFnName: string,
+    middlewareImportPath: string,
+    pathValue: string
+  ): string {
+    const templatePath =
+      this.templateUtility.getConfigTemplatePath('apiNamespace');
+    const template = this.fs.readFileSync(templatePath, 'utf8');
+
+    return this.templateUtility.processTemplate(template, {
+      namespaceName,
+      middlewareFnName,
+      middlewareImportPath,
+      pathValue,
+    });
   }
 }

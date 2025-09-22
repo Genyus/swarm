@@ -21,18 +21,12 @@ export interface IFeatureGenerator {
   generateFeature(featurePath: string): void;
 
   /**
-   * Updates or creates a feature configuration file with new definitions.
+   * Updates or creates a feature configuration file with a pre-built definition.
    * @param {string} featurePath - The path to the feature
-   * @param {string} type - The type of feature
-   * @param {Record<string, any>} options - The options for the feature
+   * @param {string} definition - The pre-built definition string to add
    * @returns {string} The updated feature configuration file
    */
-  updateFeatureConfig(
-    featurePath: string,
-    type: string,
-
-    options: Record<string, any>
-  ): string;
+  updateFeatureConfig(featurePath: string, definition: string): string;
 }
 
 /**

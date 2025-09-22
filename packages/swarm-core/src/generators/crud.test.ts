@@ -18,9 +18,17 @@ vi.mock('../utils/io', () => ({
   }),
 }));
 
+vi.mock('../utils/strings', () => ({
+  getPlural: vi.fn().mockImplementation((str: string) => str + 's'),
+  hasHelperMethodCall: vi.fn().mockReturnValue(false),
+}));
+
 vi.mock('../utils/templates', () => ({
   TemplateUtility: vi.fn().mockImplementation(() => ({
     getFileTemplatePath: vi.fn().mockReturnValue('/mock/template/path'),
+    getConfigTemplatePath: vi
+      .fn()
+      .mockReturnValue('/mock/config/template/path'),
     processTemplate: vi.fn().mockReturnValue('processed template content'),
   })),
 }));
@@ -123,5 +131,16 @@ describe('CrudGenerator', () => {
     expect(operationsObj).toHaveProperty('create', {});
     expect(operationsObj).toHaveProperty('update', {});
     expect(operationsObj).toHaveProperty('delete', {});
+  });
+
+  it('getDefinition returns processed template', () => {
+    const result = gen.getDefinition('testCrud', 'User', {
+      get: {},
+      getAll: {},
+      create: {},
+      update: {},
+      delete: {},
+    });
+    expect(typeof result).toBe('string');
   });
 });

@@ -2,9 +2,11 @@ import path from 'node:path';
 import {
   ActionOperation,
   OPERATIONS,
+  OPERATION_TYPES,
   OperationConfigEntry,
   OperationFlags,
   QueryOperation,
+  TYPE_DIRECTORIES,
 } from '../types';
 import { IFileSystem } from '../types/filesystem';
 import { IFeatureGenerator, NodeGenerator } from '../types/generator';
@@ -14,11 +16,12 @@ import { handleFatalError } from '../utils/errors';
 import {
   copyDirectory,
   ensureDirectoryExists,
-  getConfigDir,
+  getFeatureDir,
+  getFeatureImportPath,
   getFeatureTargetDir,
 } from '../utils/filesystem';
 import { getEntityMetadata, needsPrismaImport } from '../utils/prisma';
-import { getPlural } from '../utils/strings';
+import { getPlural, hasHelperMethodCall } from '../utils/strings';
 import { TemplateUtility } from '../utils/templates';
 
 export class OperationGenerator implements NodeGenerator<OperationFlags> {
@@ -57,9 +60,12 @@ export class OperationGenerator implements NodeGenerator<OperationFlags> {
       const { targetDirectory: operationsDir, importDirectory } =
         getFeatureTargetDir(this.fs, featurePath, operationType);
       const importPath = path.join(importDirectory, operationName);
+
       ensureDirectoryExists(this.fs, operationsDir);
+
       const operationFile = `${operationsDir}/${operationName}.ts`;
       const fileExists = this.fs.existsSync(operationFile);
+
       if (fileExists && !flags.force) {
         this.logger.info(`Operation file already exists: ${operationFile}`);
         this.logger.info('Use --force to overwrite');
@@ -71,38 +77,47 @@ export class OperationGenerator implements NodeGenerator<OperationFlags> {
           } operation file: ${operationFile}`
         );
       }
-      const configPath = `${getConfigDir(this.fs)}/${
-        featurePath.split('/')[0]
-      }.wasp.ts`;
+
+      const featureName = featurePath.split('/')[0];
+      const featureDir = getFeatureDir(this.fs, featureName);
+      const configPath = path.join(featureDir, `${featureName}.wasp.ts`);
+
       if (!this.fs.existsSync(configPath)) {
         this.logger.error(`Feature config file not found: ${configPath}`);
+
         return;
       }
+
       let configContent = this.fs.readFileSync(configPath, 'utf8');
-      const configExists = configContent.includes(`${operationName}: {`);
+      const isAction = ['create', 'update', 'delete'].includes(operationType);
+      const methodName = isAction ? 'addAction' : 'addQuery';
+      const configExists = hasHelperMethodCall(
+        configContent,
+        methodName,
+        operationName
+      );
+
       if (configExists && !flags.force) {
         this.logger.info(`Operation config already exists in ${configPath}`);
         this.logger.info('Use --force to overwrite');
       } else if (!configExists || flags.force) {
-        if (configExists && flags.force) {
-          const regex = new RegExp(
-            `\\s*${operationName}:\\s*{[^}]*}\\s*[,]?[^}]*}[,]?(?:\\r?\\n)`,
-            'g'
-          );
-          configContent = configContent.replace(regex, '\n');
-          configContent = configContent.replace(/\n\s*\n\s*\n/g, '\n\n');
-          this.fs.writeFileSync(configPath, configContent);
-        }
-        this.featureGenerator.updateFeatureConfig(featurePath, operationType, {
-          ...configEntry,
-          importPath,
-        });
+        const isAction = ['create', 'update', 'delete'].includes(operationType);
+        const definition = this.getDefinition(
+          operationName,
+          featurePath,
+          entities,
+          isAction ? 'action' : 'query',
+          importPath
+        );
+
+        this.featureGenerator.updateFeatureConfig(featurePath, definition);
         this.logger.success(
           `${
             configExists ? 'Updated' : 'Added'
           } ${operationType} config in: ${configPath}`
         );
       }
+
       this.logger.info(`\nOperation ${operationName} processing complete.`);
     } catch (error: any) {
       this.logger.error('Failed to generate operation: ' + error.stack);
@@ -253,5 +268,33 @@ export class OperationGenerator implements NodeGenerator<OperationFlags> {
     this.logger.debug(
       `Copied operation templates from ${templateDir} to ${targetDir}`
     );
+  }
+
+  /**
+   * Generates an operation definition for the feature configuration.
+   */
+  getDefinition(
+    operationName: string,
+    featurePath: string,
+    entities: string[],
+    operationType: 'query' | 'action',
+    importPath: string
+  ): string {
+    if (!OPERATION_TYPES.includes(operationType)) {
+      handleFatalError(`Unknown operation type: ${operationType}`);
+    }
+    const directory = TYPE_DIRECTORIES[operationType];
+    const featureDir = getFeatureImportPath(featurePath);
+    const templatePath =
+      this.templateUtility.getConfigTemplatePath('operation');
+    const template = this.fs.readFileSync(templatePath, 'utf8');
+
+    return this.templateUtility.processTemplate(template, {
+      operationName,
+      featureDir,
+      directory,
+      entities: entities.map((e) => `"${e}"`).join(', '),
+      importPath,
+    });
   }
 }
