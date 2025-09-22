@@ -16,7 +16,8 @@
     "changeset:autogenerate": "node .changeset/changeset-autogenerate.js",
     "changeset:autogenerate-batch": "node .changeset/changeset-autogenerate-batch.js",
     "version-packages": "changeset version",
-    "release": "pnpm build && changeset publish"
+    "release": "pnpm build && changeset publish",
+    "validate": "pnpm -r run validate"
   },
   "keywords": [
     "monorepo",

@@ -11,16 +11,17 @@
     "LICENSE"
   ],
   "scripts": {
-    "build": "rm -rf dist && tsup && tsc --project tsconfig.dts.json",
+    "build": "pnpm dlx rimraf dist && tsup && tsc --project tsconfig.dts.json",
     "build:watch": "tsc --watch",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
     "lint": "eslint src --ext .ts",
     "lint:fix": "eslint src --ext .ts --fix",
     "format": "prettier --write src",
     "format:check": "prettier --check src",
     "typecheck": "tsc --noEmit",
-    "prepublishOnly": "pnpm run typecheck && pnpm run lint && pnpm run build && pnpm test"
+    "validate": "pnpm run build && pnpm run typecheck && pnpm run lint && pnpm run format:check && pnpm test"
   },
   "keywords": [
     "wasp",

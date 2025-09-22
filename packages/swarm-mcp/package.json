@@ -8,8 +8,8 @@
     "swarm-mcp": "dist/cli/index.js"
   },
   "scripts": {
-    "build": "tsc",
-    "dev": "tsc --watch",
+    "build": "pnpm dlx rimraf dist && tsup && tsc --project tsconfig.dts.json",
+    "build:watch": "tsc --watch",
     "start": "node dist/index.js",
     "test": "vitest run",
     "test:watch": "vitest",
@@ -19,8 +19,7 @@
     "format": "prettier --write src tests",
     "format:check": "prettier --check src tests",
     "typecheck": "tsc --project tsconfig.typecheck.json",
-    "clean": "rm -rf dist",
-    "prebuild": "npm run clean"
+    "validate": "pnpm run build && pnpm run typecheck && pnpm run lint && pnpm run format:check && pnpm test"
   },
   "keywords": [
     "mcp",
