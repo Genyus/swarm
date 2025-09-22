@@ -1,0 +1,73 @@
+{
+  "name": "@ingenyus/swarm-config",
+  "type": "module",
+  "version": "0.1.0",
+  "description": "Enhanced Wasp configuration with Swarm-specific functionality",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "rm -rf dist && tsup && tsc --project tsconfig.dts.json",
+    "build:watch": "tsc --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "eslint src --ext .ts",
+    "lint:fix": "eslint src --ext .ts --fix",
+    "format": "prettier --write src",
+    "format:check": "prettier --check src",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "pnpm run typecheck && pnpm run lint && pnpm run build && pnpm test"
+  },
+  "keywords": [
+    "wasp",
+    "configuration",
+    "swarm",
+    "typescript",
+    "fullstack",
+    "react",
+    "nodejs"
+  ],
+  "author": "Gary McPherson",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/genyus/swarm.git",
+    "directory": "packages/swarm-config"
+  },
+  "homepage": "https://github.com/genyus/swarm/tree/main/packages/swarm-config#readme",
+  "bugs": {
+    "url": "https://github.com/genyus/swarm/issues"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "peerDependencies": {
+    "wasp-config": "*"
+  },
+  "peerDependenciesMeta": {
+    "wasp-config": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.28.0",
+    "@types/node": "^22.15.29",
+    "@typescript-eslint/eslint-plugin": "^8.33.1",
+    "@typescript-eslint/parser": "^8.33.1",
+    "eslint": "^9.28.0",
+    "eslint-config-prettier": "^10.1.5",
+    "eslint-plugin-prettier": "^5.4.1",
+    "prettier": "^3.5.3",
+    "tsup": "^8.5.0",
+    "typescript": "^5.0.0",
+    "vitest": "^3.1.4",
+    "wasp-config": "link:src/stubs/wasp-config"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
