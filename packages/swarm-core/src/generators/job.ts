@@ -1,4 +1,4 @@
-import path from 'path';
+import path from 'node:path';
 import { JobFlags } from '../types';
 import { IFileSystem } from '../types/filesystem';
 import { IFeatureGenerator, NodeGenerator } from '../types/generator';
@@ -23,6 +23,9 @@ export class JobGenerator implements NodeGenerator<JobFlags> {
   ) {
     this.templatesDir = getTemplatesDir(this.fs);
     this.templateUtility = new TemplateUtility(fs);
+    this.logger = logger;
+    this.fs = fs;
+    this.featureGenerator = featureGenerator;
   }
 
   async generate(featurePath: string, flags: JobFlags): Promise<void> {
@@ -141,7 +144,6 @@ export class JobGenerator implements NodeGenerator<JobFlags> {
         `${configExists ? 'Updated' : 'Added'} job config in: ${configPath}`
       );
       this.logger.info(`\nJob ${jobName} processing complete.`);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       this.logger.error('Failed to generate job: ' + error.stack);
     }

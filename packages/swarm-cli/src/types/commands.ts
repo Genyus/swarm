@@ -20,7 +20,7 @@ interface BaseGeneratorCommand {
  * @property {IGenerator} generator - The generator instance
  * @property {function} register - The function to register the command
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+
 export interface NodeGeneratorCommand<TFlags = any>
   extends BaseGeneratorCommand {
   generator: NodeGenerator<TFlags>;

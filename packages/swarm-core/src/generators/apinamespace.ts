@@ -1,4 +1,4 @@
-import path from 'path';
+import path from 'node:path';
 import { ApiNamespaceFlags } from '../types';
 import { IFileSystem } from '../types/filesystem';
 import { IFeatureGenerator, NodeGenerator } from '../types/generator';
@@ -19,6 +19,9 @@ export class ApiNamespaceGenerator implements NodeGenerator<ApiNamespaceFlags> {
     private featureGenerator: IFeatureGenerator
   ) {
     this.templateUtility = new TemplateUtility(fs);
+    this.logger = logger;
+    this.fs = fs;
+    this.featureGenerator = featureGenerator;
   }
 
   async generate(featurePath: string, flags: ApiNamespaceFlags): Promise<void> {
@@ -82,7 +85,6 @@ export class ApiNamespaceGenerator implements NodeGenerator<ApiNamespaceFlags> {
       this.logger.success(
         `\napiNamespace ${namespaceName} processing complete.`
       );
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       this.logger.error('Failed to generate apiNamespace: ' + error.stack);
     }

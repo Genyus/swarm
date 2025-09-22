@@ -24,7 +24,7 @@ describe('createCrudCommand', () => {
         return mockCmd;
       }),
     };
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     const program = { command: vi.fn(() => mockCmd) } as any;
     cmd.register(program, generator);
     expect(program.command).toHaveBeenCalledWith('crud');
