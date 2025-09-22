@@ -79,6 +79,45 @@ importers:
         specifier: ^3.1.4
         version: 3.2.3(@types/node@22.15.31)
 
+  packages/swarm-config:
+    devDependencies:
+      '@eslint/js':
+        specifier: ^9.28.0
+        version: 9.34.0
+      '@types/node':
+        specifier: ^22.15.29
+        version: 22.15.31
+      '@typescript-eslint/eslint-plugin':
+        specifier: ^8.33.1
+        version: 8.41.0(@typescript-eslint/parser@8.41.0(eslint@9.34.0)(typescript@5.9.2))(eslint@9.34.0)(typescript@5.9.2)
+      '@typescript-eslint/parser':
+        specifier: ^8.33.1
+        version: 8.41.0(eslint@9.34.0)(typescript@5.9.2)
+      eslint:
+        specifier: ^9.28.0
+        version: 9.34.0
+      eslint-config-prettier:
+        specifier: ^10.1.5
+        version: 10.1.5(eslint@9.34.0)
+      eslint-plugin-prettier:
+        specifier: ^5.4.1
+        version: 5.4.1(eslint-config-prettier@10.1.5(eslint@9.34.0))(eslint@9.34.0)(prettier@3.6.2)
+      prettier:
+        specifier: ^3.5.3
+        version: 3.6.2
+      tsup:
+        specifier: ^8.5.0
+        version: 8.5.0(postcss@8.5.5)(typescript@5.9.2)
+      typescript:
+        specifier: ^5.0.0
+        version: 5.9.2
+      vitest:
+        specifier: ^3.1.4
+        version: 3.2.3(@types/node@22.15.31)
+      wasp-config:
+        specifier: link:stubs/wasp-config
+        version: link:stubs/wasp-config
+
   packages/swarm-core:
     dependencies:
       chalk:
