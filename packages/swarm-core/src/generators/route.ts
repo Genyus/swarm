@@ -1,4 +1,4 @@
-import path from 'path';
+import path from 'node:path';
 import { RouteFlags } from '../types';
 import { IFileSystem } from '../types/filesystem';
 import { IFeatureGenerator, NodeGenerator } from '../types/generator';
@@ -22,6 +22,9 @@ export class RouteGenerator implements NodeGenerator<RouteFlags> {
   ) {
     this.templatesDir = getTemplatesDir(fs);
     this.templateUtility = new TemplateUtility(fs);
+    this.logger = logger;
+    this.fs = fs;
+    this.featureGenerator = featureGenerator;
   }
 
   async generate(featurePath: string, flags: RouteFlags): Promise<void> {
@@ -106,7 +109,6 @@ export class RouteGenerator implements NodeGenerator<RouteFlags> {
         );
       }
       this.logger.info(`\nRoute ${routeName} processing complete.`);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       this.logger.error('Failed to generate route: ' + error.stack);
     }

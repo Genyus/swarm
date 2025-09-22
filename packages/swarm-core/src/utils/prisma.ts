@@ -33,7 +33,6 @@ export async function getEntityMetadata(
 ): Promise<EntityMetadata> {
   const prisma = new PrismaClient();
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const runtimeDataModel = (prisma as any)
     ._runtimeDataModel as RuntimeDataModel;
   const models = runtimeDataModel?.models;

@@ -9,7 +9,7 @@ export default defineConfig({
     ...glob.sync('src/types/*.ts'),
   ],
   format: ['esm'],
-  dts: true,
+  dts: false,
   splitting: false,
   sourcemap: false,
   clean: true,

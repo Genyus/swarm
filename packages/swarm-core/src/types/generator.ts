@@ -30,7 +30,7 @@ export interface IFeatureGenerator {
   updateFeatureConfig(
     featurePath: string,
     type: string,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     options: Record<string, any>
   ): string;
 }
@@ -43,7 +43,7 @@ export interface IFeatureGenerator {
  * @property {IFileSystem} fs - The file system instance
  * @property {Function} generate - The main entrypoint for CLI integration
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+
 export interface NodeGenerator<TFlags = any> {
   /**
    * Generate a Wasp object

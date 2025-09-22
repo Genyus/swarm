@@ -5,13 +5,13 @@
  */
 
 // Export all generators
-export * from './generators/index.js';
+export * from './generators/index';
 
 // Export all utilities
-export * from './utils/index.js';
+export * from './utils/index';
 
 // Export all types
-export * from './types/index.js';
+export * from './types/index';
 
 // Export templates (will be available at runtime)
 export const TEMPLATES_DIR = './templates';

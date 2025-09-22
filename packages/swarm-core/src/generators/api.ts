@@ -19,6 +19,9 @@ export class ApiGenerator implements NodeGenerator<ApiFlags> {
     private featureGenerator: IFeatureGenerator
   ) {
     this.templateUtility = new TemplateUtility(fs);
+    this.logger = logger;
+    this.fs = fs;
+    this.featureGenerator = featureGenerator;
   }
 
   async generate(featurePath: string, flags: ApiFlags): Promise<void> {
@@ -121,7 +124,6 @@ export class ApiGenerator implements NodeGenerator<ApiFlags> {
         );
       }
       this.logger.info(`\nAPI ${apiName} processing complete.`);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       this.logger.error('Failed to generate API: ' + error.stack);
     }
