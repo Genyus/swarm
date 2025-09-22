@@ -148,7 +148,7 @@ export class App {
     return this;
   }
   page(
-    componentName: string,
+    _componentName: string,
     options: {
       authRequired: boolean;
       component: { import: string; from: string };
