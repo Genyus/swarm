@@ -7,14 +7,14 @@ export const delete{{ModelName}}{{TypeAnnotation}} = async ({ {{IdField}} }, con
     });
 
     if (!{{modelNameLower}}) {
-      throw new HttpError(404, '{{ModelName}} not found');
+      throw new HttpError(404, "{{ModelName}} not found");
     }
 
     await context.entities.{{ModelName}}.delete({
       where: { {{IdField}} }
     });
   } catch (error) {
-    console.error('Failed to delete {{modelNameLower}}:', error);
-    throw new HttpError(500, 'Failed to delete {{modelNameLower}}');
+    console.error("Failed to delete {{modelNameLower}}:", error);
+    throw new HttpError(500, "Failed to delete {{modelNameLower}}");
   }
-}; {{SatisfiesType}} 
+}; {{SatisfiesType}}

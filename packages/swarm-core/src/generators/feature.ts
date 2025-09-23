@@ -13,16 +13,12 @@ import {
   parseHelperMethodDefinition,
   validateFeaturePath,
 } from '../utils/strings';
-import { TemplateUtility } from '../utils/templates';
 
 export class FeatureGenerator implements IFeatureGenerator {
-  private templateUtility: TemplateUtility;
-
   constructor(
     private logger: Logger,
     private fs: IFileSystem
   ) {
-    this.templateUtility = new TemplateUtility(fs);
     this.logger = logger;
     this.fs = fs;
   }
@@ -60,11 +56,12 @@ export class FeatureGenerator implements IFeatureGenerator {
           let j = i;
           while (j < contentLines.length && j < i + 5) {
             searchContent = contentLines.slice(i, j + 1).join('\n');
+            // More precise matching - look for the exact item name as the second parameter
             const singleQuoteMatch = new RegExp(
-              `['"]${firstParam.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}['"]`
+              `\\.${methodName}\\s*\\(\\s*['"\`][^,]+['"\`]\\s*,\\s*['"]${firstParam.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}['"]`
             );
             const backtickMatch = new RegExp(
-              `\`${firstParam.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\``
+              `\\.${methodName}\\s*\\(\\s*['"\`][^,]+['"\`]\\s*,\\s*\`${firstParam.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\``
             );
 
             if (
@@ -125,6 +122,229 @@ export class FeatureGenerator implements IFeatureGenerator {
   }
 
   /**
+   * Gets the insertion order for different configuration item types.
+   * @returns Array of method names in insertion order
+   */
+  private getInsertionOrder(): string[] {
+    return [
+      'addRoute',
+      'addQuery',
+      'addAction',
+      'addCrud',
+      'addApi',
+      'addApiNamespace',
+      'addJob',
+    ];
+  }
+
+  /**
+   * Gets the comment text for a method type.
+   * @param methodName The method name (e.g., 'addApi')
+   * @returns The comment text for the method type
+   */
+  private getMethodComment(methodName: string): string {
+    const commentMap: Record<string, string> = {
+      addRoute: '// Route definitions',
+      addQuery: '// Query definitions',
+      addAction: '// Action definitions',
+      addCrud: '// CRUD definitions',
+      addApi: '// API definitions',
+      addApiNamespace: '// API namespace definitions',
+      addJob: '// Job definitions',
+    };
+    return commentMap[methodName] || `// ${methodName} definitions`;
+  }
+
+  /**
+   * Finds the correct insertion point for a new configuration item.
+   * @param lines - Array of file lines
+   * @param methodName - The method name (e.g., 'addApi')
+   * @param targetGroupIndex - The index of the target group in insertion order
+   * @param definition - The definition string to parse for item name
+   * @returns Object with insertion index and whether to add a comment
+   */
+  private findGroupInsertionPoint(
+    lines: string[],
+    methodName: string,
+    targetGroupIndex: number,
+    definition: string
+  ): { insertIndex: number; addComment: boolean } {
+    const insertionOrder = this.getInsertionOrder();
+    const appLineIndex = lines.findIndex((line) => line.trim() === 'app');
+
+    if (appLineIndex === -1) {
+      return { insertIndex: appLineIndex + 1, addComment: false }; // Insert after app line
+    }
+
+    // Find all existing method calls and their positions
+    const methodCalls: Array<{
+      lineIndex: number;
+      endLineIndex: number;
+      methodName: string;
+      itemName: string;
+    }> = [];
+
+    for (let i = appLineIndex + 1; i < lines.length; i++) {
+      const line = lines[i].trim();
+      if (line.startsWith('.') && line.includes('(')) {
+        // Look for the method call across multiple lines
+        let methodCallContent = line;
+        let j = i;
+        let closingParenCount = 0;
+        let foundClosingParen = false;
+
+        // Count opening and closing parentheses to find the complete method call
+        for (let k = 0; k < methodCallContent.length; k++) {
+          if (methodCallContent[k] === '(') closingParenCount++;
+          if (methodCallContent[k] === ')') closingParenCount--;
+          if (closingParenCount === 0 && methodCallContent[k] === ')') {
+            foundClosingParen = true;
+            break;
+          }
+        }
+
+        // If not found on this line, look at subsequent lines
+        while (!foundClosingParen && j < lines.length - 1) {
+          j++;
+          methodCallContent += ' ' + lines[j].trim();
+          for (let k = 0; k < lines[j].length; k++) {
+            if (lines[j][k] === '(') closingParenCount++;
+            if (lines[j][k] === ')') closingParenCount--;
+            if (closingParenCount === 0 && lines[j][k] === ')') {
+              foundClosingParen = true;
+              break;
+            }
+          }
+        }
+
+        const match = methodCallContent.match(
+          /\.(\w+)\([^,]+,\s*['"`]([^'"`]+)['"`]/
+        );
+        if (match) {
+          methodCalls.push({
+            lineIndex: i,
+            endLineIndex: j,
+            methodName: match[1],
+            itemName: match[2],
+          });
+        }
+      }
+    }
+
+    // Group method calls by type
+    const groups: Record<
+      string,
+      Array<{ lineIndex: number; endLineIndex: number; itemName: string }>
+    > = {};
+    methodCalls.forEach((call) => {
+      if (!groups[call.methodName]) {
+        groups[call.methodName] = [];
+      }
+      groups[call.methodName].push({
+        lineIndex: call.lineIndex,
+        endLineIndex: call.endLineIndex,
+        itemName: call.itemName,
+      });
+    });
+
+    // Find the target group
+    const targetGroup = groups[methodName] || [];
+
+    if (targetGroup.length === 0) {
+      // No items of this type exist, find position based on ordering
+      // Look for the first group that comes after the target group in the insertion order
+      for (let i = targetGroupIndex + 1; i < insertionOrder.length; i++) {
+        const groupMethod = insertionOrder[i];
+        if (groups[groupMethod] && groups[groupMethod].length > 0) {
+          // Insert before the first item of the next group
+          const firstItem = groups[groupMethod][0];
+          let insertIndex = firstItem.lineIndex;
+
+          // Check if there's a comment line before the first item
+          for (let j = firstItem.lineIndex - 1; j > appLineIndex; j--) {
+            const line = lines[j].trim();
+            if (line.startsWith('//') && line.includes('definitions')) {
+              insertIndex = j; // Insert before the comment
+              break;
+            } else if (line.startsWith('.') || line === '') {
+              // Skip empty lines and method calls
+              continue;
+            } else {
+              // Stop at non-comment, non-empty, non-method lines
+              break;
+            }
+          }
+
+          return { insertIndex, addComment: true };
+        }
+      }
+
+      // If no later groups exist, look for the last item of the previous group
+      for (let i = targetGroupIndex - 1; i >= 0; i--) {
+        const groupMethod = insertionOrder[i];
+        if (groups[groupMethod] && groups[groupMethod].length > 0) {
+          const lastItem = groups[groupMethod][groups[groupMethod].length - 1];
+          return { insertIndex: lastItem.endLineIndex + 1, addComment: true };
+        }
+      }
+
+      return { insertIndex: appLineIndex + 1, addComment: true }; // Insert after app line if no groups exist
+    }
+
+    // Parse the new item name
+    const parsed = parseHelperMethodDefinition(definition);
+    if (!parsed) {
+      return { insertIndex: appLineIndex + 1, addComment: false }; // Fallback if parsing fails
+    }
+
+    const { firstParam: itemName } = parsed;
+
+    // Find the correct insertion point by comparing with existing items
+    // We need to find where this item should be inserted alphabetically
+    for (let i = 0; i < targetGroup.length; i++) {
+      if (itemName.localeCompare(targetGroup[i].itemName) < 0) {
+        // Insert before this item
+        return { insertIndex: targetGroup[i].lineIndex, addComment: false };
+      }
+    }
+
+    // If we get here, the new item should be inserted after the last item
+    const lastItem = targetGroup[targetGroup.length - 1];
+    return { insertIndex: lastItem.endLineIndex + 1, addComment: false };
+  }
+
+  /**
+   * Inserts a definition with optional comment header.
+   * @param lines - Array of file lines
+   * @param definition - The definition to insert
+   * @param insertIndex - The index where to insert
+   * @param methodName - The method name for comment generation
+   * @param addComment - Whether to add a comment before the definition
+   * @returns The modified lines array
+   */
+  private insertWithSpacing(
+    lines: string[],
+    definition: string,
+    insertIndex: number,
+    methodName: string,
+    addComment: boolean = false
+  ): string[] {
+    const newLines = [...lines];
+
+    // Add comment if this is the first item of its type
+    if (addComment) {
+      const comment = this.getMethodComment(methodName);
+      newLines.splice(insertIndex, 0, `    ${comment}`);
+      insertIndex += 1; // Adjust for the added comment line
+    }
+
+    // Insert the definition (trim any trailing newlines)
+    newLines.splice(insertIndex, 0, definition.trimEnd());
+
+    return newLines;
+  }
+
+  /**
    * Updates or creates a feature configuration file with a pre-built definition.
    * @param featurePath - The path of the feature
    * @param definition - The pre-built definition string to add
@@ -149,6 +369,20 @@ export class FeatureGenerator implements IFeatureGenerator {
     // Remove existing definition before adding new one
     content = this.removeExistingDefinition(content, definition);
 
+    // Parse the definition to get method name and item name
+    const parsed = parseHelperMethodDefinition(definition);
+    if (!parsed) {
+      handleFatalError(`Could not parse definition: ${definition}`);
+    }
+
+    const methodName = parsed!.methodName;
+    const insertionOrder = this.getInsertionOrder();
+    const targetGroupIndex = insertionOrder.indexOf(methodName);
+
+    if (targetGroupIndex === -1) {
+      handleFatalError(`Unknown method name: ${methodName}`);
+    }
+
     // Find the position to insert the new definition
     const lines = content.split('\n');
     const configureFunctionStart = lines.findIndex((line) =>
@@ -167,10 +401,33 @@ export class FeatureGenerator implements IFeatureGenerator {
     if (appLineIndex === -1) {
       // No existing app chain, add it after the opening brace
       const insertIndex = configureFunctionStart + 1;
-      lines.splice(insertIndex, 0, '  app', definition);
+      const itemsToInsert = ['  app'];
+
+      // Always add comment for the first entry since it's the first item of its type
+      const comment = this.getMethodComment(methodName);
+      itemsToInsert.push(`    ${comment}`);
+
+      itemsToInsert.push(definition.trimEnd());
+      lines.splice(insertIndex, 0, ...itemsToInsert);
     } else {
-      // Insert after the existing app line
-      lines.splice(appLineIndex + 1, 0, definition);
+      // Find the correct insertion point based on ordering
+      const { insertIndex, addComment } = this.findGroupInsertionPoint(
+        lines,
+        methodName,
+        targetGroupIndex,
+        definition
+      );
+
+      // Insert with proper spacing
+      const newLines = this.insertWithSpacing(
+        lines,
+        definition,
+        insertIndex,
+        methodName,
+        addComment
+      );
+      this.fs.writeFileSync(configFilePath, newLines.join('\n'));
+      return configFilePath;
     }
 
     this.fs.writeFileSync(configFilePath, lines.join('\n'));

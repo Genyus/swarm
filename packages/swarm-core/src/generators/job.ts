@@ -141,7 +141,7 @@ export class JobGenerator implements NodeGenerator<JobFlags> {
       );
       this.logger.info(`\nJob ${jobName} processing complete.`);
     } catch (error: any) {
-      this.logger.error('Failed to generate job: ' + error.stack);
+      this.logger.error('Failed to generate job: ' + (error?.stack || error));
     }
   }
 

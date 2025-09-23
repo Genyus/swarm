@@ -57,7 +57,7 @@ export interface OperationOptions {
 export interface JobOptions {
   entities?: string[];
   cron?: string;
-  scheduleArgs?: string;
+  scheduleArgs?: Record<string, unknown>;
 }
 
 export interface ApiNamespaceOptions {
@@ -341,15 +341,6 @@ export class App extends WaspApp {
       'jobs',
       name
     );
-    let args = {};
-
-    if (options.scheduleArgs) {
-      try {
-        args = JSON.parse(options.scheduleArgs);
-      } catch {
-        console.warn(`Invalid scheduleArgs JSON: ${options.scheduleArgs}`);
-      }
-    }
 
     super.job(name, {
       executor: 'PgBoss',
@@ -363,7 +354,7 @@ export class App extends WaspApp {
       ...(options.cron && {
         schedule: {
           cron: options.cron,
-          args,
+          args: options.scheduleArgs || {},
         },
       }),
     });

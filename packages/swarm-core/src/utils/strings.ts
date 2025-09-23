@@ -200,10 +200,14 @@ export function hasHelperMethodCall(
   // \( - opening parenthesis
   // \s* - optional whitespace (including newlines)
   // ['"`] - quote character (single, double, or backtick)
-  // objectName - the object name
+  // [^,]+ - first parameter (featureName)
+  // , - comma separator
+  // \s* - optional whitespace
+  // ['"`] - quote character (single, double, or backtick)
+  // objectName - the object name (second parameter)
   // ['"`] - matching quote character
   const pattern = new RegExp(
-    `\\.${methodName}\\s*\\(\\s*['"\`]${objectName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}['"\`]`,
+    `\\.${methodName}\\s*\\(\\s*['"\`][^,]+['"\`]\\s*,\\s*['"\`]${objectName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}['"\`]`,
     's' // 's' flag allows . to match newlines
   );
 
@@ -258,30 +262,32 @@ export function parseHelperMethodDefinition(definition: string): {
 
   const methodName = methodMatch[1];
 
-  // Extract the first parameter - check the first line first, then subsequent lines
-  let firstParamMatch = firstNonEmptyLine.match(/\(\s*['"`]([^'"`]+)['"`]/);
+  // Extract the second parameter (the actual item name) - check the first line first, then subsequent lines
+  let secondParamMatch = firstNonEmptyLine.match(
+    /\(\s*[^,]+,\s*['"`]([^'"`]+)['"`]\s*,/
+  );
 
-  if (!firstParamMatch) {
-    // Look for the first parameter in subsequent lines (multi-line case)
+  if (!secondParamMatch) {
+    // Look for the second parameter in subsequent lines (multi-line case)
     const remainingLines = lines.slice(lines.indexOf(firstNonEmptyLine) + 1);
     for (const line of remainingLines) {
       const trimmedLine = line.trim();
       if (trimmedLine) {
-        firstParamMatch = trimmedLine.match(/['"`]([^'"`]+)['"`]/);
-        if (firstParamMatch) {
+        secondParamMatch = trimmedLine.match(/['"`]([^'"`]+)['"`]/);
+        if (secondParamMatch) {
           break;
         }
       }
     }
   }
 
-  if (!firstParamMatch) {
+  if (!secondParamMatch) {
     return null;
   }
 
   return {
     methodName,
-    firstParam: firstParamMatch[1],
+    firstParam: secondParamMatch[1],
   };
 }
 

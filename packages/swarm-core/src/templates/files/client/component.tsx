@@ -1,4 +1,4 @@
-import { twMerge } from 'tailwind-merge';
+import { twMerge } from "tailwind-merge";
 
 interface {{ComponentName}}Props {
   className?: string;
@@ -6,8 +6,8 @@ interface {{ComponentName}}Props {
 
 export const {{ComponentName}} = ({ className, ...props }: {{ComponentName}}Props) => {
   return (
-    <div className={twMerge('', className)}>
+    <div className={twMerge("", className)}>
       {/* Add component content */}
     </div>
   );
-}; 
+};

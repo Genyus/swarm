@@ -7,12 +7,12 @@ export const get{{ModelName}}{{TypeAnnotation}} = (async ({ {{IdField}} }, conte
     });
 
     if (!{{modelNameLower}}) {
-      throw new HttpError(404, '{{modelNameLower}} not found');
+      throw new HttpError(404, "{{modelNameLower}} not found");
     }
 
     return {{modelNameLower}};
   } catch (error) {
-    console.error('Failed to get {{modelNameLower}}:', error);
-    throw new HttpError(500, 'Failed to get {{modelNameLower}}');
+    console.error("Failed to get {{modelNameLower}}:", error);
+    throw new HttpError(500, "Failed to get {{modelNameLower}}");
   }
-}) {{SatisfiesType}}; 
+}) {{SatisfiesType}};

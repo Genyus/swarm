@@ -150,7 +150,7 @@ export class ApiGenerator implements NodeGenerator<ApiFlags> {
 
       this.logger.info(`\nAPI ${apiName} processing complete.`);
     } catch (error: any) {
-      this.logger.error('Failed to generate API: ' + error.stack);
+      this.logger.error('Failed to generate API: ' + (error?.stack || error));
     }
   }
 

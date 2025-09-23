@@ -117,7 +117,7 @@ export class RouteGenerator implements NodeGenerator<RouteFlags> {
 
       this.logger.info(`\nRoute ${routeName} processing complete.`);
     } catch (error: any) {
-      this.logger.error('Failed to generate route: ' + error.stack);
+      this.logger.error('Failed to generate route: ' + (error?.stack || error));
     }
   }
 

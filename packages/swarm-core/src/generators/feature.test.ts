@@ -81,48 +81,38 @@ describe('FeatureGenerator', () => {
     const contentWithDuplicates = `
 export default function configure(app: App): void {
   app
-    .addApi(
-      'usersApi',
-      'GET',
-      '/api/v1/users',
-      '@src/features/test/_core/server/apis/users.ts',
-      ["User"],
-      false
-    )
-    .addApi(
-      'usersApi',
-      'GET',
-      '/api/v1/users',
-      '@src/features/test/_core/server/apis/users.ts',
-      ["User"],
-      false
-    )
-    .addApi(
-      'usersApi',
-      'GET',
-      '/api/users',
-      '@src/features/test/_core/server/apis/users.ts',
-      ["User"],
-      false
-    )
-    .addApi(
-      'userApi',
-      'GET',
-      '/api/users/:id',
-      '@src/features/test/_core/server/apis/user.ts',
-      ["User"],
-      false
-    );
+    .addApi('test', 'usersApi', {
+      method: 'GET',
+      route: '/api/v1/users',
+      entities: ["User"],
+      auth: false
+    })
+    .addApi('test', 'usersApi', {
+      method: 'GET',
+      route: '/api/v1/users',
+      entities: ["User"],
+      auth: false
+    })
+    .addApi('test', 'usersApi', {
+      method: 'GET',
+      route: '/api/users',
+      entities: ["User"],
+      auth: false
+    })
+    .addApi('test', 'userApi', {
+      method: 'GET',
+      route: '/api/users/:id',
+      entities: ["User"],
+      auth: false
+    });
 }`;
 
-    const newDefinition = `.addApi(
-  'usersApi',
-  'GET',
-  '/api/users',
-  '@src/features/test/_core/server/apis/users.ts',
-  ["User"],
-  false
-)`;
+    const newDefinition = `.addApi('test', 'usersApi', {
+  method: 'GET',
+  route: '/api/users',
+  entities: ["User"],
+  auth: false
+})`;
 
     const gen = new FeatureGenerator(logger, fs);
 
@@ -139,5 +129,100 @@ export default function configure(app: App): void {
     const finalContent = result + '\n' + newDefinition;
     const usersApiCount = (finalContent.match(/usersApi/g) || []).length;
     expect(usersApiCount).toBe(1);
+  });
+
+  it('FeatureGenerator > updateFeatureConfig maintains proper ordering', () => {
+    let content = `
+      export default function configure(app: App): void {
+        app
+      }
+    `;
+
+    fs.existsSync = vi.fn().mockImplementation((p) => {
+      if (
+        typeof p === 'string' &&
+        (p.endsWith('.wasp.ts') || p.includes('feature.wasp.ts'))
+      )
+        return true;
+      return false;
+    });
+    fs.copyFileSync = vi.fn();
+    fs.readFileSync = vi.fn().mockImplementation(() => content);
+    fs.writeFileSync = vi.fn().mockImplementation((path, newContent) => {
+      content = newContent;
+    });
+
+    const gen = new FeatureGenerator(logger, fs);
+
+    // Add items in a different order to test that they get properly ordered
+    // Add a new API first
+    const apiDefinition =
+      '.addApi("foo", "aApi", { method: "GET", route: "/api/a", entities: ["User"], auth: false })';
+    gen.updateFeatureConfig('foo', apiDefinition);
+
+    // Add a new route
+    const routeDefinition =
+      '.addRoute("foo", "cRoute", { path: "/c", componentName: "CPage", auth: false })';
+    gen.updateFeatureConfig('foo', routeDefinition);
+
+    // Add a new CRUD
+    const crudDefinition =
+      '.addCrud("foo", "aCrud", { entity: "User", createOptions: { override: false }, readOptions: { override: false } })';
+    gen.updateFeatureConfig('foo', crudDefinition);
+
+    // Add another API
+    const apiDefinition2 =
+      '.addApi("foo", "zApi", { method: "GET", route: "/api/z", entities: ["User"], auth: false })';
+    gen.updateFeatureConfig('foo', apiDefinition2);
+
+    // Add another route
+    const routeDefinition2 =
+      '.addRoute("foo", "aRoute", { path: "/a", componentName: "APage", auth: false })';
+    gen.updateFeatureConfig('foo', routeDefinition2);
+
+    // Add another CRUD
+    const crudDefinition2 =
+      '.addCrud("foo", "bCrud", { entity: "User", createOptions: { override: false }, readOptions: { override: false } })';
+    gen.updateFeatureConfig('foo', crudDefinition2);
+
+    // Verify that writeFileSync was called
+    expect(fs.writeFileSync).toHaveBeenCalled();
+
+    // Check that the final content has proper ordering
+    const lines = content.split('\n');
+    const appLineIndex = lines.findIndex((line) => line.trim() === 'app');
+
+    // Find all method calls after the app line
+    const methodCalls = [];
+    for (let i = appLineIndex + 1; i < lines.length; i++) {
+      const line = lines[i].trim();
+      if (line.startsWith('.') && line.includes('(')) {
+        const match = line.match(/\.(\w+)\([^,]+,\s*['"`]([^'"`]+)['"`]/);
+        if (match) {
+          methodCalls.push({ method: match[1], name: match[2] });
+        }
+      }
+    }
+
+    // Verify group ordering: routes should come before CRUDs, which should come before APIs
+    const routeIndex = methodCalls.findIndex(
+      (call) => call.method === 'addRoute'
+    );
+    const crudIndex = methodCalls.findIndex(
+      (call) => call.method === 'addCrud'
+    );
+    const apiIndex = methodCalls.findIndex((call) => call.method === 'addApi');
+
+    expect(routeIndex).toBeLessThan(crudIndex);
+    expect(crudIndex).toBeLessThan(apiIndex);
+
+    // Verify alphabetical ordering within groups
+    const routes = methodCalls.filter((call) => call.method === 'addRoute');
+    const cruds = methodCalls.filter((call) => call.method === 'addCrud');
+    const apis = methodCalls.filter((call) => call.method === 'addApi');
+
+    expect(routes.map((r) => r.name)).toEqual(['aRoute', 'cRoute']);
+    expect(cruds.map((c) => c.name)).toEqual(['aCrud', 'bCrud']);
+    expect(apis.map((a) => a.name)).toEqual(['aApi', 'zApi']);
   });
 });

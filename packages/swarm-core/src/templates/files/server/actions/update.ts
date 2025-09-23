@@ -7,7 +7,7 @@ export const update{{ModelName}}{{TypeAnnotation}} = async ({ {{IdField}}, ...da
     });
 
     if (!{{modelNameLower}}) {
-      throw new HttpError(404, '{{ModelName}} not found');
+      throw new HttpError(404, "{{ModelName}} not found");
     }
 
     const updated{{ModelName}} = await context.entities.{{ModelName}}.update({
@@ -19,7 +19,7 @@ export const update{{ModelName}}{{TypeAnnotation}} = async ({ {{IdField}}, ...da
 
     return updated{{ModelName}};
   } catch (error) {
-    console.error('Failed to update {{modelNameLower}}:', error);
-    throw new HttpError(500, 'Failed to update {{modelNameLower}}');
+    console.error("Failed to update {{modelNameLower}}:", error);
+    throw new HttpError(500, "Failed to update {{modelNameLower}}");
   }
-}; {{SatisfiesType}} 
+}; {{SatisfiesType}}

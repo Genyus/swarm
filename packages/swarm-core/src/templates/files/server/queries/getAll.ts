@@ -6,7 +6,7 @@ export const getAll{{PluralModelName}}{{TypeAnnotation}} = (async (_args, contex
 
     return {{pluralModelNameLower}};
   } catch (error) {
-    console.error('Failed to get all {{pluralModelNameLower}}:', error);
-    throw new HttpError(500, 'Failed to get all {{pluralModelNameLower}}');
+    console.error("Failed to get all {{pluralModelNameLower}}:", error);
+    throw new HttpError(500, "Failed to get all {{pluralModelNameLower}}");
   }
-}) {{SatisfiesType}}; 
+}) {{SatisfiesType}};

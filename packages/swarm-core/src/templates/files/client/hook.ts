@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 
 interface {{HookName}}Options {
   // Add options here
@@ -6,8 +6,8 @@ interface {{HookName}}Options {
 
 export const {{hookName}} = (options?: {{HookName}}Options) => {
   // Add hook implementation
-  
+
   return {
     // Return hook values
   };
-}; 
+};

@@ -218,7 +218,7 @@ describe('App', () => {
           {
             entities: ['Task'],
             cron: '0 0 * * *',
-            scheduleArgs: '{"arg1": "value1"}'
+            scheduleArgs: {'arg1': 'value1'}
           }
         );
 
@@ -279,23 +279,6 @@ describe('App', () => {
 
       const result = await app.configureFeatures();
       expect(result).toBe(app);
-    });
-  });
-
-  describe('Error handling', () => {
-    it('should handle invalid JSON in scheduleArgs', () => {
-      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-
-      app.addJob('test', 'testJob', {
-        entities: [],
-        cron: '0 0 * * *',
-        scheduleArgs: 'invalid json'
-      });
-
-      expect(consoleSpy).toHaveBeenCalledWith(
-        'Invalid scheduleArgs JSON: invalid json'
-      );
-      consoleSpy.mockRestore();
     });
   });
 });

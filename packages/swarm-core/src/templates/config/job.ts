@@ -1,4 +1,4 @@
-    .addJob(feature, '{{jobName}}', {
+    .addJob(feature, "{{jobName}}", {
       entities: [{{entitiesList}}],
       cron: "{{cron}}",
       scheduleArgs: {{args}}

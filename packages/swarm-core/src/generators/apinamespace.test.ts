@@ -60,7 +60,6 @@ describe('ApiNamespaceGenerator', () => {
   it('getDefinition returns processed template', () => {
     const result = gen.getDefinition(
       'testNamespace',
-      'testMiddleware',
       'features/test/_core/server/middleware/testMiddleware',
       '/api/test'
     );

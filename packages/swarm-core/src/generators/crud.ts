@@ -144,7 +144,7 @@ export class CrudGenerator implements NodeGenerator<CrudFlags> {
       );
       this.logger.info(`\nCRUD ${crudName} processing complete.`);
     } catch (error: any) {
-      this.logger.error('Failed to generate CRUD: ' + error.stack);
+      this.logger.error('Failed to generate CRUD: ' + (error?.stack || error));
     }
   }
 

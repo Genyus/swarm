@@ -5,6 +5,7 @@ import { IFeatureGenerator, NodeGenerator } from '../types/generator';
 import { Logger } from '../types/logger';
 import {
   ensureDirectoryExists,
+  getFeatureDir,
   getFeatureTargetDir,
 } from '../utils/filesystem';
 import { hasApiNamespaceDefinition, toCamelCase } from '../utils/strings';
@@ -36,12 +37,11 @@ export class ApiNamespaceGenerator implements NodeGenerator<ApiNamespaceFlags> {
       }
 
       const namespaceName = toCamelCase(name);
-      const middlewareFnName = `${name}Middleware`;
       const { targetDirectory: middlewareDir, importDirectory } =
         getFeatureTargetDir(this.fs, featurePath, 'middleware');
-      const importPath = path.join(importDirectory, middlewareFnName);
+      const importPath = path.join(importDirectory, namespaceName);
       ensureDirectoryExists(this.fs, middlewareDir);
-      const middlewareFile = `${middlewareDir}/${middlewareFnName}.ts`;
+      const middlewareFile = `${middlewareDir}/${namespaceName}.ts`;
       const fileExists = this.fs.existsSync(middlewareFile);
 
       if (fileExists && !force) {
@@ -56,7 +56,7 @@ export class ApiNamespaceGenerator implements NodeGenerator<ApiNamespaceFlags> {
         }
         const template = this.fs.readFileSync(templatePath, 'utf8');
         const processed = this.templateUtility.processTemplate(template, {
-          middlewareFnName,
+          name: namespaceName,
           namespaceName,
         });
         this.fs.writeFileSync(middlewareFile, processed);
@@ -64,34 +64,39 @@ export class ApiNamespaceGenerator implements NodeGenerator<ApiNamespaceFlags> {
           `${fileExists ? 'Overwrote' : 'Generated'} middleware file: ${middlewareFile}`
         );
       }
+      const configFilePrefix = featurePath.split('/').join('.');
+      const configDir = getFeatureDir(this.fs, configFilePrefix);
+      const configFilePath = path.join(
+        configDir,
+        `${configFilePrefix}.wasp.ts`
+      );
 
-      const configPath = `config/${featurePath.split('/')[0]}.wasp.ts`;
-
-      if (!this.fs.existsSync(configPath)) {
-        this.logger.error(`Feature config file not found: ${configPath}`);
+      if (!this.fs.existsSync(configFilePath)) {
+        this.logger.error(`Feature config file not found: ${configFilePath}`);
         return;
       }
 
-      const configContent = this.fs.readFileSync(configPath, 'utf8');
+      const configContent = this.fs.readFileSync(configFilePath, 'utf8');
       const configExists = hasApiNamespaceDefinition(
         configContent,
         namespaceName
       );
 
       if (configExists && !force) {
-        this.logger.info(`apiNamespace config already exists in ${configPath}`);
+        this.logger.info(
+          `apiNamespace config already exists in ${configFilePath}`
+        );
         this.logger.info('Use --force to overwrite');
       } else {
         const definition = this.getDefinition(
           namespaceName,
-          middlewareFnName,
           importPath,
           apiPath
         );
 
         this.featureGenerator.updateFeatureConfig(featurePath, definition);
         this.logger.success(
-          `${configExists ? 'Updated' : 'Added'} apiNamespace config in: ${configPath}`
+          `${configExists ? 'Updated' : 'Added'} apiNamespace config in: ${configFilePath}`
         );
       }
 
@@ -99,7 +104,9 @@ export class ApiNamespaceGenerator implements NodeGenerator<ApiNamespaceFlags> {
         `\napiNamespace ${namespaceName} processing complete.`
       );
     } catch (error: any) {
-      this.logger.error('Failed to generate apiNamespace: ' + error.stack);
+      this.logger.error(
+        'Failed to generate apiNamespace: ' + (error?.stack || error)
+      );
     }
   }
 
@@ -108,7 +115,6 @@ export class ApiNamespaceGenerator implements NodeGenerator<ApiNamespaceFlags> {
    */
   getDefinition(
     namespaceName: string,
-    middlewareFnName: string,
     middlewareImportPath: string,
     pathValue: string
   ): string {
@@ -118,7 +124,6 @@ export class ApiNamespaceGenerator implements NodeGenerator<ApiNamespaceFlags> {
 
     return this.templateUtility.processTemplate(template, {
       namespaceName,
-      middlewareFnName,
       middlewareImportPath,
       pathValue,
     });

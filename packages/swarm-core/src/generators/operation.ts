@@ -120,7 +120,9 @@ export class OperationGenerator implements NodeGenerator<OperationFlags> {
 
       this.logger.info(`\nOperation ${operationName} processing complete.`);
     } catch (error: any) {
-      this.logger.error('Failed to generate operation: ' + error.stack);
+      this.logger.error(
+        'Failed to generate operation: ' + (error?.stack || error)
+      );
     }
   }
 

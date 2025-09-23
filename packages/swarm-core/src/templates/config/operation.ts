@@ -1,3 +1,3 @@
-    .addAction(feature, '{{operationName}}', {
+    .addAction(feature, "{{operationName}}", {
       entities: [{{entities}}]
     })
