@@ -248,20 +248,21 @@ The CLI generates **Wasp-compatible** files and configurations following this st
 
 ```
 your-project/
-├── config/                 # Feature configurations
-│   ├── users.wasp.ts       # Generated feature configs
+├── config/                  # Feature configurations
+│   ├── users.wasp.ts        # Generated feature configs
 │   └── blog.wasp.ts
-├── features/               # Feature implementations
+├── features/                # Feature implementations
 │   ├── users/
 │   │   └── _core/
-│   │       ├── client/     # React components, hooks
-│   │       ├── server/     # Server-side logic
-│   │       │   ├── api/    # API endpoints
+│   │       ├── client/      # React components, hooks
+│   │       │   └── pages/   # Route pages
+│   │       ├── server/      # Server-side logic
+│   │       │   ├── api/     # API endpoints
 │   │       │   ├── actions/ # Server actions
 │   │       │   ├── queries/ # Server queries
-│   │       │   ├── jobs/   # Background jobs
-│   │       │   └── crud/   # CRUD operations
-│   │       └── types/      # Shared types
+│   │       │   ├── jobs/    # Background jobs
+│   │       │   └── cruds/   # CRUD operations
+│   │       └── types/       # Shared types
 │   └── blog/
 │       └── _core/
 │           └── ...
