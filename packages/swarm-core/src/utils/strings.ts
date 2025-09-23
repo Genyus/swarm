@@ -29,7 +29,13 @@ export function getPlural(name: string): string {
   if (name.endsWith('y')) {
     return `${name.slice(0, -1)}ies`;
   }
-  if (name.endsWith('s')) {
+  if (
+    name.endsWith('s') ||
+    name.endsWith('sh') ||
+    name.endsWith('ch') ||
+    name.endsWith('x') ||
+    name.endsWith('z')
+  ) {
     return `${name}es`;
   }
   return `${name}s`;

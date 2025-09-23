@@ -1,7 +1,5 @@
-    .addRoute(
-      '{{routeName}}',
-      '{{routePath}}',
-      '{{componentName}}',
-      '{{importPath}}',
-      {{auth}}
-    )
+    .addRoute(feature, '{{routeName}}', {
+      path: '{{routePath}}',
+      componentName: '{{componentName}}',
+      auth: {{auth}}
+    })

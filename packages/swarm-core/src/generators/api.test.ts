@@ -76,14 +76,4 @@ describe('ApiGenerator', () => {
     );
     expect(typeof result).toBe('string');
   });
-
-  it('getApiNamespaceDefinition returns processed template', () => {
-    const result = gen.getApiNamespaceDefinition(
-      'testNamespace',
-      'middleware',
-      'features/test/_core/server/middleware/middleware',
-      '/api/test'
-    );
-    expect(typeof result).toBe('string');
-  });
 });

@@ -12,7 +12,6 @@ import {
   AuthConfig,
   ClientConfig,
   CrudConfig,
-  CrudOperationOptions,
   DbConfig,
   EmailSenderConfig,
   JobConfig,
@@ -20,6 +19,50 @@ import {
   RouteConfig,
   App as WaspApp,
 } from 'wasp-config';
+
+// Type definitions for helper method options
+export interface RouteOptions {
+  path: string;
+  componentName: string;
+  auth?: boolean;
+}
+
+export interface ApiOptions {
+  method: 'GET' | 'POST' | 'PUT' | 'DELETE';
+  route: string;
+  entities?: string[];
+  auth?: boolean;
+}
+
+export interface CrudOperationOptions {
+  entities?: string[];
+  isPublic?: boolean;
+  override?: boolean;
+}
+
+export interface CrudOptions {
+  entity: string;
+  getAllOptions?: CrudOperationOptions;
+  getOptions?: CrudOperationOptions;
+  createOptions?: CrudOperationOptions;
+  updateOptions?: CrudOperationOptions;
+  deleteOptions?: CrudOperationOptions;
+}
+
+export interface OperationOptions {
+  entities?: string[];
+  auth?: boolean;
+}
+
+export interface JobOptions {
+  entities?: string[];
+  cron?: string;
+  scheduleArgs?: string;
+}
+
+export interface ApiNamespaceOptions {
+  path: string;
+}
 
 /**
  * Enhanced Wasp App class with Swarm-specific functionality
@@ -122,58 +165,59 @@ export class App extends WaspApp {
 
   /**
    * Helper method to add routes with simplified parameters
+   * @param featureName The name of the feature
    * @param name Route name, e.g. "DashboardRoute"
-   * @param path Route path, e.g. "/dashboard"
-   * @param componentName Custom page component name, e.g. "Dashboard"
-   * @param importPath Import path (excluding `@src/` prefix), e.g. "features/dashboard/client/pages/Dashboard"
-   * @param auth Require authentication (optional, defaults to false)
+   * @param options Route configuration options
    */
   public addRoute(
+    featureName: string,
     name: string,
-    path: string,
-    componentName: string,
-    importPath: string,
-    auth?: boolean
+    options: RouteOptions
   ): this {
-    super.route(name, {
-      path,
-      to: this.page(componentName, {
-        authRequired: auth || false,
+    const importPath = this.getFeatureImportPath(
+      featureName,
+      'client',
+      'pages',
+      options.componentName
+    );
+    const routeConfig = {
+      path: options.path,
+      to: this.page(options.componentName, {
+        authRequired: options.auth || false,
         component: {
-          import: componentName,
+          import: options.componentName,
           from: `@src/${importPath}`,
         },
       }),
-    });
+    };
+
+    super.route(name, routeConfig);
 
     return this;
   }
 
   /**
    * Helper method to add API endpoints with simplified parameters
+   * @param featureName The name of the feature
    * @param name API endpoint name, e.g. "getTasksApi"
-   * @param method HTTP method, e.g. "GET"
-   * @param route API route path, e.g. "/api/tasks"
-   * @param importPath Import path (excluding `@src/` prefix), e.g. "features/dashboard/server/api/getTasks"
-   * @param entities Comma-separated list of entities (optional), e.g. ["Task"]
-   * @param auth Require authentication (optional)
+   * @param options API configuration options
    */
-  public addApi(
-    name: string,
-    method: 'GET' | 'POST' | 'PUT' | 'DELETE',
-    route: string,
-    importPath: string,
-    entities?: string[],
-    auth?: boolean
-  ): this {
+  public addApi(featureName: string, name: string, options: ApiOptions): this {
+    const importPath = this.getFeatureImportPath(
+      featureName,
+      'server',
+      'apis',
+      name
+    );
+
     super.api(name, {
       fn: {
         import: name,
         from: `@src/${importPath}`,
       },
-      entities,
-      httpRoute: { method, route },
-      auth: auth || false,
+      entities: options.entities,
+      httpRoute: { method: options.method, route: options.route },
+      auth: options.auth || false,
     });
 
     return this;
@@ -181,31 +225,45 @@ export class App extends WaspApp {
 
   /**
    * Helper method to add CRUD operations with simplified parameters
+   * @param featureName The name of the feature
    * @param name The CRUD name
-   * @param entity Entity name
-   * @param getAllOptions Options for getAll operation (optional)
-   * @param getOptions Options for get operation (optional)
-   * @param createOptions Options for create operation (optional)
-   * @param updateOptions Options for update operation (optional)
-   * @param deleteOptions Options for delete operation (optional)
+   * @param options CRUD configuration options
    */
   public addCrud(
+    featureName: string,
     name: string,
-    entity: string,
-    getAllOptions?: CrudOperationOptions,
-    getOptions?: CrudOperationOptions,
-    createOptions?: CrudOperationOptions,
-    updateOptions?: CrudOperationOptions,
-    deleteOptions?: CrudOperationOptions
+    options: CrudOptions
   ): this {
+    const processOperationOptions = (
+      operationName: string,
+      operationOptions?: CrudOperationOptions
+    ) => {
+      if (!operationOptions) return undefined;
+
+      const processedOptions: any = { ...operationOptions };
+
+      if (operationOptions.override) {
+        const operationDataType =
+          operationName === 'getAll'
+            ? this.getPlural(options.entity)
+            : options.entity;
+        const operationComponent = `${operationName}${operationDataType}`;
+
+        processedOptions.overrideFn = `import { ${operationComponent} } from '@src/features/${featureName}/server/cruds/${operationComponent}.ts'`;
+        delete processedOptions.override;
+      }
+
+      return processedOptions;
+    };
+
     super.crud(name, {
-      entity,
+      entity: options.entity,
       operations: {
-        getAll: getAllOptions,
-        get: getOptions,
-        create: createOptions,
-        update: updateOptions,
-        delete: deleteOptions,
+        getAll: processOperationOptions('getAll', options.getAllOptions),
+        get: processOperationOptions('get', options.getOptions),
+        create: processOperationOptions('create', options.createOptions),
+        update: processOperationOptions('update', options.updateOptions),
+        delete: processOperationOptions('delete', options.deleteOptions),
       },
     });
 
@@ -214,18 +272,27 @@ export class App extends WaspApp {
 
   /**
    * Helper method to add actions with simplified parameters
+   * @param featureName The name of the feature
    * @param name The action name
-   * @param importPath Import path (excluding `@src/` prefix), e.g. "features/dashboard/server/queries/getTasks"
-   * @param entities Comma-separated list of entities (optional, defaults to datatype)
-   * @param auth Require authentication (optional)
+   * @param options Action configuration options
    */
   public addAction(
+    featureName: string,
     name: string,
-    importPath: string,
-    entities?: string[],
-    auth?: boolean
+    options: OperationOptions
   ): this {
-    const config = this.getOperationConfig(name, importPath, entities, auth);
+    const importPath = this.getFeatureImportPath(
+      featureName,
+      'server',
+      'actions',
+      name
+    );
+    const config = this.getOperationConfig(
+      name,
+      importPath,
+      options.entities,
+      options.auth
+    );
 
     super.action(name, config);
 
@@ -234,18 +301,27 @@ export class App extends WaspApp {
 
   /**
    * Helper method to add queries with simplified parameters
+   * @param featureName The name of the feature
    * @param name The query name
-   * @param importPath Import path (excluding `@src/` prefix), e.g. "features/dashboard/server/queries/getTasks"
-   * @param entities Comma-separated list of entities (optional, defaults to datatype)
-   * @param auth Require authentication (optional)
+   * @param options Query configuration options
    */
   public addQuery(
+    featureName: string,
     name: string,
-    importPath: string,
-    entities?: string[],
-    auth?: boolean
+    options: OperationOptions
   ): this {
-    const config = this.getOperationConfig(name, importPath, entities, auth);
+    const importPath = this.getFeatureImportPath(
+      featureName,
+      'server',
+      'queries',
+      name
+    );
+    const config = this.getOperationConfig(
+      name,
+      importPath,
+      options.entities,
+      options.auth
+    );
 
     super.query(name, config);
 
@@ -254,26 +330,24 @@ export class App extends WaspApp {
 
   /**
    * Helper method to add background jobs with simplified parameters
+   * @param featureName The name of the feature
    * @param name Job name
-   * @param importPath Import path (excluding `@src/` prefix), e.g. "features/dashboard/server/jobs/getTasks"
-   * @param entities Comma-separated list of entities (optional), e.g. ["Task"]
-   * @param cron Cron schedule expression (optional), e.g. "0 0 * * *"
-   * @param scheduleArgs JSON string of schedule arguments (optional), e.g. "{\"arg1\": \"value1\", \"arg2\": \"value2\"}"
+   * @param options Job configuration options
    */
-  public addJob(
-    name: string,
-    importPath: string,
-    entities?: string[],
-    cron?: string,
-    scheduleArgs?: string
-  ): this {
+  public addJob(featureName: string, name: string, options: JobOptions): this {
+    const importPath = this.getFeatureImportPath(
+      featureName,
+      'server',
+      'jobs',
+      name
+    );
     let args = {};
 
-    if (scheduleArgs) {
+    if (options.scheduleArgs) {
       try {
-        args = JSON.parse(scheduleArgs);
+        args = JSON.parse(options.scheduleArgs);
       } catch {
-        console.warn(`Invalid scheduleArgs JSON: ${scheduleArgs}`);
+        console.warn(`Invalid scheduleArgs JSON: ${options.scheduleArgs}`);
       }
     }
 
@@ -285,10 +359,10 @@ export class App extends WaspApp {
           from: `@src/${importPath}`,
         },
       },
-      entities,
-      ...(cron && {
+      entities: options.entities,
+      ...(options.cron && {
         schedule: {
-          cron,
+          cron: options.cron,
           args,
         },
       }),
@@ -299,13 +373,24 @@ export class App extends WaspApp {
 
   /**
    * Helper method to add API namespaces with simplified parameters
+   * @param featureName The name of the feature
    * @param name Namespace name
-   * @param path Namespace path
-   * @param importPath Import path (excluding `@src/` prefix), e.g. "features/dashboard/server/middleware/tasksMiddleware"
+   * @param options API namespace configuration options
    */
-  public addApiNamespace(name: string, path: string, importPath: string): this {
+  public addApiNamespace(
+    featureName: string,
+    name: string,
+    options: ApiNamespaceOptions
+  ): this {
+    const importPath = this.getFeatureImportPath(
+      featureName,
+      'server',
+      'middleware',
+      name
+    );
+
     super.apiNamespace(name, {
-      path,
+      path: options.path,
       middlewareConfigFn: {
         import: name,
         from: `@src/${importPath}`,
@@ -313,6 +398,45 @@ export class App extends WaspApp {
     });
 
     return this;
+  }
+
+  /**
+   * Calculates the import path for a feature component
+   * @param featureName The name of the feature
+   * @param type The type of component (client, server, etc.)
+   * @param subPath The sub-path within the feature directory
+   * @param fileName The name of the file (optional, defaults to featureName)
+   * @returns The calculated import path
+   */
+  private getFeatureImportPath(
+    featureName: string,
+    type: 'client' | 'server',
+    subPath: string,
+    fileName?: string
+  ): string {
+    const file = fileName || featureName;
+    return `features/${featureName}/${type}/${subPath}/${file}`;
+  }
+
+  /**
+   * Converts a singular word to its plural form
+   * @param word The singular word to pluralize
+   * @returns The plural form of the word
+   */
+  private getPlural(word: string): string {
+    if (word.endsWith('y')) {
+      return word.slice(0, -1) + 'ies';
+    } else if (
+      word.endsWith('s') ||
+      word.endsWith('sh') ||
+      word.endsWith('ch') ||
+      word.endsWith('x') ||
+      word.endsWith('z')
+    ) {
+      return word + 'es';
+    } else {
+      return word + 's';
+    }
   }
 
   /**
@@ -349,11 +473,18 @@ export class App extends WaspApp {
 
     for (const file of featureFiles) {
       try {
-        const modulePath = `../features/${file.replace('.ts', '.js')}`;
+        const featureName = file.split('/')[0];
+        const modulePath = path.join(
+          process.cwd(),
+          '.wasp',
+          'src',
+          'features',
+          file.replace('.ts', '.js')
+        );
         const module = await import(modulePath);
 
         if (module.default) {
-          module.default(this);
+          module.default(this, featureName);
         }
       } catch (error) {
         console.error(`Failed to load feature module ${file}:`, error);

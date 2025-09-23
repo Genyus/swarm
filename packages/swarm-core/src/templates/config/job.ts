@@ -1,14 +1,5 @@
-    .job('{{jobName}}', {
-      executor: "PgBoss",
-      perform: {
-        fn: {
-          import: "{{jobWorkerName}}",
-          from: "{{importPath}}",
-        }
-      },
-      schedule: {
-        cron: "{{cron}}",
-        args: {{args}}
-      },
+    .addJob(feature, '{{jobName}}', {
       entities: [{{entitiesList}}],
+      cron: "{{cron}}",
+      scheduleArgs: {{args}}
     })

@@ -32,14 +32,85 @@ export interface ApiNamespaceConfig {
   };
 }
 
+export interface Wasp {
+  version: string;
+}
+
 export interface AppConfig {
-  app: {
-    title: string;
-  };
+  title: string;
+  wasp: Wasp;
+  head?: string[];
+}
+
+export interface AuthMethods {
+  usernameAndPassword?: UsernameAndPasswordConfig;
+  discord?: ExternalAuthConfig;
+  google?: ExternalAuthConfig;
+  gitHub?: ExternalAuthConfig;
+  keycloak?: ExternalAuthConfig;
+  email?: EmailAuthConfig;
 }
 
 export interface AuthConfig {
-  method: string;
+  userEntity: string;
+  methods: AuthMethods;
+  externalAuthEntity?: string;
+  onAuthFailedRedirectTo: string;
+  onAuthSucceededRedirectTo?: string;
+  onBeforeSignup?: ExtImport;
+  onAfterSignup?: ExtImport;
+  onAfterEmailVerified?: ExtImport;
+  onBeforeOAuthRedirect?: ExtImport;
+  onBeforeLogin?: ExtImport;
+  onAfterLogin?: ExtImport;
+}
+
+export interface UsernameAndPasswordConfig {
+  userSignupFields?: ExtImport;
+}
+
+export interface EmailAuthConfig {
+  userSignupFields?: ExtImport;
+  fromField: EmailFromField;
+  emailVerification: EmailVerificationConfig;
+  passwordReset: PasswordResetConfig;
+}
+
+export interface EmailVerificationConfig {
+  getEmailContentFn?: ExtImport;
+  clientRoute: string;
+}
+
+export interface PasswordResetConfig {
+  getEmailContentFn?: ExtImport;
+  clientRoute: string;
+}
+
+export interface ExternalAuthConfig {
+  configFn?: ExtImport;
+  userSignupFields?: ExtImport;
+}
+
+export type ExtImport =
+  | {
+      import: string;
+      from: AppSpecExtImport['path'];
+    }
+  | {
+      importDefault: string;
+      from: AppSpecExtImport['path'];
+    };
+
+export interface EmailFromField {
+  name?: string;
+  email: string;
+}
+
+export type ExtImportKind = 'named' | 'default';
+export interface AppSpecExtImport {
+  kind: ExtImportKind;
+  name: string;
+  path: `@src/${string}`;
 }
 
 export interface ClientConfig {

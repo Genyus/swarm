@@ -137,6 +137,7 @@ export class RouteGenerator implements NodeGenerator<RouteFlags> {
     const template = this.fs.readFileSync(templatePath, 'utf8');
 
     return this.templateUtility.processTemplate(template, {
+      featureName: featurePath.split('/').pop() || featurePath,
       routeName,
       routePath,
       componentName,

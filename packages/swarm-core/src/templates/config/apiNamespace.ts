@@ -1,5 +1,3 @@
-    .addApiNamespace(
-      '{{namespaceName}}',
-      '{{pathValue}}',
-      '{{importPath}}'
-    )
+    .addApiNamespace(feature, '{{namespaceName}}', {
+      path: '{{pathValue}}'
+    })

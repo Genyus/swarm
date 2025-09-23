@@ -62,7 +62,11 @@ vi.mock('wasp-config', () => {
     AuthConfig: {},
     ClientConfig: {},
     CrudConfig: {},
-    CrudOperationOptions: {},
+    CrudOperationOptions: {
+      entities: [],
+      isPublic: false,
+      override: false,
+    },
     DbConfig: {},
     EmailSenderConfig: {},
     JobConfig: {},
@@ -97,9 +101,11 @@ describe('App', () => {
 
   beforeEach(() => {
     mockConfig = {
-      app: {
-        title: 'Test App',
+      title: 'Test App',
+      wasp: {
+        version: '1.0.0',
       },
+      head: [],
     };
     app = new App('TestApp', mockConfig);
   });
@@ -122,7 +128,7 @@ describe('App', () => {
 
   describe('Chainable configuration methods', () => {
     it('should return this for all chainable methods', () => {
-      const authConfig = { method: 'EmailAndPassword' };
+      const authConfig = { userEntity: 'User', methods: {}, onAuthFailedRedirectTo: '/login' };
       const clientConfig = { rootComponent: 'Main' };
       const dbConfig = { system: 'PostgreSQL' };
 
@@ -134,84 +140,99 @@ describe('App', () => {
 
   describe('Helper methods', () => {
     it('should add routes with simplified parameters', () => {
-      const result = app.addRoute(
-        'DashboardRoute',
-        '/dashboard',
-        'Dashboard',
-        'features/dashboard/client/pages/Dashboard',
-        true
-      );
+        const result = app.addRoute(
+          'dashboard',
+          'DashboardRoute',
+          {
+            path: '/dashboard',
+            componentName: 'Dashboard',
+            auth: true,
+          }
+        );
 
       expect(result).toBe(app);
     });
 
     it('should add API endpoints with simplified parameters', () => {
-      const result = app.addApi(
-        'getTasksApi',
-        'GET',
-        '/api/tasks',
-        'features/dashboard/server/api/getTasks',
-        ['Task'],
-        true
-      );
+        const result = app.addApi(
+          'dashboard',
+          'getTasksApi',
+          {
+            method: 'GET',
+            route: '/api/tasks',
+            entities: ['Task'],
+            auth: true,
+          }
+        );
 
       expect(result).toBe(app);
     });
 
     it('should add CRUD operations with simplified parameters', () => {
-      const result = app.addCrud(
-        'TaskCrud',
-        'Task',
-        { entities: ['Task'] },
-        { entities: ['Task'] },
-        { entities: ['Task'] },
-        { entities: ['Task'] },
-        { entities: ['Task'] }
-      );
+        const result = app.addCrud(
+          'tasks',
+          'TaskCrud',
+          {
+            entity: 'Task',
+            getAllOptions: { entities: ['Task'], isPublic: true },
+            getOptions: { entities: ['Task'], override: true },
+            createOptions: { entities: ['Task'] },
+            updateOptions: { entities: ['Task'] },
+            deleteOptions: { entities: ['Task'] },
+          }
+        );
 
       expect(result).toBe(app);
     });
 
     it('should add actions with simplified parameters', () => {
-      const result = app.addAction(
-        'createTask',
-        'features/tasks/server/actions/createTask',
-        ['Task'],
-        true
-      );
+        const result = app.addAction(
+          'tasks',
+          'createTask',
+          {
+            entities: ['Task'],
+            auth: true
+          }
+        );
 
       expect(result).toBe(app);
     });
 
     it('should add queries with simplified parameters', () => {
-      const result = app.addQuery(
-        'getTasks',
-        'features/tasks/server/queries/getTasks',
-        ['Task'],
-        true
-      );
+        const result = app.addQuery(
+          'tasks',
+          'getTasks',
+          {
+            entities: ['Task'],
+            auth: true
+          }
+        );
 
       expect(result).toBe(app);
     });
 
     it('should add jobs with simplified parameters', () => {
-      const result = app.addJob(
-        'processTasks',
-        'features/tasks/server/jobs/processTasks',
-        ['Task'],
-        '0 0 * * *',
-        '{"arg1": "value1"}'
-      );
+        const result = app.addJob(
+          'tasks',
+          'processTasks',
+          {
+            entities: ['Task'],
+            cron: '0 0 * * *',
+            scheduleArgs: '{"arg1": "value1"}'
+          }
+        );
 
       expect(result).toBe(app);
     });
 
     it('should add API namespaces with simplified parameters', () => {
-      const result = app.addApiNamespace(
-        'tasksNamespace',
-        '/api/tasks',
-        'features/tasks/server/middleware/tasksMiddleware'
-      );
+        const result = app.addApiNamespace(
+          'tasks',
+          'tasksNamespace',
+          {
+            path: '/api/tasks'
+          }
+        );
 
       expect(result).toBe(app);
     });
@@ -265,7 +286,11 @@ describe('App', () => {
     it('should handle invalid JSON in scheduleArgs', () => {
       const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
-      app.addJob('testJob', 'test/path', [], '0 0 * * *', 'invalid json');
+      app.addJob('test', 'testJob', {
+        entities: [],
+        cron: '0 0 * * *',
+        scheduleArgs: 'invalid json'
+      });
 
       expect(consoleSpy).toHaveBeenCalledWith(
         'Invalid scheduleArgs JSON: invalid json'

@@ -1,5 +1,3 @@
-    .addAction(
-      '{{operationName}}',
-      '{{importPath}}',
-      [{{entities}}]
-    )
+    .addAction(feature, '{{operationName}}', {
+      entities: [{{entities}}]
+    })

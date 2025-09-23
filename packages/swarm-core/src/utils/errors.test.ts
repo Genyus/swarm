@@ -19,27 +19,19 @@ vi.mock('signale', () => ({
 }));
 
 describe('errors utils', () => {
-  it('handleFatalError logs and exits', async () => {
+  it('handleFatalError logs and throws error', async () => {
     // Mock console.error to capture error logging
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-    const exitSpy = vi.spyOn(process, 'exit').mockImplementation(() => {
-      throw new Error('exit');
-    });
 
     // Dynamically import the module to avoid module caching issues
     const { handleFatalError } = await import('./errors');
 
-    try {
-      handleFatalError('Test error');
-    } catch {
-      // expected process.exit throws
-    }
+    const testError = new Error('Test error');
 
-    expect(exitSpy).toHaveBeenCalledWith(1);
-    // Since we're using Signale, let's just check that process.exit was called
-    // The actual logging is handled by Signale which we've mocked
+    expect(() => {
+      handleFatalError('Test error message', testError);
+    }).toThrow('Test error');
 
     consoleSpy.mockRestore();
-    exitSpy.mockRestore();
   });
 });

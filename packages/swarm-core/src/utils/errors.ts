@@ -28,9 +28,8 @@ export function success(message: string) {
 export function handleFatalError(
   message: string,
   err?: Error,
-  code = 1,
   debug?: boolean
 ) {
   error(message, err, debug);
-  process.exit(code);
+  throw err;
 }

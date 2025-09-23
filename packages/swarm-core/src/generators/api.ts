@@ -182,25 +182,4 @@ export class ApiGenerator implements NodeGenerator<ApiFlags> {
       importPath,
     });
   }
-
-  /**
-   * Generates an apiNamespace definition for the feature configuration.
-   */
-  getApiNamespaceDefinition(
-    namespaceName: string,
-    middlewareFnName: string,
-    middlewareImportPath: string,
-    pathValue: string
-  ): string {
-    const templatePath =
-      this.templateUtility.getConfigTemplatePath('apiNamespace');
-    const template = this.fs.readFileSync(templatePath, 'utf8');
-
-    return this.templateUtility.processTemplate(template, {
-      namespaceName,
-      middlewareFnName,
-      middlewareImportPath,
-      pathValue,
-    });
-  }
 }

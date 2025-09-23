@@ -23,13 +23,13 @@
     "noUncheckedIndexedAccess": true
   },
   "include": [
-    "src/**/*"
+    "src/**/*",
+    "tests/**/*"
   ],
   "exclude": [
     "node_modules",
     "dist",
-    "tests/output/**/*",
-    "src/**/*.test.ts"
+    "tests/output/**/*"
   ],
   "ts-node": {
     "esm": true

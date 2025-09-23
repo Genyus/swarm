@@ -87,6 +87,7 @@ export class CrudGenerator implements NodeGenerator<CrudFlags> {
       if (fileExists && !force) {
         this.logger.info(`CRUD file already exists: ${crudFile}`);
         this.logger.info('Use --force to overwrite');
+
         return;
       }
 
@@ -94,6 +95,7 @@ export class CrudGenerator implements NodeGenerator<CrudFlags> {
 
       if (!this.fs.existsSync(templatePath)) {
         this.logger.error('CRUD template not found');
+
         return;
       }
 
@@ -116,6 +118,7 @@ export class CrudGenerator implements NodeGenerator<CrudFlags> {
 
       if (!this.fs.existsSync(configPath)) {
         this.logger.error(`Feature config file not found: ${configPath}`);
+
         return;
       }
 
@@ -129,6 +132,7 @@ export class CrudGenerator implements NodeGenerator<CrudFlags> {
       if (configExists && !force) {
         this.logger.info(`CRUD config already exists in ${configPath}`);
         this.logger.info('Use --force to overwrite');
+
         return;
       }
 

@@ -6,10 +6,10 @@ import { App } from 'swarm-config';
  * Example usage:
  * ```ts
  * app
- *   .addApiNamespace('apiNamespace', '/api/feature', 'features/feature/_core/server/middleware/middleware')
- *   .addApi('getItems', 'GET', '/api/items', 'features/feature/_core/server/apis/getItems', ['Item'], true)
- *   .addRoute('FeatureRoute', '/feature', 'Feature', 'features/feature/_core/client/pages/Feature', false);
+ *   .addApiNamespace(feature, 'apiNamespace', { path: '/api/feature' })
+ *   .addApi(feature, 'getItems', { method: 'GET', route: '/api/feature/items', entities: ['Item'], auth: true })
+ *   .addRoute(feature, 'featureRoute', { path: '/feature', componentName: 'Feature', auth: false });
  * ```
  */
-export default function configure(app: App): void {
+export default function configure(app: App, feature: string): void {
 }

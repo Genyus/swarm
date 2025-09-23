@@ -152,9 +152,7 @@ export class FeatureGenerator implements IFeatureGenerator {
     // Find the position to insert the new definition
     const lines = content.split('\n');
     const configureFunctionStart = lines.findIndex((line) =>
-      line
-        .trim()
-        .startsWith('export default function configure(app: App): void {')
+      line.trim().startsWith('export default function')
     );
 
     if (configureFunctionStart === -1) {
@@ -236,7 +234,11 @@ export class FeatureGenerator implements IFeatureGenerator {
 
     copyDirectory(this.fs, templateDir, featureDir);
     this.logger.debug(`Copied template from ${templateDir} to ${featureDir}`);
-    this.generateFeatureConfig(featurePath);
+
+    if (segments.length === 1) {
+      this.generateFeatureConfig(featurePath);
+    }
+
     this.logger.success(
       `Generated ${
         segments.length === 1 ? 'top-level ' : 'sub-'
