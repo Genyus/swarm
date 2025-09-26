@@ -55,28 +55,35 @@ function makeOperationCommand({
         .command(commandName)
         .requiredOption(
           '--operation <operation>',
-          `Operation (${allowedOperations.join(', ')})`
+          `Operation (${allowedOperations.join(',')})`
         )
-        .requiredOption('--dataType <dataType>', 'Model/type name')
+        .requiredOption('--data-type <type>', 'Type/model name')
         .description(description);
+
       cmd = withFeatureOption(cmd);
       cmd = withEntitiesOption(cmd);
       cmd = withForceOption(cmd);
       cmd = withAuthOption(cmd);
       cmd.action(async (opts) => {
         validateFeaturePath(opts.feature);
+
         const normalizedOperation = opts.operation.toLowerCase() as
           | ActionOperation
           | QueryOperation;
-        if (!allowedOperations.includes(normalizedOperation)) {
+        const matchingOperation = allowedOperations.find(
+          (op) => op.toLowerCase() === normalizedOperation
+        );
+
+        if (!matchingOperation) {
           error(
             `--operation flag must be one of: ${allowedOperations.join(', ')}`
           );
           return;
         }
+
         await generator.generate(opts.feature, {
           dataType: opts.dataType,
-          operation: normalizedOperation,
+          operation: matchingOperation,
           entities: opts.entities,
           force: !!opts.force,
           auth: !!opts.auth,
