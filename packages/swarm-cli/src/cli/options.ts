@@ -6,7 +6,10 @@ import { Command } from 'commander';
  * @returns The command with the option added
  */
 export function withFeatureOption(cmd: Command) {
-  return cmd.requiredOption('--feature <feature>,-f <feature>', 'Feature name (kebab-case)');
+  return cmd.requiredOption(
+    '--feature <feature>,-f <feature>',
+    'Feature name (kebab-case)'
+  );
 }
 
 /**
@@ -24,7 +27,10 @@ export function withForceOption(cmd: Command) {
  * @returns The command with the option added
  */
 export function withEntitiesOption(cmd: Command) {
-  return cmd.option('--entities <entities>,-e <entities>', 'Comma-separated entity names');
+  return cmd.option(
+    '--entities <entities>,-e <entities>',
+    'Comma-separated entity names'
+  );
 }
 
 /**
