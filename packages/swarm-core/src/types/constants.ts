@@ -43,6 +43,7 @@ export const OPERATIONS = {
   DELETE: 'delete',
   GET: 'get',
   GETALL: 'getAll',
+  GETFILTERED: 'getFiltered',
 } as const;
 /**
  * Type for valid operation values.
@@ -74,6 +75,7 @@ export type ActionOperation =
 export const QUERY_OPERATIONS = {
   GET: 'get',
   GETALL: 'getAll',
+  GETFILTERED: 'getFiltered',
 } as const;
 /**
  * Type for valid query operation values.

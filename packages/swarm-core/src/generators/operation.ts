@@ -182,13 +182,17 @@ export class OperationGenerator implements NodeGenerator<OperationFlags> {
     crudName: string | null = null
   ): string {
     const imports: string[] = [];
-    if (operation === OPERATIONS.CREATE || operation === OPERATIONS.UPDATE) {
+
+    if (operation !== OPERATIONS.GETALL) {
       if (needsPrismaImport(model)) {
         imports.push('import { Prisma } from "@prisma/client";');
       }
+
       imports.push(`import { ${modelName} } from "wasp/entities";`);
     }
+
     imports.push('import { HttpError } from "wasp/server";');
+
     if (isCrudOverride && crudName) {
       imports.push(`import type { ${crudName} } from "wasp/server/crud";`);
     } else {
@@ -199,6 +203,7 @@ export class OperationGenerator implements NodeGenerator<OperationFlags> {
         )} } from "wasp/server/operations";`
       );
     }
+
     return imports.join('\n');
   }
 
@@ -271,17 +276,34 @@ export class OperationGenerator implements NodeGenerator<OperationFlags> {
     const jsonTypeHandling = generateJsonTypeHandling(jsonFields);
     // const imports = generateImports(model, model.name, operation, isCrudOverride, crudName);
     let typeParams = '';
-    if (operation === 'create') {
-      typeParams = `<Omit<${model.name}, ${omitFields}>, ${model.name}>`;
-    } else if (operation === 'update') {
-      typeParams = `<{ ${idField.name}: ${idField.tsType} } & Partial<Omit<${model.name}, ${omitFields}>>, ${model.name}>`;
-    } else if (operation === 'delete') {
-      typeParams = `<<Pick<${model.name}, ${idField.name}>, void>`;
-    } else if (operation === 'get') {
-      typeParams = `<<Pick<${model.name}, ${idField.name}>>`;
-    } else if (operation === 'getAll') {
-      typeParams = `<void>`;
+
+    switch (operation) {
+      case 'create':
+        typeParams = `<Omit<${model.name}, ${omitFields}>>`;
+
+        break;
+      case 'update':
+        typeParams = `<<Pick<${model.name}, ${idField.name}> & Partial<Omit<${model.name}, ${omitFields}>>>`;
+
+        break;
+      case 'delete':
+        typeParams = `<<Pick<${model.name}, ${idField.name}>>`;
+
+        break;
+      case 'get':
+        typeParams = `<<Pick<${model.name}, ${idField.name}>>`;
+
+        break;
+      case 'getAll':
+        typeParams = `<void>`;
+
+        break;
+      case 'getFiltered':
+        typeParams = `<Partial<Omit<${model.name}, ${omitFields}>>>`;
+
+        break;
     }
+
     const authCheck = auth
       ? `  if (!context.user) {
   throw new HttpError(401);
