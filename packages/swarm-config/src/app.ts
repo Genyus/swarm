@@ -464,7 +464,7 @@ export class App extends WaspApp {
 
     for (const file of featureFiles) {
       try {
-        const featureName = file.split('/')[0];
+        const featureName = path.dirname(file);
         const modulePath = path.join(
           process.cwd(),
           '.wasp',
