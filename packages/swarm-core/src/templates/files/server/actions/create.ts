@@ -11,6 +11,7 @@ export const {{operationName}}{{typeAnnotation}} = async (data, context) => {
     return created{{modelName}};
   } catch (error) {
     console.error("Failed to create {{modelName}}:", error);
+
     throw new HttpError(500, "Failed to create {{modelName}}");
   }
 }; {{satisfiesType}}

@@ -20,6 +20,7 @@ export const {{operationName}}{{typeAnnotation}} = async ({ {{idField}}, ...data
     return updated{{modelName}};
   } catch (error) {
     console.error("Failed to update {{modelNameLower}}:", error);
+
     throw new HttpError(500, "Failed to update {{modelNameLower}}");
   }
 }; {{satisfiesType}}

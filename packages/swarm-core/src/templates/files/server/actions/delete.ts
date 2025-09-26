@@ -15,6 +15,7 @@ export const {{operationName}}{{typeAnnotation}} = async ({ {{idField}} }, conte
     });
   } catch (error) {
     console.error("Failed to delete {{modelNameLower}}:", error);
+
     throw new HttpError(500, "Failed to delete {{modelNameLower}}");
   }
 }; {{satisfiesType}}

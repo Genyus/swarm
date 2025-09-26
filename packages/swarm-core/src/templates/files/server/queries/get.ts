@@ -13,6 +13,7 @@ export const {{operationName}}{{typeAnnotation}} = (async ({ {{idField}} }, cont
     return {{modelNameLower}};
   } catch (error) {
     console.error("Failed to get {{modelNameLower}}:", error);
+
     throw new HttpError(500, "Failed to get {{modelNameLower}}");
   }
 }) {{satisfiesType}};

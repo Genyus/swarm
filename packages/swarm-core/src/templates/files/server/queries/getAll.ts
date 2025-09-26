@@ -7,6 +7,7 @@ export const {{operationName}}{{typeAnnotation}} = (async (_args, context) => {
     return {{pluralModelNameLower}};
   } catch (error) {
     console.error("Failed to get all {{pluralModelNameLower}}:", error);
+
     throw new HttpError(500, "Failed to get all {{pluralModelNameLower}}");
   }
 }) {{satisfiesType}};
