@@ -20,8 +20,15 @@ import {
   getFeatureImportPath,
   getFeatureTargetDir,
 } from '../utils/filesystem';
-import { getEntityMetadata, needsPrismaImport } from '../utils/prisma';
-import { getPlural, hasHelperMethodCall } from '../utils/strings';
+import {
+  generateJsonTypeHandling,
+  getEntityMetadata,
+  getIdField,
+  getJsonFields,
+  getOmitFields,
+  needsPrismaImport,
+} from '../utils/prisma';
+import { capitalise, getPlural, hasHelperMethodCall } from '../utils/strings';
 import { TemplateUtility } from '../utils/templates';
 
 export class OperationGenerator implements NodeGenerator<OperationFlags> {
@@ -41,7 +48,8 @@ export class OperationGenerator implements NodeGenerator<OperationFlags> {
   async generate(featurePath: string, flags: OperationFlags): Promise<void> {
     try {
       const dataType = flags.dataType;
-      const operationType = flags.operation;
+      const operation = flags.operation;
+      const operationType = this.getOperationType(operation);
       const entities = flags.entities
         ? Array.isArray(flags.entities)
           ? flags.entities
@@ -50,10 +58,10 @@ export class OperationGenerator implements NodeGenerator<OperationFlags> {
               .map((e: string) => e.trim())
               .filter(Boolean)
         : [];
-      const { operationCode, configEntry, operationName } =
+      const { operationCode, operationName } =
         await this.generateOperationComponents(
           dataType,
-          operationType,
+          operation,
           flags.auth,
           entities
         );
@@ -89,7 +97,7 @@ export class OperationGenerator implements NodeGenerator<OperationFlags> {
       }
 
       let configContent = this.fs.readFileSync(configPath, 'utf8');
-      const isAction = ['create', 'update', 'delete'].includes(operationType);
+      const isAction = ['create', 'update', 'delete'].includes(operation);
       const methodName = isAction ? 'addAction' : 'addQuery';
       const configExists = hasHelperMethodCall(
         configContent,
@@ -101,20 +109,21 @@ export class OperationGenerator implements NodeGenerator<OperationFlags> {
         this.logger.info(`Operation config already exists in ${configPath}`);
         this.logger.info('Use --force to overwrite');
       } else if (!configExists || flags.force) {
-        const isAction = ['create', 'update', 'delete'].includes(operationType);
+        const isAction = ['create', 'update', 'delete'].includes(operation);
         const definition = this.getDefinition(
           operationName,
           featurePath,
           entities,
           isAction ? 'action' : 'query',
-          importPath
+          importPath,
+          flags.auth
         );
 
         this.featureGenerator.updateFeatureConfig(featurePath, definition);
         this.logger.success(
           `${
             configExists ? 'Updated' : 'Added'
-          } ${operationType} config in: ${configPath}`
+          } ${operation} config in: ${configPath}`
         );
       }
 
@@ -246,15 +255,80 @@ export class OperationGenerator implements NodeGenerator<OperationFlags> {
     auth = false
   ): string {
     const operationType = this.getOperationType(operation);
-    const templatePath =
-      this.templateUtility.getFileTemplatePath(operationType);
+    const templatePath = this.templateUtility.getFileTemplatePath(
+      operationType,
+      operation
+    );
     const template = this.fs.readFileSync(templatePath, 'utf8');
+    const idField = getIdField(model);
+    const omitFields = getOmitFields(model);
+    const jsonFields = getJsonFields(model);
+    const pluralModelName = getPlural(model.name);
+    const pluralModelNameLower = pluralModelName.toLowerCase();
+    const modelNameLower = model.name.toLowerCase();
+    const operationName = this.getOperationName(operation, model.name);
+    const imports = this.generateImports(model, model.name, operation);
+    const jsonTypeHandling = generateJsonTypeHandling(jsonFields);
+    // const imports = generateImports(model, model.name, operation, isCrudOverride, crudName);
+    let typeParams = '';
+    if (operation === 'create') {
+      typeParams = `<Omit<${model.name}, ${omitFields}>, ${model.name}>`;
+    } else if (operation === 'update') {
+      typeParams = `<{ ${idField.name}: ${idField.tsType} } & Partial<Omit<${model.name}, ${omitFields}>>, ${model.name}>`;
+    } else if (operation === 'delete') {
+      typeParams = `<{ ${idField.name}: ${idField.tsType} }, void>`;
+    } else if (operation === 'get') {
+      typeParams = `<{ ${idField.name}: ${idField.tsType} }>`;
+    } else if (operation === 'getAll') {
+      typeParams = `<void>`;
+    }
+    const authCheck = auth
+      ? `  if (!context.user) {
+  throw new HttpError(401);
+  }
+
+`
+      : '';
+    let typeAnnotation = '';
+    let satisfiesType = '';
+    const isCrudOverride = false;
+    const crudName = null;
+    if (isCrudOverride && crudName) {
+      const opCap = capitalise(operation);
+      if (operationType === 'action') {
+        typeAnnotation = `: ${crudName}.${opCap}Action${typeParams}`;
+      } else {
+        typeAnnotation = '';
+      }
+      if (operationType === 'query') {
+        satisfiesType = `satisfies ${crudName}.${opCap}Query${typeParams}`;
+      } else {
+        satisfiesType = '';
+      }
+    } else {
+      if (operationType === 'action') {
+        typeAnnotation = `: ${this.getOperationTypeName(operation, model.name)}${typeParams}`;
+      } else {
+        typeAnnotation = '';
+      }
+      if (operationType === 'query') {
+        satisfiesType = `satisfies ${this.getOperationTypeName(operation, model.name)}${typeParams}`;
+      } else {
+        satisfiesType = '';
+      }
+    }
 
     const replacements = {
-      OPERATION_NAME: this.getOperationName(operation, model.name),
-      MODEL_NAME: model.name,
-      AUTH_REQUIRED: auth.toString(),
-      IMPORTS: this.generateImports(model, model.name, operation),
+      operationName,
+      modelName: model.name,
+      authCheck,
+      imports,
+      idField: idField.name,
+      jsonTypeHandling,
+      typeAnnotation,
+      satisfiesType,
+      modelNameLower,
+      pluralModelNameLower,
     };
 
     return this.templateUtility.processTemplate(template, replacements);
@@ -280,7 +354,8 @@ export class OperationGenerator implements NodeGenerator<OperationFlags> {
     featurePath: string,
     entities: string[],
     operationType: 'query' | 'action',
-    importPath: string
+    importPath: string,
+    auth = false
   ): string {
     if (!OPERATION_TYPES.includes(operationType)) {
       handleFatalError(`Unknown operation type: ${operationType}`);
@@ -292,11 +367,13 @@ export class OperationGenerator implements NodeGenerator<OperationFlags> {
     const template = this.fs.readFileSync(templatePath, 'utf8');
 
     return this.templateUtility.processTemplate(template, {
+      operationType: capitalise(operationType),
       operationName,
       featureDir,
       directory,
       entities: entities.map((e) => `"${e}"`).join(', '),
       importPath,
+      auth: String(auth),
     });
   }
 }

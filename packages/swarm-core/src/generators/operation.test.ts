@@ -46,6 +46,7 @@ vi.mock('../utils/prisma', () => ({
 
 // Mock strings utils
 vi.mock('../utils/strings', () => ({
+  capitalise: vi.fn().mockImplementation((str: string) => str.charAt(0).toUpperCase() + str.slice(1)),
   getPlural: vi.fn().mockImplementation((str: string) => str + 's'),
   hasHelperMethodCall: vi.fn().mockReturnValue(false),
 }));
