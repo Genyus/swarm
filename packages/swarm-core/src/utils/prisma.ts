@@ -1,70 +1,118 @@
-import { PrismaClient } from '@prisma/client';
-import { DMMF } from '@prisma/client/runtime/library';
-import type { EntityMetadata, RuntimeDataModel } from '../types/prisma';
-
-/**
- * Maps Prisma types to TypeScript types.
- * @param type - The Prisma type
- * @returns The corresponding TypeScript type
- */
-export function getPrismaToTsType(type: string): string {
-  const typeMap: Record<string, string> = {
-    String: 'string',
-    Int: 'number',
-    Float: 'number',
-    Boolean: 'boolean',
-    DateTime: 'Date',
-    Json: 'Prisma.JsonValue',
-    BigInt: 'bigint',
-    Decimal: 'Prisma.Decimal',
-    Bytes: 'Buffer',
-  };
-  return typeMap[type] || type;
-}
+import {
+  Break,
+  Field,
+  getSchema,
+  Property,
+  type Attribute,
+  type AttributeArgument,
+  type Block,
+  type Comment,
+  type KeyValue,
+  type Model,
+} from '@mrleebo/prisma-ast';
+import fs from 'node:fs';
+import path from 'node:path';
+import type { EntityMetadata } from '../types/prisma';
 
 /**
  * Gets metadata about a Prisma model.
  * @param modelName - The name of the model
  * @returns The model metadata
- * @throws If the model is not found
+ * @throws If the model is not found or schema cannot be parsed
  */
 export async function getEntityMetadata(
   modelName: string
 ): Promise<EntityMetadata> {
-  const prisma = new PrismaClient();
+  try {
+    const schemaPath = path.join(process.cwd(), 'schema.prisma');
+    const schemaContent = fs.readFileSync(schemaPath, 'utf8');
+    const schema = getSchema(schemaContent);
+    const model = schema.list?.find(
+      (m: Block): m is Model => m.type === 'model' && m.name === modelName
+    );
 
-  const runtimeDataModel = (prisma as any)
-    ._runtimeDataModel as RuntimeDataModel;
-  const models = runtimeDataModel?.models;
+    if (!model || model.type !== 'model') {
+      throw new Error(`Model ${modelName} not found in schema`);
+    }
 
-  if (!models) {
-    throw new Error('Unable to access Prisma runtime data model');
-  }
+    const fields = (
+      (model.properties || []).filter(
+        (item: Property | Break | Comment): item is Field =>
+          item.type === 'field'
+      ) as Field[]
+    ).map((field) => {
+      const fieldType =
+        typeof field.fieldType === 'string'
+          ? field.fieldType
+          : field.fieldType.name;
+      const tsType = getPrismaToTsType(fieldType);
+      const isRequired = !field.optional;
+      const isId =
+        field.attributes?.some((attr: Attribute) => attr.name === 'id') ||
+        false;
+      const isUnique =
+        field.attributes?.some((attr: Attribute) => attr.name === 'unique') ||
+        false;
+      const hasDefaultValue =
+        field.attributes?.some((attr: Attribute) => attr.name === 'default') ||
+        false;
+      const isUpdatedAt =
+        field.attributes?.some(
+          (attr: Attribute) => attr.name === 'updatedAt'
+        ) || false;
+      const isGenerated =
+        field.attributes?.some((attr: Attribute) => attr.name === 'map') ||
+        false;
+      const relationAttr = field.attributes?.find(
+        (attr: Attribute) => attr.name === 'relation'
+      );
+      const relationName = relationAttr?.args?.[0]?.value as string | undefined;
+      const relationToKeyValue = relationAttr?.args?.find(
+        (arg: AttributeArgument) =>
+          arg.value &&
+          typeof arg.value === 'object' &&
+          'key' in arg.value &&
+          arg.value.key === 'fields'
+      )?.value as KeyValue | undefined;
+      const relationToFields = relationToKeyValue?.value as
+        | string[]
+        | undefined;
+      const relationFromKeyValue = relationAttr?.args?.find(
+        (arg: AttributeArgument) =>
+          arg.value &&
+          typeof arg.value === 'object' &&
+          'key' in arg.value &&
+          arg.value.key === 'references'
+      )?.value as KeyValue | undefined;
+      const relationFromFields = relationFromKeyValue?.value as
+        | string[]
+        | undefined;
 
-  const model = models[modelName];
-  if (!model) {
-    throw new Error(`Model ${modelName} not found`);
-  }
-
-  return {
-    fields: Object.entries(model.fields).map(
-      ([, field]: [string, DMMF.Field]) => ({
+      return {
         name: field.name,
-        type: field.type,
-        tsType: getPrismaToTsType(field.type),
-        isRequired: field.isRequired,
-        isId: field.isId || false,
-        isUnique: field.isUnique || false,
-        hasDefaultValue: field.hasDefaultValue || false,
-        isGenerated: field.isGenerated || false,
-        isUpdatedAt: field.isUpdatedAt || false,
-        relationName: field.relationName,
-        relationToFields: field.relationToFields,
-        relationFromFields: field.relationFromFields,
-      })
-    ),
-    name: modelName,
-  };
+        type: fieldType,
+        tsType,
+        isRequired,
+        isId,
+        isUnique,
+        hasDefaultValue,
+        isGenerated,
+        isUpdatedAt,
+        relationName,
+        relationToFields,
+        relationFromFields,
+      };
+    });
+
+    return {
+      name: modelName,
+      fields,
+    };
+  } catch (error) {
+    throw new Error(
+      `Failed to get entity metadata for ${modelName}: ${error instanceof Error ? error.message : String(error)}`
+    );
+  }
 }
 
 /**
@@ -78,7 +126,9 @@ export function getIdField(model: EntityMetadata): {
   tsType: string;
 } {
   const idField = model.fields.find((f) => f.isId);
+
   if (!idField) throw new Error(`No ID field found for model ${model.name}`);
+
   return { name: idField.name, tsType: idField.tsType };
 }
 
@@ -132,4 +182,25 @@ export function generateJsonTypeHandling(jsonFields: string[]): string {
  */
 export function needsPrismaImport(model: EntityMetadata): boolean {
   return model.fields.some((f) => f.type === 'Json' || f.type === 'Decimal');
+}
+
+/**
+ * Maps Prisma types to TypeScript types.
+ * @param type - The Prisma type
+ * @returns The corresponding TypeScript type
+ */
+function getPrismaToTsType(type: string): string {
+  const typeMap: Record<string, string> = {
+    String: 'string',
+    Int: 'number',
+    Float: 'number',
+    Boolean: 'boolean',
+    DateTime: 'Date',
+    Json: 'Prisma.JsonValue',
+    BigInt: 'bigint',
+    Decimal: 'Prisma.Decimal',
+    Bytes: 'Buffer',
+  };
+
+  return typeMap[type] || type;
 }
