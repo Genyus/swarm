@@ -19,7 +19,7 @@ export type ActionType = (typeof ACTION_TYPES)[number];
 /**
  * List of valid query types.
  */
-export const QUERY_TYPES = ['get', 'getAll'] as const;
+export const QUERY_TYPES = ['get', 'getAll', 'getFiltered'] as const;
 /**
  * Type for valid query types.
  */

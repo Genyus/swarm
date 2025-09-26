@@ -45,17 +45,50 @@ describe('TemplateUtility', () => {
   });
 
   describe('processTemplate', () => {
+    beforeEach(() => {
+      // Mock the file system to simulate template files
+      mockFileSystem.existsSync = vi.fn().mockImplementation((path: string) => {
+        // Return false for test templates to force renderString usage
+        return (
+          !path.includes('test-template') &&
+          !path.includes('multi-template') &&
+          !path.includes('repeat-template') &&
+          !path.includes('empty-template') &&
+          !path.includes('no-placeholders')
+        );
+      });
+
+      mockFileSystem.readFileSync = vi
+        .fn()
+        .mockImplementation((path: string) => {
+          if (path.includes('test-template.eta')) {
+            return 'Hello, {{=name}}!';
+          }
+          if (path.includes('multi-template.eta')) {
+            return 'Hello {{=name}}, you are {{=age}} years old!';
+          }
+          if (path.includes('repeat-template.eta')) {
+            return '{{=name}} is {{=name}} and {{=name}} is great!';
+          }
+          if (path.includes('empty-template.eta')) {
+            return 'Hello, {{=name}}!';
+          }
+          if (path.includes('no-placeholders.eta')) {
+            return 'Hello, World!';
+          }
+          return '';
+        });
+    });
+
     it('replaces single placeholder', () => {
-      const template = 'Hello, {{name}}!';
-      const result = templateUtility.processTemplate(template, {
+      const result = templateUtility.processTemplate('test-template.eta', {
         name: 'World',
       });
       expect(result).toBe('Hello, World!');
     });
 
     it('replaces multiple placeholders', () => {
-      const template = 'Hello {{name}}, you are {{age}} years old!';
-      const result = templateUtility.processTemplate(template, {
+      const result = templateUtility.processTemplate('multi-template.eta', {
         name: 'John',
         age: '25',
       });
@@ -63,70 +96,23 @@ describe('TemplateUtility', () => {
     });
 
     it('replaces multiple occurrences of the same placeholder', () => {
-      const template = '{{name}} is {{name}} and {{name}} is great!';
-      const result = templateUtility.processTemplate(template, {
+      const result = templateUtility.processTemplate('repeat-template.eta', {
         name: 'John',
       });
       expect(result).toBe('John is John and John is great!');
     });
 
-    it('handles empty replacements object', () => {
-      const template = 'Hello, {{name}}!';
-      const result = templateUtility.processTemplate(template, {});
-      expect(result).toBe('Hello, {{name}}!');
+    it('throws error for empty replacements object', () => {
+      expect(() =>
+        templateUtility.processTemplate('empty-template.eta', {})
+      ).toThrow('name is not defined');
     });
 
     it('handles template with no placeholders', () => {
-      const template = 'Hello, World!';
-      const result = templateUtility.processTemplate(template, {
+      const result = templateUtility.processTemplate('no-placeholders.eta', {
         name: 'John',
       });
       expect(result).toBe('Hello, World!');
-    });
-  });
-
-  describe('getFileTemplatePath', () => {
-    it('returns correct path for client types', () => {
-      const result = templateUtility.getFileTemplatePath('component');
-      expect(result).toBe('/mock/templates/files/client/component.tsx');
-    });
-
-    it('returns correct path for server types', () => {
-      const result = templateUtility.getFileTemplatePath('api');
-      expect(result).toBe('/mock/templates/files/server/api.ts');
-    });
-
-    it('returns correct path for query with operation', () => {
-      const result = templateUtility.getFileTemplatePath('query', 'getAll');
-      expect(result).toBe('/mock/templates/files/server/queries/getAll.ts');
-    });
-
-    it('returns correct path for action with operation', () => {
-      const result = templateUtility.getFileTemplatePath('action', 'create');
-      expect(result).toBe('/mock/templates/files/server/actions/create.ts');
-    });
-
-    it('returns correct path for type', () => {
-      const result = templateUtility.getFileTemplatePath('type');
-      expect(result).toBe('/mock/templates/type.ts');
-    });
-
-    it('throws error for unknown file type', () => {
-      expect(() => {
-        templateUtility.getFileTemplatePath('unknown');
-      }).toThrow('Unknown file type: unknown');
-    });
-  });
-
-  describe('getConfigTemplatePath', () => {
-    it('returns correct path for config template', () => {
-      const result = templateUtility.getConfigTemplatePath('wasp');
-      expect(result).toBe('/mock/templates/config/wasp.ts');
-    });
-
-    it('returns correct path for different config types', () => {
-      const result = templateUtility.getConfigTemplatePath('operation');
-      expect(result).toBe('/mock/templates/config/operation.ts');
     });
   });
 });

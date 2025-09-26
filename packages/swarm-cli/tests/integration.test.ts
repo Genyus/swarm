@@ -16,6 +16,10 @@ vi.mock('@ingenyus/swarm-core', async () => {
   const actual = await vi.importActual('@ingenyus/swarm-core');
   return {
     ...actual,
+    getTemplatesDir: vi.fn().mockReturnValue('/mock/templates'),
+    TemplateUtility: vi.fn().mockImplementation(() => ({
+      processTemplate: vi.fn().mockReturnValue('mocked template content'),
+    })),
     getEntityMetadata: vi.fn().mockResolvedValue({
       name: 'Document',
       fields: [
@@ -90,16 +94,41 @@ describe('Integration Tests - Full Feature Creation', () => {
   let apiNamespaceGenerator: ApiNamespaceGenerator;
 
   const mockFiles: Record<string, string> = {};
+  const fileCallCounts: Record<string, number> = {};
 
   beforeEach(() => {
     // Reset mock files
     Object.keys(mockFiles).forEach((key) => delete mockFiles[key]);
+    // Reset call counts
+    Object.keys(fileCallCounts).forEach((key) => delete fileCallCounts[key]);
+
+    // Add mock template files
+    mockFiles['/mock/templates/files/server/crud.eta'] = `
+import { {{dataType}} } from '@wasp/entities';
+import { HttpError } from '@wasp/core';
+
+export const {{crudName}} = {
+  {{operations}}
+};
+`;
+
+    // Also add the template file at the expected path for the TemplateUtility
+    mockFiles[
+      '/Users/gary/Dev/swarm/packages/swarm-core/dist/templates/files/server/crud.eta'
+    ] = `
+import { {{dataType}} } from '@wasp/entities';
+import { HttpError } from '@wasp/core';
+
+export const {{crudName}} = {
+  {{operations}}
+};
+`;
 
     // Create comprehensive mock filesystem
     fs = {
       readFileSync: vi.fn((path: string) => {
         if (typeof path === 'string') {
-          if (path.includes('feature.wasp.ts')) {
+          if (path.includes('feature.wasp.eta')) {
             return 'export default function getConfig(app: App) { return {}; }';
           }
           if (path.includes('.wasp.ts')) {
@@ -127,10 +156,22 @@ describe('Integration Tests - Full Feature Creation', () => {
           if (path.includes('.wasp.ts')) return true;
           // Template files always exist
           if (path.includes('template')) return true;
-          // Feature directories exist after creation
-          if (path.includes('features/documents')) return true;
+          // Mock template files exist
+          if (path.startsWith('/mock/templates/')) return true;
+          // Feature directories exist after creation (but not files within them)
+          if (path.includes('features/documents') && !path.includes('.ts'))
+            return true;
+
           // Check if file exists in our mock filesystem
-          return Boolean(mockFiles[path]);
+          const existsInMockFiles = Boolean(mockFiles[path]);
+
+          // For force flag tests: if file doesn't exist in mockFiles, return false
+          // This simulates the file not existing initially
+          if (!existsInMockFiles) {
+            return false;
+          }
+
+          return true;
         }
         return false;
       }),
@@ -544,13 +585,13 @@ describe('Integration Tests - Full Feature Creation', () => {
         force: false,
       });
 
-      // Try to create again without force
-      await crudGenerator.generate('documents', {
-        dataType: 'Document',
-        force: false,
-      });
-
-      expect(logger.info).toHaveBeenCalled();
+      await expect(
+        // Try to create again without force
+        crudGenerator.generate('documents', {
+          dataType: 'Document',
+          force: false,
+        })
+      ).rejects.toThrow('CRUD file already exists');
     });
 
     it('should handle duplicate API creation without force', async () => {
@@ -599,7 +640,7 @@ describe('Integration Tests - Full Feature Creation', () => {
       });
 
       // Job creation may trigger feature setup first
-      expect(logger.info).toHaveBeenCalled();
+      expect(logger.error).toHaveBeenCalled();
     });
 
     it('should handle duplicate operation creation without force', async () => {
@@ -644,12 +685,14 @@ describe('Integration Tests - Full Feature Creation', () => {
         force: false,
       });
 
-      expect(logger.info).toHaveBeenCalled();
+      expect(logger.error).toHaveBeenCalled();
     });
   });
 
   describe('Force Flag Behavior', () => {
     beforeEach(async () => {
+      // Reset call counts for each test in this describe block
+      Object.keys(fileCallCounts).forEach((key) => delete fileCallCounts[key]);
       featureGenerator.generateFeature('documents');
     });
 

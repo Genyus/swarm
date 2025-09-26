@@ -260,11 +260,7 @@ export class OperationGenerator implements NodeGenerator<OperationFlags> {
     auth = false
   ): string {
     const operationType = this.getOperationType(operation);
-    const templatePath = this.templateUtility.getFileTemplatePath(
-      operationType,
-      operation
-    );
-    const template = this.fs.readFileSync(templatePath, 'utf8');
+    const templatePath = `files/server/${getPlural(operationType)}/${operation}.eta`;
     const idField = getIdField(model);
     const omitFields = getOmitFields(model);
     const jsonFields = getJsonFields(model);
@@ -353,7 +349,7 @@ export class OperationGenerator implements NodeGenerator<OperationFlags> {
       pluralModelNameLower,
     };
 
-    return this.templateUtility.processTemplate(template, replacements);
+    return this.templateUtility.processTemplate(templatePath, replacements);
   }
 
   /**
@@ -384,11 +380,9 @@ export class OperationGenerator implements NodeGenerator<OperationFlags> {
     }
     const directory = TYPE_DIRECTORIES[operationType];
     const featureDir = getFeatureImportPath(featurePath);
-    const templatePath =
-      this.templateUtility.getConfigTemplatePath('operation');
-    const template = this.fs.readFileSync(templatePath, 'utf8');
+    const templatePath = 'config/operation.eta';
 
-    return this.templateUtility.processTemplate(template, {
+    return this.templateUtility.processTemplate(templatePath, {
       operationType: capitalise(operationType),
       operationName,
       featureDir,

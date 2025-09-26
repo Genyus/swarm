@@ -1,3 +1,0 @@
-    .addApiNamespace(feature, "{{namespaceName}}", {
-      path: "{{pathValue}}"
-    })

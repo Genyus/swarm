@@ -28,14 +28,8 @@ vi.mock('../utils/strings', async () => {
 vi.mock('../utils/templates', () => ({
   TemplateUtility: vi.fn().mockImplementation(() => ({
     processTemplate: vi.fn().mockReturnValue('processed template content'),
-    getFileTemplatePath: vi.fn().mockReturnValue('/mock/template/path'),
-    getConfigTemplatePath: vi
-      .fn()
-      .mockReturnValue('/mock/config/template/path'),
   })),
-  getFileTemplatePath: vi.fn().mockReturnValue('/mock/template/path'),
   processTemplate: vi.fn().mockReturnValue('processed template content'),
-  getConfigTemplatePath: vi.fn().mockReturnValue('/mock/template/path'),
 }));
 
 describe('FeatureGenerator', () => {
@@ -56,7 +50,7 @@ describe('FeatureGenerator', () => {
     fs.existsSync = vi.fn().mockImplementation((p) => {
       if (
         typeof p === 'string' &&
-        (p.endsWith('.wasp.ts') || p.includes('feature.wasp.ts'))
+        (p.endsWith('.wasp.ts') || p.includes('feature.wasp.eta'))
       )
         return true;
       return false;
@@ -141,7 +135,7 @@ export default function configure(app: App): void {
     fs.existsSync = vi.fn().mockImplementation((p) => {
       if (
         typeof p === 'string' &&
-        (p.endsWith('.wasp.ts') || p.includes('feature.wasp.ts'))
+        (p.endsWith('.wasp.ts') || p.includes('feature.wasp.eta'))
       )
         return true;
       return false;

@@ -48,14 +48,8 @@ export class ApiNamespaceGenerator implements NodeGenerator<ApiNamespaceFlags> {
         this.logger.info(`Middleware file already exists: ${middlewareFile}`);
         this.logger.info('Use --force to overwrite');
       } else {
-        const templatePath =
-          this.templateUtility.getFileTemplatePath('middleware');
-        if (!this.fs.existsSync(templatePath)) {
-          this.logger.error('Middleware template not found');
-          return;
-        }
-        const template = this.fs.readFileSync(templatePath, 'utf8');
-        const processed = this.templateUtility.processTemplate(template, {
+        const templatePath = 'files/server/middleware/middleware.eta';
+        const processed = this.templateUtility.processTemplate(templatePath, {
           name: namespaceName,
           namespaceName,
         });
@@ -118,11 +112,9 @@ export class ApiNamespaceGenerator implements NodeGenerator<ApiNamespaceFlags> {
     middlewareImportPath: string,
     pathValue: string
   ): string {
-    const templatePath =
-      this.templateUtility.getConfigTemplatePath('apiNamespace');
-    const template = this.fs.readFileSync(templatePath, 'utf8');
+    const templatePath = 'config/apiNamespace.eta';
 
-    return this.templateUtility.processTemplate(template, {
+    return this.templateUtility.processTemplate(templatePath, {
       namespaceName,
       middlewareImportPath,
       pathValue,

@@ -133,10 +133,9 @@ export class RouteGenerator implements NodeGenerator<RouteFlags> {
     importPath: string
   ): string {
     const featureDir = getFeatureImportPath(featurePath);
-    const templatePath = this.templateUtility.getConfigTemplatePath('route');
-    const template = this.fs.readFileSync(templatePath, 'utf8');
+    const templatePath = 'config/route.eta';
 
-    return this.templateUtility.processTemplate(template, {
+    return this.templateUtility.processTemplate(templatePath, {
       featureName: featurePath.split('/').pop() || featurePath,
       routeName,
       routePath,

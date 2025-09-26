@@ -1,4 +1,0 @@
-    .add{{operationType}}(feature, "{{operationName}}", {
-      entities: [{{entities}}],
-      auth: {{auth}}
-    })

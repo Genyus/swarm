@@ -64,15 +64,7 @@ export class ApiGenerator implements NodeGenerator<ApiFlags> {
         this.logger.info(`API endpoint file already exists: ${handlerFile}`);
         this.logger.info('Use --force to overwrite');
       } else {
-        const templatePath = this.templateUtility.getFileTemplatePath('api');
-        if (!this.fs.existsSync(templatePath)) {
-          const message = 'API endpoint template not found';
-
-          this.logger.error(message);
-
-          throw new Error(message);
-        }
-        const template = this.fs.readFileSync(templatePath, 'utf8');
+        const templatePath = 'files/server/api.eta';
         const authCheck = auth
           ? `  if (!context.user) {
     throw new HttpError(401);
@@ -93,7 +85,7 @@ export class ApiGenerator implements NodeGenerator<ApiFlags> {
             ? 'import { HttpError } from "wasp/server";\n'
             : '';
         const imports = `${errorImport}import type { ${apiType} } from "wasp/server/api";`;
-        const processed = this.templateUtility.processTemplate(template, {
+        const processed = this.templateUtility.processTemplate(templatePath, {
           imports,
           apiType,
           apiName,
@@ -168,10 +160,9 @@ export class ApiGenerator implements NodeGenerator<ApiFlags> {
     importPath: string
   ): string {
     const featureDir = getFeatureImportPath(featurePath);
-    const templatePath = this.templateUtility.getConfigTemplatePath('api');
-    const template = this.fs.readFileSync(templatePath, 'utf8');
+    const templatePath = 'config/api.eta';
 
-    return this.templateUtility.processTemplate(template, {
+    return this.templateUtility.processTemplate(templatePath, {
       apiName,
       featureDir,
       entities: entities.map((e) => `"${e}"`).join(', '),

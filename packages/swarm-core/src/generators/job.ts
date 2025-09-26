@@ -75,21 +75,9 @@ export class JobGenerator implements NodeGenerator<JobFlags> {
         this.logger.info(`Job worker file already exists: ${workerFilePath}`);
         this.logger.info('Use --force to overwrite');
       } else {
-        const workerTemplatePath = path.join(
-          this.templatesDir,
-          'files',
-          'server',
-          'job.ts'
-        );
-
-        if (!this.fs.existsSync(workerTemplatePath)) {
-          this.logger.error('Job worker template not found');
-          return;
-        }
-
-        const workerTemplate = this.fs.readFileSync(workerTemplatePath, 'utf8');
+        const workerTemplatePath = 'files/server/jobs/job.eta';
         const workerCode = this.templateUtility.processTemplate(
-          workerTemplate,
+          workerTemplatePath,
           {
             Imports: imports,
             JobType,
@@ -159,10 +147,9 @@ export class JobGenerator implements NodeGenerator<JobFlags> {
     importPath: string,
     queueName: string
   ): string {
-    const templatePath = this.templateUtility.getConfigTemplatePath('job');
-    const template = this.fs.readFileSync(templatePath, 'utf8');
+    const templatePath = 'config/job.eta';
 
-    return this.templateUtility.processTemplate(template, {
+    return this.templateUtility.processTemplate(templatePath, {
       jobName,
       jobWorkerName,
       jobWorkerFile,

@@ -357,7 +357,11 @@ export class FeatureGenerator implements IFeatureGenerator {
 
     if (!this.fs.existsSync(configFilePath)) {
       const templatesDir = getTemplatesDir(this.fs);
-      const templatePath = path.join(templatesDir, 'config', 'feature.wasp.ts');
+      const templatePath = path.join(
+        templatesDir,
+        'config',
+        'feature.wasp.eta'
+      );
       if (!this.fs.existsSync(templatePath)) {
         handleFatalError(`Feature config template not found: ${templatePath}`);
       }
@@ -444,7 +448,7 @@ export class FeatureGenerator implements IFeatureGenerator {
 
     // Generate feature config in the feature directory
     const templatesDir = getTemplatesDir(this.fs);
-    const templatePath = path.join(templatesDir, 'config', 'feature.wasp.ts');
+    const templatePath = path.join(templatesDir, 'config', 'feature.wasp.eta');
 
     if (!this.fs.existsSync(templatePath)) {
       this.logger.error(`Template not found: ${templatePath}`);

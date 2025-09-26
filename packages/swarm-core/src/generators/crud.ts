@@ -85,23 +85,15 @@ export class CrudGenerator implements NodeGenerator<CrudFlags> {
       const fileExists = this.fs.existsSync(crudFile);
 
       if (fileExists && !force) {
-        this.logger.info(`CRUD file already exists: ${crudFile}`);
-        this.logger.info('Use --force to overwrite');
+        this.logger.error(`CRUD file already exists: ${crudFile}`);
+        this.logger.error('Use --force to overwrite');
 
-        return;
+        throw new Error('CRUD file already exists');
       }
 
-      const templatePath = this.templateUtility.getFileTemplatePath('crud');
-
-      if (!this.fs.existsSync(templatePath)) {
-        this.logger.error('CRUD template not found');
-
-        return;
-      }
-
-      const template = this.fs.readFileSync(templatePath, 'utf8');
+      const templatePath = 'files/server/crud.eta';
       const operations = this.buildOperations(flags);
-      const crudCode = this.templateUtility.processTemplate(template, {
+      const crudCode = this.templateUtility.processTemplate(templatePath, {
         crudName,
         dataType,
         operations: JSON.stringify(operations, null, 2),
@@ -119,7 +111,7 @@ export class CrudGenerator implements NodeGenerator<CrudFlags> {
       if (!this.fs.existsSync(configPath)) {
         this.logger.error(`Feature config file not found: ${configPath}`);
 
-        return;
+        throw new Error('Feature config file not found');
       }
 
       const configContent = this.fs.readFileSync(configPath, 'utf8');
@@ -130,10 +122,10 @@ export class CrudGenerator implements NodeGenerator<CrudFlags> {
       );
 
       if (configExists && !force) {
-        this.logger.info(`CRUD config already exists in ${configPath}`);
-        this.logger.info('Use --force to overwrite');
+        this.logger.error(`CRUD config already exists in ${configPath}`);
+        this.logger.error('Use --force to overwrite');
 
-        return;
+        throw new Error('CRUD config already exists');
       }
 
       const definition = this.getDefinition(crudName, dataType, operations);
@@ -142,9 +134,10 @@ export class CrudGenerator implements NodeGenerator<CrudFlags> {
       this.logger.success(
         `${configExists ? 'Updated' : 'Added'} CRUD config in: ${configPath}`
       );
-      this.logger.info(`\nCRUD ${crudName} processing complete.`);
+      this.logger.success(`\nCRUD ${crudName} processing complete.`);
     } catch (error: any) {
       this.logger.error('Failed to generate CRUD: ' + (error?.stack || error));
+      throw error;
     }
   }
 
@@ -152,15 +145,14 @@ export class CrudGenerator implements NodeGenerator<CrudFlags> {
    * Generates a CRUD definition for the feature configuration.
    */
   getDefinition(crudName: string, dataType: string, operations: any): string {
-    const templatePath = this.templateUtility.getConfigTemplatePath('crud');
-    const template = this.fs.readFileSync(templatePath, 'utf8');
+    const templatePath = 'config/crud.eta';
     const operationsStr = JSON.stringify(operations, null, 2)
       .replace(/"([^"]+)":/g, '$1:')
       .split('\n')
       .map((line, index) => (index === 0 ? line : '        ' + line))
       .join('\n');
 
-    return this.templateUtility.processTemplate(template, {
+    return this.templateUtility.processTemplate(templatePath, {
       crudName,
       dataType,
       operations: operationsStr,
