@@ -248,8 +248,14 @@ export class App extends WaspApp {
             ? this.getPlural(options.entity)
             : options.entity;
         const operationComponent = `${operationName}${operationDataType}`;
+        const importPath = this.getFeatureImportPath(
+          featureName,
+          'server',
+          'cruds',
+          operationComponent
+        );
 
-        processedOptions.overrideFn = `import { ${operationComponent} } from '@src/features/${featureName}/server/cruds/${operationComponent}.ts'`;
+        processedOptions.overrideFn = `import { ${operationComponent} } from "@src/${importPath}"`;
         delete processedOptions.override;
       }
 
@@ -406,7 +412,8 @@ export class App extends WaspApp {
     fileName?: string
   ): string {
     const file = fileName || featureName;
-    return `features/${featureName}/${type}/${subPath}/${file}`;
+
+    return `features/${featureName}/_core/${type}/${subPath}/${file}`;
   }
 
   /**
