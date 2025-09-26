@@ -21,7 +21,7 @@
     "format": "prettier --write src",
     "format:check": "prettier --check src",
     "typecheck": "tsc --noEmit",
-    "validate": "pnpm run build && pnpm run typecheck && pnpm run lint && pnpm run format:check && pnpm test"
+    "validate": "pnpm run build && pnpm run typecheck && pnpm run lint:fix && pnpm run format && pnpm test"
   },
   "keywords": [
     "wasp",

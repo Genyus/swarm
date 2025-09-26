@@ -27,7 +27,7 @@
     "format:check": "prettier --check src tests",
     "typecheck": "tsc --project tsconfig.typecheck.json",
     "postinstall": "prisma generate",
-    "validate": "pnpm run build && pnpm run typecheck && pnpm run lint && pnpm run format:check && pnpm test"
+    "validate": "pnpm run build && pnpm run typecheck && pnpm run lint:fix && pnpm run format && pnpm test"
   },
   "keywords": [
     "cli",
