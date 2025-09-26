@@ -276,9 +276,9 @@ export class OperationGenerator implements NodeGenerator<OperationFlags> {
     } else if (operation === 'update') {
       typeParams = `<{ ${idField.name}: ${idField.tsType} } & Partial<Omit<${model.name}, ${omitFields}>>, ${model.name}>`;
     } else if (operation === 'delete') {
-      typeParams = `<{ ${idField.name}: ${idField.tsType} }, void>`;
+      typeParams = `<<Pick<${model.name}, ${idField.name}>, void>`;
     } else if (operation === 'get') {
-      typeParams = `<{ ${idField.name}: ${idField.tsType} }>`;
+      typeParams = `<<Pick<${model.name}, ${idField.name}>>`;
     } else if (operation === 'getAll') {
       typeParams = `<void>`;
     }
