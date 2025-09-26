@@ -1,4 +1,4 @@
-# @ingenyus/swarm
+# @ingenyus/swarm-cli
 
 A powerful TypeScript CLI tool for rapidly generating features, APIs, jobs, CRUD operations, and more in **Wasp full-stack framework** projects. Built with type safety, modularity, and extensibility in mind.
 
@@ -21,16 +21,16 @@ Wasp is a full-stack web framework that lets you develop web apps in React, Node
 
 ### Global Installation
 ```bash
-npm install -g @ingenyus/swarm
+npm install -g @ingenyus/swarm-cli
 # or
-yarn global add @ingenyus/swarm
+yarn global add @ingenyus/swarm-cli
 ```
 
 ### Local Project Usage
 ```bash
-npx @ingenyus/swarm <command>
+npx @ingenyus/swarm-cli <command>
 # or
-yarn dlx @ingenyus/swarm <command>
+yarn dlx @ingenyus/swarm-cli <command>
 ```
 
 ## Quick Start
@@ -44,21 +44,21 @@ Generate a complete feature with all components:
 swarm feature documents
 
 # Add routes to the feature
-swarm route documents --path "/documents" --auth
-swarm route documents --path "/documents/admin" --name "AdminPage" --auth
+swarm route --feature documents --path "/documents" --auth
+swarm route --feature documents --path "/documents/admin" --name "AdminPage" --auth
 
 # Create API endpoints
-swarm api documents --name "searchApi" --method GET --route "/api/documents/search"
-swarm api documents --name "createDocument" --method POST --route "/api/documents" --auth
+swarm api --feature documents --name "searchApi" --method GET --route "/api/documents/search"
+swarm api --feature documents --name "createDocument" --method POST --route "/api/documents" --auth
 
 # Add CRUD operations
-swarm crud documents --datatype Document
+swarm crud --feature documents --datatype Document
 
 # Create background jobs
-swarm job documents --name "archiveDocuments" --entities Document --schedule "0 2 * * *"
+swarm job --feature documents --name "archiveDocuments" --entities Document --schedule "0 2 * * *"
 
 # Add API namespace with middleware
-swarm apinamespace documents --name "api" --path "/api"
+swarm apinamespace --feature documents --name "api" --path "/api"
 ```
 
 ## Commands
@@ -77,7 +77,7 @@ swarm feature users
 swarm feature blog/posts  # Creates a sub-feature
 ```
 
-#### `swarm route <feature> --path <path>`
+#### `swarm route --feature <feature> --path <path>`
 Generates route definitions and page components.
 
 **Options:**
@@ -88,11 +88,11 @@ Generates route definitions and page components.
 
 **Examples:**
 ```bash
-swarm route users --path "/users"
-swarm route users --path "/users/profile" --name "UserProfile" --auth
+swarm route --feature users --path "/users"
+swarm route --feature users --path "/users/profile" --name "UserProfile" --auth
 ```
 
-#### `swarm api <feature> --name <name> --method <method> --route <route>`
+#### `swarm api --feature <feature> --name <name> --method <method> --route <route>`
 Creates API endpoints with handlers.
 
 **Options:**
@@ -105,11 +105,11 @@ Creates API endpoints with handlers.
 
 **Examples:**
 ```bash
-swarm api users --name "getUserProfile" --method GET --route "/api/users/profile" --auth
-swarm api users --name "searchUsers" --method GET --route "/api/users/search" --entities "User,Profile"
+swarm api --feature users --name "getUserProfile" --method GET --route "/api/users/profile" --auth
+swarm api --feature users --name "searchUsers" --method GET --route "/api/users/search" --entities "User,Profile"
 ```
 
-#### `swarm crud <feature> --datatype <type>`
+#### `swarm crud --feature <feature> --datatype <type>`
 Generates complete CRUD operations for a data type.
 
 **Options:**
@@ -123,16 +123,16 @@ Generates complete CRUD operations for a data type.
 
 **Examples:**
 ```bash
-swarm crud users --datatype User
-swarm crud users --datatype User --public "get,getAll" --override "create,update"
-swarm crud posts --datatype Post --exclude "delete"
+swarm crud --feature users --datatype User
+swarm crud --feature users --datatype User --public "get,getAll" --override "create,update"
+swarm crud --feature posts --datatype Post --exclude "delete"
 ```
 
-#### `swarm operation <feature> --operation <op> --datatype <type>`
-Creates individual query or action operations.
+#### `swarm action --feature <feature> --operation <op> --datatype <type>`
+Creates individual actions.
 
 **Options:**
-- `--operation <op>` - Operation type: get, getAll, create, update, delete (required)
+- `--operation <op>` - Operation type: create, update, delete (required)
 - `--datatype <type>` - Entity/model name (required)
 - `--entities <entities>` - Comma-separated list of entities (default: datatype)
 - `--auth` - Require authentication
@@ -140,12 +140,28 @@ Creates individual query or action operations.
 
 **Examples:**
 ```bash
-swarm operation users --operation "get" --datatype User
-swarm operation users --operation "create" --datatype User --auth
-swarm operation posts --operation "getAll" --datatype Post --entities "Post,User,Category"
+swarm action --feature users --operation "create" --datatype User --auth
+swarm action --feature users --operation "update" --datatype User --auth
+swarm action --feature users --operation "delete" --datatype User --auth
 ```
 
-#### `swarm job <feature> --name <name>`
+#### `swarm query --feature <feature> --operation <op> --datatype <type>`
+Creates individual queries.
+
+**Options:**
+- `--operation <op>` - Operation type: get or getAll (required)
+- `--datatype <type>` - Entity/model name (required)
+- `--entities <entities>` - Comma-separated list of entities (default: datatype)
+- `--auth` - Require authentication
+- `--force` - Overwrite existing files
+
+**Examples:**
+```bash
+swarm query --feature users --operation "get" --datatype User
+swarm query --feature posts --operation "getAll" --datatype Post --entities "Post,User,Category"
+```
+
+#### `swarm job --feature <feature> --name <name>`
 Creates background job workers.
 
 **Options:**
@@ -157,11 +173,11 @@ Creates background job workers.
 
 **Examples:**
 ```bash
-swarm job users --name "welcomeEmail" --entities User
-swarm job analytics --name "generateReports" --schedule "0 6 * * *" --schedule-args "{}"
+swarm job --feature users --name "welcomeEmail" --entities User
+swarm job --feature analytics --name "generateReports" --schedule "0 6 * * *" --schedule-args "{}"
 ```
 
-#### `swarm apinamespace <feature> --name <name> --path <path>`
+#### `swarm apinamespace --feature <feature> --name <name> --path <path>`
 Creates API namespaces with middleware.
 
 **Options:**
@@ -171,8 +187,8 @@ Creates API namespaces with middleware.
 
 **Examples:**
 ```bash
-swarm apinamespace users --name "api" --path "/api"
-swarm apinamespace admin --name "adminApi" --path "/admin/api"
+swarm apinamespace --feature users --name "api" --path "/api"
+swarm apinamespace --feature admin --name "adminApi" --path "/admin/api"
 ```
 
 ### Global Options
@@ -190,24 +206,24 @@ swarm apinamespace admin --name "adminApi" --path "/admin/api"
 swarm feature blog
 
 # 2. Add routes for different pages
-swarm route blog --path "/blog" --name "BlogIndex"
-swarm route blog --path "/blog/create" --name "CreatePost" --auth
-swarm route blog --path "/blog/:slug" --name "BlogPost"
+swarm route --feature blog --path "/blog" --name "BlogIndex"
+swarm route --feature blog --path "/blog/create" --name "CreatePost" --auth
+swarm route --feature blog --path "/blog/:slug" --name "BlogPost"
 
 # 3. Create API endpoints
-swarm api blog --name "getPublishedPosts" --method GET --route "/api/blog/posts"
-swarm api blog --name "createPost" --method POST --route "/api/blog/posts" --auth
-swarm api blog --name "getPostBySlug" --method GET --route "/api/blog/posts/:slug"
+swarm api --feature blog --name "getPublishedPosts" --method GET --route "/api/blog/posts"
+swarm api --feature blog --name "createPost" --method POST --route "/api/blog/posts" --auth
+swarm api --feature blog --name "getPostBySlug" --method GET --route "/api/blog/posts/:slug"
 
 # 4. Add CRUD operations for posts
-swarm crud blog --datatype Post --override "create,update,delete"
+swarm crud --feature blog --datatype Post --override "create,update,delete"
 
 # 5. Create background jobs
-swarm job blog --name "publishScheduledPosts" --entities Post --schedule "*/15 * * * *"
-swarm job blog --name "generateSitemap" --schedule "0 3 * * *"
+swarm job --feature blog --name "publishScheduledPosts" --entities Post --schedule "*/15 * * * *"
+swarm job --feature blog --name "generateSitemap" --schedule "0 3 * * *"
 
 # 6. Add API namespace
-swarm apinamespace blog --name "blogApi" --path "/api/blog"
+swarm apinamespace --feature blog --name "blogApi" --path "/api/blog"
 ```
 
 ### E-commerce User Management
@@ -217,8 +233,8 @@ swarm apinamespace blog --name "blogApi" --path "/api/blog"
 swarm feature users
 
 # 2. User-facing routes
-swarm route users --path "/profile" --name "UserProfile" --auth
-swarm route users --path "/settings" --name "UserSettings" --auth
+swarm route --feature users --path "/profile" --name "UserProfile" --auth
+swarm route --feature users --path "/settings" --name "UserSettings" --auth
 
 # 3. Admin routes (sub-feature)
 swarm feature users/admin
@@ -226,20 +242,20 @@ swarm route users/admin --path "/admin/users" --name "AdminUserList" --auth
 swarm route users/admin --path "/admin/users/:id" --name "AdminUserDetail" --auth
 
 # 4. User APIs
-swarm api users --name "getCurrentUser" --method GET --route "/api/users/me" --auth
-swarm api users --name "updateProfile" --method PUT --route "/api/users/profile" --auth
-swarm api users --name "uploadAvatar" --method POST --route "/api/users/avatar" --auth
+swarm api --feature users --name "getCurrentUser" --method GET --route "/api/users/me" --auth
+swarm api --feature users --name "updateProfile" --method PUT --route "/api/users/profile" --auth
+swarm api --feature users --name "uploadAvatar" --method POST --route "/api/users/avatar" --auth
 
 # 5. Admin APIs
-swarm api users --name "getAllUsers" --method GET --route "/api/admin/users" --auth
-swarm api users --name "banUser" --method POST --route "/api/admin/users/:id/ban" --auth
+swarm api --feature users --name "getAllUsers" --method GET --route "/api/admin/users" --auth
+swarm api --feature users --name "banUser" --method POST --route "/api/admin/users/:id/ban" --auth
 
 # 6. CRUD operations
-swarm crud users --datatype User --public "get" --override "update"
+swarm crud --feature users --datatype User --public "get" --override "update"
 
 # 7. Background jobs
-swarm job users --name "sendWelcomeEmail" --entities User
-swarm job users --name "cleanupInactiveUsers" --schedule "0 2 * * 0"
+swarm job --feature users --name "sendWelcomeEmail" --entities User
+swarm job --feature users --name "cleanupInactiveUsers" --schedule "0 2 * * 0"
 ```
 
 ## Project Structure
