@@ -1,20 +1,20 @@
-{{Imports}}
+{{imports}}
 
-export const delete{{ModelName}}{{TypeAnnotation}} = async ({ {{IdField}} }, context) => {
-{{AuthCheck}}  try {
-    const {{modelNameLower}} = await context.entities.{{ModelName}}.findUnique({
-      where: { {{IdField}} }
+export const {{operationName}}{{typeAnnotation}} = async ({ {{idField}} }, context) => {
+{{authCheck}}  try {
+    const {{modelNameLower}} = await context.entities.{{modelName}}.findUnique({
+      where: { {{idField}} }
     });
 
     if (!{{modelNameLower}}) {
-      throw new HttpError(404, "{{ModelName}} not found");
+      throw new HttpError(404, "{{modelName}} not found");
     }
 
-    await context.entities.{{ModelName}}.delete({
-      where: { {{IdField}} }
+    await context.entities.{{modelName}}.delete({
+      where: { {{idField}} }
     });
   } catch (error) {
     console.error("Failed to delete {{modelNameLower}}:", error);
     throw new HttpError(500, "Failed to delete {{modelNameLower}}");
   }
-}; {{SatisfiesType}}
+}; {{satisfiesType}}

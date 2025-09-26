@@ -1,9 +1,9 @@
-{{Imports}}
+{{imports}}
 
-export const get{{ModelName}}{{TypeAnnotation}} = (async ({ {{IdField}} }, context) => {
-{{AuthCheck}}  try {
-    const {{modelNameLower}} = await context.entities.{{ModelName}}.findUnique({
-      where: { {{IdField}} }
+export const {{operationName}}{{typeAnnotation}} = (async ({ {{idField}} }, context) => {
+{{authCheck}}  try {
+    const {{modelNameLower}} = await context.entities.{{modelName}}.findUnique({
+      where: { {{idField}} }
     });
 
     if (!{{modelNameLower}}) {
@@ -15,4 +15,4 @@ export const get{{ModelName}}{{TypeAnnotation}} = (async ({ {{IdField}} }, conte
     console.error("Failed to get {{modelNameLower}}:", error);
     throw new HttpError(500, "Failed to get {{modelNameLower}}");
   }
-}) {{SatisfiesType}};
+}) {{satisfiesType}};

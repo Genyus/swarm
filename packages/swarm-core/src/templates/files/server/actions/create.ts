@@ -1,16 +1,16 @@
-{{Imports}}
+{{imports}}
 
-export const create{{ModelName}}{{TypeAnnotation}} = async (data, context) => {
-{{AuthCheck}}  try {
-    const created{{ModelName}} = await context.entities.{{ModelName}}.create({
+export const {{operationName}}{{typeAnnotation}} = async (data, context) => {
+{{authCheck}}  try {
+    const created{{modelName}} = await context.entities.{{modelName}}.create({
       data: {
-        ...data{{JsonTypeHandling}}
+        ...data{{jsonTypeHandling}}
       }
     });
 
-    return created{{ModelName}};
+    return created{{modelName}};
   } catch (error) {
-    console.error("Failed to create {{ModelName}}:", error);
-    throw new HttpError(500, "Failed to create {{ModelName}}");
+    console.error("Failed to create {{modelName}}:", error);
+    throw new HttpError(500, "Failed to create {{modelName}}");
   }
-}; {{SatisfiesType}}
+}; {{satisfiesType}}
