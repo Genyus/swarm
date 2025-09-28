@@ -62,16 +62,16 @@ describe('TemplateUtility', () => {
         .fn()
         .mockImplementation((path: string) => {
           if (path.includes('test-template.eta')) {
-            return 'Hello, {{=name}}!';
+            return 'Hello, <%=name%>!';
           }
           if (path.includes('multi-template.eta')) {
-            return 'Hello {{=name}}, you are {{=age}} years old!';
+            return 'Hello <%=name%>, you are <%=age%> years old!';
           }
           if (path.includes('repeat-template.eta')) {
-            return '{{=name}} is {{=name}} and {{=name}} is great!';
+            return '<%=name%> is <%=name%> and <%=name%> is great!';
           }
           if (path.includes('empty-template.eta')) {
-            return 'Hello, {{=name}}!';
+            return 'Hello, <%=name%>!';
           }
           if (path.includes('no-placeholders.eta')) {
             return 'Hello, World!';

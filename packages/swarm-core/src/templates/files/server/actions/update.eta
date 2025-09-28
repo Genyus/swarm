@@ -1,26 +1,26 @@
-{{=imports}}
+<%=imports%>
 
-export const {{=operationName}}{{=typeAnnotation}} = async ({ {{=idField}}, ...data }, context) => {
-{{=authCheck}}  try {
-    const {{=modelNameLower}} = await context.entities.{{=modelName}}.findUnique({
-      where: { {{=idField}} }
+export const <%=operationName%><%=typeAnnotation%> = async ({ <%=idField%>, ...data }, context) => {
+<%=authCheck%>  try {
+    const <%=modelNameLower%> = await context.entities.<%=modelName%>.findUnique({
+      where: { <%=idField%> },
     });
 
-    if (!{{=modelNameLower}}) {
-      throw new HttpError(404, "{{=modelName}} not found");
+    if (!<%=modelNameLower%>) {
+      throw new HttpError(404, `<%=modelName%> ${<%=idField%>} not found`);
     }
 
-    const updated{{=modelName}} = await context.entities.{{=modelName}}.update({
-      where: { {{=idField}} },
+    const updated<%=modelName%> = await context.entities.<%=modelName%>.update({
+      where: { <%=idField%> },
       data: {
-        ...data{{=jsonTypeHandling}}
-      }
+        ...data<%=jsonTypeHandling%>,
+      },
     });
 
-    return updated{{=modelName}};
+    return updated<%=modelName%>;
   } catch (error) {
-    console.error("Failed to update {{=modelNameLower}}:", error);
+    console.error(`Failed to update <%=modelNameLower%> ${<%=idField%>}:`, error);
 
-    throw new HttpError(500, "Failed to update {{=modelNameLower}}");
+    throw new HttpError(500, `Failed to update <%=modelNameLower%> ${<%=idField%>}`);
   }
-}; {{=satisfiesType}}
+}; <%=satisfiesType%>

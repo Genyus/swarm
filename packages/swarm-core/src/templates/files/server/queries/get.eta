@@ -1,19 +1,19 @@
-{{=imports}}
+<%=imports%>
 
-export const {{=operationName}}{{=typeAnnotation}} = (async ({ {{=idField}} }, context) => {
-{{=authCheck}}  try {
-    const {{=modelNameLower}} = await context.entities.{{=modelName}}.findUnique({
-      where: { {{=idField}} }
+export const <%=operationName%><%=typeAnnotation%> = (async ({ <%=idField%> }, context) => {
+<%=authCheck%>  try {
+    const <%=modelNameLower%> = await context.entities.<%=modelName%>.findUnique({
+      where: { <%=idField%> },
     });
 
-    if (!{{=modelNameLower}}) {
-      throw new HttpError(404, "{{=modelNameLower}} not found");
+    if (!<%=modelNameLower%>) {
+      throw new HttpError(404, `<%=modelNameLower%> ${<%=idField%>} not found`);
     }
 
-    return {{=modelNameLower}};
+    return <%=modelNameLower%>;
   } catch (error) {
-    console.error("Failed to get {{=modelNameLower}}:", error);
+    console.error(`Failed to get <%=modelNameLower%> ${<%=idField%>}:`, error);
 
-    throw new HttpError(500, "Failed to get {{=modelNameLower}}");
+    throw new HttpError(500, `Failed to get <%=modelNameLower%> ${<%=idField%>}`);
   }
-}) {{=satisfiesType}};
+}) <%=satisfiesType%>;

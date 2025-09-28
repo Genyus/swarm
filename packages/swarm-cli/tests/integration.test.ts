@@ -104,11 +104,11 @@ describe('Integration Tests - Full Feature Creation', () => {
 
     // Add mock template files
     mockFiles['/mock/templates/files/server/crud.eta'] = `
-import { {{dataType}} } from '@wasp/entities';
+import { <%=dataType%> } from '@wasp/entities';
 import { HttpError } from '@wasp/core';
 
-export const {{crudName}} = {
-  {{operations}}
+export const <%=crudName%> = {
+  <%=operations%>
 };
 `;
 
@@ -116,11 +116,11 @@ export const {{crudName}} = {
     mockFiles[
       '/Users/gary/Dev/swarm/packages/swarm-core/dist/templates/files/server/crud.eta'
     ] = `
-import { {{dataType}} } from '@wasp/entities';
+import { <%=dataType%> } from '@wasp/entities';
 import { HttpError } from '@wasp/core';
 
-export const {{crudName}} = {
-  {{operations}}
+export const <%=crudName%> = {
+  <%=operations%>
 };
 `;
 
@@ -272,14 +272,13 @@ export const {{crudName}} = {
         force: false,
       });
 
-      // Create again without force
-      await routeGenerator.generate('documents', {
-        path: '/documents',
-        force: false,
-      });
-
-      // Routes may be created even if similar ones exist in test mode
-      expect(fs.writeFileSync).toHaveBeenCalled();
+      // Create again without force - should throw error
+      await expect(
+        routeGenerator.generate('documents', {
+          path: '/documents',
+          force: false,
+        })
+      ).rejects.toThrow('Page file already exists');
     });
 
     it('should overwrite route with force flag', async () => {
@@ -607,19 +606,17 @@ export const {{crudName}} = {
         force: false,
       });
 
-      // Try to create again without force
-      await apiGenerator.generate('documents', {
-        name: 'searchApi',
-        method: 'GET',
-        route: '/api/documents/search',
-        entities: ['Document'],
-        auth: false,
-        force: false,
-      });
-
-      // Since the API generator is not creating handler files in the test environment,
-      // we'll just verify that the generators were called without errors
-      expect(logger.info).toHaveBeenCalled();
+      // Try to create again without force - should throw error
+      await expect(
+        apiGenerator.generate('documents', {
+          name: 'searchApi',
+          method: 'GET',
+          route: '/api/documents/search',
+          entities: ['Document'],
+          auth: false,
+          force: false,
+        })
+      ).rejects.toThrow('API endpoint file already exists');
     });
 
     it('should handle duplicate job creation without force', async () => {
@@ -632,15 +629,14 @@ export const {{crudName}} = {
         force: false,
       });
 
-      // Try to create again without force
-      await jobGenerator.generate('documents', {
-        name: 'archiveDocuments',
-        entities: ['Document'],
-        force: false,
-      });
-
-      // Job creation may trigger feature setup first
-      expect(logger.error).toHaveBeenCalled();
+      // Try to create again without force - should throw error
+      await expect(
+        jobGenerator.generate('documents', {
+          name: 'archiveDocuments',
+          entities: ['Document'],
+          force: false,
+        })
+      ).rejects.toThrow('job worker already exists');
     });
 
     it('should handle duplicate operation creation without force', async () => {
@@ -678,14 +674,14 @@ export const {{crudName}} = {
         force: false,
       });
 
-      // Try to create again without force
-      await apiNamespaceGenerator.generate('documents', {
-        name: 'api',
-        path: '/api',
-        force: false,
-      });
-
-      expect(logger.error).toHaveBeenCalled();
+      // Try to create again without force - should throw error
+      await expect(
+        apiNamespaceGenerator.generate('documents', {
+          name: 'api',
+          path: '/api',
+          force: false,
+        })
+      ).rejects.toThrow('middleware file already exists');
     });
   });
 

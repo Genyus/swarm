@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
 
-interface {{HookName}}Options {
+interface <%HookName%>Options {
   // Add options here
 }
 
-export const {{hookName}} = (options?: {{HookName}}Options) => {
+export const <%hookName%> = (options?: <%HookName%>Options) => {
   // Add hook implementation
 
   return {

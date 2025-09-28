@@ -1,5 +1,5 @@
-    .addRoute(feature, "{{=routeName}}", {
-      path: "{{=routePath}}",
-      componentName: "{{=componentName}}",
-      auth: {{=auth}}
+    .addRoute(feature, "<%=routeName%>", {
+      path: "<%=routePath%>",
+      componentName: "<%=componentName%>",
+      auth: <%=auth%>,
     })

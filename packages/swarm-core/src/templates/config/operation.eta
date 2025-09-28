@@ -1,4 +1,6 @@
-    .add{{=operationType}}(feature, "{{=operationName}}", {
-      entities: [{{=entities}}],
-      auth: {{=auth}}
+    .add<%=operationType%>(feature, "<%=operationName%>", {
+<%- if (entities.length > 0) { %>
+      entities: [<%=entities%>],
+<%- } %>
+      auth: <%=auth%>,
     })
