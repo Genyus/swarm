@@ -1,3 +1,10 @@
+import {
+  ActionOperation,
+  CrudOperation,
+  HttpMethod,
+  OperationType,
+  QueryOperation,
+} from '@ingenyus/swarm-core';
 import { z } from 'zod';
 
 export interface SwarmCliParams {
@@ -12,12 +19,6 @@ export interface SwarmCliResult {
   generatedFiles?: string[];
   modifiedFiles?: string[];
 }
-
-export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'ALL';
-export type OperationType = 'query' | 'action';
-export type ActionOperation = 'create' | 'update' | 'delete';
-export type QueryOperation = 'get' | 'getAll';
-export type CrudOperation = ActionOperation | QueryOperation;
 
 export interface SwarmGenerateApiParams extends SwarmCliParams {
   feature: string;

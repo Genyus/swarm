@@ -4,9 +4,9 @@ import type { Dirent, PathLike, Stats } from 'node:fs';
 import fs from 'node:fs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-// Mock the SwarmGeneratorsService before importing SwarmTools
-vi.mock('../services/swarm-generators.service.js', () => ({
-  SwarmGeneratorsService: {
+// Mock the GeneratorService before importing SwarmTools
+vi.mock('../types/generator-service.js', () => ({
+  GeneratorService: {
     create: vi.fn(() => ({
       generateFeature: vi.fn().mockResolvedValue(undefined),
       generateApi: vi.fn().mockResolvedValue(undefined),
@@ -29,7 +29,13 @@ vi.mock('node:fs', () => ({
   default: {
     readdirSync: vi.fn(),
     statSync: vi.fn(),
-    existsSync: vi.fn(),
+    existsSync: vi.fn().mockImplementation((path: string) => {
+      // Mock a Wasp project by returning true for wasp.json
+      if (path.endsWith('wasp.json')) {
+        return true;
+      }
+      return false;
+    }),
     mkdirSync: vi.fn(),
     copyFileSync: vi.fn(),
     writeFileSync: vi.fn(),

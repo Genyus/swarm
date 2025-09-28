@@ -1,3 +1,4 @@
+import { HttpMethod, OperationType } from '@ingenyus/swarm-core';
 import { describe, expect, it } from 'vitest';
 import {
   HttpMethodSchema,
@@ -13,8 +14,6 @@ import {
   isOperationType,
   isQueryOperation,
   isSwarmError,
-  type HttpMethod,
-  type OperationType,
   type SwarmError,
   type SwarmGenerateApiParams,
 } from './swarm.js';
