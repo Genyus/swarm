@@ -1,15 +1,13 @@
 import path from 'path';
 import { ApiFlags } from '../types';
 import { getFeatureImportPath } from '../utils/filesystem';
-import { stripSuffix, toPascalCase } from '../utils/strings';
+import { toPascalCase } from '../utils/strings';
 import { BaseGenerator } from './base';
 
 export class ApiGenerator extends BaseGenerator<ApiFlags> {
   async generate(featurePath: string, flags: ApiFlags): Promise<void> {
-    const suffix = 'Api';
-    const baseName = stripSuffix(flags.name, suffix);
-    const apiName = baseName + suffix;
-    const fileName = `${baseName}.ts`;
+    const apiName = flags.name;
+    const fileName = `${apiName}.ts`;
     const { targetDirectory, importDirectory } = this.ensureTargetDirectory(
       featurePath,
       'api'

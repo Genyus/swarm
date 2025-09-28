@@ -22,11 +22,6 @@ vi.mock('../utils/strings', () => ({
   toCamelCase: vi.fn().mockImplementation((str: string) => str),
   toPascalCase: vi.fn().mockImplementation((str: string) => str),
   hasHelperMethodCall: vi.fn().mockReturnValue(false),
-  stripSuffix: vi
-    .fn()
-    .mockImplementation((str: string, suffix: string) =>
-      str.endsWith(suffix) ? str.slice(0, -suffix.length) : str
-    ),
 }));
 
 vi.mock('../utils/templates', () => ({

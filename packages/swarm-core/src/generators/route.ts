@@ -8,7 +8,7 @@ import {
   getRouteNameFromPath,
   getTemplatesDir,
 } from '../utils/filesystem';
-import { formatDisplayName, stripSuffix, toPascalCase } from '../utils/strings';
+import { formatDisplayName, toPascalCase } from '../utils/strings';
 import { BaseGenerator } from './base';
 
 export class RouteGenerator extends BaseGenerator<RouteFlags> {
@@ -25,13 +25,8 @@ export class RouteGenerator extends BaseGenerator<RouteFlags> {
 
   async generate(featurePath: string, flags: RouteFlags): Promise<void> {
     const { path: routePath, name } = flags;
-    const suffix = 'Route';
-    const baseName = stripSuffix(
-      name || getRouteNameFromPath(routePath),
-      suffix
-    );
-    const componentName = toPascalCase(baseName);
-    const routeName = baseName + suffix;
+    const routeName = name || getRouteNameFromPath(routePath);
+    const componentName = toPascalCase(routeName);
     const fileName = `${componentName}.tsx`;
     const { targetDirectory, importDirectory } = this.ensureTargetDirectory(
       featurePath,

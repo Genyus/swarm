@@ -11,7 +11,49 @@ import {
 } from '@ingenyus/swarm-core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-// Mock all external dependencies
+// Mock the filesystem utility functions separately
+vi.mock('@ingenyus/swarm-core/src/utils/filesystem', () => ({
+  getTemplatesDir: vi.fn().mockReturnValue('/mock/templates'),
+  findWaspRoot: vi.fn().mockReturnValue('/mock/wasp-root'),
+  getFeatureDir: vi.fn().mockReturnValue('/mock/features'),
+  copyDirectory: vi.fn(),
+}));
+
+vi.mock('@ingenyus/swarm-core/src/utils/strings', () => ({
+  validateFeaturePath: vi
+    .fn()
+    .mockImplementation((path: string) => path.split('/')),
+  parseHelperMethodDefinition: vi.fn(),
+  hasHelperMethodCall: vi.fn().mockReturnValue(false),
+  hasApiNamespaceDefinition: vi.fn().mockReturnValue(false),
+}));
+
+// Mock the node:fs module to intercept schema.prisma reads
+vi.mock('node:fs', () => ({
+  default: {
+    readFileSync: vi.fn((path: string) => {
+      if (path.endsWith('schema.prisma')) {
+        return `model Document {
+  id        String   @id @default(cuid())
+  title     String
+  content   String?
+  settings  Json     @default("{}")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}`;
+      }
+      throw new Error(`File not found: ${path}`);
+    }),
+    existsSync: vi.fn((path: string) => path.endsWith('schema.prisma')),
+    writeFileSync: vi.fn(),
+    mkdirSync: vi.fn(),
+    readdirSync: vi.fn(),
+    statSync: vi.fn(),
+    copyFileSync: vi.fn(),
+  },
+}));
+
+// Mock the prisma utilities at the module level
 vi.mock('@ingenyus/swarm-core', async () => {
   const actual = await vi.importActual('@ingenyus/swarm-core');
   return {
@@ -64,23 +106,6 @@ vi.mock('@ingenyus/swarm-core', async () => {
       ),
   };
 });
-
-// Mock the filesystem utility functions separately
-vi.mock('@ingenyus/swarm-core/src/utils/filesystem', () => ({
-  getTemplatesDir: vi.fn().mockReturnValue('/mock/templates'),
-  findWaspRoot: vi.fn().mockReturnValue('/mock/wasp-root'),
-  getFeatureDir: vi.fn().mockReturnValue('/mock/features'),
-  copyDirectory: vi.fn(),
-}));
-
-vi.mock('@ingenyus/swarm-core/src/utils/strings', () => ({
-  validateFeaturePath: vi
-    .fn()
-    .mockImplementation((path: string) => path.split('/')),
-  parseHelperMethodDefinition: vi.fn(),
-  hasHelperMethodCall: vi.fn().mockReturnValue(false),
-  hasApiNamespaceDefinition: vi.fn().mockReturnValue(false),
-}));
 
 describe('Integration Tests - Full Feature Creation', () => {
   let fs: IFileSystem;
@@ -136,6 +161,17 @@ export const <%=crudName%> = {
               mockFiles[path] ||
               'export default function getConfig(app: App) { return {}; }'
             );
+          }
+          // Mock schema.prisma file for operation generator
+          if (path.endsWith('schema.prisma')) {
+            return `model Document {
+  id        String   @id @default(cuid())
+  title     String
+  content   String?
+  settings  Json     @default("{}")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}`;
           }
           if (mockFiles[path]) {
             return mockFiles[path];
@@ -651,17 +687,16 @@ export const <%=crudName%> = {
         force: false,
       });
 
-      // Try to create again without force
-      await operationGenerator.generate('documents', {
-        dataType: 'Document',
-        operation: 'get',
-        entities: 'Document',
-        auth: false,
-        force: false,
-      });
-
-      // Operations may create new files even if similar ones exist
-      expect(fs.writeFileSync).toHaveBeenCalled();
+      // Try to create again without force - should throw error
+      await expect(
+        operationGenerator.generate('documents', {
+          dataType: 'Document',
+          operation: 'get',
+          entities: 'Document',
+          auth: false,
+          force: false,
+        })
+      ).rejects.toThrow('Operation file already exists');
     });
 
     it('should handle duplicate API namespace creation without force', async () => {

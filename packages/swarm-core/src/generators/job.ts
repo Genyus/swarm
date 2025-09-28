@@ -4,13 +4,7 @@ import { BaseGenerator } from './base';
 
 export class JobGenerator extends BaseGenerator<JobFlags> {
   async generate(featurePath: string, flags: JobFlags): Promise<void> {
-    let baseName = flags.name;
-
-    if (!baseName.endsWith('Job')) {
-      baseName = baseName + 'Job';
-    }
-
-    const jobName = baseName;
+    const jobName = flags.name;
     const { targetDirectory } = this.ensureTargetDirectory(featurePath, 'job');
 
     return this.handleGeneratorError('Job', jobName, async () => {

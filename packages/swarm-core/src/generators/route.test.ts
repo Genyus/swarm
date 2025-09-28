@@ -22,11 +22,6 @@ vi.mock('../utils/io', () => ({
 vi.mock('../utils/strings', () => ({
   formatDisplayName: vi.fn().mockImplementation((str: string) => str),
   hasHelperMethodCall: vi.fn().mockReturnValue(false),
-  stripSuffix: vi
-    .fn()
-    .mockImplementation((str: string, suffix: string) =>
-      str.endsWith(suffix) ? str.slice(0, -suffix.length) : str
-    ),
   getRouteNameFromPath: vi
     .fn()
     .mockImplementation(

@@ -61,7 +61,12 @@ export class OperationGenerator extends BaseGenerator<OperationFlags> {
         this.ensureTargetDirectory(featurePath, operationType);
       const importPath = path.join(importDirectory, operationName);
 
-      this.generateOperationFile(operationsDir, operationName, operationCode, flags);
+      this.generateOperationFile(
+        operationsDir,
+        operationName,
+        operationCode,
+        flags
+      );
       this.updateConfigFile(
         featurePath,
         operationName,
