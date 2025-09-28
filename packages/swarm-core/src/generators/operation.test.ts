@@ -8,6 +8,7 @@ import type { IFileSystem } from '../types/filesystem';
 import type { IFeatureGenerator } from '../types/generator';
 import type { Logger } from '../types/logger';
 import * as ioUtils from '../utils/filesystem';
+import { ensureDirectoryExists } from '../utils/filesystem';
 import { OperationGenerator } from './operation';
 
 // Mock the filesystem utils
@@ -53,6 +54,11 @@ vi.mock('../utils/strings', () => ({
     ),
   getPlural: vi.fn().mockImplementation((str: string) => str + 's'),
   hasHelperMethodCall: vi.fn().mockReturnValue(false),
+  toPascalCase: vi
+    .fn()
+    .mockImplementation(
+      (str: string) => str.charAt(0).toUpperCase() + str.slice(1)
+    ),
 }));
 
 // Mock template utils
@@ -88,14 +94,16 @@ describe('OperationGenerator', () => {
     fs.copyFileSync = vi.fn();
     fs.mkdirSync = vi.fn();
     gen = new OperationGenerator(logger, fs, featureGen);
+
     await gen.generate('foo', {
       dataType: 'User',
       operation: 'get',
       entities: 'User',
       force: true,
     });
+
     expect(fs.writeFileSync).toHaveBeenCalled();
-    expect(ioUtils.ensureDirectoryExists).toHaveBeenCalled();
+    expect(ensureDirectoryExists).toHaveBeenCalled();
     expect(featureGen.updateFeatureConfig).toHaveBeenCalled();
   });
 
@@ -110,13 +118,15 @@ describe('OperationGenerator', () => {
     fs.readFileSync = vi.fn().mockReturnValue('template');
     fs.writeFileSync = vi.fn();
     gen = new OperationGenerator(logger, fs, featureGen);
+
     await gen.generate('bar', {
       dataType: 'User',
       operation: 'get',
       entities: 'User',
       force: true,
     });
-    expect(ioUtils.ensureDirectoryExists).toHaveBeenCalled();
+
+    expect(ensureDirectoryExists).toHaveBeenCalled();
     expect(fs.writeFileSync).toHaveBeenCalled();
   });
 

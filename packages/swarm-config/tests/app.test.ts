@@ -128,7 +128,11 @@ describe('App', () => {
 
   describe('Chainable configuration methods', () => {
     it('should return this for all chainable methods', () => {
-      const authConfig = { userEntity: 'User', methods: {}, onAuthFailedRedirectTo: '/login' };
+      const authConfig = {
+        userEntity: 'User',
+        methods: {},
+        onAuthFailedRedirectTo: '/login',
+      };
       const clientConfig = { rootComponent: 'Main' };
       const dbConfig = { system: 'PostgreSQL' };
 
@@ -140,99 +144,71 @@ describe('App', () => {
 
   describe('Helper methods', () => {
     it('should add routes with simplified parameters', () => {
-        const result = app.addRoute(
-          'dashboard',
-          'DashboardRoute',
-          {
-            path: '/dashboard',
-            componentName: 'Dashboard',
-            auth: true,
-          }
-        );
+      const result = app.addRoute('dashboard', 'DashboardRoute', {
+        path: '/dashboard',
+        componentName: 'Dashboard',
+        auth: true,
+      });
 
       expect(result).toBe(app);
     });
 
     it('should add API endpoints with simplified parameters', () => {
-        const result = app.addApi(
-          'dashboard',
-          'getTasksApi',
-          {
-            method: 'GET',
-            route: '/api/tasks',
-            entities: ['Task'],
-            auth: true,
-          }
-        );
+      const result = app.addApi('dashboard', 'getTasksApi', {
+        method: 'GET',
+        route: '/api/tasks',
+        entities: ['Task'],
+        auth: true,
+      });
 
       expect(result).toBe(app);
     });
 
     it('should add CRUD operations with simplified parameters', () => {
-        const result = app.addCrud(
-          'tasks',
-          'TaskCrud',
-          {
-            entity: 'Task',
-            getAllOptions: { entities: ['Task'], isPublic: true },
-            getOptions: { entities: ['Task'], override: true },
-            createOptions: { entities: ['Task'] },
-            updateOptions: { entities: ['Task'] },
-            deleteOptions: { entities: ['Task'] },
-          }
-        );
+      const result = app.addCrud('tasks', 'TaskCrud', {
+        entity: 'Task',
+        getAllOptions: { entities: ['Task'], isPublic: true },
+        getOptions: { entities: ['Task'], override: true },
+        createOptions: { entities: ['Task'] },
+        updateOptions: { entities: ['Task'] },
+        deleteOptions: { entities: ['Task'] },
+      });
 
       expect(result).toBe(app);
     });
 
     it('should add actions with simplified parameters', () => {
-        const result = app.addAction(
-          'tasks',
-          'createTask',
-          {
-            entities: ['Task'],
-            auth: true
-          }
-        );
+      const result = app.addAction('tasks', 'createTask', {
+        entities: ['Task'],
+        auth: true,
+      });
 
       expect(result).toBe(app);
     });
 
     it('should add queries with simplified parameters', () => {
-        const result = app.addQuery(
-          'tasks',
-          'getTasks',
-          {
-            entities: ['Task'],
-            auth: true
-          }
-        );
+      const result = app.addQuery('tasks', 'getTasks', {
+        entities: ['Task'],
+        auth: true,
+      });
 
       expect(result).toBe(app);
     });
 
     it('should add jobs with simplified parameters', () => {
-        const result = app.addJob(
-          'tasks',
-          'processTasks',
-          {
-            entities: ['Task'],
-            cron: '0 0 * * *',
-            scheduleArgs: {'arg1': 'value1'}
-          }
-        );
+      const result = app.addJob('tasks', 'processTasks', {
+        entities: ['Task'],
+        cron: '0 0 * * *',
+        args: { arg1: 'value1' },
+      });
 
       expect(result).toBe(app);
     });
 
     it('should add API namespaces with simplified parameters', () => {
-        const result = app.addApiNamespace(
-          'tasks',
-          'tasksNamespace',
-          {
-            path: '/api/tasks'
-          }
-        );
+      const result = app.addApiNamespace('tasks', 'tasksNamespace', {
+        path: '/api/tasks',
+      });
 
       expect(result).toBe(app);
     });

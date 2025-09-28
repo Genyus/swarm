@@ -22,6 +22,11 @@ vi.mock('../utils/strings', () => ({
   toCamelCase: vi.fn().mockImplementation((str: string) => str),
   toPascalCase: vi.fn().mockImplementation((str: string) => str),
   hasHelperMethodCall: vi.fn().mockReturnValue(false),
+  stripSuffix: vi
+    .fn()
+    .mockImplementation((str: string, suffix: string) =>
+      str.endsWith(suffix) ? str.slice(0, -suffix.length) : str
+    ),
 }));
 
 vi.mock('../utils/templates', () => ({
@@ -58,8 +63,8 @@ describe('ApiGenerator', () => {
     expect(featureGen.updateFeatureConfig).toHaveBeenCalled();
   });
 
-  it('getDefinition returns processed template', () => {
-    const result = gen.getDefinition(
+  it('getConfigDefinition returns processed template', () => {
+    const result = (gen as any).getConfigDefinition(
       'testApi',
       'test',
       ['User'],

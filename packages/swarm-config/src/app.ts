@@ -56,8 +56,8 @@ export interface OperationOptions {
 
 export interface JobOptions {
   entities?: string[];
-  cron?: string;
-  scheduleArgs?: Record<string, unknown>;
+  cron: string;
+  args?: Record<string, unknown>;
 }
 
 export interface ApiNamespaceOptions {
@@ -360,7 +360,7 @@ export class App extends WaspApp {
       ...(options.cron && {
         schedule: {
           cron: options.cron,
-          args: options.scheduleArgs || {},
+          args: options.args || {},
         },
       }),
     });

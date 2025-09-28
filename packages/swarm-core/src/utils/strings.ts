@@ -292,6 +292,18 @@ export function parseHelperMethodDefinition(definition: string): {
 }
 
 /**
+ * Strips a suffix from a string if it exists.
+ * @param input - The string to strip the suffix from
+ * @param suffix - The suffix to strip
+ * @returns The string with the suffix stripped
+ */
+export function stripSuffix(input: string, suffix: string): string {
+  return input.toLowerCase().endsWith(suffix.toLowerCase())
+    ? input.slice(0, -suffix.length)
+    : toCamelCase(input);
+}
+
+/**
  * Test cases for the object detection functions:
  *
  * // Single line detection

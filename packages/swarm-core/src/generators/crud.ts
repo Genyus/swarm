@@ -1,15 +1,6 @@
-import path from 'node:path';
 import { CrudFlags, CrudOperation } from '../types';
-import { IFileSystem } from '../types/filesystem';
-import { IFeatureGenerator, NodeGenerator } from '../types/generator';
-import { Logger } from '../types/logger';
-import {
-  ensureDirectoryExists,
-  getFeatureDir,
-  getFeatureTargetDir,
-} from '../utils/filesystem';
-import { getPlural, hasHelperMethodCall } from '../utils/strings';
-import { TemplateUtility } from '../utils/templates';
+import { getPlural } from '../utils/strings';
+import { BaseGenerator } from './base';
 
 const CRUD_OPERATIONS: readonly CrudOperation[] = [
   'get',
@@ -19,20 +10,67 @@ const CRUD_OPERATIONS: readonly CrudOperation[] = [
   'delete',
 ] as const;
 
-export class CrudGenerator implements NodeGenerator<CrudFlags> {
-  private templateUtility: TemplateUtility;
+export class CrudGenerator extends BaseGenerator<CrudFlags> {
+  async generate(featurePath: string, flags: CrudFlags): Promise<void> {
+    const { dataType } = flags;
+    const pluralName = getPlural(dataType);
+    const crudName = pluralName;
+    const { targetDirectory } = this.ensureTargetDirectory(featurePath, 'crud');
 
-  constructor(
-    public logger: Logger,
-    public fs: IFileSystem,
-    private featureGenerator: IFeatureGenerator
-  ) {
-    this.templateUtility = new TemplateUtility(fs);
-    this.logger = logger;
-    this.fs = fs;
-    this.featureGenerator = featureGenerator;
+    return this.handleGeneratorError('CRUD', crudName, async () => {
+      const targetFile = `${targetDirectory}/${crudName}.ts`;
+
+      this.generateCrudFile(targetFile, crudName, dataType, flags);
+      this.updateConfigFile(featurePath, crudName, dataType, flags);
+    });
   }
 
+  private generateCrudFile(
+    targetFile: string,
+    crudName: string,
+    dataType: string,
+    flags: CrudFlags
+  ) {
+    const operations = this.buildOperations(flags);
+    const replacements = {
+      crudName,
+      dataType,
+      operations: JSON.stringify(operations, null, 2),
+    };
+
+    this.renderTemplateToFile(
+      'files/server/crud.eta',
+      replacements,
+      targetFile,
+      'CRUD file',
+      flags.force || false
+    );
+  }
+
+  private updateConfigFile(
+    featurePath: string,
+    crudName: string,
+    dataType: string,
+    flags: CrudFlags
+  ) {
+    const configPath = this.validateFeatureConfig(featurePath);
+    const configExists = this.checkConfigExists(
+      configPath,
+      'addCrud',
+      crudName,
+      flags.force || false
+    );
+
+    const operations = this.buildOperations(flags);
+    const definition = this.getDefinition(crudName, dataType, operations);
+    this.updateFeatureConfig(
+      featurePath,
+      definition,
+      configPath,
+      configExists,
+      'CRUD'
+    );
+  }
   private buildOperations(flags: CrudFlags): Record<string, unknown> {
     const {
       public: publicOps = [],
@@ -66,79 +104,6 @@ export class CrudGenerator implements NodeGenerator<CrudFlags> {
       },
       {} as Record<string, unknown>
     );
-  }
-
-  async generate(featurePath: string, flags: CrudFlags): Promise<void> {
-    try {
-      const { dataType, force } = flags;
-      const pluralName = getPlural(dataType);
-      const crudName = pluralName;
-      const crudsDir = getFeatureTargetDir(
-        this.fs,
-        featurePath,
-        'crud'
-      ).targetDirectory;
-
-      ensureDirectoryExists(this.fs, crudsDir);
-
-      const crudFile = `${crudsDir}/${crudName}.ts`;
-      const fileExists = this.fs.existsSync(crudFile);
-
-      if (fileExists && !force) {
-        this.logger.error(`CRUD file already exists: ${crudFile}`);
-        this.logger.error('Use --force to overwrite');
-
-        throw new Error('CRUD file already exists');
-      }
-
-      const templatePath = 'files/server/crud.eta';
-      const operations = this.buildOperations(flags);
-      const crudCode = this.templateUtility.processTemplate(templatePath, {
-        crudName,
-        dataType,
-        operations: JSON.stringify(operations, null, 2),
-      });
-
-      this.fs.writeFileSync(crudFile, crudCode);
-      this.logger.success(
-        `${fileExists ? 'Overwrote' : 'Generated'} CRUD file: ${crudFile}`
-      );
-
-      const featureName = featurePath.split('/')[0];
-      const featureDir = getFeatureDir(this.fs, featureName);
-      const configPath = path.join(featureDir, `${featureName}.wasp.ts`);
-
-      if (!this.fs.existsSync(configPath)) {
-        this.logger.error(`Feature config file not found: ${configPath}`);
-
-        throw new Error('Feature config file not found');
-      }
-
-      const configContent = this.fs.readFileSync(configPath, 'utf8');
-      const configExists = hasHelperMethodCall(
-        configContent,
-        'addCrud',
-        crudName
-      );
-
-      if (configExists && !force) {
-        this.logger.error(`CRUD config already exists in ${configPath}`);
-        this.logger.error('Use --force to overwrite');
-
-        throw new Error('CRUD config already exists');
-      }
-
-      const definition = this.getDefinition(crudName, dataType, operations);
-
-      this.featureGenerator.updateFeatureConfig(featurePath, definition);
-      this.logger.success(
-        `${configExists ? 'Updated' : 'Added'} CRUD config in: ${configPath}`
-      );
-      this.logger.success(`\nCRUD ${crudName} processing complete.`);
-    } catch (error: any) {
-      this.logger.error('Failed to generate CRUD: ' + (error?.stack || error));
-      throw error;
-    }
   }
 
   /**

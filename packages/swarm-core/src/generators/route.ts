@@ -1,123 +1,112 @@
 import path from 'node:path';
 import { RouteFlags } from '../types';
 import { IFileSystem } from '../types/filesystem';
-import { IFeatureGenerator, NodeGenerator } from '../types/generator';
+import { IFeatureGenerator } from '../types/generator';
 import { Logger } from '../types/logger';
 import {
-  ensureDirectoryExists,
-  getFeatureDir,
   getFeatureImportPath,
-  getFeatureTargetDir,
   getRouteNameFromPath,
   getTemplatesDir,
 } from '../utils/filesystem';
-import { formatDisplayName, hasHelperMethodCall } from '../utils/strings';
-import { TemplateUtility } from '../utils/templates';
+import { formatDisplayName, stripSuffix, toPascalCase } from '../utils/strings';
+import { BaseGenerator } from './base';
 
-export class RouteGenerator implements NodeGenerator<RouteFlags> {
+export class RouteGenerator extends BaseGenerator<RouteFlags> {
   private templatesDir: string;
-  private templateUtility: TemplateUtility;
+
   constructor(
     public logger: Logger,
     public fs: IFileSystem,
-    private featureGenerator: IFeatureGenerator
+    protected featureGenerator: IFeatureGenerator
   ) {
+    super(logger, fs, featureGenerator);
     this.templatesDir = getTemplatesDir(fs);
-    this.templateUtility = new TemplateUtility(fs);
-    this.logger = logger;
-    this.fs = fs;
-    this.featureGenerator = featureGenerator;
   }
 
   async generate(featurePath: string, flags: RouteFlags): Promise<void> {
-    try {
-      const { path: routePath, name, auth, force } = flags;
-      const componentName = name || getRouteNameFromPath(routePath);
-      const routeName = `${
-        componentName.endsWith('Page')
-          ? componentName.slice(0, -4)
-          : componentName
-      }Route`;
-      const { targetDirectory: pagesDir, importDirectory } =
-        getFeatureTargetDir(this.fs, featurePath, 'page');
+    const { path: routePath, name } = flags;
+    const suffix = 'Route';
+    const baseName = stripSuffix(
+      name || getRouteNameFromPath(routePath),
+      suffix
+    );
+    const componentName = toPascalCase(baseName);
+    const routeName = baseName + suffix;
+    const fileName = `${componentName}.tsx`;
+    const { targetDirectory, importDirectory } = this.ensureTargetDirectory(
+      featurePath,
+      'page'
+    );
 
-      ensureDirectoryExists(this.fs, pagesDir);
+    return this.handleGeneratorError('Route', routeName, async () => {
+      const targetFile = path.join(targetDirectory, fileName);
 
+      this.generatePageFile(targetFile, componentName, flags);
+      this.updateConfigFile(
+        featurePath,
+        routeName,
+        routePath,
+        componentName,
+        importDirectory,
+        flags
+      );
+    });
+  }
+
+  private generatePageFile(
+    targetFile: string,
+    componentName: string,
+    flags: RouteFlags
+  ) {
+    const templatePath = path.join('files', 'client', 'page.eta');
+    const replacements = {
+      componentName,
+      displayName: formatDisplayName(componentName),
+    };
+
+    this.renderTemplateToFile(
+      templatePath,
+      replacements,
+      targetFile,
+      'Page file',
+      flags.force || false
+    );
+  }
+
+  private updateConfigFile(
+    featurePath: string,
+    routeName: string,
+    routePath: string,
+    componentName: string,
+    importDirectory: string,
+    flags: RouteFlags
+  ) {
+    const configPath = this.validateFeatureConfig(featurePath);
+    const configExists = this.checkConfigExists(
+      configPath,
+      'addRoute',
+      routeName,
+      flags.force || false
+    );
+
+    if (!configExists || flags.force) {
       const importPath = path.join(importDirectory, componentName);
-      const pageFile = `${pagesDir}/${componentName}.tsx`;
-      const fileExists = this.fs.existsSync(pageFile);
-
-      if (fileExists && !force) {
-        this.logger.info(`Page file already exists: ${pageFile}`);
-        this.logger.info('Use --force to overwrite');
-      } else {
-        const templatePath = path.join(
-          this.templatesDir,
-          'files',
-          'client',
-          'page.tsx'
-        );
-
-        if (!this.fs.existsSync(templatePath)) {
-          this.logger.error(`Page template not found: ${templatePath}`);
-          return;
-        }
-
-        const template = this.fs.readFileSync(templatePath, 'utf8');
-        const replacements = {
-          ComponentName: componentName,
-          DisplayName: formatDisplayName(componentName),
-        };
-        const processed = this.templateUtility.processTemplate(
-          template,
-          replacements
-        );
-
-        this.fs.writeFileSync(pageFile, processed);
-        this.logger.success(
-          `${fileExists ? 'Overwrote' : 'Generated'} page file: ${pageFile}`
-        );
-      }
-
-      const featureName = featurePath.split('/')[0];
-      const featureDir = getFeatureDir(this.fs, featureName);
-      const configPath = path.join(featureDir, `${featureName}.wasp.ts`);
-
-      if (!this.fs.existsSync(configPath)) {
-        this.logger.error(`Feature config file not found: ${configPath}`);
-
-        return;
-      }
-
-      let configContent = this.fs.readFileSync(configPath, 'utf8');
-      const configExists = hasHelperMethodCall(
-        configContent,
-        'addRoute',
-        routeName
+      const definition = this.getDefinition(
+        routeName,
+        routePath,
+        componentName,
+        featurePath,
+        flags.auth,
+        importPath
       );
 
-      if (configExists && !force) {
-        this.logger.info(`Route config already exists in ${configPath}`);
-        this.logger.info('Use --force to overwrite');
-      } else if (!configExists || force) {
-        const definition = this.getDefinition(
-          routeName,
-          routePath,
-          componentName,
-          featurePath,
-          auth,
-          importPath
-        );
-
-        this.featureGenerator.updateFeatureConfig(featurePath, definition);
-        this.logger.success(
-          `${configExists ? 'Updated' : 'Added'} route config in: ${configPath}`
-        );
-      }
-
-      this.logger.info(`\nRoute ${routeName} processing complete.`);
-    } catch (error: any) {
-      this.logger.error('Failed to generate route: ' + (error?.stack || error));
+      this.updateFeatureConfig(
+        featurePath,
+        definition,
+        configPath,
+        configExists,
+        'Route'
+      );
     }
   }
 

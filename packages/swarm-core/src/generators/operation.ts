@@ -5,12 +5,10 @@ import {
   OPERATION_TYPES,
   OperationConfigEntry,
   OperationFlags,
+  OperationType,
   QueryOperation,
   TYPE_DIRECTORIES,
 } from '../types';
-import { IFileSystem } from '../types/filesystem';
-import { IFeatureGenerator, NodeGenerator } from '../types/generator';
-import { Logger } from '../types/logger';
 import { EntityMetadata } from '../types/prisma';
 import { handleFatalError } from '../utils/errors';
 import {
@@ -28,109 +26,103 @@ import {
   getOmitFields,
   needsPrismaImport,
 } from '../utils/prisma';
-import { capitalise, getPlural, hasHelperMethodCall } from '../utils/strings';
-import { TemplateUtility } from '../utils/templates';
+import {
+  capitalise,
+  getPlural,
+  hasHelperMethodCall,
+  toPascalCase,
+} from '../utils/strings';
+import { BaseGenerator } from './base';
 
-export class OperationGenerator implements NodeGenerator<OperationFlags> {
-  private templateUtility: TemplateUtility;
-
-  constructor(
-    public logger: Logger,
-    public fs: IFileSystem,
-    private featureGenerator: IFeatureGenerator
-  ) {
-    this.templateUtility = new TemplateUtility(fs);
-    this.logger = logger;
-    this.fs = fs;
-    this.featureGenerator = featureGenerator;
-  }
-
+export class OperationGenerator extends BaseGenerator<OperationFlags> {
   async generate(featurePath: string, flags: OperationFlags): Promise<void> {
-    try {
-      const dataType = flags.dataType;
-      const operation = flags.operation;
-      const operationType = this.getOperationType(operation);
-      const entities = flags.entities
-        ? Array.isArray(flags.entities)
-          ? flags.entities
-          : flags.entities
-              .split(',')
-              .map((e: string) => e.trim())
-              .filter(Boolean)
-        : [];
-      const { operationCode, operationName } =
-        await this.generateOperationComponents(
-          dataType,
-          operation,
-          flags.auth,
-          entities
-        );
-      const { targetDirectory: operationsDir, importDirectory } =
-        getFeatureTargetDir(this.fs, featurePath, operationType);
-      const importPath = path.join(importDirectory, operationName);
+    const dataType = flags.dataType;
+    const operation = flags.operation;
+    const operationType = this.getOperationType(operation);
+    const entities = flags.entities
+      ? Array.isArray(flags.entities)
+        ? flags.entities
+        : flags.entities
+            .split(',')
+            .map((e: string) => e.trim())
+            .filter(Boolean)
+      : [];
 
-      ensureDirectoryExists(this.fs, operationsDir);
-
-      const operationFile = `${operationsDir}/${operationName}.ts`;
-      const fileExists = this.fs.existsSync(operationFile);
-
-      if (fileExists && !flags.force) {
-        this.logger.info(`Operation file already exists: ${operationFile}`);
-        this.logger.info('Use --force to overwrite');
-      } else {
-        this.fs.writeFileSync(operationFile, operationCode);
-        this.logger.success(
-          `${
-            fileExists ? 'Overwrote' : 'Generated'
-          } operation file: ${operationFile}`
-        );
-      }
-
-      const featureName = featurePath.split('/')[0];
-      const featureDir = getFeatureDir(this.fs, featureName);
-      const configPath = path.join(featureDir, `${featureName}.wasp.ts`);
-
-      if (!this.fs.existsSync(configPath)) {
-        this.logger.error(`Feature config file not found: ${configPath}`);
-
-        return;
-      }
-
-      let configContent = this.fs.readFileSync(configPath, 'utf8');
-      const isAction = ['create', 'update', 'delete'].includes(operation);
-      const methodName = isAction ? 'addAction' : 'addQuery';
-      const configExists = hasHelperMethodCall(
-        configContent,
-        methodName,
-        operationName
+    const { operationCode, operationName } =
+      await this.generateOperationComponents(
+        dataType,
+        operation,
+        flags.auth,
+        entities
       );
 
-      if (configExists && !flags.force) {
-        this.logger.info(`Operation config already exists in ${configPath}`);
-        this.logger.info('Use --force to overwrite');
-      } else if (!configExists || flags.force) {
-        const isAction = ['create', 'update', 'delete'].includes(operation);
-        const definition = this.getDefinition(
-          operationName,
-          featurePath,
-          entities,
-          isAction ? 'action' : 'query',
-          importPath,
-          flags.auth
-        );
+    return this.handleGeneratorError('Operation', operationName, async () => {
+      const { targetDirectory: operationsDir, importDirectory } =
+        this.ensureTargetDirectory(featurePath, operationType);
+      const importPath = path.join(importDirectory, operationName);
 
-        this.featureGenerator.updateFeatureConfig(featurePath, definition);
-        this.logger.success(
-          `${
-            configExists ? 'Updated' : 'Added'
-          } ${operation} config in: ${configPath}`
-        );
-      }
+      this.generateOperationFile(operationsDir, operationName, operationCode, flags);
+      this.updateConfigFile(
+        featurePath,
+        operationName,
+        operation,
+        entities,
+        importPath,
+        flags
+      );
+    });
+  }
 
-      this.logger.info(`\nOperation ${operationName} processing complete.`);
-    } catch (error: any) {
-      this.logger.error(
-        'Failed to generate operation: ' + (error?.stack || error)
+  private generateOperationFile(
+    operationsDir: string,
+    operationName: string,
+    operationCode: string,
+    flags: OperationFlags
+  ): void {
+    const operationFile = `${operationsDir}/${operationName}.ts`;
+    const fileExists = this.checkFileExists(
+      operationFile,
+      flags.force || false,
+      'Operation file'
+    );
+
+    this.writeFile(operationFile, operationCode, 'operation file', fileExists);
+  }
+
+  private updateConfigFile(
+    featurePath: string,
+    operationName: string,
+    operation: string,
+    entities: string[],
+    importPath: string,
+    flags: OperationFlags
+  ): void {
+    const configPath = this.validateFeatureConfig(featurePath);
+    const isAction = ['create', 'update', 'delete'].includes(operation);
+    const methodName = isAction ? 'addAction' : 'addQuery';
+    const configExists = this.checkConfigExists(
+      configPath,
+      methodName,
+      operationName,
+      flags.force || false
+    );
+
+    if (!configExists || flags.force) {
+      const definition = this.getDefinition(
+        operationName,
+        featurePath,
+        entities,
+        isAction ? 'action' : 'query',
+        importPath,
+        flags.auth
+      );
+
+      this.updateFeatureConfig(
+        featurePath,
+        definition,
+        configPath,
+        configExists,
+        operation
       );
     }
   }
@@ -145,6 +137,8 @@ export class OperationGenerator implements NodeGenerator<OperationFlags> {
     switch (operation) {
       case OPERATIONS.GETALL:
         return `getAll${getPlural(modelName)}`;
+      case OPERATIONS.GETFILTERED:
+        return `getFiltered${getPlural(modelName)}`;
       default:
         return `${operation}${modelName}`;
     }
@@ -153,22 +147,11 @@ export class OperationGenerator implements NodeGenerator<OperationFlags> {
   /**
    * Gets the TypeScript type name for an operation.
    */
-  getOperationTypeName(operation: string, modelName: string): string {
-    switch (operation) {
-      case OPERATIONS.CREATE:
-        return `Create${modelName}`;
-      case OPERATIONS.UPDATE:
-        return `Update${modelName}`;
-      case OPERATIONS.DELETE:
-        return `Delete${modelName}`;
-      case OPERATIONS.GET:
-        return `Get${modelName}`;
-      case OPERATIONS.GETALL:
-        return `GetAll${getPlural(modelName)}`;
-      default:
-        handleFatalError(`Unknown operation type: ${operation}`);
-        return '';
-    }
+  getOperationTypeName(
+    operation: ActionOperation | QueryOperation,
+    modelName: string
+  ): string {
+    return toPascalCase(this.getOperationName(operation, modelName));
   }
 
   /**
@@ -213,7 +196,9 @@ export class OperationGenerator implements NodeGenerator<OperationFlags> {
   getOperationType(
     operation: ActionOperation | QueryOperation
   ): 'query' | 'action' {
-    return operation === OPERATIONS.GETALL || operation === OPERATIONS.GET
+    return operation === OPERATIONS.GETALL ||
+      operation === OPERATIONS.GET ||
+      operation === OPERATIONS.GETFILTERED
       ? 'query'
       : 'action';
   }
@@ -279,15 +264,15 @@ export class OperationGenerator implements NodeGenerator<OperationFlags> {
 
         break;
       case 'update':
-        typeParams = `<<Pick<${model.name}, ${idField.name}> & Partial<Omit<${model.name}, ${omitFields}>>>`;
+        typeParams = `<Pick<${model.name}, "${idField.name}"> & Partial<Omit<${model.name}, ${omitFields}>>>`;
 
         break;
       case 'delete':
-        typeParams = `<<Pick<${model.name}, ${idField.name}>>`;
+        typeParams = `<Pick<${model.name}, "${idField.name}">>`;
 
         break;
       case 'get':
-        typeParams = `<<Pick<${model.name}, ${idField.name}>>`;
+        typeParams = `<Pick<${model.name}, "${idField.name}">>`;
 
         break;
       case 'getAll':
@@ -302,7 +287,7 @@ export class OperationGenerator implements NodeGenerator<OperationFlags> {
 
     const authCheck = auth
       ? `  if (!context.user) {
-  throw new HttpError(401);
+    throw new HttpError(401);
   }
 
 `
@@ -371,7 +356,7 @@ export class OperationGenerator implements NodeGenerator<OperationFlags> {
     operationName: string,
     featurePath: string,
     entities: string[],
-    operationType: 'query' | 'action',
+    operationType: OperationType,
     importPath: string,
     auth = false
   ): string {

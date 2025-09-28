@@ -59,17 +59,7 @@ describe('JobGenerator', () => {
   });
 
   it('getDefinition returns processed template', () => {
-    const result = gen.getDefinition(
-      'testJob',
-      'testWorker',
-      'features/test/_core/server/jobs/testWorker',
-      '[]',
-      '',
-      '',
-      '{}',
-      'features/test/_core/server/jobs/testWorker',
-      'testJob'
-    );
+    const result = gen.getDefinition('testJob', [], '', '{}');
     expect(typeof result).toBe('string');
   });
 });

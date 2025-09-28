@@ -24,6 +24,24 @@ export class FeatureGenerator implements IFeatureGenerator {
   }
 
   /**
+   * Checks if there are any existing definitions of a specific type in the content.
+   * @param content - The file content to search
+   * @param methodName - The method name to check for (e.g., 'addJob', 'addApi')
+   * @returns true if there are existing definitions of this type, false otherwise
+   */
+  private hasExistingDefinitions(content: string, methodName: string): boolean {
+    const lines = content.split('\n');
+
+    for (const line of lines) {
+      if (line.trim().startsWith(`.${methodName}(`)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  /**
    * Removes an existing definition from the content by finding the helper method call
    * and removing the entire method call block.
    * @param content - The file content
@@ -34,93 +52,119 @@ export class FeatureGenerator implements IFeatureGenerator {
     content: string,
     definition: string
   ): string {
-    // Use the utility function to parse the definition
     const parsed = parseHelperMethodDefinition(definition);
+
     if (!parsed) {
       return content;
     }
 
     const { methodName, firstParam } = parsed;
-
     let contentLines = content.split('\n');
-    let hasRemoved = true;
 
-    while (hasRemoved) {
-      hasRemoved = false;
+    // Find and remove any existing definition
+    let openingLineIndex = -1;
 
-      let openingLineIndex = -1;
-      for (let i = 0; i < contentLines.length; i++) {
-        const line = contentLines[i];
-        if (line.includes(`.${methodName}(`)) {
-          let searchContent = line;
-          let j = i;
-          while (j < contentLines.length && j < i + 5) {
-            searchContent = contentLines.slice(i, j + 1).join('\n');
-            // More precise matching - look for the exact item name as the second parameter
-            const singleQuoteMatch = new RegExp(
-              `\\.${methodName}\\s*\\(\\s*['"\`][^,]+['"\`]\\s*,\\s*['"]${firstParam.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}['"]`
-            );
-            const backtickMatch = new RegExp(
-              `\\.${methodName}\\s*\\(\\s*['"\`][^,]+['"\`]\\s*,\\s*\`${firstParam.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\``
-            );
+    for (let i = 0; i < contentLines.length; i++) {
+      const line = contentLines[i];
 
-            if (
-              singleQuoteMatch.test(searchContent) ||
-              backtickMatch.test(searchContent)
-            ) {
-              openingLineIndex = i;
-              break;
-            }
-            j++;
-          }
-          if (openingLineIndex !== -1) break;
-        }
-      }
+      if (line.includes(`.${methodName}(`)) {
+        // Look for the method call with the specific name parameter (second parameter)
+        // We only need to check the first line since the name parameter is always on the same line as the method call
+        const singleQuoteMatch = new RegExp(
+          `\\.${methodName}\\s*\\([^,]+,\\s*['"]${firstParam.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}['"]`
+        );
+        const backtickMatch = new RegExp(
+          `\\.${methodName}\\s*\\([^,]+,\\s*\`${firstParam.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\``
+        );
 
-      if (openingLineIndex === -1) {
-        break;
-      }
-
-      let closingLineIndex = -1;
-      let parenCount = 0;
-      let foundOpeningParen = false;
-
-      for (let i = openingLineIndex; i < contentLines.length; i++) {
-        const line = contentLines[i];
-
-        for (const char of line) {
-          if (char === '(') {
-            parenCount++;
-            foundOpeningParen = true;
-          } else if (char === ')') {
-            parenCount--;
-            if (foundOpeningParen && parenCount === 0) {
-              closingLineIndex = i;
-              break;
-            }
-          }
-        }
-
-        if (closingLineIndex !== -1) {
+        if (singleQuoteMatch.test(line) || backtickMatch.test(line)) {
+          openingLineIndex = i;
           break;
         }
       }
+    }
 
-      if (closingLineIndex === -1) {
-        break;
+    if (openingLineIndex === -1) {
+      return content; // No matching definition found
+    }
+
+    let closingLineIndex = -1;
+    let parenCount = 0;
+    let foundOpeningParen = false;
+
+    for (let i = openingLineIndex; i < contentLines.length; i++) {
+      const line = contentLines[i];
+
+      for (const char of line) {
+        if (char === '(') {
+          parenCount++;
+          foundOpeningParen = true;
+        } else if (char === ')') {
+          parenCount--;
+
+          if (foundOpeningParen && parenCount === 0) {
+            closingLineIndex = i;
+            break;
+          }
+        }
       }
 
-      contentLines = [
-        ...contentLines.slice(0, openingLineIndex),
-        ...contentLines.slice(closingLineIndex + 1),
-      ];
-
-      hasRemoved = true;
+      if (closingLineIndex !== -1) {
+        break;
+      }
     }
+
+    if (closingLineIndex === -1) {
+      return content; // Could not find closing parenthesis
+    }
+
+    // Check if this is the only definition of its type
+    let isOnlyDefinition = true;
+    for (let i = 0; i < contentLines.length; i++) {
+      if (
+        i !== openingLineIndex &&
+        contentLines[i].includes(`.${methodName}(`)
+      ) {
+        isOnlyDefinition = false;
+
+        break;
+      }
+    }
+
+    // If this is the only definition, also remove the comment before it
+    let commentLineIndex = -1;
+
+    if (isOnlyDefinition) {
+      for (let i = openingLineIndex - 1; i >= 0; i--) {
+        const line = contentLines[i].trim();
+
+        if (line.startsWith('//') && line.includes('definitions')) {
+          commentLineIndex = i;
+
+          break;
+        } else if (line === '' || line.startsWith('.')) {
+          // Skip empty lines and method calls
+          continue;
+        } else {
+          // Stop at non-comment, non-empty, non-method lines
+          break;
+        }
+      }
+    }
+
+    // Remove the existing definition and its comment if found
+    const startIndex =
+      commentLineIndex !== -1 ? commentLineIndex : openingLineIndex;
+
+    contentLines = [
+      ...contentLines.slice(0, startIndex),
+      ...contentLines.slice(closingLineIndex + 1),
+    ];
 
     return contentLines.join('\n');
   }
 
+  // TODO: Replace arbitrary insertion order with alphabetical ordering
   /**
    * Gets the insertion order for different configuration item types.
    * @returns Array of method names in insertion order
@@ -143,16 +187,11 @@ export class FeatureGenerator implements IFeatureGenerator {
    * @returns The comment text for the method type
    */
   private getMethodComment(methodName: string): string {
-    const commentMap: Record<string, string> = {
-      addRoute: '// Route definitions',
-      addQuery: '// Query definitions',
-      addAction: '// Action definitions',
-      addCrud: '// CRUD definitions',
-      addApi: '// API definitions',
-      addApiNamespace: '// API namespace definitions',
-      addJob: '// Job definitions',
-    };
-    return commentMap[methodName] || `// ${methodName} definitions`;
+    const entityName = methodName.startsWith('add')
+      ? methodName.slice(3)
+      : methodName;
+
+    return `// ${entityName} definitions`;
   }
 
   /**
@@ -167,7 +206,8 @@ export class FeatureGenerator implements IFeatureGenerator {
     lines: string[],
     methodName: string,
     targetGroupIndex: number,
-    definition: string
+    definition: string,
+    hasExistingDefinitionsOfType: boolean
   ): { insertIndex: number; addComment: boolean } {
     const insertionOrder = this.getInsertionOrder();
     const appLineIndex = lines.findIndex((line) => line.trim() === 'app');
@@ -186,6 +226,7 @@ export class FeatureGenerator implements IFeatureGenerator {
 
     for (let i = appLineIndex + 1; i < lines.length; i++) {
       const line = lines[i].trim();
+
       if (line.startsWith('.') && line.includes('(')) {
         // Look for the method call across multiple lines
         let methodCallContent = line;
@@ -275,24 +316,34 @@ export class FeatureGenerator implements IFeatureGenerator {
             }
           }
 
-          return { insertIndex, addComment: true };
+          // Only add comment if this is the first item of its type
+          return { insertIndex, addComment: !hasExistingDefinitionsOfType };
         }
       }
 
       // If no later groups exist, look for the last item of the previous group
       for (let i = targetGroupIndex - 1; i >= 0; i--) {
         const groupMethod = insertionOrder[i];
+
         if (groups[groupMethod] && groups[groupMethod].length > 0) {
           const lastItem = groups[groupMethod][groups[groupMethod].length - 1];
-          return { insertIndex: lastItem.endLineIndex + 1, addComment: true };
+
+          return {
+            insertIndex: lastItem.endLineIndex + 1,
+            addComment: !hasExistingDefinitionsOfType,
+          };
         }
       }
 
-      return { insertIndex: appLineIndex + 1, addComment: true }; // Insert after app line if no groups exist
+      return {
+        insertIndex: appLineIndex + 1,
+        addComment: !hasExistingDefinitionsOfType,
+      }; // Insert after app line if no groups exist
     }
 
     // Parse the new item name
     const parsed = parseHelperMethodDefinition(definition);
+
     if (!parsed) {
       return { insertIndex: appLineIndex + 1, addComment: false }; // Fallback if parsing fails
     }
@@ -304,12 +355,14 @@ export class FeatureGenerator implements IFeatureGenerator {
     for (let i = 0; i < targetGroup.length; i++) {
       if (itemName.localeCompare(targetGroup[i].itemName) < 0) {
         // Insert before this item
+        // If we're inserting at the beginning of the group, we need to add the comment
         return { insertIndex: targetGroup[i].lineIndex, addComment: false };
       }
     }
 
     // If we get here, the new item should be inserted after the last item
     const lastItem = targetGroup[targetGroup.length - 1];
+
     return { insertIndex: lastItem.endLineIndex + 1, addComment: false };
   }
 
@@ -334,6 +387,7 @@ export class FeatureGenerator implements IFeatureGenerator {
     // Add comment if this is the first item of its type
     if (addComment) {
       const comment = this.getMethodComment(methodName);
+
       newLines.splice(insertIndex, 0, `    ${comment}`);
       insertIndex += 1; // Adjust for the added comment line
     }
@@ -362,24 +416,32 @@ export class FeatureGenerator implements IFeatureGenerator {
         'config',
         'feature.wasp.eta'
       );
+
       if (!this.fs.existsSync(templatePath)) {
         handleFatalError(`Feature config template not found: ${templatePath}`);
       }
+
       this.fs.copyFileSync(templatePath, configFilePath);
     }
 
     let content = this.fs.readFileSync(configFilePath, 'utf8');
+    // Check if there are any existing definitions of this type BEFORE removing anything
+    const parsed = parseHelperMethodDefinition(definition);
+
+    if (!parsed) {
+      handleFatalError(`Could not parse definition: ${definition}`);
+      return content;
+    }
+
+    const { methodName } = parsed;
 
     // Remove existing definition before adding new one
     content = this.removeExistingDefinition(content, definition);
 
-    // Parse the definition to get method name and item name
-    const parsed = parseHelperMethodDefinition(definition);
-    if (!parsed) {
-      handleFatalError(`Could not parse definition: ${definition}`);
-    }
+    // Recalculate whether there are existing definitions of this type AFTER removal
+    const hasExistingDefinitionsOfTypeAfterRemoval =
+      this.hasExistingDefinitions(content, methodName);
 
-    const methodName = parsed!.methodName;
     const insertionOrder = this.getInsertionOrder();
     const targetGroupIndex = insertionOrder.indexOf(methodName);
 
@@ -419,7 +481,8 @@ export class FeatureGenerator implements IFeatureGenerator {
         lines,
         methodName,
         targetGroupIndex,
-        definition
+        definition,
+        hasExistingDefinitionsOfTypeAfterRemoval
       );
 
       // Insert with proper spacing
