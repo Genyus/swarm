@@ -10,31 +10,47 @@ import type { Logger } from '../types/logger';
 import { JobGenerator } from './job';
 
 // Mock the utilities
-vi.mock('../utils/io', () => ({
-  ensureDirectoryExists: vi.fn(),
-  findWaspRoot: vi.fn().mockReturnValue('/mock/wasp/root'),
-  getFeatureTargetDir: vi.fn().mockReturnValue({
-    targetDir: '/mock/target/dir',
-    importPath: '@src/features/test/_core/server/jobs',
-  }),
-  getTemplatesDir: vi.fn().mockReturnValue('/mock/templates'),
-}));
+vi.mock(import('../utils/filesystem'), async (importOriginal) => {
+  const actual = await importOriginal();
 
-vi.mock('../utils/strings', () => ({
-  capitalise: vi
-    .fn()
-    .mockImplementation(
-      (str: string) => str.charAt(0).toUpperCase() + str.slice(1)
-    ),
-  hasHelperMethodCall: vi.fn().mockReturnValue(false),
-}));
+  return {
+    ...actual,
+    ensureDirectoryExists: vi.fn(),
+    findWaspRoot: vi.fn().mockReturnValue('/mock/wasp/root'),
+    getFeatureTargetDir: vi.fn().mockReturnValue({
+      targetDirectory: '/mock/target/dir',
+      importDirectory: '@src/features/test/_core/server/jobs',
+    }),
+    getTemplatesDir: vi.fn().mockReturnValue('/mock/templates'),
+  };
+});
 
-vi.mock('../utils/templates', () => ({
-  TemplateUtility: vi.fn().mockImplementation(() => ({
+vi.mock(import('../utils/strings'), async (importOriginal) => {
+  const actual = await importOriginal();
+
+  return {
+    ...actual,
+    capitalise: vi
+      .fn()
+      .mockImplementation(
+        (str: string) => str.charAt(0).toUpperCase() + str.slice(1)
+      ),
+    hasHelperMethodCall: vi.fn().mockReturnValue(false),
+    validateFeaturePath: vi.fn().mockReturnValue(['test']),
+  };
+});
+
+vi.mock(import('../utils/templates'), async (importOriginal) => {
+  const actual = await importOriginal();
+
+  return {
+    ...actual,
+    TemplateUtility: vi.fn().mockImplementation(() => ({
+      processTemplate: vi.fn().mockReturnValue('processed template content'),
+    })),
     processTemplate: vi.fn().mockReturnValue('processed template content'),
-  })),
-  processTemplate: vi.fn().mockReturnValue('processed template content'),
-}));
+  };
+});
 
 describe('JobGenerator', () => {
   let fs: IFileSystem;

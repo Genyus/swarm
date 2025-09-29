@@ -7,67 +7,86 @@ import {
 import type { IFileSystem } from '../types/filesystem';
 import type { IFeatureGenerator } from '../types/generator';
 import type { Logger } from '../types/logger';
-import * as ioUtils from '../utils/filesystem';
 import { ensureDirectoryExists } from '../utils/filesystem';
 import { OperationGenerator } from './operation';
 
 // Mock the filesystem utils
-vi.mock('../utils/filesystem', () => ({
-  getFeatureTargetDir: vi.fn().mockReturnValue({
-    targetDirectory: 'features/test/server/queries',
-    importDirectory: '@src/features/test/_core/server/queries',
-  }),
-  ensureDirectoryExists: vi.fn(),
-  getConfigDir: vi.fn().mockReturnValue('config'),
-  getFeatureDir: vi.fn().mockReturnValue('features/test'),
-  getFeatureImportPath: vi.fn().mockReturnValue('test/_core'),
-}));
+vi.mock(import('../utils/filesystem'), async (importOriginal) => {
+  const actual = await importOriginal();
+
+  return {
+    ...actual,
+    getFeatureTargetDir: vi.fn().mockReturnValue({
+      targetDirectory: 'features/test/server/queries',
+      importDirectory: '@src/features/test/_core/server/queries',
+    }),
+    ensureDirectoryExists: vi.fn(),
+    getConfigDir: vi.fn().mockReturnValue('config'),
+    getFeatureDir: vi.fn().mockReturnValue('features/test'),
+    getFeatureImportPath: vi.fn().mockReturnValue('test/_core'),
+  };
+});
 
 // Mock the prisma utils
-vi.mock('../utils/prisma', () => ({
-  getEntityMetadata: vi.fn().mockResolvedValue({
-    name: 'User',
-    fields: [
-      {
-        name: 'id',
-        type: 'String',
-        tsType: 'string',
-        isId: true,
-        isRequired: true,
-      },
-      { name: 'name', type: 'String', tsType: 'string', isRequired: true },
-    ],
-  }),
-  getIdField: vi.fn().mockReturnValue({ name: 'id', tsType: 'string' }),
-  getOmitFields: vi.fn().mockReturnValue('"id"'),
-  getJsonFields: vi.fn().mockReturnValue([]),
-  needsPrismaImport: vi.fn().mockReturnValue(false),
-  generateJsonTypeHandling: vi.fn().mockReturnValue(''),
-}));
+vi.mock(import('../utils/prisma'), async (importOriginal) => {
+  const actual = await importOriginal();
+
+  return {
+    ...actual,
+    getEntityMetadata: vi.fn().mockResolvedValue({
+      name: 'User',
+      fields: [
+        {
+          name: 'id',
+          type: 'String',
+          tsType: 'string',
+          isId: true,
+          isRequired: true,
+        },
+        { name: 'name', type: 'String', tsType: 'string', isRequired: true },
+      ],
+    }),
+    getIdField: vi.fn().mockReturnValue({ name: 'id', tsType: 'string' }),
+    getOmitFields: vi.fn().mockReturnValue('"id"'),
+    getJsonFields: vi.fn().mockReturnValue([]),
+    needsPrismaImport: vi.fn().mockReturnValue(false),
+    generateJsonTypeHandling: vi.fn().mockReturnValue(''),
+  };
+});
 
 // Mock strings utils
-vi.mock('../utils/strings', () => ({
-  capitalise: vi
-    .fn()
-    .mockImplementation(
-      (str: string) => str.charAt(0).toUpperCase() + str.slice(1)
-    ),
-  getPlural: vi.fn().mockImplementation((str: string) => str + 's'),
-  hasHelperMethodCall: vi.fn().mockReturnValue(false),
-  toPascalCase: vi
-    .fn()
-    .mockImplementation(
-      (str: string) => str.charAt(0).toUpperCase() + str.slice(1)
-    ),
-}));
+vi.mock(import('../utils/strings'), async (importOriginal) => {
+  const actual = await importOriginal();
+
+  return {
+    ...actual,
+    capitalise: vi
+      .fn()
+      .mockImplementation(
+        (str: string) => str.charAt(0).toUpperCase() + str.slice(1)
+      ),
+    getPlural: vi.fn().mockImplementation((str: string) => str + 's'),
+    hasHelperMethodCall: vi.fn().mockReturnValue(false),
+    toPascalCase: vi
+      .fn()
+      .mockImplementation(
+        (str: string) => str.charAt(0).toUpperCase() + str.slice(1)
+      ),
+  };
+});
 
 // Mock template utils
-vi.mock('../utils/templates', () => ({
-  TemplateUtility: vi.fn().mockImplementation(() => ({
+vi.mock(import('../utils/templates'), async (importOriginal) => {
+  const actual = await importOriginal();
+
+  return {
+    ...actual,
+    TemplateUtility: vi.fn().mockImplementation(() => ({
+      processTemplate: vi.fn().mockReturnValue('processed template content'),
+    })),
     processTemplate: vi.fn().mockReturnValue('processed template content'),
-  })),
-  processTemplate: vi.fn().mockReturnValue('processed template content'),
-}));
+  };
+});
 
 describe('OperationGenerator', () => {
   let fs: IFileSystem;

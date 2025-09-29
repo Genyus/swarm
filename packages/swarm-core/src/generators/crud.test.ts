@@ -10,31 +10,51 @@ import type { Logger } from '../types/logger';
 import { CrudGenerator } from './crud';
 
 // Mock the utilities
-vi.mock('../utils/io', () => ({
-  ensureDirectoryExists: vi.fn(),
-  getFeatureTargetDir: vi.fn().mockReturnValue({
-    targetDir: '/mock/target/dir',
-    importPath: '@src/features/test/_core/server',
-  }),
-}));
+vi.mock(import('../utils/filesystem'), async (importOriginal) => {
+  const actual = await importOriginal();
 
-vi.mock('../utils/strings', () => ({
-  getPlural: vi.fn().mockImplementation((str: string) => str + 's'),
-  hasHelperMethodCall: vi.fn().mockReturnValue(false),
-}));
+  return {
+    ...actual,
+    ensureDirectoryExists: vi.fn(),
+    getFeatureTargetDir: vi.fn().mockReturnValue({
+      targetDirectory: '/mock/target/dir',
+      importDirectory: '@src/features/test/_core/server',
+    }),
+  };
+});
 
-vi.mock('../utils/templates', () => ({
-  TemplateUtility: vi.fn().mockImplementation(() => ({
-    processTemplate: vi.fn().mockReturnValue('processed template content'),
-  })),
-}));
+vi.mock(import('../utils/strings'), async (importOriginal) => {
+  const actual = await importOriginal();
 
-vi.mock('../utils/prisma', () => ({
-  getEntityMetadata: vi.fn().mockResolvedValue({
-    name: 'User',
-    fields: [],
-  }),
-}));
+  return {
+    ...actual,
+    getPlural: vi.fn().mockImplementation((str: string) => str + 's'),
+    hasHelperMethodCall: vi.fn().mockReturnValue(false),
+  };
+});
+
+vi.mock(import('../utils/templates'), async (importOriginal) => {
+  const actual = await importOriginal();
+
+  return {
+    ...actual,
+    TemplateUtility: vi.fn().mockImplementation(() => ({
+      processTemplate: vi.fn().mockReturnValue('processed template content'),
+    })),
+  };
+});
+
+vi.mock(import('../utils/prisma'), async (importOriginal) => {
+  const actual = await importOriginal();
+
+  return {
+    ...actual,
+    getEntityMetadata: vi.fn().mockResolvedValue({
+      name: 'User',
+      fields: [],
+    }),
+  };
+});
 
 describe('CrudGenerator', () => {
   let fs: IFileSystem;
