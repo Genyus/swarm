@@ -22,9 +22,15 @@ export function createCrudCommand(
     register(program: Command, generator: NodeGenerator) {
       let cmd = program
         .command('crud')
-        .option('--public <public>', 'Comma-separated public operations')
-        .option('--override <override>', 'Comma-separated override operations')
-        .option('--exclude <exclude>', 'Comma-separated excluded operations')
+        .option('-b, --public <public>', 'Comma-separated public operations')
+        .option(
+          '-o, --override <override>',
+          'Comma-separated override operations'
+        )
+        .option(
+          '-x, --exclude <exclude>',
+          'Comma-separated excluded operations'
+        )
         .description('Generate CRUD operations');
       cmd = withFeatureOption(cmd);
       cmd = withNameOption(cmd, 'CRUD name');

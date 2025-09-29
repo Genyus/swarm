@@ -54,10 +54,10 @@ function makeOperationCommand({
       let cmd = program
         .command(commandName)
         .requiredOption(
-          '--operation <operation>',
+          '-o, --operation <operation>',
           `Operation (${allowedOperations.join(',')})`
         )
-        .requiredOption('--data-type <type>', 'Type/model name')
+        .requiredOption('-d <type>, --data-type <type>', 'Type/model name')
         .description(description);
 
       cmd = withFeatureOption(cmd);

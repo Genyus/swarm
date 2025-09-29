@@ -38,7 +38,10 @@ export function createApiCommand(
     register(program: Command, generator: NodeGenerator<ApiFlags>) {
       let cmd = program
         .command('api')
-        .requiredOption('--method <method>', 'HTTP method (GET, POST, etc.)')
+        .requiredOption(
+          '-m, --method <method>',
+          'HTTP method (GET, POST, etc.)'
+        )
         .description('Generate an API endpoint');
       cmd = withFeatureOption(cmd);
       cmd = withNameOption(cmd, 'API name');
@@ -46,6 +49,10 @@ export function createApiCommand(
       cmd = withEntitiesOption(cmd);
       cmd = withAuthOption(cmd);
       cmd = withForceOption(cmd);
+      cmd = cmd.option(
+        '-c, --custom-middleware',
+        'Enable custom middleware for this API'
+      );
       cmd.action(async (opts) => {
         validateFeaturePath(opts.feature);
         await generator.generate(opts.feature, {
@@ -60,6 +67,7 @@ export function createApiCommand(
             : undefined,
           auth: !!opts.auth,
           force: !!opts.force,
+          customMiddleware: !!opts.customMiddleware,
         });
       });
     },

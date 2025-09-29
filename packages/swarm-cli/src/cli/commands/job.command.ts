@@ -34,8 +34,11 @@ export function createJobCommand(
     register(program: Command, generator: NodeGenerator) {
       let cmd = program
         .command('job')
-        .option('--schedule <schedule>', 'Cron schedule')
-        .option('--scheduleArgs <scheduleArgs>', 'Schedule args (JSON string)')
+        .option('-s, --schedule <schedule>', 'Cron schedule')
+        .option(
+          '-a, --scheduleArgs <scheduleArgs>',
+          'Schedule args (JSON string)'
+        )
         .description('Generate a job worker');
       cmd = withFeatureOption(cmd);
       cmd = withNameOption(cmd, 'Job name');
