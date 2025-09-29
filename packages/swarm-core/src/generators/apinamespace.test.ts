@@ -21,6 +21,7 @@ vi.mock('../utils/io', () => ({
 vi.mock('../utils/strings', () => ({
   toCamelCase: vi.fn().mockImplementation((str: string) => str),
   hasApiNamespaceDefinition: vi.fn().mockReturnValue(false),
+  hasHelperMethodCall: vi.fn().mockReturnValue(false),
 }));
 
 vi.mock('../utils/templates', () => ({

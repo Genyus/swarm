@@ -716,7 +716,7 @@ export const <%=crudName%> = {
           path: '/api',
           force: false,
         })
-      ).rejects.toThrow('middleware file already exists');
+      ).rejects.toThrow('Middleware file already exists');
     });
   });
 

@@ -30,6 +30,7 @@ export interface RouteOptions {
 export interface ApiOptions {
   method: 'GET' | 'POST' | 'PUT' | 'DELETE';
   route: string;
+  customMiddleware?: boolean;
   entities?: string[];
   auth?: boolean;
 }
@@ -209,12 +210,22 @@ export class App extends WaspApp {
       'apis',
       name
     );
+    const middlewareImportPath = this.getFeatureImportPath(
+      featureName,
+      'server',
+      'middleware',
+      name
+    );
 
     super.api(name, {
       fn: {
         import: name,
         from: `@src/${importPath}`,
       },
+      ...(options.customMiddleware && {
+        import: name,
+        from: `@src/${middlewareImportPath}`,
+      }),
       entities: options.entities,
       httpRoute: { method: options.method, route: options.route },
       auth: options.auth || false,

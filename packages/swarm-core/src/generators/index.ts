@@ -1,5 +1,6 @@
 // Export all generators
 export * from './api';
+export * from './api-base';
 export * from './apinamespace';
 export * from './base';
 export * from './crud';

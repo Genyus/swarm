@@ -5,4 +5,7 @@
       entities: [<%=entities%>],
 <%- } %>
       auth: <%=auth%>,
+<%- if (customMiddleware) { %>
+      customMiddleware: true,
+<%- } %>
     })

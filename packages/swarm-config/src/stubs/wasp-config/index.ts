@@ -16,6 +16,7 @@ export interface ApiConfig {
     import: string;
     from: string;
   };
+  middlewareConfigFn?: ExtImport;
   entities?: string[];
   httpRoute: {
     method: string;

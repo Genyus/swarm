@@ -40,6 +40,8 @@ export interface CommonGeneratorFlags {
   override?: CrudOperation[];
   /** Exclude operations (for CRUD) */
   exclude?: CrudOperation[];
+  /** Enable custom middleware for API definitions */
+  customMiddleware?: boolean;
 }
 
 /**
@@ -55,7 +57,7 @@ export type OperationFlags = Pick<
  */
 export type ApiFlags = Pick<
   CommonGeneratorFlags,
-  'force' | 'entities' | 'auth'
+  'force' | 'entities' | 'auth' | 'customMiddleware'
 > & {
   name: string;
   method: HttpMethod;

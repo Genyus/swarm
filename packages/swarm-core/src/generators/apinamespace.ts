@@ -1,9 +1,9 @@
 import path from 'node:path';
 import { ApiNamespaceFlags } from '../types';
 import { hasApiNamespaceDefinition, toCamelCase } from '../utils/strings';
-import { BaseGenerator } from './base';
+import { ApiBaseGenerator } from './api-base';
 
-export class ApiNamespaceGenerator extends BaseGenerator<ApiNamespaceFlags> {
+export class ApiNamespaceGenerator extends ApiBaseGenerator<ApiNamespaceFlags> {
   async generate(featurePath: string, flags: ApiNamespaceFlags): Promise<void> {
     const { name, path: apiPath } = flags;
 
@@ -26,7 +26,12 @@ export class ApiNamespaceGenerator extends BaseGenerator<ApiNamespaceFlags> {
       async () => {
         const targetFile = `${targetDirectory}/${namespaceName}.ts`;
 
-        this.generateMiddlewareFile(targetFile, namespaceName, flags);
+        this.generateMiddlewareFile(
+          targetFile,
+          namespaceName,
+          'apiNamespace',
+          flags.force || false
+        );
         this.updateConfigFile(
           featurePath,
           namespaceName,
@@ -38,24 +43,6 @@ export class ApiNamespaceGenerator extends BaseGenerator<ApiNamespaceFlags> {
     );
   }
 
-  private generateMiddlewareFile(
-    targetFile: string,
-    namespaceName: string,
-    flags: ApiNamespaceFlags
-  ) {
-    this.renderTemplateToFile(
-      'files/server/middleware/middleware.eta',
-      {
-        name: namespaceName,
-        namespaceName,
-        middlewareFnName: namespaceName,
-      },
-      targetFile,
-      'middleware file',
-      flags.force || false
-    );
-  }
-
   private updateConfigFile(
     featurePath: string,
     namespaceName: string,
@@ -63,24 +50,16 @@ export class ApiNamespaceGenerator extends BaseGenerator<ApiNamespaceFlags> {
     apiPath: string,
     flags: ApiNamespaceFlags
   ) {
-    const configFilePrefix = featurePath.split('/').join('.');
-    const configDir = this.fs.existsSync(featurePath)
-      ? featurePath
-      : featurePath.split('/')[0];
-    const configFilePath = path.join(configDir, `${configFilePrefix}.wasp.ts`);
-
-    if (!this.fs.existsSync(configFilePath)) {
-      this.logger.error(`Feature config file not found: ${configFilePath}`);
-      return;
-    }
-
-    const configContent = this.fs.readFileSync(configFilePath, 'utf8');
-    const configExists = hasApiNamespaceDefinition(
-      configContent,
-      namespaceName
+    const configFilePath = this.validateFeatureConfig(featurePath);
+    const { force = false } = flags;
+    const configExists = this.checkConfigExists(
+      configFilePath,
+      'addApiNamespace',
+      namespaceName,
+      force
     );
 
-    if (configExists && !flags.force) {
+    if (configExists && !force) {
       this.logger.info(
         `apiNamespace config already exists in ${configFilePath}`
       );
@@ -88,6 +67,7 @@ export class ApiNamespaceGenerator extends BaseGenerator<ApiNamespaceFlags> {
     } else {
       const importPath = path.join(importDirectory, namespaceName);
       const definition = this.getDefinition(namespaceName, importPath, apiPath);
+
       this.updateFeatureConfig(
         featurePath,
         definition,

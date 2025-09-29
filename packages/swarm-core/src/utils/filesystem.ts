@@ -3,7 +3,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { TYPE_DIRECTORIES } from '../types';
 import { IFileSystem } from '../types/filesystem';
-import { toPascalCase } from './strings';
+import { toPascalCase, validateFeaturePath } from './strings';
 
 export const realFileSystem: IFileSystem = {
   readFileSync: fs.readFileSync,
@@ -126,7 +126,7 @@ export function getFeatureDir(
  * @returns The directory path to use in imports
  */
 export function getFeatureImportPath(featurePath: string): string {
-  const segments = featurePath.split('/').filter(Boolean);
+  const segments = validateFeaturePath(featurePath);
   const isTopLevel = segments.length === 1;
   return `${segments[0]}/${isTopLevel ? '_core' : segments.slice(1).join('/')}`;
 }
@@ -143,7 +143,7 @@ export function getFeatureTargetDir(
   featurePath: string,
   type: string
 ): { targetDirectory: string; importDirectory: string } {
-  const segments = featurePath.split('/').filter(Boolean);
+  const segments = validateFeaturePath(featurePath);
   const isTopLevel = segments.length === 1;
   const featureDir = getFeatureDir(fileSystem, featurePath);
   const baseDir = isTopLevel ? '_core' : '';

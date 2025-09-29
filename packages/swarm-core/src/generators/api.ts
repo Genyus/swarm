@@ -2,26 +2,43 @@ import path from 'path';
 import { ApiFlags } from '../types';
 import { getFeatureImportPath } from '../utils/filesystem';
 import { toPascalCase } from '../utils/strings';
-import { BaseGenerator } from './base';
+import { ApiBaseGenerator } from './api-base';
 
-export class ApiGenerator extends BaseGenerator<ApiFlags> {
+export class ApiGenerator extends ApiBaseGenerator<ApiFlags> {
   async generate(featurePath: string, flags: ApiFlags): Promise<void> {
     const apiName = flags.name;
     const fileName = `${apiName}.ts`;
-    const { targetDirectory, importDirectory } = this.ensureTargetDirectory(
-      featurePath,
-      'api'
-    );
+    const {
+      targetDirectory: apiTargetDirectory,
+      importDirectory: apiImportDirectory,
+    } = this.ensureTargetDirectory(featurePath, 'api');
 
     return this.handleGeneratorError('API', apiName, async () => {
-      const targetFile = path.join(targetDirectory, fileName);
+      const targetFile = path.join(apiTargetDirectory, fileName);
 
       this.generateApiFile(targetFile, apiName, flags);
+
+      if (flags.customMiddleware) {
+        const { targetDirectory: middlewareTargetDirectory } =
+          this.ensureTargetDirectory(featurePath, 'middleware');
+        const middlewareFile = path.join(
+          middlewareTargetDirectory,
+          `${apiName}Middleware.ts`
+        );
+
+        this.generateMiddlewareFile(
+          middlewareFile,
+          apiName,
+          'api',
+          flags.force || false
+        );
+      }
+
       this.updateConfigFile(
         featurePath,
         apiName,
         fileName,
-        importDirectory,
+        apiImportDirectory,
         flags
       );
     });
@@ -70,7 +87,8 @@ export class ApiGenerator extends BaseGenerator<ApiFlags> {
         route,
         apiFile,
         auth,
-        importPath
+        importPath,
+        flags.customMiddleware || false
       );
 
       this.updateFeatureConfig(
@@ -94,7 +112,8 @@ export class ApiGenerator extends BaseGenerator<ApiFlags> {
     route: string,
     apiFile: string,
     auth = false,
-    importPath: string
+    importPath: string,
+    customMiddleware = false
   ): string {
     const featureDir = getFeatureImportPath(featurePath);
     const templatePath = 'config/api.eta';
@@ -108,6 +127,7 @@ export class ApiGenerator extends BaseGenerator<ApiFlags> {
       apiFile,
       auth: String(auth),
       importPath,
+      customMiddleware: String(customMiddleware),
     });
   }
 
