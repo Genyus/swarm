@@ -1,4 +1,4 @@
-import type { Dirent, ObjectEncodingOptions, Stats } from 'fs';
+import type { Dirent, ObjectEncodingOptions, Stats } from 'node:fs';
 /**
  * Interface for file system operations
  * @interface IFileSystem

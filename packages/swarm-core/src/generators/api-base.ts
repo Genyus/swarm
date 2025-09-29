@@ -1,7 +1,4 @@
 import path from 'node:path';
-import { Logger } from '../types';
-import { IFileSystem } from '../types/filesystem';
-import { IFeatureGenerator } from '../types/generator';
 import { BaseGenerator } from './base';
 
 /**
@@ -10,14 +7,6 @@ import { BaseGenerator } from './base';
 export abstract class ApiBaseGenerator<
   TFlags = any,
 > extends BaseGenerator<TFlags> {
-  constructor(
-    logger: Logger,
-    fs: IFileSystem,
-    protected featureGenerator: IFeatureGenerator
-  ) {
-    super(logger, fs, featureGenerator);
-  }
-
   /**
    * Generate middleware file for API or API namespace
    */

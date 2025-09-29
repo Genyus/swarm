@@ -1,28 +1,13 @@
 import path from 'node:path';
 import { RouteFlags } from '../types';
-import { IFileSystem } from '../types/filesystem';
-import { IFeatureGenerator } from '../types/generator';
-import { Logger } from '../types/logger';
 import {
   getFeatureImportPath,
   getRouteNameFromPath,
-  getTemplatesDir,
 } from '../utils/filesystem';
 import { formatDisplayName, toPascalCase } from '../utils/strings';
 import { BaseGenerator } from './base';
 
 export class RouteGenerator extends BaseGenerator<RouteFlags> {
-  private templatesDir: string;
-
-  constructor(
-    public logger: Logger,
-    public fs: IFileSystem,
-    protected featureGenerator: IFeatureGenerator
-  ) {
-    super(logger, fs, featureGenerator);
-    this.templatesDir = getTemplatesDir(fs);
-  }
-
   async generate(featurePath: string, flags: RouteFlags): Promise<void> {
     const { path: routePath, name } = flags;
     const routeName = name || getRouteNameFromPath(routePath);

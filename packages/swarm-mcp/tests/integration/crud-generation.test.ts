@@ -10,6 +10,7 @@ import { IntegrationValidator } from './validator.js';
 // Mock the Swarm functions before importing them
 mockSwarmFunctions();
 
+import { CrudOperation } from '@ingenyus/swarm-core';
 import { SwarmTools } from '../../src/server/tools/swarm.js';
 import { mockFileSystemTools } from './mock-filesystem.js';
 
@@ -55,9 +56,9 @@ describe('CRUD Generation Integration', () => {
       const result = await swarmTools.generateCrud({
         feature: 'main',
         dataType: 'User',
-        public: ['id', 'name', 'email'],
-        override: ['email'],
-        exclude: ['password'],
+        public: ['get', 'getAll'],
+        override: ['update', 'delete'],
+        exclude: ['create'],
         force: false,
       });
 
@@ -69,9 +70,9 @@ describe('CRUD Generation Integration', () => {
         mockSwarm.mockSwarmToolsInstance.generateCrud
       ).toHaveBeenCalledWith({
         dataType: 'User',
-        public: ['id', 'name', 'email'],
-        override: ['email'],
-        exclude: ['password'],
+        public: ['get', 'getAll'],
+        override: ['update', 'delete'],
+        exclude: ['create'],
         force: false,
         feature: 'main',
       });
@@ -98,7 +99,7 @@ describe('CRUD Generation Integration', () => {
 
   describe('Public Field Configuration', () => {
     it('should handle multiple public fields', async () => {
-      const publicFields = ['id', 'title', 'content', 'createdAt'];
+      const publicFields: CrudOperation[] = ['get', 'getAll'];
 
       const result = await swarmTools.generateCrud({
         feature: 'main',
@@ -123,7 +124,7 @@ describe('CRUD Generation Integration', () => {
       const result = await swarmTools.generateCrud({
         feature: 'main',
         dataType: 'User',
-        public: ['id'],
+        public: ['get'],
         force: false,
       });
 
@@ -133,7 +134,7 @@ describe('CRUD Generation Integration', () => {
         mockSwarm.mockSwarmToolsInstance.generateCrud
       ).toHaveBeenCalledWith({
         dataType: 'User',
-        public: ['id'],
+        public: ['get'],
         force: false,
         feature: 'main',
       });
@@ -162,7 +163,7 @@ describe('CRUD Generation Integration', () => {
 
   describe('Override Field Configuration', () => {
     it('should handle multiple override fields', async () => {
-      const overrideFields = ['email', 'password', 'lastLogin'];
+      const overrideFields: CrudOperation[] = ['update', 'delete'];
 
       const result = await swarmTools.generateCrud({
         feature: 'main',
@@ -187,7 +188,7 @@ describe('CRUD Generation Integration', () => {
       const result = await swarmTools.generateCrud({
         feature: 'main',
         dataType: 'Post',
-        override: ['title'],
+        override: ['update'],
         force: false,
       });
 
@@ -197,7 +198,7 @@ describe('CRUD Generation Integration', () => {
         mockSwarm.mockSwarmToolsInstance.generateCrud
       ).toHaveBeenCalledWith({
         dataType: 'Post',
-        override: ['title'],
+        override: ['update'],
         force: false,
         feature: 'main',
       });
@@ -206,7 +207,7 @@ describe('CRUD Generation Integration', () => {
 
   describe('Exclude Field Configuration', () => {
     it('should handle multiple excluded fields', async () => {
-      const excludedFields = ['password', 'secretKey', 'internalData'];
+      const excludedFields: CrudOperation[] = ['create', 'delete'];
 
       const result = await swarmTools.generateCrud({
         feature: 'main',
@@ -231,7 +232,7 @@ describe('CRUD Generation Integration', () => {
       const result = await swarmTools.generateCrud({
         feature: 'main',
         dataType: 'Post',
-        exclude: ['draft'],
+        exclude: ['create'],
         force: false,
       });
 
@@ -241,7 +242,7 @@ describe('CRUD Generation Integration', () => {
         mockSwarm.mockSwarmToolsInstance.generateCrud
       ).toHaveBeenCalledWith({
         dataType: 'Post',
-        exclude: ['draft'],
+        exclude: ['create'],
         force: false,
         feature: 'main',
       });
@@ -253,9 +254,9 @@ describe('CRUD Generation Integration', () => {
       const result = await swarmTools.generateCrud({
         feature: 'main',
         dataType: 'ComplexEntity',
-        public: ['id', 'name', 'description'],
-        override: ['name', 'description'],
-        exclude: ['secret', 'internal'],
+        public: ['get', 'getAll'],
+        override: ['update', 'delete'],
+        exclude: ['create'],
         force: false,
       });
 
@@ -265,9 +266,9 @@ describe('CRUD Generation Integration', () => {
         mockSwarm.mockSwarmToolsInstance.generateCrud
       ).toHaveBeenCalledWith({
         dataType: 'ComplexEntity',
-        public: ['id', 'name', 'description'],
-        override: ['name', 'description'],
-        exclude: ['secret', 'internal'],
+        public: ['get', 'getAll'],
+        override: ['update', 'delete'],
+        exclude: ['create'],
         force: false,
         feature: 'main',
       });
@@ -277,8 +278,8 @@ describe('CRUD Generation Integration', () => {
       const result = await swarmTools.generateCrud({
         feature: 'main',
         dataType: 'OverlapEntity',
-        public: ['id', 'name', 'email'],
-        override: ['name', 'email'],
+        public: ['get', 'getAll'],
+        override: ['get', 'getAll'],
         force: false,
       });
 
@@ -288,8 +289,8 @@ describe('CRUD Generation Integration', () => {
         mockSwarm.mockSwarmToolsInstance.generateCrud
       ).toHaveBeenCalledWith({
         dataType: 'OverlapEntity',
-        public: ['id', 'name', 'email'],
-        override: ['name', 'email'],
+        public: ['get', 'getAll'],
+        override: ['get', 'getAll'],
         force: false,
         feature: 'main',
       });
@@ -338,7 +339,7 @@ describe('CRUD Generation Integration', () => {
         swarmTools.generateCrud({
           feature: 'main',
           dataType: 'User',
-          public: ['name', 'email'],
+          public: ['get', 'getAll'],
           force: false,
         })
       ).rejects.toThrow('CRUD operations already exist');
@@ -369,8 +370,8 @@ describe('CRUD Generation Integration', () => {
       await expect(
         swarmTools.generateCrud({
           feature: 'main',
-          dataType: 'User',
-          public: ['invalidField'],
+          dataType: 'Dummy',
+          public: ['get', 'getAll'],
           force: false,
         })
       ).rejects.toThrow('Invalid field configuration');
@@ -382,7 +383,7 @@ describe('CRUD Generation Integration', () => {
       const result = await swarmTools.generateCrud({
         feature: 'main',
         dataType: 'User',
-        public: ['id', 'name', 'email'],
+        public: ['get', 'getAll'],
         force: false,
       });
 
@@ -409,8 +410,8 @@ describe('CRUD Generation Integration', () => {
       const result = await swarmTools.generateCrud({
         feature: 'main',
         dataType: 'User',
-        public: ['id', 'name', 'email'],
-        exclude: ['password'],
+        public: ['get', 'getAll'],
+        exclude: ['create'],
         force: false,
       });
 
@@ -425,9 +426,9 @@ describe('CRUD Generation Integration', () => {
       const result = await swarmTools.generateCrud({
         feature: 'main',
         dataType: 'Post',
-        public: ['id', 'title', 'content', 'author'],
-        override: ['title', 'content'],
-        exclude: ['draft'],
+        public: ['get', 'getAll'],
+        override: ['update', 'delete'],
+        exclude: ['create'],
         force: false,
       });
 
@@ -437,9 +438,9 @@ describe('CRUD Generation Integration', () => {
         mockSwarm.mockSwarmToolsInstance.generateCrud
       ).toHaveBeenCalledWith({
         dataType: 'Post',
-        public: ['id', 'title', 'content', 'author'],
-        override: ['title', 'content'],
-        exclude: ['draft'],
+        public: ['get', 'getAll'],
+        override: ['update', 'delete'],
+        exclude: ['create'],
         force: false,
         feature: 'main',
       });
@@ -449,8 +450,8 @@ describe('CRUD Generation Integration', () => {
       const result = await swarmTools.generateCrud({
         feature: 'main',
         dataType: 'User',
-        public: ['id', 'name', 'email', 'posts'],
-        exclude: ['password'],
+        public: ['get', 'getAll'],
+        exclude: ['create'],
         force: false,
       });
 
@@ -460,8 +461,8 @@ describe('CRUD Generation Integration', () => {
         mockSwarm.mockSwarmToolsInstance.generateCrud
       ).toHaveBeenCalledWith({
         dataType: 'User',
-        public: ['id', 'name', 'email', 'posts'],
-        exclude: ['password'],
+        public: ['get', 'getAll'],
+        exclude: ['create'],
         force: false,
         feature: 'main',
       });
@@ -473,9 +474,9 @@ describe('CRUD Generation Integration', () => {
       const result = await swarmTools.generateCrud({
         feature: 'main',
         dataType: 'AdvancedEntity',
-        public: ['id', 'metadata', 'tags', 'settings'],
-        override: ['metadata', 'settings'],
-        exclude: ['secrets', 'internal'],
+        public: ['get', 'getAll'],
+        override: ['update', 'delete'],
+        exclude: ['create'],
         force: false,
       });
 
@@ -485,33 +486,9 @@ describe('CRUD Generation Integration', () => {
         mockSwarm.mockSwarmToolsInstance.generateCrud
       ).toHaveBeenCalledWith({
         dataType: 'AdvancedEntity',
-        public: ['id', 'metadata', 'tags', 'settings'],
-        override: ['metadata', 'settings'],
-        exclude: ['secrets', 'internal'],
-        force: false,
-        feature: 'main',
-      });
-    });
-
-    it('should handle CRUD generation for system entities', async () => {
-      const result = await swarmTools.generateCrud({
-        feature: 'main',
-        dataType: 'SystemConfig',
-        public: ['id', 'key', 'value'],
-        override: ['value'],
-        exclude: ['internal'],
-        force: false,
-      });
-
-      expect(result.success).toBe(true);
-
-      expect(
-        mockSwarm.mockSwarmToolsInstance.generateCrud
-      ).toHaveBeenCalledWith({
-        dataType: 'SystemConfig',
-        public: ['id', 'key', 'value'],
-        override: ['value'],
-        exclude: ['internal'],
+        public: ['get', 'getAll'],
+        override: ['update', 'delete'],
+        exclude: ['create'],
         force: false,
         feature: 'main',
       });

@@ -2,9 +2,6 @@ import {
   ACTION_OPERATIONS,
   ActionOperation,
   error,
-  IFeatureGenerator,
-  IFileSystem,
-  Logger,
   OperationFlags,
   OperationGenerator,
   QUERY_OPERATIONS,
@@ -34,23 +31,16 @@ function makeOperationCommand({
   commandName,
   description,
   allowedOperations,
-  logger,
-  fs,
-  featureGenerator,
 }: {
   commandName: string;
   description: string;
   allowedOperations: (ActionOperation | QueryOperation)[];
-  logger: Logger;
-  fs: IFileSystem;
-  featureGenerator: IFeatureGenerator;
 }): NodeGeneratorCommand<OperationFlags> {
-  const generator = new OperationGenerator(logger, fs, featureGenerator);
   return {
     name: commandName,
     description,
-    generator,
     register(program: Command) {
+      const generator = new OperationGenerator();
       let cmd = program
         .command(commandName)
         .requiredOption(
@@ -93,32 +83,18 @@ function makeOperationCommand({
   };
 }
 
-export function createActionCommand(
-  logger: Logger,
-  fs: IFileSystem,
-  featureGenerator: IFeatureGenerator
-): NodeGeneratorCommand<OperationFlags> {
+export function createActionCommand(): NodeGeneratorCommand<OperationFlags> {
   return makeOperationCommand({
     commandName: 'action',
     description: 'Generate an action operation',
     allowedOperations: Object.values(ACTION_OPERATIONS) as ActionOperation[],
-    logger,
-    fs,
-    featureGenerator,
   });
 }
 
-export function createQueryCommand(
-  logger: Logger,
-  fs: IFileSystem,
-  featureGenerator: IFeatureGenerator
-): NodeGeneratorCommand<OperationFlags> {
+export function createQueryCommand(): NodeGeneratorCommand<OperationFlags> {
   return makeOperationCommand({
     commandName: 'query',
     description: 'Generate a query operation',
     allowedOperations: Object.values(QUERY_OPERATIONS) as QueryOperation[],
-    logger,
-    fs,
-    featureGenerator,
   });
 }

@@ -3,7 +3,7 @@ import type {
   IFileSystem,
   Logger,
 } from '@ingenyus/swarm-core';
-import { Stats } from 'fs';
+import { Stats } from 'node:fs';
 import { vi } from 'vitest';
 
 /**

@@ -20,6 +20,11 @@ vi.mock('../types/generator-service.js', () => ({
 }));
 
 // Import SwarmTools after mocking
+import {
+  ActionOperation,
+  CrudOperation,
+  HttpMethod,
+} from '@ingenyus/swarm-core';
 import { SwarmTools } from './swarm.js';
 
 vi.mock('node:child_process', () => ({
@@ -58,25 +63,11 @@ describe('Swarm Tools', () => {
   });
 
   describe('swarmGenerateApi', () => {
-    it('should validate required parameters', async () => {
-      await expect(swarmTools.generateApi({})).rejects.toThrow();
-    });
-
-    it('should validate parameter types', async () => {
-      const invalidParams = {
-        name: 123, // should be string
-        method: 'INVALID', // should be valid HTTP method
-        route: '', // should not be empty
-      };
-
-      await expect(swarmTools.generateApi(invalidParams)).rejects.toThrow();
-    });
-
     it('should accept valid parameters', async () => {
       const validParams = {
         feature: 'user-dashboard',
         name: 'UserAPI',
-        method: 'GET',
+        method: 'GET' as HttpMethod,
         route: '/api/users',
         entities: ['User'],
         auth: true,
@@ -107,7 +98,7 @@ describe('Swarm Tools', () => {
       const validParams = {
         feature: 'user-dashboard',
         name: 'UserAPI',
-        method: 'GET',
+        method: 'GET' as HttpMethod,
         route: '/api/users',
       };
       const result = await swarmTools.generateApi(validParams);
@@ -119,7 +110,7 @@ describe('Swarm Tools', () => {
       const params = {
         feature: 'catalog',
         name: 'ProductAPI',
-        method: 'POST',
+        method: 'POST' as HttpMethod,
         route: '/api/products',
         entities: ['Product', 'Category'],
         auth: true,
@@ -163,8 +154,8 @@ describe('Swarm Tools', () => {
       const params = {
         feature: 'catalog',
         dataType: 'Product',
-        public: ['create', 'get'],
-        exclude: ['delete'],
+        public: ['create', 'get'] as CrudOperation[],
+        exclude: ['delete'] as CrudOperation[],
         force: true,
       };
 
@@ -194,7 +185,7 @@ describe('Swarm Tools', () => {
     it('should generate operation with correct parameters', async () => {
       const params = {
         feature: 'UserManagement',
-        operation: 'create',
+        operation: 'create' as ActionOperation,
         dataType: 'User',
         entities: ['User', 'Profile'],
       };

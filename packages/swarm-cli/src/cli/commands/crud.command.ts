@@ -1,25 +1,14 @@
-import {
-  CrudGenerator,
-  IFeatureGenerator,
-  IFileSystem,
-  Logger,
-  NodeGenerator,
-  validateFeaturePath,
-} from '@ingenyus/swarm-core';
+import { CrudGenerator, validateFeaturePath } from '@ingenyus/swarm-core';
 import { Command } from 'commander';
 import { NodeGeneratorCommand } from '../../types/commands';
 import { withFeatureOption, withForceOption, withNameOption } from '../options';
 
-export function createCrudCommand(
-  logger: Logger,
-  fs: IFileSystem,
-  featureGenerator: IFeatureGenerator
-): NodeGeneratorCommand {
+export function createCrudCommand(): NodeGeneratorCommand {
   return {
     name: 'crud',
     description: 'Generate CRUD operations',
-    generator: new CrudGenerator(logger, fs, featureGenerator),
-    register(program: Command, generator: NodeGenerator) {
+    register(program: Command) {
+      const generator = new CrudGenerator();
       let cmd = program
         .command('crud')
         .option('-b, --public <public>', 'Comma-separated public operations')
@@ -32,6 +21,7 @@ export function createCrudCommand(
           'Comma-separated excluded operations'
         )
         .description('Generate CRUD operations');
+
       cmd = withFeatureOption(cmd);
       cmd = withNameOption(cmd, 'CRUD name');
       cmd = withForceOption(cmd);

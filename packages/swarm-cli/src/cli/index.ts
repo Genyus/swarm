@@ -12,8 +12,7 @@ import { createFeatureCommand } from './commands/feature.command';
 export async function main(): Promise<void> {
   const program = new Command();
   // Explicitly register the feature command
-  const featureCmd = createFeatureCommand(realLogger, realFileSystem);
-  const featureGenerator = featureCmd.generator;
+  const featureCmd = createFeatureCommand();
 
   // Read version from package.json and setup __dirname
   const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -23,7 +22,7 @@ export async function main(): Promise<void> {
   ).version;
 
   program.name('swarm').description('@ingenyus/swarm-cli').version(version);
-  featureCmd.register(program, featureGenerator);
+  featureCmd.register(program);
 
   // Dynamically load all other commands except feature.command.ts/js
   const commandsDir = path.join(__dirname, 'cli', 'commands');
@@ -42,7 +41,7 @@ export async function main(): Promise<void> {
     for (const key of Object.keys(mod)) {
       // Look for exported functions that start with 'create' and end with 'Command'
       if (typeof mod[key] === 'function' && /^create.*Command$/.test(key)) {
-        const cmd = mod[key](realLogger, realFileSystem, featureGenerator);
+        const cmd = mod[key]();
         if (cmd && typeof cmd.register === 'function') {
           if ('generator' in cmd) {
             cmd.register(program, cmd.generator);

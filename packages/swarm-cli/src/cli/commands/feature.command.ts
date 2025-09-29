@@ -1,10 +1,4 @@
-import {
-  FeatureGenerator,
-  IFeatureGenerator,
-  IFileSystem,
-  Logger,
-  validateFeaturePath,
-} from '@ingenyus/swarm-core';
+import { FeatureGenerator, validateFeaturePath } from '@ingenyus/swarm-core';
 import { Command } from 'commander';
 import { FeatureGeneratorCommand } from '../../types/commands';
 import { withPathOption } from '../options';
@@ -15,18 +9,16 @@ import { withPathOption } from '../options';
  * @param fs - The file system instance
  * @returns The command
  */
-export function createFeatureCommand(
-  logger: Logger,
-  fs: IFileSystem
-): FeatureGeneratorCommand {
+export function createFeatureCommand(): FeatureGeneratorCommand {
   return {
     name: 'feature',
     description: 'Generate a new feature',
-    generator: new FeatureGenerator(logger, fs),
-    register(program: Command, generator: IFeatureGenerator) {
+    register(program: Command) {
+      const generator = new FeatureGenerator();
       let cmd = program
         .command('feature')
         .description('Generate a new feature');
+
       cmd = withPathOption(cmd, 'Feature path');
       cmd.action(async (opts) => {
         validateFeaturePath(opts.path);

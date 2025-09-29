@@ -11,13 +11,7 @@ import {
 } from '../types';
 import { EntityMetadata } from '../types/prisma';
 import { handleFatalError } from '../utils/errors';
-import {
-  copyDirectory,
-  ensureDirectoryExists,
-  getFeatureDir,
-  getFeatureImportPath,
-  getFeatureTargetDir,
-} from '../utils/filesystem';
+import { copyDirectory, getFeatureImportPath } from '../utils/filesystem';
 import {
   generateJsonTypeHandling,
   getEntityMetadata,
@@ -26,12 +20,7 @@ import {
   getOmitFields,
   needsPrismaImport,
 } from '../utils/prisma';
-import {
-  capitalise,
-  getPlural,
-  hasHelperMethodCall,
-  toPascalCase,
-} from '../utils/strings';
+import { capitalise, getPlural, toPascalCase } from '../utils/strings';
 import { BaseGenerator } from './base';
 
 export class OperationGenerator extends BaseGenerator<OperationFlags> {

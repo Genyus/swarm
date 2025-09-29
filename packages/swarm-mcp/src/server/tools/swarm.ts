@@ -4,12 +4,19 @@ import * as path from 'path';
 import { GeneratorService } from '../types/generator-service.js';
 import {
   GenerationResult,
+  SwarmGenerateApiNamespaceParams,
   SwarmGenerateApiNamespaceParamsSchema,
+  SwarmGenerateApiParams,
   SwarmGenerateApiParamsSchema,
+  SwarmGenerateCrudParams,
   SwarmGenerateCrudParamsSchema,
+  SwarmGenerateFeatureParams,
   SwarmGenerateFeatureParamsSchema,
+  SwarmGenerateJobParams,
   SwarmGenerateJobParamsSchema,
+  SwarmGenerateOperationParams,
   SwarmGenerateOperationParamsSchema,
+  SwarmGenerateRouteParams,
   SwarmGenerateRouteParamsSchema,
 } from '../types/swarm.js';
 import { ErrorFactory, createErrorContext } from '../utils/errors.js';
@@ -21,10 +28,7 @@ export class SwarmTools {
     private logger: Logger,
     private fileSystem: IFileSystem
   ) {
-    this.generatorService = GeneratorService.create(
-      this.logger,
-      this.fileSystem
-    );
+    this.generatorService = GeneratorService.create();
   }
 
   static create(logger: Logger, fileSystem: IFileSystem): SwarmTools {
@@ -112,7 +116,7 @@ export class SwarmTools {
     return { generatedFiles, modifiedFiles };
   }
 
-  async generateApi(params: unknown): Promise<GenerationResult> {
+  async generateApi(params: SwarmGenerateApiParams): Promise<GenerationResult> {
     try {
       const validParams = SwarmGenerateApiParamsSchema.parse(params);
       const projectRoot = this.getProjectRoot(validParams.projectPath);
@@ -159,13 +163,15 @@ export class SwarmTools {
         createErrorContext(
           'swarm_generate_api',
           'generate',
-          params as Record<string, unknown>
+          params as unknown as Record<string, unknown>
         )
       );
     }
   }
 
-  async generateFeature(params: unknown): Promise<GenerationResult> {
+  async generateFeature(
+    params: SwarmGenerateFeatureParams
+  ): Promise<GenerationResult> {
     try {
       const validParams = SwarmGenerateFeatureParamsSchema.parse(params);
       const projectRoot = this.getProjectRoot(validParams.projectPath);
@@ -201,13 +207,15 @@ export class SwarmTools {
         createErrorContext(
           'swarm_generate_feature',
           'generate',
-          params as Record<string, unknown>
+          params as unknown as Record<string, unknown>
         )
       );
     }
   }
 
-  async generateCrud(params: unknown): Promise<GenerationResult> {
+  async generateCrud(
+    params: SwarmGenerateCrudParams
+  ): Promise<GenerationResult> {
     try {
       const validParams = SwarmGenerateCrudParamsSchema.parse(params);
       const projectRoot = this.getProjectRoot(validParams.projectPath);
@@ -252,13 +260,15 @@ export class SwarmTools {
         createErrorContext(
           'swarm_generate_crud',
           'generate',
-          params as Record<string, unknown>
+          params as unknown as Record<string, unknown>
         )
       );
     }
   }
 
-  async generateRoute(params: unknown): Promise<GenerationResult> {
+  async generateRoute(
+    params: SwarmGenerateRouteParams
+  ): Promise<GenerationResult> {
     try {
       const validParams = SwarmGenerateRouteParamsSchema.parse(params);
       const projectRoot = this.getProjectRoot(validParams.projectPath);
@@ -302,13 +312,13 @@ export class SwarmTools {
         createErrorContext(
           'swarm_generate_route',
           'generate',
-          params as Record<string, unknown>
+          params as unknown as Record<string, unknown>
         )
       );
     }
   }
 
-  async generateJob(params: unknown): Promise<GenerationResult> {
+  async generateJob(params: SwarmGenerateJobParams): Promise<GenerationResult> {
     try {
       const validParams = SwarmGenerateJobParamsSchema.parse(params);
       const projectRoot = this.getProjectRoot(validParams.projectPath);
@@ -353,13 +363,15 @@ export class SwarmTools {
         createErrorContext(
           'swarm_generate_job',
           'generate',
-          params as Record<string, unknown>
+          params as unknown as Record<string, unknown>
         )
       );
     }
   }
 
-  async generateOperation(params: unknown): Promise<GenerationResult> {
+  async generateOperation(
+    params: SwarmGenerateOperationParams
+  ): Promise<GenerationResult> {
     try {
       const validParams = SwarmGenerateOperationParamsSchema.parse(params);
       const projectRoot = this.getProjectRoot(validParams.projectPath);
@@ -404,13 +416,15 @@ export class SwarmTools {
         createErrorContext(
           'swarm_generate_operation',
           'generate',
-          params as Record<string, unknown>
+          params as unknown as Record<string, unknown>
         )
       );
     }
   }
 
-  async generateApiNamespace(params: unknown): Promise<GenerationResult> {
+  async generateApiNamespace(
+    params: SwarmGenerateApiNamespaceParams
+  ): Promise<GenerationResult> {
     try {
       const validParams = SwarmGenerateApiNamespaceParamsSchema.parse(params);
       const projectRoot = this.getProjectRoot(validParams.projectPath);
@@ -453,7 +467,7 @@ export class SwarmTools {
         createErrorContext(
           'swarm_generate_apinamespace',
           'generate',
-          params as Record<string, unknown>
+          params as unknown as Record<string, unknown>
         )
       );
     }

@@ -2,10 +2,6 @@ import {
   ApiFlags,
   ApiGenerator,
   HttpMethod,
-  IFeatureGenerator,
-  IFileSystem,
-  Logger,
-  NodeGenerator,
   validateFeaturePath,
 } from '@ingenyus/swarm-core';
 import { Command } from 'commander';
@@ -26,16 +22,12 @@ import {
  * @param featureGenerator - The feature generator instance
  * @returns The command
  */
-export function createApiCommand(
-  logger: Logger,
-  fs: IFileSystem,
-  featureGenerator: IFeatureGenerator
-): NodeGeneratorCommand<ApiFlags> {
+export function createApiCommand(): NodeGeneratorCommand<ApiFlags> {
   return {
     name: 'api',
     description: 'Generate an API endpoint',
-    generator: new ApiGenerator(logger, fs, featureGenerator),
-    register(program: Command, generator: NodeGenerator<ApiFlags>) {
+    register(program: Command) {
+      const generator = new ApiGenerator();
       let cmd = program
         .command('api')
         .requiredOption(
@@ -43,6 +35,7 @@ export function createApiCommand(
           'HTTP method (GET, POST, etc.)'
         )
         .description('Generate an API endpoint');
+
       cmd = withFeatureOption(cmd);
       cmd = withNameOption(cmd, 'API name');
       cmd = withPathOption(cmd, 'API path (e.g. /api/foo)');

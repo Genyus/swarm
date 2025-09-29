@@ -1,7 +1,9 @@
+import * as realFileSystem from 'node:fs';
 import path from 'node:path';
 import { IFileSystem } from '../types/filesystem';
 import { IFeatureGenerator } from '../types/generator';
 import { Logger } from '../types/logger';
+import { SwarmLogger } from '../utils';
 import { handleFatalError } from '../utils/errors';
 import {
   copyDirectory,
@@ -16,12 +18,9 @@ import {
 
 export class FeatureGenerator implements IFeatureGenerator {
   constructor(
-    private logger: Logger,
-    private fs: IFileSystem
-  ) {
-    this.logger = logger;
-    this.fs = fs;
-  }
+    private logger: Logger = new SwarmLogger(),
+    private fs: IFileSystem = realFileSystem
+  ) {}
 
   /**
    * Checks if there are any existing definitions of a specific type in the content.

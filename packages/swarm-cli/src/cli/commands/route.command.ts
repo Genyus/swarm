@@ -1,11 +1,4 @@
-import {
-  IFeatureGenerator,
-  IFileSystem,
-  Logger,
-  NodeGenerator,
-  RouteGenerator,
-  validateFeaturePath,
-} from '@ingenyus/swarm-core';
+import { RouteGenerator, validateFeaturePath } from '@ingenyus/swarm-core';
 import { Command } from 'commander';
 import { NodeGeneratorCommand } from '../../types/commands';
 import {
@@ -22,17 +15,14 @@ import {
  * @param fs - The file system instance
  * @returns The command
  */
-export function createRouteCommand(
-  logger: Logger,
-  fs: IFileSystem,
-  featureGenerator: IFeatureGenerator
-): NodeGeneratorCommand {
+export function createRouteCommand(): NodeGeneratorCommand {
   return {
     name: 'route',
     description: 'Generate a route handler',
-    generator: new RouteGenerator(logger, fs, featureGenerator),
-    register(program: Command, generator: NodeGenerator) {
+    register(program: Command) {
+      const generator = new RouteGenerator();
       let cmd = program.command(this.name).description(this.description);
+
       cmd = withFeatureOption(cmd);
       cmd = withNameOption(cmd, 'Route name');
       cmd = withPathOption(cmd, 'Route path (e.g. /foo)');

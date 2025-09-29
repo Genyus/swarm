@@ -10,6 +10,7 @@ import { IntegrationTestEnvironment } from './setup.js';
 // Mock the Swarm functions before importing them
 mockSwarmFunctions();
 
+import { ActionOperation, QueryOperation } from '@ingenyus/swarm-core';
 import { SwarmTools } from '../../src/server/tools/swarm.js';
 
 describe('Operation Generation Integration Tests', () => {
@@ -54,7 +55,7 @@ describe('Operation Generation Integration Tests', () => {
     it('should generate a get query operation', async () => {
       const params = {
         feature: 'users',
-        operation: 'get',
+        operation: 'get' as QueryOperation,
         dataType: 'User',
         projectPath: testEnv.tempProjectDir,
       };
@@ -73,7 +74,7 @@ describe('Operation Generation Integration Tests', () => {
     it('should generate a getAll query operation', async () => {
       const params = {
         feature: 'posts',
-        operation: 'getAll',
+        operation: 'getAll' as QueryOperation,
         dataType: 'Post',
         projectPath: testEnv.tempProjectDir,
       };
@@ -92,7 +93,7 @@ describe('Operation Generation Integration Tests', () => {
     it('should generate a query operation with entities', async () => {
       const params = {
         feature: 'posts',
-        operation: 'get',
+        operation: 'get' as QueryOperation,
         dataType: 'Post',
         entities: ['Post', 'User', 'Category'],
         projectPath: testEnv.tempProjectDir,
@@ -114,7 +115,7 @@ describe('Operation Generation Integration Tests', () => {
     it('should generate a create action operation', async () => {
       const params = {
         feature: 'users',
-        operation: 'create',
+        operation: 'create' as ActionOperation,
         dataType: 'User',
         projectPath: testEnv.tempProjectDir,
       };
@@ -133,7 +134,7 @@ describe('Operation Generation Integration Tests', () => {
     it('should generate an update action operation', async () => {
       const params = {
         feature: 'posts',
-        operation: 'update',
+        operation: 'update' as ActionOperation,
         dataType: 'Post',
         projectPath: testEnv.tempProjectDir,
       };
@@ -152,7 +153,7 @@ describe('Operation Generation Integration Tests', () => {
     it('should generate a delete action operation', async () => {
       const params = {
         feature: 'comments',
-        operation: 'delete',
+        operation: 'delete' as ActionOperation,
         dataType: 'Comment',
         projectPath: testEnv.tempProjectDir,
       };
@@ -171,7 +172,7 @@ describe('Operation Generation Integration Tests', () => {
     it('should generate an action operation with entities', async () => {
       const params = {
         feature: 'posts',
-        operation: 'create',
+        operation: 'create' as ActionOperation,
         dataType: 'Post',
         entities: ['Post', 'User', 'Category'],
         projectPath: testEnv.tempProjectDir,
@@ -192,7 +193,10 @@ describe('Operation Generation Integration Tests', () => {
   describe('Feature Integration', () => {
     it('should generate operations for different features', async () => {
       const features = ['users', 'posts', 'comments', 'categories'];
-      const operations = ['get', 'create', 'update', 'delete'];
+      const operations = ['get', 'create', 'update', 'delete'] as (
+        | ActionOperation
+        | QueryOperation
+      )[];
 
       for (const feature of features) {
         for (const operation of operations) {
@@ -217,7 +221,7 @@ describe('Operation Generation Integration Tests', () => {
     it('should handle sub-feature operations', async () => {
       const params = {
         feature: 'users/admin',
-        operation: 'get',
+        operation: 'get' as QueryOperation,
         dataType: 'User',
         projectPath: testEnv.tempProjectDir,
       };
@@ -237,7 +241,7 @@ describe('Operation Generation Integration Tests', () => {
   describe('Data Type Handling', () => {
     it('should generate operations for different data types', async () => {
       const dataTypes = ['User', 'Post', 'Comment', 'Category', 'Tag'];
-      const operation = 'get';
+      const operation = 'get' as QueryOperation;
 
       for (const dataType of dataTypes) {
         const params = {
@@ -258,7 +262,7 @@ describe('Operation Generation Integration Tests', () => {
     it('should handle complex data type names', async () => {
       const params = {
         feature: 'analytics',
-        operation: 'get',
+        operation: 'get' as QueryOperation,
         dataType: 'UserAnalytics',
         projectPath: testEnv.tempProjectDir,
       };
@@ -279,7 +283,7 @@ describe('Operation Generation Integration Tests', () => {
     it('should generate operations with related entities', async () => {
       const params = {
         feature: 'posts',
-        operation: 'get',
+        operation: 'get' as QueryOperation,
         dataType: 'Post',
         entities: ['Post', 'User', 'Category', 'Tag'],
         projectPath: testEnv.tempProjectDir,
@@ -299,7 +303,7 @@ describe('Operation Generation Integration Tests', () => {
     it('should handle operations with single entity', async () => {
       const params = {
         feature: 'users',
-        operation: 'create',
+        operation: 'create' as ActionOperation,
         dataType: 'User',
         entities: ['User'],
         projectPath: testEnv.tempProjectDir,
@@ -321,7 +325,7 @@ describe('Operation Generation Integration Tests', () => {
     it('should generate comprehensive operations with all parameters', async () => {
       const params = {
         feature: 'ecommerce/products',
-        operation: 'update',
+        operation: 'update' as ActionOperation,
         dataType: 'Product',
         entities: ['Product', 'Category', 'Inventory', 'Pricing'],
         projectPath: testEnv.tempProjectDir,
@@ -341,7 +345,7 @@ describe('Operation Generation Integration Tests', () => {
     it('should handle operations for nested feature structures', async () => {
       const params = {
         feature: 'admin/users/permissions',
-        operation: 'get',
+        operation: 'get' as QueryOperation,
         dataType: 'UserPermission',
         entities: ['User', 'Permission', 'Role'],
         projectPath: testEnv.tempProjectDir,
@@ -367,7 +371,7 @@ describe('Operation Generation Integration Tests', () => {
 
       const params = {
         feature: 'users',
-        operation: 'get',
+        operation: 'get' as QueryOperation,
         dataType: 'User',
         projectPath: testEnv.tempProjectDir,
       };
@@ -375,19 +379,6 @@ describe('Operation Generation Integration Tests', () => {
       await expect(swarmTools.generateOperation(params)).rejects.toThrow(
         'Operation generation failed'
       );
-    });
-
-    it('should handle invalid operation types', async () => {
-      const params = {
-        feature: 'users',
-        operation: 'invalid',
-        dataType: 'User',
-        projectPath: testEnv.tempProjectDir,
-      };
-
-      // This would be handled by the Swarm CLI validation
-      const result = await swarmTools.generateOperation(params);
-      expect(result.success).toBe(true);
     });
   });
 
@@ -398,7 +389,7 @@ describe('Operation Generation Integration Tests', () => {
 
       const params = {
         feature: 'main',
-        operation: 'get',
+        operation: 'get' as QueryOperation,
         dataType: 'Data',
         projectPath: testEnv.tempProjectDir,
       };
@@ -417,7 +408,7 @@ describe('Operation Generation Integration Tests', () => {
 
       const params = {
         feature: 'users',
-        operation: 'create',
+        operation: 'create' as ActionOperation,
         dataType: 'User',
         entities: ['User', 'Profile'],
         projectPath: testEnv.tempProjectDir,

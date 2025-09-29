@@ -1,4 +1,4 @@
-import { Stats } from 'fs';
+import { Stats } from 'node:fs';
 import { vi } from 'vitest';
 import type { IFileSystem } from '../src/types/filesystem';
 import type { IFeatureGenerator } from '../src/types/generator';

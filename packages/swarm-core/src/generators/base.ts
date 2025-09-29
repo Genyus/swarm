@@ -1,7 +1,9 @@
+import * as realFileSystem from 'node:fs';
 import path from 'node:path';
 import { IFileSystem } from '../types/filesystem';
 import { IFeatureGenerator, NodeGenerator } from '../types/generator';
 import { Logger } from '../types/logger';
+import { SwarmLogger } from '../utils';
 import {
   ensureDirectoryExists,
   getFeatureDir,
@@ -9,6 +11,7 @@ import {
 } from '../utils/filesystem';
 import { hasHelperMethodCall } from '../utils/strings';
 import { TemplateUtility } from '../utils/templates';
+import { FeatureGenerator } from './feature';
 
 /**
  * Abstract base class for all generators that provides common functionality
@@ -20,9 +23,12 @@ export abstract class BaseGenerator<TFlags = any>
   protected templateUtility: TemplateUtility;
 
   constructor(
-    public logger: Logger,
-    public fs: IFileSystem,
-    protected featureGenerator: IFeatureGenerator
+    public logger: Logger = new SwarmLogger(),
+    public fs: IFileSystem = realFileSystem,
+    protected featureGenerator: IFeatureGenerator = new FeatureGenerator(
+      logger,
+      fs
+    )
   ) {
     this.templateUtility = new TemplateUtility(fs);
   }

@@ -1,11 +1,4 @@
-import {
-  IFeatureGenerator,
-  IFileSystem,
-  JobGenerator,
-  Logger,
-  NodeGenerator,
-  validateFeaturePath,
-} from '@ingenyus/swarm-core';
+import { JobGenerator, validateFeaturePath } from '@ingenyus/swarm-core';
 import { Command } from 'commander';
 import { NodeGeneratorCommand } from '../../types/commands';
 import {
@@ -22,16 +15,12 @@ import {
  * @param featureGenerator - The feature generator instance
  * @returns The command
  */
-export function createJobCommand(
-  logger: Logger,
-  fs: IFileSystem,
-  featureGenerator: IFeatureGenerator
-): NodeGeneratorCommand {
+export function createJobCommand(): NodeGeneratorCommand {
   return {
     name: 'job',
     description: 'Generate a job worker',
-    generator: new JobGenerator(logger, fs, featureGenerator),
-    register(program: Command, generator: NodeGenerator) {
+    register(program: Command) {
+      const generator = new JobGenerator();
       let cmd = program
         .command('job')
         .option('-s, --schedule <schedule>', 'Cron schedule')
@@ -40,6 +29,7 @@ export function createJobCommand(
           'Schedule args (JSON string)'
         )
         .description('Generate a job worker');
+
       cmd = withFeatureOption(cmd);
       cmd = withNameOption(cmd, 'Job name');
       cmd = withEntitiesOption(cmd);

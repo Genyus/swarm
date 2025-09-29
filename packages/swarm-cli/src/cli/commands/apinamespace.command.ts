@@ -1,9 +1,5 @@
 import {
   ApiNamespaceGenerator,
-  IFeatureGenerator,
-  IFileSystem,
-  Logger,
-  NodeGenerator,
   validateFeaturePath,
 } from '@ingenyus/swarm-core';
 import { Command } from 'commander';
@@ -15,19 +11,16 @@ import {
   withPathOption,
 } from '../options';
 
-export function createApiNamespaceCommand(
-  logger: Logger,
-  fs: IFileSystem,
-  featureGenerator: IFeatureGenerator
-): NodeGeneratorCommand {
+export function createApiNamespaceCommand(): NodeGeneratorCommand {
   return {
     name: 'apinamespace',
     description: 'Generate an API namespace',
-    generator: new ApiNamespaceGenerator(logger, fs, featureGenerator),
-    register(program: Command, generator: NodeGenerator) {
+    register(program: Command) {
+      const generator = new ApiNamespaceGenerator();
       let cmd = program
         .command('apinamespace')
         .description('Generate an API namespace');
+
       cmd = withFeatureOption(cmd);
       cmd = withNameOption(cmd, 'Namespace name');
       cmd = withPathOption(cmd);
