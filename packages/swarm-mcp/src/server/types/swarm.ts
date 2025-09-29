@@ -166,6 +166,7 @@ export const SwarmGenerateApiParamsSchema = SwarmCliParamsSchema.extend({
   entities: z.array(z.string()).optional(),
   auth: z.boolean().optional(),
   force: z.boolean().optional(),
+  customMiddleware: z.boolean().optional(),
 });
 
 export const SwarmGenerateFeatureParamsSchema = SwarmCliParamsSchema.extend({

@@ -127,6 +127,7 @@ export class SwarmTools {
             entities: validParams.entities || [],
             auth: validParams.auth || false,
             force: validParams.force || false,
+            customMiddleware: validParams.customMiddleware || false,
           };
 
           await this.generatorService.generateApi(
