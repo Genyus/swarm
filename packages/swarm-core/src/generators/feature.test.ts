@@ -294,7 +294,8 @@ export default function configure(app: App, feature: string): void {
       const replacedJobIndex = lines.findIndex((line: string) =>
         line.includes('.addJob(feature, "initialJob"')
       );
-
+console.log('jobCommentIndex:', jobCommentIndex);
+console.log('result:', result);
       // Comment should come before the job definition
       expect(jobCommentIndex).toBeLessThan(replacedJobIndex);
       expect(jobCommentIndex).toBeGreaterThan(-1);

@@ -120,10 +120,11 @@ export class FeatureGenerator implements IFeatureGenerator {
 
     // Check if this is the only definition of its type
     let isOnlyDefinition = true;
+
     for (let i = 0; i < contentLines.length; i++) {
       if (
         i !== openingLineIndex &&
-        contentLines[i].includes(`.${methodName}(`)
+        contentLines[i].trim().startsWith(`.${methodName}(`)
       ) {
         isOnlyDefinition = false;
 
@@ -425,7 +426,6 @@ export class FeatureGenerator implements IFeatureGenerator {
     }
 
     let content = this.fs.readFileSync(configFilePath, 'utf8');
-    // Check if there are any existing definitions of this type BEFORE removing anything
     const parsed = parseHelperMethodDefinition(definition);
 
     if (!parsed) {
@@ -438,10 +438,11 @@ export class FeatureGenerator implements IFeatureGenerator {
     // Remove existing definition before adding new one
     content = this.removeExistingDefinition(content, definition);
 
-    // Recalculate whether there are existing definitions of this type AFTER removal
-    const hasExistingDefinitionsOfTypeAfterRemoval =
-      this.hasExistingDefinitions(content, methodName);
-
+    // Check if there are any existing definitions of this type after removal
+    const hasExistingDefinitions = this.hasExistingDefinitions(
+      content,
+      methodName
+    );
     const insertionOrder = this.getInsertionOrder();
     const targetGroupIndex = insertionOrder.indexOf(methodName);
 
@@ -482,7 +483,7 @@ export class FeatureGenerator implements IFeatureGenerator {
         methodName,
         targetGroupIndex,
         definition,
-        hasExistingDefinitionsOfTypeAfterRemoval
+        hasExistingDefinitions
       );
 
       // Insert with proper spacing
