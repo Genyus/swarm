@@ -23,7 +23,6 @@ import {
 // Type definitions for helper method options
 export interface RouteOptions {
   path: string;
-  componentName: string;
   auth?: boolean;
 }
 
@@ -175,18 +174,20 @@ export class App extends WaspApp {
     name: string,
     options: RouteOptions
   ): this {
+    const componentName =
+      name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
     const importPath = this.getFeatureImportPath(
       featureName,
       'client',
       'pages',
-      options.componentName
+      componentName
     );
     const routeConfig = {
       path: options.path,
-      to: this.page(options.componentName, {
+      to: this.page(componentName, {
         authRequired: options.auth || false,
         component: {
-          import: options.componentName,
+          import: componentName,
           from: `@src/${importPath}`,
         },
       }),

@@ -80,14 +80,7 @@ describe('RouteGenerator', () => {
   });
 
   it('getDefinition returns processed template', () => {
-    const result = gen.getDefinition(
-      'testRoute',
-      '/test',
-      'TestPage',
-      'test',
-      false,
-      'features/test/_core/client/pages/Test'
-    );
+    const result = gen.getDefinition('testRoute', '/test', 'test', false);
     expect(typeof result).toBe('string');
   });
 });

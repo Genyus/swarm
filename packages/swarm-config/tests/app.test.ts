@@ -146,7 +146,6 @@ describe('App', () => {
     it('should add routes with simplified parameters', () => {
       const result = app.addRoute('dashboard', 'DashboardRoute', {
         path: '/dashboard',
-        componentName: 'Dashboard',
         auth: true,
       });
 

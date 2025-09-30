@@ -1,9 +1,6 @@
 import { RouteFlags } from '../types';
-import {
-  getFeatureImportPath,
-  getRouteNameFromPath,
-} from '../utils/filesystem';
-import { formatDisplayName, toPascalCase } from '../utils/strings';
+import { getRouteNameFromPath } from '../utils/filesystem';
+import { formatDisplayName, toCamelCase, toPascalCase } from '../utils/strings';
 import { BaseGenerator } from './base';
 
 export class RouteGenerator extends BaseGenerator<RouteFlags> {
@@ -11,26 +8,16 @@ export class RouteGenerator extends BaseGenerator<RouteFlags> {
 
   async generate(featurePath: string, flags: RouteFlags): Promise<void> {
     const { path: routePath, name } = flags;
-    const routeName = name || getRouteNameFromPath(routePath);
+    const routeName = toCamelCase(name || getRouteNameFromPath(routePath));
     const componentName = toPascalCase(routeName);
     const fileName = `${componentName}.tsx`;
-    const { targetDirectory, importDirectory } = this.ensureTargetDirectory(
-      featurePath,
-      'page'
-    );
+    const { targetDirectory } = this.ensureTargetDirectory(featurePath, 'page');
 
     return this.handleGeneratorError(this.entityType, routeName, async () => {
       const targetFile = `${targetDirectory}/${fileName}`;
 
       this.generatePageFile(targetFile, componentName, flags);
-      this.updateConfigFile(
-        featurePath,
-        routeName,
-        routePath,
-        componentName,
-        importDirectory,
-        flags
-      );
+      this.updateConfigFile(featurePath, routeName, routePath, flags);
     });
   }
 
@@ -58,8 +45,6 @@ export class RouteGenerator extends BaseGenerator<RouteFlags> {
     featurePath: string,
     routeName: string,
     routePath: string,
-    componentName: string,
-    importDirectory: string,
     flags: RouteFlags
   ) {
     const configPath = this.validateFeatureConfig(featurePath);
@@ -71,14 +56,11 @@ export class RouteGenerator extends BaseGenerator<RouteFlags> {
     );
 
     if (!configExists || flags.force) {
-      const importPath = `${importDirectory}/${componentName}`;
       const definition = this.getDefinition(
         routeName,
         routePath,
-        componentName,
         featurePath,
-        flags.auth,
-        importPath
+        flags.auth
       );
 
       this.updateFeatureConfig(
@@ -97,22 +79,16 @@ export class RouteGenerator extends BaseGenerator<RouteFlags> {
   getDefinition(
     routeName: string,
     routePath: string,
-    componentName: string,
     featurePath: string,
-    auth = false,
-    importPath: string
+    auth = false
   ): string {
-    const featureDir = getFeatureImportPath(featurePath);
     const templatePath = 'config/route.eta';
 
     return this.templateUtility.processTemplate(templatePath, {
       featureName: featurePath.split('/').pop() || featurePath,
       routeName,
       routePath,
-      componentName,
-      featureDir,
       auth: String(auth),
-      importPath,
     });
   }
 }
