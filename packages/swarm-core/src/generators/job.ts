@@ -1,13 +1,19 @@
 import { JobFlags } from '../types';
-import { capitalise } from '../utils/strings';
+import { capitalise, toCamelCase } from '../utils/strings';
 import { BaseGenerator } from './base';
 
 export class JobGenerator extends BaseGenerator<JobFlags> {
-  async generate(featurePath: string, flags: JobFlags): Promise<void> {
-    const jobName = flags.name;
-    const { targetDirectory } = this.ensureTargetDirectory(featurePath, 'job');
+  protected entityType = 'Job';
 
-    return this.handleGeneratorError('Job', jobName, async () => {
+  async generate(featurePath: string, flags: JobFlags): Promise<void> {
+    const entityType = 'Job';
+    const jobName = toCamelCase(flags.name);
+
+    return this.handleGeneratorError(entityType, jobName, async () => {
+      const { targetDirectory } = this.ensureTargetDirectory(
+        featurePath,
+        this.entityType.toLowerCase()
+      );
       const targetFile = `${targetDirectory}/${jobName}.ts`;
 
       this.generateJobFile(targetFile, jobName, flags);

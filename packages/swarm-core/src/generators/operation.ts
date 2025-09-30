@@ -1,4 +1,3 @@
-import path from 'node:path';
 import {
   ActionOperation,
   OPERATIONS,
@@ -24,6 +23,8 @@ import { capitalise, getPlural, toPascalCase } from '../utils/strings';
 import { BaseGenerator } from './base';
 
 export class OperationGenerator extends BaseGenerator<OperationFlags> {
+  protected entityType = 'Operation';
+
   async generate(featurePath: string, flags: OperationFlags): Promise<void> {
     const dataType = flags.dataType;
     const operation = flags.operation;
@@ -45,26 +46,30 @@ export class OperationGenerator extends BaseGenerator<OperationFlags> {
         entities
       );
 
-    return this.handleGeneratorError('Operation', operationName, async () => {
-      const { targetDirectory: operationsDir, importDirectory } =
-        this.ensureTargetDirectory(featurePath, operationType);
-      const importPath = path.join(importDirectory, operationName);
+    return this.handleGeneratorError(
+      this.entityType,
+      operationName,
+      async () => {
+        const { targetDirectory: operationsDir, importDirectory } =
+          this.ensureTargetDirectory(featurePath, operationType);
+        const importPath = `${importDirectory}/${operationName}`;
 
-      this.generateOperationFile(
-        operationsDir,
-        operationName,
-        operationCode,
-        flags
-      );
-      this.updateConfigFile(
-        featurePath,
-        operationName,
-        operation,
-        entities,
-        importPath,
-        flags
-      );
-    });
+        this.generateOperationFile(
+          operationsDir,
+          operationName,
+          operationCode,
+          flags
+        );
+        this.updateConfigFile(
+          featurePath,
+          operationName,
+          operation,
+          entities,
+          importPath,
+          flags
+        );
+      }
+    );
   }
 
   private generateOperationFile(

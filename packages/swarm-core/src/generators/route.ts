@@ -1,4 +1,3 @@
-import path from 'node:path';
 import { RouteFlags } from '../types';
 import {
   getFeatureImportPath,
@@ -8,6 +7,8 @@ import { formatDisplayName, toPascalCase } from '../utils/strings';
 import { BaseGenerator } from './base';
 
 export class RouteGenerator extends BaseGenerator<RouteFlags> {
+  protected entityType = 'Route';
+
   async generate(featurePath: string, flags: RouteFlags): Promise<void> {
     const { path: routePath, name } = flags;
     const routeName = name || getRouteNameFromPath(routePath);
@@ -18,8 +19,8 @@ export class RouteGenerator extends BaseGenerator<RouteFlags> {
       'page'
     );
 
-    return this.handleGeneratorError('Route', routeName, async () => {
-      const targetFile = path.join(targetDirectory, fileName);
+    return this.handleGeneratorError(this.entityType, routeName, async () => {
+      const targetFile = `${targetDirectory}/${fileName}`;
 
       this.generatePageFile(targetFile, componentName, flags);
       this.updateConfigFile(
@@ -38,7 +39,7 @@ export class RouteGenerator extends BaseGenerator<RouteFlags> {
     componentName: string,
     flags: RouteFlags
   ) {
-    const templatePath = path.join('files', 'client', 'page.eta');
+    const templatePath = 'files/client/page.eta';
     const replacements = {
       componentName,
       displayName: formatDisplayName(componentName),
@@ -70,7 +71,7 @@ export class RouteGenerator extends BaseGenerator<RouteFlags> {
     );
 
     if (!configExists || flags.force) {
-      const importPath = path.join(importDirectory, componentName);
+      const importPath = `${importDirectory}/${componentName}`;
       const definition = this.getDefinition(
         routeName,
         routePath,
@@ -85,7 +86,7 @@ export class RouteGenerator extends BaseGenerator<RouteFlags> {
         definition,
         configPath,
         configExists,
-        'Route'
+        this.entityType
       );
     }
   }

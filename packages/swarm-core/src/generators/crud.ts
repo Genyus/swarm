@@ -1,5 +1,5 @@
 import { CrudFlags, CrudOperation } from '../types';
-import { getPlural } from '../utils/strings';
+import { getPlural, toCamelCase } from '../utils/strings';
 import { BaseGenerator } from './base';
 
 const CRUD_OPERATIONS: readonly CrudOperation[] = [
@@ -11,18 +11,29 @@ const CRUD_OPERATIONS: readonly CrudOperation[] = [
 ] as const;
 
 export class CrudGenerator extends BaseGenerator<CrudFlags> {
+  protected entityType = 'Crud';
+
   async generate(featurePath: string, flags: CrudFlags): Promise<void> {
     const { dataType } = flags;
-    const pluralName = getPlural(dataType);
-    const crudName = pluralName;
-    const { targetDirectory } = this.ensureTargetDirectory(featurePath, 'crud');
+    const crudName = toCamelCase(getPlural(dataType));
+    const { targetDirectory } = this.ensureTargetDirectory(
+      featurePath,
+      this.entityType.toLowerCase()
+    );
 
-    return this.handleGeneratorError('CRUD', crudName, async () => {
-      const targetFile = `${targetDirectory}/${crudName}.ts`;
+    return this.handleGeneratorError(
+      this.entityType.toUpperCase(),
+      crudName,
+      async () => {
+        if (flags.override && flags.override.length > 0) {
+          const targetFile = `${targetDirectory}/${crudName}.ts`;
 
-      this.generateCrudFile(targetFile, crudName, dataType, flags);
-      this.updateConfigFile(featurePath, crudName, dataType, flags);
-    });
+          this.generateCrudFile(targetFile, crudName, dataType, flags);
+        }
+
+        this.updateConfigFile(featurePath, crudName, dataType, flags);
+      }
+    );
   }
 
   private generateCrudFile(

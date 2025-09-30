@@ -1,4 +1,5 @@
 import path from 'node:path';
+import { toCamelCase } from '../utils/strings';
 import { BaseGenerator } from './base';
 
 /**
@@ -13,7 +14,6 @@ export abstract class ApiBaseGenerator<
   protected generateMiddlewareFile(
     targetFile: string,
     name: string,
-    middlewareType: 'apiNamespace' | 'api',
     force: boolean
   ): void {
     const templatePath = path.join(
@@ -24,7 +24,7 @@ export abstract class ApiBaseGenerator<
     );
     const replacements = {
       name,
-      middlewareType,
+      middlewareType: toCamelCase(this.entityType),
     };
 
     this.renderTemplateToFile(

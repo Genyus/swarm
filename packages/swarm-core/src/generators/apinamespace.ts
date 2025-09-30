@@ -1,35 +1,28 @@
 import path from 'node:path';
 import { ApiNamespaceFlags } from '../types';
-import { hasApiNamespaceDefinition, toCamelCase } from '../utils/strings';
+import { toCamelCase } from '../utils/strings';
 import { ApiBaseGenerator } from './api-base';
 
 export class ApiNamespaceGenerator extends ApiBaseGenerator<ApiNamespaceFlags> {
+  protected entityType = 'ApiNamespace';
+
   async generate(featurePath: string, flags: ApiNamespaceFlags): Promise<void> {
     const { name, path: apiPath } = flags;
-
-    if (!name || !apiPath) {
-      this.logger.error(
-        'Both --name and --path are required for apiNamespace generation'
-      );
-      return;
-    }
-
     const namespaceName = toCamelCase(name);
-    const { targetDirectory, importDirectory } = this.ensureTargetDirectory(
-      featurePath,
-      'middleware'
-    );
 
     return this.handleGeneratorError(
-      'apiNamespace',
+      this.entityType.toUpperCase(),
       namespaceName,
       async () => {
+        const { targetDirectory, importDirectory } = this.ensureTargetDirectory(
+          featurePath,
+          'middleware'
+        );
         const targetFile = `${targetDirectory}/${namespaceName}.ts`;
 
         this.generateMiddlewareFile(
           targetFile,
           namespaceName,
-          'apiNamespace',
           flags.force || false
         );
         this.updateConfigFile(

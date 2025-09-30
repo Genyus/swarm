@@ -20,6 +20,8 @@ import { FeatureGenerator } from './feature';
 export abstract class BaseGenerator<TFlags = any>
   implements NodeGenerator<TFlags>
 {
+  protected abstract entityType: string;
+
   protected templateUtility: TemplateUtility;
 
   constructor(

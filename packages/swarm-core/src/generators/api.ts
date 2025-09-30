@@ -1,47 +1,56 @@
 import path from 'path';
 import { ApiFlags } from '../types';
 import { getFeatureImportPath } from '../utils/filesystem';
-import { toPascalCase } from '../utils/strings';
+import { toCamelCase, toPascalCase } from '../utils/strings';
 import { ApiBaseGenerator } from './api-base';
 
 export class ApiGenerator extends ApiBaseGenerator<ApiFlags> {
+  protected entityType = 'Api';
+
   async generate(featurePath: string, flags: ApiFlags): Promise<void> {
-    const apiName = flags.name;
-    const fileName = `${apiName}.ts`;
-    const {
-      targetDirectory: apiTargetDirectory,
-      importDirectory: apiImportDirectory,
-    } = this.ensureTargetDirectory(featurePath, 'api');
+    const apiName = toCamelCase(flags.name);
 
-    return this.handleGeneratorError('API', apiName, async () => {
-      const targetFile = path.join(apiTargetDirectory, fileName);
-
-      this.generateApiFile(targetFile, apiName, flags);
-
-      if (flags.customMiddleware) {
-        const { targetDirectory: middlewareTargetDirectory } =
-          this.ensureTargetDirectory(featurePath, 'middleware');
-        const middlewareFile = path.join(
-          middlewareTargetDirectory,
-          `${apiName}Middleware.ts`
+    return this.handleGeneratorError(
+      this.entityType.toUpperCase(),
+      apiName,
+      async () => {
+        const {
+          targetDirectory: apiTargetDirectory,
+          importDirectory: apiImportDirectory,
+        } = this.ensureTargetDirectory(
+          featurePath,
+          this.entityType.toLowerCase()
         );
+        const fileName = `${apiName}.ts`;
+        const targetFile = `${apiTargetDirectory}/${fileName}`;
 
-        this.generateMiddlewareFile(
-          middlewareFile,
+        this.generateApiFile(targetFile, apiName, flags);
+
+        if (flags.customMiddleware) {
+          const middlewareEntityType = 'Middleware';
+          const { targetDirectory: middlewareTargetDirectory } =
+            this.ensureTargetDirectory(
+              featurePath,
+              middlewareEntityType.toLowerCase()
+            );
+          const middlewareFile = `${middlewareTargetDirectory}/${apiName}.ts`;
+
+          this.generateMiddlewareFile(
+            middlewareFile,
+            apiName,
+            flags.force || false
+          );
+        }
+
+        this.updateConfigFile(
+          featurePath,
           apiName,
-          'api',
-          flags.force || false
+          fileName,
+          apiImportDirectory,
+          flags
         );
       }
-
-      this.updateConfigFile(
-        featurePath,
-        apiName,
-        fileName,
-        apiImportDirectory,
-        flags
-      );
-    });
+    );
   }
 
   private generateApiFile(
@@ -50,10 +59,9 @@ export class ApiGenerator extends ApiBaseGenerator<ApiFlags> {
     { method, auth = false, force = false }: ApiFlags
   ) {
     const replacements = this.buildTemplateData(apiName, method, auth);
-    const templatePath = path.join('files', 'server', 'api.eta');
 
     this.renderTemplateToFile(
-      templatePath,
+      'files/server/api.eta',
       replacements,
       targetFile,
       'API endpoint file',
