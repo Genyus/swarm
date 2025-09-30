@@ -166,11 +166,11 @@ describe('App', () => {
     it('should add CRUD operations with simplified parameters', () => {
       const result = app.addCrud('tasks', 'TaskCrud', {
         entity: 'Task',
-        getAllOptions: { entities: ['Task'], isPublic: true },
-        getOptions: { entities: ['Task'], override: true },
-        createOptions: { entities: ['Task'] },
-        updateOptions: { entities: ['Task'] },
-        deleteOptions: { entities: ['Task'] },
+        getAll: { entities: ['Task'], isPublic: true },
+        get: { entities: ['Task'], override: true },
+        create: { entities: ['Task'] },
+        update: { entities: ['Task'] },
+        delete: { entities: ['Task'] },
       });
 
       expect(result).toBe(app);

@@ -1,6 +1,2 @@
-import { <%=dataType%> } from '@wasp/entities';
-import { HttpError } from '@wasp/core';
-
-export const <%=crudName%> = {
-  <%=operations%>
-};
+<%=imports%>
+<%=operations-%>

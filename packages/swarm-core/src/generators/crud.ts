@@ -1,6 +1,6 @@
 import { CrudFlags, CrudOperation } from '../types';
-import { getPlural, toCamelCase } from '../utils/strings';
-import { BaseGenerator } from './base';
+import { getPlural, toCamelCase, toPascalCase } from '../utils/strings';
+import { OperationBaseGenerator } from './operation-base';
 
 const CRUD_OPERATIONS: readonly CrudOperation[] = [
   'get',
@@ -10,25 +10,35 @@ const CRUD_OPERATIONS: readonly CrudOperation[] = [
   'delete',
 ] as const;
 
-export class CrudGenerator extends BaseGenerator<CrudFlags> {
+export class CrudGenerator extends OperationBaseGenerator<CrudFlags> {
   protected entityType = 'Crud';
 
   async generate(featurePath: string, flags: CrudFlags): Promise<void> {
     const { dataType } = flags;
     const crudName = toCamelCase(getPlural(dataType));
-    const { targetDirectory } = this.ensureTargetDirectory(
-      featurePath,
-      this.entityType.toLowerCase()
-    );
 
     return this.handleGeneratorError(
       this.entityType.toUpperCase(),
       crudName,
       async () => {
         if (flags.override && flags.override.length > 0) {
+          const { targetDirectory } = this.ensureTargetDirectory(
+            featurePath,
+            this.entityType.toLowerCase()
+          );
           const targetFile = `${targetDirectory}/${crudName}.ts`;
-
-          this.generateCrudFile(targetFile, crudName, dataType, flags);
+          const operations = await this.getOperationsCode(
+            dataType,
+            crudName,
+            flags
+          );
+          this.generateCrudFile(
+            targetFile,
+            crudName,
+            dataType,
+            operations,
+            flags.force || false
+          );
         }
 
         this.updateConfigFile(featurePath, crudName, dataType, flags);
@@ -40,13 +50,16 @@ export class CrudGenerator extends BaseGenerator<CrudFlags> {
     targetFile: string,
     crudName: string,
     dataType: string,
-    flags: CrudFlags
+    operations: string,
+    force: boolean
   ) {
-    const operations = this.buildOperations(flags);
+    const imports = `import { type ${toPascalCase(dataType)} } from "wasp/entities";
+import { HttpError } from "wasp/server";
+import { type ${toPascalCase(crudName)} } from "wasp/server/crud";`;
+
     const replacements = {
-      crudName,
-      dataType,
-      operations: JSON.stringify(operations, null, 2),
+      imports,
+      operations,
     };
 
     this.renderTemplateToFile(
@@ -54,7 +67,7 @@ export class CrudGenerator extends BaseGenerator<CrudFlags> {
       replacements,
       targetFile,
       'CRUD file',
-      flags.force || false
+      force
     );
   }
 
@@ -82,6 +95,7 @@ export class CrudGenerator extends BaseGenerator<CrudFlags> {
       'CRUD'
     );
   }
+
   private buildOperations(flags: CrudFlags): Record<string, unknown> {
     const {
       public: publicOps = [],
@@ -103,10 +117,7 @@ export class CrudGenerator extends BaseGenerator<CrudFlags> {
         }
 
         if (overrideOps.includes(operation)) {
-          const operationDataType =
-            operation === 'getAll' ? getPlural(dataType) : dataType;
-
-          operationConfig.overrideFn = `import { ${operation}${operationDataType} } from '@src/operations/${operation}.js'`;
+          operationConfig.override = true;
         }
 
         acc[operation] = operationConfig;
@@ -118,18 +129,49 @@ export class CrudGenerator extends BaseGenerator<CrudFlags> {
   }
 
   /**
+   * Generates operation code for overridden CRUD operations and returns as a single string.
+   */
+  private async getOperationsCode(
+    dataType: string,
+    crudName: string,
+    flags: CrudFlags
+  ): Promise<string> {
+    if (!flags.override || flags.override.length === 0) {
+      return '';
+    }
+
+    const operationCodes: string[] = [];
+
+    for (const operation of flags.override) {
+      const { operationCode } = await this.generateOperationComponents(
+        dataType,
+        operation,
+        flags.auth || false,
+        [dataType],
+        true,
+        toPascalCase(crudName)
+      );
+      operationCodes.push(operationCode.replace(/^[\r\n]/, ''));
+    }
+
+    return operationCodes.join('');
+  }
+
+  /**
    * Generates a CRUD definition for the feature configuration.
    */
   getDefinition(crudName: string, dataType: string, operations: any): string {
     const templatePath = 'config/crud.eta';
     const operationsStr = JSON.stringify(operations, null, 2)
       .replace(/"([^"]+)":/g, '$1:')
+      .slice(1, -1) // Remove outer braces
       .split('\n')
-      .map((line, index) => (index === 0 ? line : '        ' + line))
+      .filter((line) => line.trim() !== '')
+      .map((line, index) => (index === 0 ? line.trimStart() : '    ' + line))
       .join('\n');
 
     return this.templateUtility.processTemplate(templatePath, {
-      crudName,
+      crudName: toPascalCase(crudName),
       dataType,
       operations: operationsStr,
     });

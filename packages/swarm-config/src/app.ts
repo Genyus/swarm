@@ -42,11 +42,11 @@ export interface CrudOperationOptions {
 
 export interface CrudOptions {
   entity: string;
-  getAllOptions?: CrudOperationOptions;
-  getOptions?: CrudOperationOptions;
-  createOptions?: CrudOperationOptions;
-  updateOptions?: CrudOperationOptions;
-  deleteOptions?: CrudOperationOptions;
+  getAll?: CrudOperationOptions;
+  get?: CrudOperationOptions;
+  create?: CrudOperationOptions;
+  update?: CrudOperationOptions;
+  delete?: CrudOperationOptions;
 }
 
 export interface OperationOptions {
@@ -264,24 +264,27 @@ export class App extends WaspApp {
           featureName,
           'server',
           'cruds',
-          operationComponent
+          name.charAt(0).toLowerCase() + name.slice(1)
         );
 
-        processedOptions.overrideFn = `import { ${operationComponent} } from "@src/${importPath}"`;
+        processedOptions.overrideFn = {
+          import: operationComponent,
+          from: `@src/${importPath}`,
+        };
         delete processedOptions.override;
       }
 
       return processedOptions;
     };
 
-    super.crud(name, {
+    super.crud(this.getPlural(options.entity), {
       entity: options.entity,
       operations: {
-        getAll: processOperationOptions('getAll', options.getAllOptions),
-        get: processOperationOptions('get', options.getOptions),
-        create: processOperationOptions('create', options.createOptions),
-        update: processOperationOptions('update', options.updateOptions),
-        delete: processOperationOptions('delete', options.deleteOptions),
+        getAll: processOperationOptions('getAll', options.getAll),
+        get: processOperationOptions('get', options.get),
+        create: processOperationOptions('create', options.create),
+        update: processOperationOptions('update', options.update),
+        delete: processOperationOptions('delete', options.delete),
       },
     });
 

@@ -7,4 +7,5 @@ export * from './crud';
 export * from './feature';
 export * from './job';
 export * from './operation';
+export * from './operation-base';
 export * from './route';

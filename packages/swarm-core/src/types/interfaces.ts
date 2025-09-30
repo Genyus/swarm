@@ -89,7 +89,7 @@ export type RouteFlags = Pick<
  */
 export type CrudFlags = Pick<
   CommonGeneratorFlags,
-  'public' | 'override' | 'exclude' | 'force' | 'dataType'
+  'public' | 'override' | 'exclude' | 'force' | 'dataType' | 'auth'
 >;
 
 /**

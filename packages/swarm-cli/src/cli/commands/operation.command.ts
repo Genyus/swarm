@@ -47,7 +47,7 @@ function makeOperationCommand({
           '-o, --operation <operation>',
           `Operation (${allowedOperations.join(',')})`
         )
-        .requiredOption('-d <type>, --data-type <type>', 'Type/model name')
+        .requiredOption('-d, --data-type <type>', 'Type/model name')
         .description(description);
 
       cmd = withFeatureOption(cmd);
