@@ -147,13 +147,11 @@ export function getFeatureTargetDir(
   const isTopLevel = segments.length === 1;
   const featureDir = getFeatureDir(fileSystem, featurePath);
   const baseDir = isTopLevel ? '_core' : '';
-  const targetDirectory = path.join(
-    featureDir,
-    baseDir,
-    TYPE_DIRECTORIES[type]
-  );
+  const typeKey = type.toLowerCase();
+  const typeDirectory = TYPE_DIRECTORIES[typeKey];
+  const targetDirectory = path.join(featureDir, baseDir, typeDirectory);
   const subDir = isTopLevel ? '_core' : segments.slice(1).join('/');
-  const importDirectory = `@src/features/${segments[0]}/${subDir}/${TYPE_DIRECTORIES[type]}`;
+  const importDirectory = `@src/features/${segments[0]}/${subDir}/${typeDirectory}`;
 
   return { targetDirectory, importDirectory };
 }
