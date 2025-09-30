@@ -11,7 +11,7 @@ export class ApiNamespaceGenerator extends ApiBaseGenerator<ApiNamespaceFlags> {
     const namespaceName = toCamelCase(name);
 
     return this.handleGeneratorError(
-      this.entityType.toUpperCase(),
+      this.entityType,
       namespaceName,
       async () => {
         const { targetDirectory, importDirectory } = this.ensureTargetDirectory(
