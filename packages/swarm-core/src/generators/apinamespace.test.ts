@@ -29,7 +29,6 @@ vi.mock(import('../utils/strings'), async (importOriginal) => {
   return {
     ...actual,
     toCamelCase: vi.fn().mockImplementation((str: string) => str),
-    hasApiNamespaceDefinition: vi.fn().mockReturnValue(false),
     hasHelperMethodCall: vi.fn().mockReturnValue(false),
     validateFeaturePath: vi.fn().mockReturnValue(['test']),
   };

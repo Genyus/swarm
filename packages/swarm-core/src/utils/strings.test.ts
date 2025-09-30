@@ -145,43 +145,6 @@ describe('strings utils', () => {
     });
   });
 
-  describe('hasApiNamespaceDefinition', () => {
-    it('detects API namespace definitions', () => {
-      const content = 'apiNamespace: {';
-      expect(strings.hasApiNamespaceDefinition(content, 'apiNamespace')).toBe(
-        true
-      );
-    });
-
-    it('detects definitions with extra whitespace', () => {
-      const content = '  apiNamespace  :  {';
-      expect(strings.hasApiNamespaceDefinition(content, 'apiNamespace')).toBe(
-        true
-      );
-    });
-
-    it('detects definitions with newlines', () => {
-      const content = 'apiNamespace\n: {';
-      expect(strings.hasApiNamespaceDefinition(content, 'apiNamespace')).toBe(
-        true
-      );
-    });
-
-    it('returns false for non-matching names', () => {
-      const content = 'otherNamespace: {';
-      expect(strings.hasApiNamespaceDefinition(content, 'apiNamespace')).toBe(
-        false
-      );
-    });
-
-    it('handles special regex characters in namespace names', () => {
-      const content = 'api-namespace: {';
-      expect(strings.hasApiNamespaceDefinition(content, 'api-namespace')).toBe(
-        true
-      );
-    });
-  });
-
   describe('parseHelperMethodDefinition', () => {
     it('parses single-line definitions', () => {
       const definition =

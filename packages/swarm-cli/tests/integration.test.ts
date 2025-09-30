@@ -25,7 +25,6 @@ vi.mock('@ingenyus/swarm-core/src/utils/strings', () => ({
     .mockImplementation((path: string) => path.split('/')),
   parseHelperMethodDefinition: vi.fn(),
   hasHelperMethodCall: vi.fn().mockReturnValue(false),
-  hasApiNamespaceDefinition: vi.fn().mockReturnValue(false),
 }));
 
 // Mock the node:fs module to intercept schema.prisma reads
@@ -617,6 +616,7 @@ export const <%=crudName%> = {
       // Create CRUD first time
       await crudGenerator.generate('documents', {
         dataType: 'Document',
+        override: ['get', 'getAll'],
         force: false,
       });
 
@@ -624,6 +624,7 @@ export const <%=crudName%> = {
         // Try to create again without force
         crudGenerator.generate('documents', {
           dataType: 'Document',
+          override: ['get', 'getAll'],
           force: false,
         })
       ).rejects.toThrow('CRUD file already exists');
@@ -731,12 +732,14 @@ export const <%=crudName%> = {
       // Create CRUD first time
       await crudGenerator.generate('documents', {
         dataType: 'Document',
+        override: ['get', 'getAll'],
         force: false,
       });
 
       // Overwrite with force
       await crudGenerator.generate('documents', {
         dataType: 'Document',
+        override: ['get', 'getAll'],
         force: true,
       });
 

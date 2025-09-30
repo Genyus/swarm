@@ -215,28 +215,6 @@ export function hasHelperMethodCall(
 }
 
 /**
- * Checks if an API namespace definition exists in the content.
- * This handles the special case where API namespaces use a different pattern.
- *
- * @param content - The file content to search in
- * @param namespaceName - The namespace name to check for
- * @returns True if the namespace definition exists
- */
-export function hasApiNamespaceDefinition(
-  content: string,
-  namespaceName: string
-): boolean {
-  // API namespaces use a different pattern: namespaceName: {
-  // We need to handle various whitespace and formatting styles
-  const pattern = new RegExp(
-    `${namespaceName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*:\\s*\\{`,
-    's'
-  );
-
-  return pattern.test(content);
-}
-
-/**
  * Extracts the method name and first parameter from a helper method definition.
  * This is used by the removeExistingDefinition method to identify what to remove.
  *
@@ -290,32 +268,3 @@ export function parseHelperMethodDefinition(definition: string): {
     firstParam: secondParamMatch[1],
   };
 }
-
-/**
- * Test cases for the object detection functions:
- *
- * // Single line detection
- * hasHelperMethodCall('.addApi("getUsers", ...)', 'addApi', 'getUsers') // true
- * hasHelperMethodCall('.addRoute(\'MainRoute\', ...)', 'addRoute', 'MainRoute') // true
- *
- * // Multi-line detection
- * hasHelperMethodCall(`
- *   .addApi(
- *     "getUsers",
- *     "GET",
- *     "/api/users"
- *   )
- * `, 'addApi', 'getUsers') // true
- *
- * // Various quote styles
- * hasHelperMethodCall('.addApi(`getUsers`, ...)', 'addApi', 'getUsers') // true
- * hasHelperMethodCall('.addApi( "getUsers" , ...)', 'addApi', 'getUsers') // true
- *
- * // API namespace detection
- * hasApiNamespaceDefinition('apiNamespace: {', 'apiNamespace') // true
- * hasApiNamespaceDefinition('  apiNamespace  :  {', 'apiNamespace') // true
- *
- * // Definition parsing
- * parseHelperMethodDefinition('.addApi("getUsers", ...)')
- * // Returns: { methodName: 'addApi', firstParam: 'getUsers' }
- */
