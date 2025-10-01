@@ -164,21 +164,23 @@ export class FeatureGenerator implements IFeatureGenerator {
     return contentLines.join('\n');
   }
 
-  // TODO: Replace arbitrary insertion order with alphabetical ordering
   /**
-   * Gets the insertion order for different configuration item types.
-   * @returns Array of method names in insertion order
+   * Determines the insertion index for a method name based on alphabetical ordering
+   * of existing groups in the configuration file.
+   * @param groups - Object containing existing method groups
+   * @param methodName - The method name to find insertion index for
+   * @returns The insertion index for the method name
    */
-  private getInsertionOrder(): string[] {
-    return [
-      'addRoute',
-      'addQuery',
-      'addAction',
-      'addCrud',
-      'addApi',
-      'addApiNamespace',
-      'addJob',
-    ];
+  private getInsertionIndexForMethod(
+    groups: Record<string, any[]>,
+    methodName: string
+  ): number {
+    const existingMethods = Object.keys(groups).filter(
+      (method) => groups[method].length > 0
+    );
+    const allMethods = [...existingMethods, methodName].sort();
+
+    return allMethods.indexOf(methodName);
   }
 
   /**
@@ -198,18 +200,15 @@ export class FeatureGenerator implements IFeatureGenerator {
    * Finds the correct insertion point for a new configuration item.
    * @param lines - Array of file lines
    * @param methodName - The method name (e.g., 'addApi')
-   * @param targetGroupIndex - The index of the target group in insertion order
    * @param definition - The definition string to parse for item name
    * @returns Object with insertion index and whether to add a comment
    */
   private findGroupInsertionPoint(
     lines: string[],
     methodName: string,
-    targetGroupIndex: number,
     definition: string,
     hasExistingDefinitionsOfType: boolean
   ): { insertIndex: number; addComment: boolean } {
-    const insertionOrder = this.getInsertionOrder();
     const appLineIndex = lines.findIndex((line) => line.trim() === 'app');
 
     if (appLineIndex === -1) {
@@ -292,10 +291,18 @@ export class FeatureGenerator implements IFeatureGenerator {
     const targetGroup = groups[methodName] || [];
 
     if (targetGroup.length === 0) {
-      // No items of this type exist, find position based on ordering
-      // Look for the first group that comes after the target group in the insertion order
-      for (let i = targetGroupIndex + 1; i < insertionOrder.length; i++) {
-        const groupMethod = insertionOrder[i];
+      // No items of this type exist, find position based on alphabetical ordering
+      const targetGroupIndex = this.getInsertionIndexForMethod(
+        groups,
+        methodName
+      );
+      const existingMethods = Object.keys(groups)
+        .filter((method) => groups[method].length > 0)
+        .sort();
+
+      // Look for the first group that comes after the target group alphabetically
+      for (let i = targetGroupIndex; i < existingMethods.length; i++) {
+        const groupMethod = existingMethods[i];
         if (groups[groupMethod] && groups[groupMethod].length > 0) {
           // Insert before the first item of the next group
           const firstItem = groups[groupMethod][0];
@@ -323,7 +330,7 @@ export class FeatureGenerator implements IFeatureGenerator {
 
       // If no later groups exist, look for the last item of the previous group
       for (let i = targetGroupIndex - 1; i >= 0; i--) {
-        const groupMethod = insertionOrder[i];
+        const groupMethod = existingMethods[i];
 
         if (groups[groupMethod] && groups[groupMethod].length > 0) {
           const lastItem = groups[groupMethod][groups[groupMethod].length - 1];
@@ -442,12 +449,6 @@ export class FeatureGenerator implements IFeatureGenerator {
       content,
       methodName
     );
-    const insertionOrder = this.getInsertionOrder();
-    const targetGroupIndex = insertionOrder.indexOf(methodName);
-
-    if (targetGroupIndex === -1) {
-      handleFatalError(`Unknown method name: ${methodName}`);
-    }
 
     // Find the position to insert the new definition
     const lines = content.split('\n');
@@ -480,7 +481,6 @@ export class FeatureGenerator implements IFeatureGenerator {
       const { insertIndex, addComment } = this.findGroupInsertionPoint(
         lines,
         methodName,
-        targetGroupIndex,
         definition,
         hasExistingDefinitions
       );
