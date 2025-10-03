@@ -3,21 +3,21 @@ import type { Logger } from '@ingenyus/swarm-core/dist/types/logger.js';
 import * as path from 'path';
 import { GeneratorService } from '../types/generator-service.js';
 import {
+  GenerateApiNamespaceParams,
+  GenerateApiNamespaceParamsSchema,
+  GenerateApiParams,
+  GenerateApiParamsSchema,
+  GenerateCrudParams,
+  GenerateCrudParamsSchema,
+  GenerateFeatureParams,
+  GenerateFeatureParamsSchema,
+  GenerateJobParams,
+  GenerateJobParamsSchema,
+  GenerateOperationParams,
+  GenerateOperationParamsSchema,
+  GenerateRouteParams,
+  GenerateRouteParamsSchema,
   GenerationResult,
-  SwarmGenerateApiNamespaceParams,
-  SwarmGenerateApiNamespaceParamsSchema,
-  SwarmGenerateApiParams,
-  SwarmGenerateApiParamsSchema,
-  SwarmGenerateCrudParams,
-  SwarmGenerateCrudParamsSchema,
-  SwarmGenerateFeatureParams,
-  SwarmGenerateFeatureParamsSchema,
-  SwarmGenerateJobParams,
-  SwarmGenerateJobParamsSchema,
-  SwarmGenerateOperationParams,
-  SwarmGenerateOperationParamsSchema,
-  SwarmGenerateRouteParams,
-  SwarmGenerateRouteParamsSchema,
 } from '../types/swarm.js';
 
 export class SwarmTools {
@@ -34,8 +34,8 @@ export class SwarmTools {
     return new SwarmTools(logger, fileSystem);
   }
 
-  async generateApi(params: SwarmGenerateApiParams): Promise<GenerationResult> {
-    const validParams = SwarmGenerateApiParamsSchema.parse(params);
+  async generateApi(params: GenerateApiParams): Promise<GenerationResult> {
+    const validParams = GenerateApiParamsSchema.parse(params);
     const projectRoot = this.getProjectRoot(validParams.projectPath);
 
     return this.executeGenerator(
@@ -59,9 +59,9 @@ export class SwarmTools {
   }
 
   async generateFeature(
-    params: SwarmGenerateFeatureParams
+    params: GenerateFeatureParams
   ): Promise<GenerationResult> {
-    const validParams = SwarmGenerateFeatureParamsSchema.parse(params);
+    const validParams = GenerateFeatureParamsSchema.parse(params);
     const projectRoot = this.getProjectRoot(validParams.projectPath);
 
     return this.executeGenerator(
@@ -77,9 +77,9 @@ export class SwarmTools {
   }
 
   async generateCrud(
-    params: SwarmGenerateCrudParams
+    params: GenerateCrudParams
   ): Promise<GenerationResult> {
-    const validParams = SwarmGenerateCrudParamsSchema.parse(params);
+    const validParams = GenerateCrudParamsSchema.parse(params);
     const projectRoot = this.getProjectRoot(validParams.projectPath);
 
     return this.executeGenerator(
@@ -104,9 +104,9 @@ export class SwarmTools {
   }
 
   async generateRoute(
-    params: SwarmGenerateRouteParams
+    params: GenerateRouteParams
   ): Promise<GenerationResult> {
-    const validParams = SwarmGenerateRouteParamsSchema.parse(params);
+    const validParams = GenerateRouteParamsSchema.parse(params);
     const projectRoot = this.getProjectRoot(validParams.projectPath);
 
     return this.executeGenerator(
@@ -129,8 +129,8 @@ export class SwarmTools {
     );
   }
 
-  async generateJob(params: SwarmGenerateJobParams): Promise<GenerationResult> {
-    const validParams = SwarmGenerateJobParamsSchema.parse(params);
+  async generateJob(params: GenerateJobParams): Promise<GenerationResult> {
+    const validParams = GenerateJobParamsSchema.parse(params);
     const projectRoot = this.getProjectRoot(validParams.projectPath);
 
     return this.executeGenerator(
@@ -152,9 +152,9 @@ export class SwarmTools {
   }
 
   async generateOperation(
-    params: SwarmGenerateOperationParams
+    params: GenerateOperationParams
   ): Promise<GenerationResult> {
-    const validParams = SwarmGenerateOperationParamsSchema.parse(params);
+    const validParams = GenerateOperationParamsSchema.parse(params);
     const projectRoot = this.getProjectRoot(validParams.projectPath);
 
     return this.executeGenerator(
@@ -179,9 +179,9 @@ export class SwarmTools {
   }
 
   async generateApiNamespace(
-    params: SwarmGenerateApiNamespaceParams
+    params: GenerateApiNamespaceParams
   ): Promise<GenerationResult> {
-    const validParams = SwarmGenerateApiNamespaceParamsSchema.parse(params);
+    const validParams = GenerateApiNamespaceParamsSchema.parse(params);
     const projectRoot = this.getProjectRoot(validParams.projectPath);
 
     return this.executeGenerator(

@@ -155,8 +155,8 @@ export class SwarmMCPServer {
     this.mcpServer.setRequestHandler(ListToolsRequestSchema, () => ({
       tools: [
         {
-          name: 'swarm_generate_api',
-          description: 'Generate API endpoints for Wasp projects',
+          name: 'generate_wasp_api',
+          description: 'Generate Wasp API endpoints',
           inputSchema: {
             type: 'object',
             properties: {
@@ -195,8 +195,8 @@ export class SwarmMCPServer {
           },
         },
         {
-          name: 'swarm_generate_feature',
-          description: 'Generate feature modules for Wasp projects',
+          name: 'generate_wasp_feature',
+          description: 'Generate Wasp feature modules',
           inputSchema: {
             type: 'object',
             properties: {
@@ -209,8 +209,8 @@ export class SwarmMCPServer {
           },
         },
         {
-          name: 'swarm_generate_crud',
-          description: 'Generate CRUD operations for Wasp projects',
+          name: 'generate_wasp_crud',
+          description: 'Generate Wasp CRUD operations',
           inputSchema: {
             type: 'object',
             properties: {
@@ -246,8 +246,8 @@ export class SwarmMCPServer {
           },
         },
         {
-          name: 'swarm_generate_job',
-          description: 'Generate background jobs for Wasp projects',
+          name: 'generate_wasp_job',
+          description: 'Generate Wasp background jobs',
           inputSchema: {
             type: 'object',
             properties: {
@@ -281,8 +281,8 @@ export class SwarmMCPServer {
           },
         },
         {
-          name: 'swarm_generate_operation',
-          description: 'Generate queries or actions for Wasp projects',
+          name: 'generate_wasp_operation',
+          description: 'Generate Wasp queries and actions',
           inputSchema: {
             type: 'object',
             properties: {
@@ -318,8 +318,8 @@ export class SwarmMCPServer {
           },
         },
         {
-          name: 'swarm_generate_route',
-          description: 'Generate routes for Wasp projects',
+          name: 'generate_wasp_route',
+          description: 'Generate Wasp routes',
           inputSchema: {
             type: 'object',
             properties: {
@@ -348,8 +348,8 @@ export class SwarmMCPServer {
           },
         },
         {
-          name: 'swarm_generate_apinamespace',
-          description: 'Generate API namespaces for Wasp projects',
+          name: 'generate_wasp_apinamespace',
+          description: 'Generate Wasp API namespaces',
           inputSchema: {
             type: 'object',
             properties: {

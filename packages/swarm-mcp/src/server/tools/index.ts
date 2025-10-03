@@ -1,13 +1,13 @@
 import { realFileSystem } from '@ingenyus/swarm-core/dist/utils/filesystem.js';
 import { realLogger } from '@ingenyus/swarm-core/dist/utils/logger.js';
 import type {
-  SwarmGenerateApiNamespaceParams,
-  SwarmGenerateApiParams,
-  SwarmGenerateCrudParams,
-  SwarmGenerateFeatureParams,
-  SwarmGenerateJobParams,
-  SwarmGenerateOperationParams,
-  SwarmGenerateRouteParams,
+  GenerateApiNamespaceParams,
+  GenerateApiParams,
+  GenerateCrudParams,
+  GenerateFeatureParams,
+  GenerateJobParams,
+  GenerateOperationParams,
+  GenerateRouteParams,
 } from '../types/swarm.js';
 import { SwarmTools } from './swarm.js';
 
@@ -15,18 +15,18 @@ const swarmTools = SwarmTools.create(realLogger, realFileSystem);
 
 export * from './swarm.js';
 export const tools = {
-  swarm_generate_api: (params: SwarmGenerateApiParams) =>
+  generate_wasp_api: (params: GenerateApiParams) =>
     swarmTools.generateApi(params),
-  swarm_generate_feature: (params: SwarmGenerateFeatureParams) =>
+  generate_wasp_feature: (params: GenerateFeatureParams) =>
     swarmTools.generateFeature(params),
-  swarm_generate_crud: (params: SwarmGenerateCrudParams) =>
+  generate_wasp_crud: (params: GenerateCrudParams) =>
     swarmTools.generateCrud(params),
-  swarm_generate_job: (params: SwarmGenerateJobParams) =>
+  generate_wasp_job: (params: GenerateJobParams) =>
     swarmTools.generateJob(params),
-  swarm_generate_operation: (params: SwarmGenerateOperationParams) =>
+  generate_wasp_operation: (params: GenerateOperationParams) =>
     swarmTools.generateOperation(params),
-  swarm_generate_route: (params: SwarmGenerateRouteParams) =>
+  generate_wasp_route: (params: GenerateRouteParams) =>
     swarmTools.generateRoute(params),
-  swarm_generate_apinamespace: (params: SwarmGenerateApiNamespaceParams) =>
+  generate_wasp_apinamespace: (params: GenerateApiNamespaceParams) =>
     swarmTools.generateApiNamespace(params),
 } as const;

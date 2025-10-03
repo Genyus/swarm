@@ -2,17 +2,16 @@ import {
   ActionOperation,
   CrudOperation,
   HttpMethod,
-  OperationType,
   QueryOperation,
 } from '@ingenyus/swarm-core';
 import { z } from 'zod';
 
-export interface SwarmCliParams {
+export interface CliParams {
   projectPath?: string;
   options?: Record<string, unknown>;
 }
 
-export interface SwarmCliResult {
+export interface CliResult {
   success: boolean;
   output: string;
   error?: string;
@@ -20,7 +19,7 @@ export interface SwarmCliResult {
   modifiedFiles?: string[];
 }
 
-export interface SwarmGenerateApiParams extends SwarmCliParams {
+export interface GenerateApiParams extends CliParams {
   feature: string;
   name: string;
   method: HttpMethod;
@@ -28,13 +27,14 @@ export interface SwarmGenerateApiParams extends SwarmCliParams {
   entities?: string[];
   auth?: boolean;
   force?: boolean;
+  customMiddleware?: boolean;
 }
 
-export interface SwarmGenerateFeatureParams extends SwarmCliParams {
+export interface GenerateFeatureParams extends CliParams {
   name: string;
 }
 
-export interface SwarmGenerateCrudParams extends SwarmCliParams {
+export interface GenerateCrudParams extends CliParams {
   feature: string;
   dataType: string;
   public?: CrudOperation[];
@@ -43,7 +43,7 @@ export interface SwarmGenerateCrudParams extends SwarmCliParams {
   force?: boolean;
 }
 
-export interface SwarmGenerateJobParams extends SwarmCliParams {
+export interface GenerateJobParams extends CliParams {
   feature: string;
   name: string;
   schedule?: string;
@@ -52,7 +52,7 @@ export interface SwarmGenerateJobParams extends SwarmCliParams {
   force?: boolean;
 }
 
-export interface SwarmGenerateOperationParams extends SwarmCliParams {
+export interface GenerateOperationParams extends CliParams {
   feature: string;
   operation: ActionOperation | QueryOperation;
   dataType: string;
@@ -61,7 +61,7 @@ export interface SwarmGenerateOperationParams extends SwarmCliParams {
   force?: boolean;
 }
 
-export interface SwarmGenerateRouteParams extends SwarmCliParams {
+export interface GenerateRouteParams extends CliParams {
   feature: string;
   name: string;
   path: string;
@@ -69,14 +69,14 @@ export interface SwarmGenerateRouteParams extends SwarmCliParams {
   force?: boolean;
 }
 
-export interface SwarmGenerateApiNamespaceParams extends SwarmCliParams {
+export interface GenerateApiNamespaceParams extends CliParams {
   feature: string;
   name: string;
   path: string;
   force?: boolean;
 }
 
-export interface GenerationResult extends SwarmCliResult {
+export interface GenerationResult extends CliResult {
   generatedFiles: string[];
   modifiedFiles: string[];
   skippedFiles?: string[];
@@ -86,59 +86,6 @@ export interface GenerationResult extends SwarmCliResult {
     reason: string;
     resolution?: 'overwrite' | 'skip' | 'merge';
   }[];
-}
-
-export type SwarmErrorType =
-  | 'validation'
-  | 'filesystem'
-  | 'generation'
-  | 'configuration'
-  | 'dependency'
-  | 'template'
-  | 'system';
-
-export interface SwarmError {
-  type: SwarmErrorType;
-  code: string;
-  message: string;
-  details?: unknown;
-  file?: string;
-  line?: number;
-  suggestion?: string;
-}
-
-export interface SwarmWarning {
-  type: 'deprecation' | 'performance' | 'best-practice' | 'compatibility';
-  message: string;
-  file?: string;
-  suggestion?: string;
-}
-
-export interface SwarmToolConfig {
-  generators: {
-    api: boolean;
-    feature: boolean;
-    crud: boolean;
-    job: boolean;
-    operation: boolean;
-    route: boolean;
-    apiNamespace: boolean;
-  };
-  analysis: {
-    enableDeepScan: boolean;
-    includeDependencies: boolean;
-    checkCompatibility: boolean;
-  };
-  validation: {
-    strict: boolean;
-    allowExperimental: boolean;
-    enforceNaming: boolean;
-  };
-  output: {
-    verbose: boolean;
-    format: 'json' | 'yaml' | 'text';
-    includeStackTrace: boolean;
-  };
 }
 
 export const HttpMethodSchema = z.enum(['GET', 'POST', 'PUT', 'DELETE', 'ALL']);
@@ -153,12 +100,12 @@ export const CrudOperationSchema = z.enum([
   'getAll',
 ]);
 
-export const SwarmCliParamsSchema = z.object({
+export const CliParamsSchema = z.object({
   projectPath: z.string().optional(),
   options: z.record(z.unknown()).optional(),
 });
 
-export const SwarmGenerateApiParamsSchema = SwarmCliParamsSchema.extend({
+export const GenerateApiParamsSchema = CliParamsSchema.extend({
   feature: z.string().min(1),
   name: z.string().min(1),
   method: HttpMethodSchema,
@@ -169,11 +116,11 @@ export const SwarmGenerateApiParamsSchema = SwarmCliParamsSchema.extend({
   customMiddleware: z.boolean().optional(),
 });
 
-export const SwarmGenerateFeatureParamsSchema = SwarmCliParamsSchema.extend({
+export const GenerateFeatureParamsSchema = CliParamsSchema.extend({
   name: z.string().min(1),
 });
 
-export const SwarmGenerateCrudParamsSchema = SwarmCliParamsSchema.extend({
+export const GenerateCrudParamsSchema = CliParamsSchema.extend({
   feature: z.string().min(1),
   dataType: z.string().min(1),
   public: z.array(CrudOperationSchema).optional(),
@@ -182,7 +129,7 @@ export const SwarmGenerateCrudParamsSchema = SwarmCliParamsSchema.extend({
   force: z.boolean().optional(),
 });
 
-export const SwarmGenerateJobParamsSchema = SwarmCliParamsSchema.extend({
+export const GenerateJobParamsSchema = CliParamsSchema.extend({
   feature: z.string().min(1),
   name: z.string().min(1),
   schedule: z.string().optional(),
@@ -191,7 +138,7 @@ export const SwarmGenerateJobParamsSchema = SwarmCliParamsSchema.extend({
   force: z.boolean().optional(),
 });
 
-export const SwarmGenerateOperationParamsSchema = SwarmCliParamsSchema.extend({
+export const GenerateOperationParamsSchema = CliParamsSchema.extend({
   feature: z.string().min(1),
   operation: z.union([ActionOperationSchema, QueryOperationSchema]),
   dataType: z.string().min(1),
@@ -200,7 +147,7 @@ export const SwarmGenerateOperationParamsSchema = SwarmCliParamsSchema.extend({
   force: z.boolean().optional(),
 });
 
-export const SwarmGenerateRouteParamsSchema = SwarmCliParamsSchema.extend({
+export const GenerateRouteParamsSchema = CliParamsSchema.extend({
   feature: z.string().min(1),
   name: z.string().min(1),
   path: z.string().min(1),
@@ -208,67 +155,10 @@ export const SwarmGenerateRouteParamsSchema = SwarmCliParamsSchema.extend({
   force: z.boolean().optional(),
 });
 
-export const SwarmGenerateApiNamespaceParamsSchema =
-  SwarmCliParamsSchema.extend({
+export const GenerateApiNamespaceParamsSchema =
+  CliParamsSchema.extend({
     feature: z.string().min(1),
     name: z.string().min(1),
     path: z.string().min(1),
     force: z.boolean().optional(),
   });
-
-export function isHttpMethod(value: string): value is HttpMethod {
-  return ['GET', 'POST', 'PUT', 'DELETE', 'ALL'].includes(value);
-}
-
-export function isOperationType(value: string): value is OperationType {
-  return ['query', 'action'].includes(value);
-}
-
-export function isActionOperation(value: string): value is ActionOperation {
-  return ['create', 'update', 'delete'].includes(value);
-}
-
-export function isQueryOperation(value: string): value is QueryOperation {
-  return ['get', 'getAll'].includes(value);
-}
-
-export function isSwarmError(error: unknown): error is SwarmError {
-  return (
-    typeof error === 'object' &&
-    error !== null &&
-    'type' in error &&
-    'code' in error &&
-    'message' in error
-  );
-}
-
-export type SwarmGeneratorType =
-  | 'api'
-  | 'feature'
-  | 'crud'
-  | 'job'
-  | 'operation'
-  | 'route'
-  | 'apiNamespace';
-
-export interface SwarmGeneratorInfo {
-  type: SwarmGeneratorType;
-  name: string;
-  description: string;
-  supportedOptions: string[];
-  requiredParameters: string[];
-  examples: {
-    description: string;
-    command: string;
-    result: string;
-  }[];
-}
-
-export type SwarmMcpToolName =
-  | 'swarm_generate_api'
-  | 'swarm_generate_feature'
-  | 'swarm_generate_crud'
-  | 'swarm_generate_job'
-  | 'swarm_generate_operation'
-  | 'swarm_generate_route'
-  | 'swarm_generate_apinamespace';

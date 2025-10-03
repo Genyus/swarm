@@ -1,102 +1,18 @@
 import { HttpMethod, OperationType } from '@ingenyus/swarm-core';
 import { describe, expect, it } from 'vitest';
 import {
+  GenerateApiParamsSchema,
+  GenerateCrudParamsSchema,
+  GenerateFeatureParamsSchema,
+  GenerateJobParamsSchema,
+  GenerateOperationParamsSchema,
+  GenerateRouteParamsSchema,
   HttpMethodSchema,
   OperationTypeSchema,
-  SwarmGenerateApiParamsSchema,
-  SwarmGenerateCrudParamsSchema,
-  SwarmGenerateFeatureParamsSchema,
-  SwarmGenerateJobParamsSchema,
-  SwarmGenerateOperationParamsSchema,
-  SwarmGenerateRouteParamsSchema,
-  isActionOperation,
-  isHttpMethod,
-  isOperationType,
-  isQueryOperation,
-  isSwarmError,
-  type SwarmError,
-  type SwarmGenerateApiParams,
+  type GenerateApiParams,
 } from './swarm.js';
 
 describe('Swarm Types', () => {
-  describe('Type Guards', () => {
-    describe('isHttpMethod', () => {
-      it('should return true for valid HTTP methods', () => {
-        const validMethods = ['GET', 'POST', 'PUT', 'DELETE', 'ALL'];
-        validMethods.forEach(method => {
-          expect(isHttpMethod(method)).toBe(true);
-        });
-      });
-
-      it('should return false for invalid HTTP methods', () => {
-        const invalidMethods = ['PATCH', 'HEAD', 'OPTIONS', '', 'get', 'post'];
-        invalidMethods.forEach(method => {
-          expect(isHttpMethod(method)).toBe(false);
-        });
-      });
-    });
-
-    describe('isOperationType', () => {
-      it('should return true for valid operation types', () => {
-        expect(isOperationType('query')).toBe(true);
-        expect(isOperationType('action')).toBe(true);
-      });
-
-      it('should return false for invalid operation types', () => {
-        expect(isOperationType('mutation')).toBe(false);
-        expect(isOperationType('subscription')).toBe(false);
-        expect(isOperationType('')).toBe(false);
-      });
-    });
-
-    describe('isActionOperation', () => {
-      it('should return true for valid action operations', () => {
-        const validActions = ['create', 'update', 'delete'];
-        validActions.forEach(action => {
-          expect(isActionOperation(action)).toBe(true);
-        });
-      });
-
-      it('should return false for invalid action operations', () => {
-        expect(isActionOperation('get')).toBe(false);
-        expect(isActionOperation('list')).toBe(false);
-        expect(isActionOperation('')).toBe(false);
-      });
-    });
-
-    describe('isQueryOperation', () => {
-      it('should return true for valid query operations', () => {
-        expect(isQueryOperation('get')).toBe(true);
-        expect(isQueryOperation('getAll')).toBe(true);
-      });
-
-      it('should return false for invalid query operations', () => {
-        expect(isQueryOperation('create')).toBe(false);
-        expect(isQueryOperation('find')).toBe(false);
-        expect(isQueryOperation('')).toBe(false);
-      });
-    });
-
-    describe('isSwarmError', () => {
-      it('should return true for valid SwarmError objects', () => {
-        const validError: SwarmError = {
-          type: 'validation',
-          code: 'INVALID_PARAMS',
-          message: 'Invalid parameters provided',
-        };
-        expect(isSwarmError(validError)).toBe(true);
-      });
-
-      it('should return false for invalid objects', () => {
-        expect(isSwarmError(null)).toBe(false);
-        expect(isSwarmError(undefined)).toBe(false);
-        expect(isSwarmError('error')).toBe(false);
-        expect(isSwarmError({ message: 'error' })).toBe(false);
-        expect(isSwarmError({ type: 'validation' })).toBe(false);
-      });
-    });
-  });
-
   describe('Zod Schemas', () => {
     describe('HttpMethodSchema', () => {
       it('should validate correct HTTP methods', () => {
@@ -138,7 +54,7 @@ describe('Swarm Types', () => {
 
     describe('SwarmGenerateAPIParamsSchema', () => {
       it('should validate correct API generation parameters', () => {
-        const validParams: SwarmGenerateApiParams = {
+        const validParams: GenerateApiParams = {
           name: 'UserAPI',
           feature: 'default',
           method: 'GET',
@@ -148,7 +64,7 @@ describe('Swarm Types', () => {
           force: false,
         };
         expect(() =>
-          SwarmGenerateApiParamsSchema.parse(validParams)
+          GenerateApiParamsSchema.parse(validParams)
         ).not.toThrow();
       });
 
@@ -162,7 +78,7 @@ describe('Swarm Types', () => {
         ];
 
         invalidParams.forEach(params => {
-          expect(() => SwarmGenerateApiParamsSchema.parse(params)).toThrow();
+          expect(() => GenerateApiParamsSchema.parse(params)).toThrow();
         });
       });
     });
@@ -173,7 +89,7 @@ describe('Swarm Types', () => {
           name: 'UserManagement',
         };
         expect(() =>
-          SwarmGenerateFeatureParamsSchema.parse(validParams)
+          GenerateFeatureParamsSchema.parse(validParams)
         ).not.toThrow();
       });
 
@@ -182,7 +98,7 @@ describe('Swarm Types', () => {
           name: '',
         };
         expect(() =>
-          SwarmGenerateFeatureParamsSchema.parse(invalidParams)
+          GenerateFeatureParamsSchema.parse(invalidParams)
         ).toThrow();
       });
     });
@@ -198,7 +114,7 @@ describe('Swarm Types', () => {
           force: true,
         };
         expect(() =>
-          SwarmGenerateCrudParamsSchema.parse(validParams)
+          GenerateCrudParamsSchema.parse(validParams)
         ).not.toThrow();
       });
 
@@ -207,7 +123,7 @@ describe('Swarm Types', () => {
           dataType: '',
         };
         expect(() =>
-          SwarmGenerateCrudParamsSchema.parse(invalidParams)
+          GenerateCrudParamsSchema.parse(invalidParams)
         ).toThrow();
       });
     });
@@ -223,7 +139,7 @@ describe('Swarm Types', () => {
           force: false,
         };
         expect(() =>
-          SwarmGenerateJobParamsSchema.parse(validParams)
+          GenerateJobParamsSchema.parse(validParams)
         ).not.toThrow();
       });
     });
@@ -239,7 +155,7 @@ describe('Swarm Types', () => {
           force: false,
         };
         expect(() =>
-          SwarmGenerateOperationParamsSchema.parse(validParams)
+          GenerateOperationParamsSchema.parse(validParams)
         ).not.toThrow();
       });
 
@@ -250,7 +166,7 @@ describe('Swarm Types', () => {
           dataType: 'User',
         };
         expect(() =>
-          SwarmGenerateOperationParamsSchema.parse(invalidParams)
+          GenerateOperationParamsSchema.parse(invalidParams)
         ).toThrow();
       });
     });
@@ -265,7 +181,7 @@ describe('Swarm Types', () => {
           force: false,
         };
         expect(() =>
-          SwarmGenerateRouteParamsSchema.parse(validParams)
+          GenerateRouteParamsSchema.parse(validParams)
         ).not.toThrow();
       });
     });
