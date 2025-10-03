@@ -375,8 +375,8 @@ export const <%=crudName%> = {
       await jobGenerator.generate('documents', {
         name: 'archiveDocuments',
         entities: ['Document'],
-        schedule: '0 2 * * *', // Daily at 2 AM
-        scheduleArgs: '{}',
+        cron: '0 2 * * *', // Daily at 2 AM
+        args: '{}',
         force: false,
       });
 
@@ -948,8 +948,8 @@ export const <%=crudName%> = {
       await jobGenerator.generate('documents', {
         name: 'archiveDocuments',
         entities: ['Document'],
-        schedule: '0 2 * * *',
-        scheduleArgs: '{}',
+        cron: '0 2 * * *',
+        args: '{}',
         force: false,
       });
 

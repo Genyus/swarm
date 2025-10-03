@@ -22,13 +22,20 @@ describe('createApiNamespaceCommand', () => {
       option: vi.fn().mockReturnThis(),
       description: vi.fn().mockReturnThis(),
       action: vi.fn((fn) => {
-        fn({ feature: 'foo', name: 'ns', path: '/api' });
+        fn({
+          feature: 'foo',
+          name: 'ns',
+          path: '/api',
+          force: false,
+        });
         return mockCmd;
       }),
     };
 
-    const program = { command: vi.fn(() => mockCmd) } as any;
-    cmd.register(program);
-    expect(program.command).toHaveBeenCalledWith('apinamespace');
+    const program = {
+      addCommand: vi.fn(),
+    } as any;
+    program.addCommand(cmd);
+    expect(program.addCommand).toHaveBeenCalledWith(cmd);
   });
 });

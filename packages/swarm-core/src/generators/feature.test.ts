@@ -66,15 +66,15 @@ export default function configure(app: App, feature: string): void {
     // Job definitions
     .addJob(feature, "emailJob", {
       cron: "0 8 * * *",
-      scheduleArgs: {},
+      args: {},
     })
     .addJob(feature, "reportJob", {
       cron: "0 9 * * *",
-      scheduleArgs: {},
+      args: {},
     })
     .addJob(feature, "userStatsJob", {
       cron: "0 10 * * *",
-      scheduleArgs: {},
+      args: {},
     })
 }`;
 
@@ -86,26 +86,26 @@ export default function configure(app: App, feature: string): void {
       const jobDefinitions = [
         {
           name: 'emailJob',
-          schedule: '0 8 * * *',
+          cron: '0 8 * * *',
           definition: `    .addJob(feature, "emailJob", {
       cron: "0 8 * * *",
-      scheduleArgs: {},
+      args: {},
     })`,
         },
         {
           name: 'reportJob',
-          schedule: '0 9 * * *',
+          cron: '0 9 * * *',
           definition: `    .addJob(feature, "reportJob", {
       cron: "0 9 * * *",
-      scheduleArgs: {},
+      args: {},
     })`,
         },
         {
           name: 'userStatsJob',
-          schedule: '0 10 * * *',
+          cron: '0 10 * * *',
           definition: `    .addJob(feature, "userStatsJob", {
       cron: "0 10 * * *",
-      scheduleArgs: {},
+      args: {},
     })`,
         },
       ];
@@ -197,7 +197,7 @@ export default function configure(app: App, feature: string): void {
 
       const jobDefinition = `    .addJob(feature, "newJob", {
       cron: "0 8 * * *",
-      scheduleArgs: {},
+      args: {},
     })`;
 
       featureGenerator.updateFeatureConfig('/test/path', jobDefinition);
@@ -228,11 +228,11 @@ export default function configure(app: App, feature: string): void {
     // Job definitions
     .addJob(feature, "emailJob", {
       cron: "0 8 * * *",
-      scheduleArgs: {},
+      args: {},
     })
     .addJob(feature, "userStatsJob", {
       cron: "0 10 * * *",
-      scheduleArgs: {},
+      args: {},
     })
 }`;
 
@@ -242,7 +242,7 @@ export default function configure(app: App, feature: string): void {
       // Replace the last job (userStatsJob)
       const jobDefinition = `    .addJob(feature, "userStatsJob", {
       cron: "0 11 * * *",
-      scheduleArgs: {},
+      args: {},
     })`;
 
       featureGenerator.updateFeatureConfig('/test/path', jobDefinition);
@@ -317,7 +317,7 @@ export default function configure(app: App, feature: string): void {
     // Job definitions
     .addJob(feature, "testJob", {
       cron: "0 8 * * *",
-      scheduleArgs: {},
+      args: {},
     })
 }`;
 
@@ -327,7 +327,7 @@ export default function configure(app: App, feature: string): void {
       // Replace with same name but different parameters
       const newJobDefinition = `    .addJob(feature, "testJob", {
       cron: "0 9 * * *",
-      scheduleArgs: { timezone: "UTC" },
+      args: { timezone: "UTC" },
     })`;
 
       featureGenerator.updateFeatureConfig('/test/path', newJobDefinition);

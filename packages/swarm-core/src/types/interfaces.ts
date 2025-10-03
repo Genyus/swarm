@@ -31,9 +31,9 @@ export interface CommonGeneratorFlags {
   /** Require authentication */
   auth?: boolean;
   /** Cron schedule (for jobs) */
-  schedule?: string;
+  cron?: string;
   /** Schedule arguments (for jobs) */
-  scheduleArgs?: string;
+  args?: string;
   /** Public operations (for CRUD) */
   public?: CrudOperation[];
   /** Override operations (for CRUD) */
@@ -69,7 +69,7 @@ export type ApiFlags = Pick<
  */
 export type JobFlags = Pick<
   CommonGeneratorFlags,
-  'entities' | 'schedule' | 'scheduleArgs' | 'force'
+  'entities' | 'cron' | 'args' | 'force'
 > & {
   name: string;
 };

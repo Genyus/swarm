@@ -70,13 +70,13 @@ export class JobGenerator extends BaseGenerator<JobFlags> {
       : flags.entities
         ? [flags.entities]
         : [];
-    const cron = flags.schedule || '0 0 * * *';
-    const scheduleArgs = flags.scheduleArgs || '{}';
+    const cron = flags.cron || '0 0 * * *';
+    const args = flags.args || '{}';
     const definition = this.getDefinition(
       jobName,
       entities,
       cron,
-      scheduleArgs || '{}'
+      args || '{}'
     );
 
     this.updateFeatureConfig(

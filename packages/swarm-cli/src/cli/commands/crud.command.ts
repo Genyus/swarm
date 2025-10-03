@@ -1,16 +1,67 @@
-import { CrudGenerator, validateFeaturePath } from '@ingenyus/swarm-core';
+import {
+  CRUD_OPERATIONS,
+  CrudGenerator,
+  validateFeaturePath,
+} from '@ingenyus/swarm-core';
 import { Command } from 'commander';
-import { NodeGeneratorCommand } from '../../types/commands';
-import { withFeatureOption, withForceOption, withNameOption } from '../options';
+import { z } from 'zod';
+import { CommandBuilder } from '../command-builder';
+import { CommandFactory } from '../command-factory';
+import {
+  commonSchemas,
+  getTypedArrayTransformer,
+  getTypedArrayValidator,
+} from '../schemas';
 
-export function createCrudCommand(): NodeGeneratorCommand {
-  return {
-    name: 'crud',
-    description: 'Generate CRUD operations',
-    register(program: Command) {
-      const generator = new CrudGenerator();
-      let cmd = program
-        .command('crud')
+const validCrudOperations = Object.values(CRUD_OPERATIONS);
+
+export const crudOperationsArray = z
+  .string()
+  .optional()
+  .refine(getTypedArrayValidator(validCrudOperations), {
+    message: `Must be one or more of: ${validCrudOperations.join(', ')}`,
+  })
+  .transform(getTypedArrayTransformer(validCrudOperations));
+export const crudCommandSchema = z.object({
+  feature: commonSchemas.feature,
+  name: commonSchemas.name,
+  public: crudOperationsArray,
+  override: crudOperationsArray,
+  exclude: crudOperationsArray,
+  force: commonSchemas.force,
+});
+
+export type CrudCommandArgs = z.infer<typeof crudCommandSchema>;
+
+/**
+ * Create a CRUD command using the new CommandFactory system
+ * @returns The command
+ */
+export function createCrudCommand(): Command {
+  const generator = new CrudGenerator();
+  const name = 'crud';
+  const description = 'Generate CRUD operations';
+
+  return CommandFactory.createCommand<CrudCommandArgs>({
+    name,
+    description,
+    schema: crudCommandSchema,
+    handler: async (opts: CrudCommandArgs) => {
+      validateFeaturePath(opts.feature);
+      await generator.generate(opts.feature, {
+        dataType: opts.name,
+        public: opts.public,
+        override: opts.override,
+        exclude: opts.exclude,
+        force: !!opts.force,
+      });
+    },
+    optionBuilder: (builder: CommandBuilder) =>
+      builder
+        .withFeature()
+        .withName('CRUD name')
+        .withForce()
+        .build()
         .option('-b, --public <public>', 'Comma-separated public operations')
         .option(
           '-o, --override <override>',
@@ -19,37 +70,6 @@ export function createCrudCommand(): NodeGeneratorCommand {
         .option(
           '-x, --exclude <exclude>',
           'Comma-separated excluded operations'
-        )
-        .description('Generate CRUD operations');
-
-      cmd = withFeatureOption(cmd);
-      cmd = withNameOption(cmd, 'CRUD name');
-      cmd = withForceOption(cmd);
-      cmd.action(async (opts) => {
-        validateFeaturePath(opts.feature);
-        await generator.generate(opts.feature, {
-          dataType: opts.name,
-          public: opts.public
-            ? opts.public
-                .split(',')
-                .map((e: string) => e.trim())
-                .filter(Boolean)
-            : undefined,
-          override: opts.override
-            ? opts.override
-                .split(',')
-                .map((e: string) => e.trim())
-                .filter(Boolean)
-            : undefined,
-          exclude: opts.exclude
-            ? opts.exclude
-                .split(',')
-                .map((e: string) => e.trim())
-                .filter(Boolean)
-            : undefined,
-          force: !!opts.force,
-        });
-      });
-    },
-  };
+        ),
+  });
 }

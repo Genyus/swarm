@@ -50,10 +50,19 @@ export const OPERATIONS = {
  */
 export type Operation = (typeof OPERATIONS)[keyof typeof OPERATIONS];
 
+export const CRUD_OPERATIONS = {
+  CREATE: 'create',
+  GET: 'get',
+  GETALL: 'getAll',
+  UPDATE: 'update',
+  DELETE: 'delete',
+} as const;
+
 /**
  * Type for valid CRUD operation values.
  */
-export type CrudOperation = 'create' | 'get' | 'getAll' | 'update' | 'delete';
+export type CrudOperation =
+  (typeof CRUD_OPERATIONS)[keyof typeof CRUD_OPERATIONS];
 
 /**
  * Map of valid action operations.

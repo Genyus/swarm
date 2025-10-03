@@ -1,30 +1,50 @@
 import {
   ACTION_OPERATIONS,
   ActionOperation,
-  error,
-  OperationFlags,
   OperationGenerator,
   QUERY_OPERATIONS,
   QueryOperation,
   validateFeaturePath,
 } from '@ingenyus/swarm-core';
 import { Command } from 'commander';
-import { NodeGeneratorCommand } from '../../types/commands';
+import { z } from 'zod';
+import { CommandBuilder } from '../command-builder';
+import { CommandFactory } from '../command-factory';
 import {
-  withAuthOption,
-  withEntitiesOption,
-  withFeatureOption,
-  withForceOption,
-} from '../options';
+  commonSchemas,
+  getTypedValueTransformer,
+  getTypedValueValidator,
+} from '../schemas';
+
+const validOperations = [
+  ...Object.values(ACTION_OPERATIONS),
+  ...Object.values(QUERY_OPERATIONS),
+];
+
+export const operationSchema = z
+  .string()
+  .min(1, 'Operation is required')
+  .refine(getTypedValueValidator(validOperations), {
+    message: `Invalid operation. Must be one of: ${validOperations.join(', ')}`,
+  })
+  .transform(getTypedValueTransformer(validOperations));
+
+const operationCommandSchema = z.object({
+  feature: commonSchemas.feature,
+  operation: operationSchema,
+  dataType: z.string().min(1, 'Data type is required'),
+  entities: commonSchemas.entities,
+  force: commonSchemas.force,
+  auth: commonSchemas.auth,
+});
+
+export type OperationCommandArgs = z.infer<typeof operationCommandSchema>;
 
 /**
- * Create an operation (query or action) command
+ * Create an operation (query or action) command using the new CommandFactory system
  * @param commandName - The name of the command
  * @param description - The description of the command
  * @param allowedOperations - The allowed operations
- * @param logger - Logger instance
- * @param fs - File system instance
- * @param featureGenerator - Feature generator instance
  * @returns The command
  */
 function makeOperationCommand({
@@ -35,55 +55,41 @@ function makeOperationCommand({
   commandName: string;
   description: string;
   allowedOperations: (ActionOperation | QueryOperation)[];
-}): NodeGeneratorCommand<OperationFlags> {
-  return {
-    name: commandName,
+}): Command {
+  const generator = new OperationGenerator();
+  const name = commandName;
+  const command = CommandFactory.createCommand<OperationCommandArgs>({
+    name,
     description,
-    register(program: Command) {
-      const generator = new OperationGenerator();
-      let cmd = program
-        .command(commandName)
+    schema: operationCommandSchema,
+    handler: async (opts: OperationCommandArgs) => {
+      validateFeaturePath(opts.feature);
+      await generator.generate(opts.feature, {
+        dataType: opts.dataType,
+        operation: opts.operation,
+        entities: opts.entities,
+        force: !!opts.force,
+        auth: !!opts.auth,
+      });
+    },
+    optionBuilder: (builder: CommandBuilder) =>
+      builder
+        .withFeature()
+        .withEntities()
+        .withForce()
+        .withAuth()
+        .build()
         .requiredOption(
           '-o, --operation <operation>',
           `Operation (${allowedOperations.join(',')})`
         )
-        .requiredOption('-d, --data-type <type>', 'Type/model name')
-        .description(description);
+        .requiredOption('-d, --data-type <type>', 'Type/model name'),
+  });
 
-      cmd = withFeatureOption(cmd);
-      cmd = withEntitiesOption(cmd);
-      cmd = withForceOption(cmd);
-      cmd = withAuthOption(cmd);
-      cmd.action(async (opts) => {
-        validateFeaturePath(opts.feature);
-
-        const normalizedOperation = opts.operation.toLowerCase() as
-          | ActionOperation
-          | QueryOperation;
-        const matchingOperation = allowedOperations.find(
-          (op) => op.toLowerCase() === normalizedOperation
-        );
-
-        if (!matchingOperation) {
-          error(
-            `--operation flag must be one of: ${allowedOperations.join(', ')}`
-          );
-          return;
-        }
-
-        await generator.generate(opts.feature, {
-          dataType: opts.dataType,
-          operation: matchingOperation,
-          entities: opts.entities,
-          force: !!opts.force,
-          auth: !!opts.auth,
-        });
-      });
-    },
-  };
+  return command;
 }
 
-export function createActionCommand(): NodeGeneratorCommand<OperationFlags> {
+export function createActionCommand(): Command {
   return makeOperationCommand({
     commandName: 'action',
     description: 'Generate an action operation',
@@ -91,7 +97,7 @@ export function createActionCommand(): NodeGeneratorCommand<OperationFlags> {
   });
 }
 
-export function createQueryCommand(): NodeGeneratorCommand<OperationFlags> {
+export function createQueryCommand(): Command {
   return makeOperationCommand({
     commandName: 'query',
     description: 'Generate a query operation',

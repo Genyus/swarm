@@ -1,29 +1,32 @@
 import { FeatureGenerator, validateFeaturePath } from '@ingenyus/swarm-core';
 import { Command } from 'commander';
-import { FeatureGeneratorCommand } from '../../types/commands';
-import { withPathOption } from '../options';
+import { z } from 'zod';
+import { CommandBuilder } from '../command-builder';
+import { CommandFactory } from '../command-factory';
+import { commonSchemas } from '../schemas';
+
+const featureCommandSchema = z.object({
+  path: commonSchemas.path,
+});
+
+export type FeatureCommandArgs = z.infer<typeof featureCommandSchema>;
 
 /**
- * Create a feature command
- * @param logger - The logger instance
- * @param fs - The file system instance
+ * Create a feature command using the new CommandFactory system
  * @returns The command
  */
-export function createFeatureCommand(): FeatureGeneratorCommand {
-  return {
+export function createFeatureCommand(): Command {
+  const generator = new FeatureGenerator();
+
+  return CommandFactory.createCommand<FeatureCommandArgs>({
     name: 'feature',
     description: 'Generate a new feature',
-    register(program: Command) {
-      const generator = new FeatureGenerator();
-      let cmd = program
-        .command('feature')
-        .description('Generate a new feature');
-
-      cmd = withPathOption(cmd, 'Feature path');
-      cmd.action(async (opts) => {
-        validateFeaturePath(opts.path);
-        generator.generateFeature(opts.path);
-      });
+    schema: featureCommandSchema,
+    handler: async (opts: FeatureCommandArgs) => {
+      validateFeaturePath(opts.path);
+      generator.generateFeature(opts.path);
     },
-  };
+    optionBuilder: (builder: CommandBuilder) =>
+      builder.withPath('Feature path').build(),
+  });
 }
