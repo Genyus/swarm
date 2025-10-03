@@ -24,6 +24,7 @@ import {
   ActionOperation,
   CrudOperation,
   HttpMethod,
+  QueryOperation,
 } from '@ingenyus/swarm-core';
 import { SwarmTools } from './swarm.js';
 
@@ -153,7 +154,7 @@ describe('Swarm Tools', () => {
     it('should generate CRUD operations with correct parameters', async () => {
       const params = {
         feature: 'catalog',
-        dataType: 'Product',
+        name: 'Product', // Changed from dataType to name
         public: ['create', 'get'] as CrudOperation[],
         exclude: ['delete'] as CrudOperation[],
         force: true,
@@ -170,7 +171,7 @@ describe('Swarm Tools', () => {
       const params = {
         feature: 'user-dashboard',
         name: 'EmailSender',
-        schedule: '0 9 * * *',
+        cron: '0 9 * * *', // Changed from schedule to cron
         entities: ['User', 'Email'],
         force: false,
       };
@@ -182,7 +183,7 @@ describe('Swarm Tools', () => {
       expect(result.success).toBe(true);
     });
 
-    it('should generate operation with correct parameters', async () => {
+    it('should generate action with correct parameters', async () => {
       const params = {
         feature: 'UserManagement',
         operation: 'create' as ActionOperation,
@@ -192,7 +193,22 @@ describe('Swarm Tools', () => {
 
       mockFs.readdirSync.mockReturnValue([]);
 
-      const result = await swarmTools.generateOperation(params);
+      const result = await swarmTools.generateAction(params);
+
+      expect(result.success).toBe(true);
+    });
+
+    it('should generate query with correct parameters', async () => {
+      const params = {
+        feature: 'UserManagement',
+        operation: 'get' as QueryOperation,
+        dataType: 'User',
+        entities: ['User', 'Profile'],
+      };
+
+      mockFs.readdirSync.mockReturnValue([]);
+
+      const result = await swarmTools.generateQuery(params);
 
       expect(result.success).toBe(true);
     });

@@ -1,12 +1,13 @@
 import { realFileSystem } from '@ingenyus/swarm-core/dist/utils/filesystem.js';
 import { realLogger } from '@ingenyus/swarm-core/dist/utils/logger.js';
 import type {
+  GenerateActionParams,
   GenerateApiNamespaceParams,
   GenerateApiParams,
   GenerateCrudParams,
   GenerateFeatureParams,
   GenerateJobParams,
-  GenerateOperationParams,
+  GenerateQueryParams,
   GenerateRouteParams,
 } from '../types/swarm.js';
 import { SwarmTools } from './swarm.js';
@@ -23,8 +24,10 @@ export const tools = {
     swarmTools.generateCrud(params),
   generate_wasp_job: (params: GenerateJobParams) =>
     swarmTools.generateJob(params),
-  generate_wasp_operation: (params: GenerateOperationParams) =>
-    swarmTools.generateOperation(params),
+  generate_wasp_action: (params: GenerateActionParams) =>
+    swarmTools.generateAction(params),
+  generate_wasp_query: (params: GenerateQueryParams) =>
+    swarmTools.generateQuery(params),
   generate_wasp_route: (params: GenerateRouteParams) =>
     swarmTools.generateRoute(params),
   generate_wasp_apinamespace: (params: GenerateApiNamespaceParams) =>

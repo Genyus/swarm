@@ -3,6 +3,8 @@ import type { Logger } from '@ingenyus/swarm-core/dist/types/logger.js';
 import * as path from 'path';
 import { GeneratorService } from '../types/generator-service.js';
 import {
+  GenerateActionParams,
+  GenerateActionParamsSchema,
   GenerateApiNamespaceParams,
   GenerateApiNamespaceParamsSchema,
   GenerateApiParams,
@@ -13,8 +15,8 @@ import {
   GenerateFeatureParamsSchema,
   GenerateJobParams,
   GenerateJobParamsSchema,
-  GenerateOperationParams,
-  GenerateOperationParamsSchema,
+  GenerateQueryParams,
+  GenerateQueryParamsSchema,
   GenerateRouteParams,
   GenerateRouteParamsSchema,
   GenerationResult,
@@ -76,16 +78,14 @@ export class SwarmTools {
     );
   }
 
-  async generateCrud(
-    params: GenerateCrudParams
-  ): Promise<GenerationResult> {
+  async generateCrud(params: GenerateCrudParams): Promise<GenerationResult> {
     const validParams = GenerateCrudParamsSchema.parse(params);
     const projectRoot = this.getProjectRoot(validParams.projectPath);
 
     return this.executeGenerator(
       async () => {
         const crudFlags = {
-          dataType: validParams.dataType,
+          dataType: validParams.name, // Use name instead of dataType
           public: validParams.public || [],
           override: validParams.override || [],
           exclude: validParams.exclude || [],
@@ -97,15 +97,13 @@ export class SwarmTools {
           crudFlags
         );
       },
-      `Successfully generated CRUD operations for: ${validParams.dataType}`,
+      `Successfully generated CRUD operations for: ${validParams.name}`,
       'Failed to generate CRUD',
       projectRoot
     );
   }
 
-  async generateRoute(
-    params: GenerateRouteParams
-  ): Promise<GenerationResult> {
+  async generateRoute(params: GenerateRouteParams): Promise<GenerationResult> {
     const validParams = GenerateRouteParamsSchema.parse(params);
     const projectRoot = this.getProjectRoot(validParams.projectPath);
 
@@ -137,8 +135,8 @@ export class SwarmTools {
       async () => {
         const jobFlags = {
           name: validParams.name,
-          schedule: validParams.schedule || '',
-          scheduleArgs: validParams.scheduleArgs || '',
+          schedule: validParams.cron || '', // Use cron instead of schedule
+          scheduleArgs: validParams.args || '', // Use args instead of scheduleArgs
           entities: validParams.entities || [],
           force: validParams.force || false,
         };
@@ -151,10 +149,10 @@ export class SwarmTools {
     );
   }
 
-  async generateOperation(
-    params: GenerateOperationParams
+  async generateAction(
+    params: GenerateActionParams
   ): Promise<GenerationResult> {
-    const validParams = GenerateOperationParamsSchema.parse(params);
+    const validParams = GenerateActionParamsSchema.parse(params);
     const projectRoot = this.getProjectRoot(validParams.projectPath);
 
     return this.executeGenerator(
@@ -172,8 +170,33 @@ export class SwarmTools {
           operationFlags
         );
       },
-      `Successfully generated operation: ${validParams.operation} for ${validParams.dataType}`,
-      'Failed to generate operation',
+      `Successfully generated action: ${validParams.operation} for ${validParams.dataType}`,
+      'Failed to generate action',
+      projectRoot
+    );
+  }
+
+  async generateQuery(params: GenerateQueryParams): Promise<GenerationResult> {
+    const validParams = GenerateQueryParamsSchema.parse(params);
+    const projectRoot = this.getProjectRoot(validParams.projectPath);
+
+    return this.executeGenerator(
+      async () => {
+        const operationFlags = {
+          dataType: validParams.dataType,
+          operation: validParams.operation,
+          entities: validParams.entities || [],
+          auth: validParams.auth || false,
+          force: validParams.force || false,
+        };
+
+        await this.generatorService.generateOperation(
+          validParams.feature,
+          operationFlags
+        );
+      },
+      `Successfully generated query: ${validParams.operation} for ${validParams.dataType}`,
+      'Failed to generate query',
       projectRoot
     );
   }

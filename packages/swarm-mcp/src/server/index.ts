@@ -190,6 +190,10 @@ export class SwarmMCPServer {
                 type: 'boolean',
                 description: 'Force overwrite existing files',
               },
+              customMiddleware: {
+                type: 'boolean',
+                description: 'Enable custom middleware for this API',
+              },
             },
             required: ['feature', 'name', 'method', 'route'],
           },
@@ -218,9 +222,9 @@ export class SwarmMCPServer {
                 type: 'string',
                 description: "Feature name (e.g., 'users')",
               },
-              dataType: {
+              name: {
                 type: 'string',
-                description: "Data type(e.g., 'User')",
+                description: "Data type name (e.g., 'User')",
               },
               public: {
                 type: 'array',
@@ -242,7 +246,7 @@ export class SwarmMCPServer {
                 description: 'Force overwrite existing files',
               },
             },
-            required: ['feature', 'dataType'],
+            required: ['feature', 'name'],
           },
         },
         {
@@ -259,13 +263,13 @@ export class SwarmMCPServer {
                 type: 'string',
                 description: "Job name (e.g., 'EmailSender')",
               },
-              schedule: {
+              cron: {
                 type: 'string',
                 description: "Cron schedule expression (e.g., '0 9 * * *')",
               },
-              scheduleArgs: {
+              args: {
                 type: 'string',
-                description: 'Schedule arguments JSON (e.g., \'{"retry":3}\')',
+                description: 'Job arguments JSON (e.g., \'{"retry":3}\')',
               },
               entities: {
                 type: 'array',
@@ -281,8 +285,8 @@ export class SwarmMCPServer {
           },
         },
         {
-          name: 'generate_wasp_operation',
-          description: 'Generate Wasp queries and actions',
+          name: 'generate_wasp_action',
+          description: 'Generate Wasp action operations',
           inputSchema: {
             type: 'object',
             properties: {
@@ -292,9 +296,44 @@ export class SwarmMCPServer {
               },
               operation: {
                 type: 'string',
-                enum: ['create', 'update', 'delete', 'get', 'getAll'],
-                description:
-                  'Operation type (create | update | delete | get | getAll)',
+                enum: ['create', 'update', 'delete'],
+                description: 'Action operation type (create | update | delete)',
+              },
+              dataType: {
+                type: 'string',
+                description: "Data type (e.g., 'User')",
+              },
+              entities: {
+                type: 'array',
+                items: { type: 'string' },
+                description: 'Related entities',
+              },
+              auth: {
+                type: 'boolean',
+                description: 'Require authentication',
+              },
+              force: {
+                type: 'boolean',
+                description: 'Force overwrite existing files',
+              },
+            },
+            required: ['feature', 'operation', 'dataType'],
+          },
+        },
+        {
+          name: 'generate_wasp_query',
+          description: 'Generate Wasp query operations',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              feature: {
+                type: 'string',
+                description: "Feature name (e.g., 'users')",
+              },
+              operation: {
+                type: 'string',
+                enum: ['get', 'getAll'],
+                description: 'Query operation type (get | getAll)',
               },
               dataType: {
                 type: 'string',

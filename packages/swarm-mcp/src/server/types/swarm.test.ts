@@ -1,11 +1,12 @@
 import { HttpMethod, OperationType } from '@ingenyus/swarm-core';
 import { describe, expect, it } from 'vitest';
 import {
+  GenerateActionParamsSchema,
   GenerateApiParamsSchema,
   GenerateCrudParamsSchema,
   GenerateFeatureParamsSchema,
   GenerateJobParamsSchema,
-  GenerateOperationParamsSchema,
+  GenerateQueryParamsSchema,
   GenerateRouteParamsSchema,
   HttpMethodSchema,
   OperationTypeSchema,
@@ -63,9 +64,7 @@ describe('Swarm Types', () => {
           auth: true,
           force: false,
         };
-        expect(() =>
-          GenerateApiParamsSchema.parse(validParams)
-        ).not.toThrow();
+        expect(() => GenerateApiParamsSchema.parse(validParams)).not.toThrow();
       });
 
       it('should reject invalid API generation parameters', () => {
@@ -107,24 +106,20 @@ describe('Swarm Types', () => {
       it('should validate correct CRUD generation parameters', () => {
         const validParams = {
           feature: 'user-management',
-          dataType: 'User',
+          name: 'User', // Changed from dataType to name
           public: ['create', 'get'],
           override: ['update'],
           exclude: ['delete'],
           force: true,
         };
-        expect(() =>
-          GenerateCrudParamsSchema.parse(validParams)
-        ).not.toThrow();
+        expect(() => GenerateCrudParamsSchema.parse(validParams)).not.toThrow();
       });
 
-      it('should reject parameters with empty dataType', () => {
+      it('should reject parameters with empty name', () => {
         const invalidParams = {
-          dataType: '',
+          name: '', // Changed from dataType to name
         };
-        expect(() =>
-          GenerateCrudParamsSchema.parse(invalidParams)
-        ).toThrow();
+        expect(() => GenerateCrudParamsSchema.parse(invalidParams)).toThrow();
       });
     });
 
@@ -133,19 +128,17 @@ describe('Swarm Types', () => {
         const validParams = {
           feature: 'maintenance',
           name: 'EmailSender',
-          schedule: '0 */6 * * *',
-          scheduleArgs: '{"retryLimit": 3}',
+          cron: '0 */6 * * *', // Changed from schedule to cron
+          args: '{"retryLimit": 3}', // Changed from scheduleArgs to args
           entities: ['Email'],
           force: false,
         };
-        expect(() =>
-          GenerateJobParamsSchema.parse(validParams)
-        ).not.toThrow();
+        expect(() => GenerateJobParamsSchema.parse(validParams)).not.toThrow();
       });
     });
 
-    describe('SwarmGenerateOperationParamsSchema', () => {
-      it('should validate correct operation generation parameters', () => {
+    describe('SwarmGenerateActionParamsSchema', () => {
+      it('should validate correct action generation parameters', () => {
         const validParams = {
           feature: 'UserManagement',
           operation: 'create' as const,
@@ -155,19 +148,42 @@ describe('Swarm Types', () => {
           force: false,
         };
         expect(() =>
-          GenerateOperationParamsSchema.parse(validParams)
+          GenerateActionParamsSchema.parse(validParams)
         ).not.toThrow();
       });
 
-      it('should reject invalid operation types', () => {
+      it('should reject invalid action operation types', () => {
         const invalidParams = {
           feature: 'UserManagement',
-          operation: 'invalid',
+          operation: 'get', // get is not a valid action operation
           dataType: 'User',
         };
+        expect(() => GenerateActionParamsSchema.parse(invalidParams)).toThrow();
+      });
+    });
+
+    describe('SwarmGenerateQueryParamsSchema', () => {
+      it('should validate correct query generation parameters', () => {
+        const validParams = {
+          feature: 'UserManagement',
+          operation: 'get' as const,
+          dataType: 'User',
+          entities: ['User'],
+          auth: true,
+          force: false,
+        };
         expect(() =>
-          GenerateOperationParamsSchema.parse(invalidParams)
-        ).toThrow();
+          GenerateQueryParamsSchema.parse(validParams)
+        ).not.toThrow();
+      });
+
+      it('should reject invalid query operation types', () => {
+        const invalidParams = {
+          feature: 'UserManagement',
+          operation: 'create', // create is not a valid query operation
+          dataType: 'User',
+        };
+        expect(() => GenerateQueryParamsSchema.parse(invalidParams)).toThrow();
       });
     });
 

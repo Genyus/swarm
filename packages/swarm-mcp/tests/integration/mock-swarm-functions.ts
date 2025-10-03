@@ -8,7 +8,8 @@ export function mockSwarmFunctions() {
       generateCrud: vi.fn(),
       generateRoute: vi.fn(),
       generateJob: vi.fn(),
-      generateOperation: vi.fn(),
+      generateAction: vi.fn(),
+      generateQuery: vi.fn(),
       generateApiNamespace: vi.fn(),
     };
 
@@ -114,10 +115,17 @@ export function setupMockImplementations(mockSwarmToolsInstance: any) {
       });
     }
   );
-  mockSwarmToolsInstance.generateOperation.mockResolvedValue({
+  mockSwarmToolsInstance.generateAction.mockResolvedValue({
     success: true,
     output:
-      'Operation generated successfully\nGenerated files:\n- src/operations/user.ts',
+      'Action generated successfully\nGenerated files:\n- src/operations/user.ts',
+    generatedFiles: ['src/operations/user.ts'],
+    modifiedFiles: [],
+  });
+  mockSwarmToolsInstance.generateQuery.mockResolvedValue({
+    success: true,
+    output:
+      'Query generated successfully\nGenerated files:\n- src/operations/user.ts',
     generatedFiles: ['src/operations/user.ts'],
     modifiedFiles: [],
   });

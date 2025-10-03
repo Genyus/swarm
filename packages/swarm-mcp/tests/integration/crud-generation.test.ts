@@ -38,7 +38,7 @@ describe('CRUD Generation Integration', () => {
       (params: any) => {
         return Promise.resolve({
           success: true,
-          output: `CRUD operations generated successfully for ${params.dataType}`,
+          output: `CRUD operations generated successfully for ${params.name}`,
           generatedFiles: ['src/operations/user.ts', 'src/queries/user.ts'],
           modifiedFiles: [],
         });
@@ -55,7 +55,7 @@ describe('CRUD Generation Integration', () => {
     it('should generate complete CRUD operations for entity', async () => {
       const result = await swarmTools.generateCrud({
         feature: 'main',
-        dataType: 'User',
+        name: 'User',
         public: ['get', 'getAll'],
         override: ['update', 'delete'],
         exclude: ['create'],
@@ -69,7 +69,7 @@ describe('CRUD Generation Integration', () => {
       expect(
         mockSwarm.mockSwarmToolsInstance.generateCrud
       ).toHaveBeenCalledWith({
-        dataType: 'User',
+        name: 'User',
         public: ['get', 'getAll'],
         override: ['update', 'delete'],
         exclude: ['create'],
@@ -81,7 +81,7 @@ describe('CRUD Generation Integration', () => {
     it('should generate CRUD with minimal configuration', async () => {
       const result = await swarmTools.generateCrud({
         feature: 'main',
-        dataType: 'Post',
+        name: 'Post',
         force: false,
       });
 
@@ -90,7 +90,7 @@ describe('CRUD Generation Integration', () => {
       expect(
         mockSwarm.mockSwarmToolsInstance.generateCrud
       ).toHaveBeenCalledWith({
-        dataType: 'Post',
+        name: 'Post',
         force: false,
         feature: 'main',
       });
@@ -103,7 +103,7 @@ describe('CRUD Generation Integration', () => {
 
       const result = await swarmTools.generateCrud({
         feature: 'main',
-        dataType: 'Post',
+        name: 'Post',
         public: publicFields,
         force: false,
       });
@@ -113,7 +113,7 @@ describe('CRUD Generation Integration', () => {
       expect(
         mockSwarm.mockSwarmToolsInstance.generateCrud
       ).toHaveBeenCalledWith({
-        dataType: 'Post',
+        name: 'Post',
         public: publicFields,
         force: false,
         feature: 'main',
@@ -123,7 +123,7 @@ describe('CRUD Generation Integration', () => {
     it('should handle single public field', async () => {
       const result = await swarmTools.generateCrud({
         feature: 'main',
-        dataType: 'User',
+        name: 'User',
         public: ['get'],
         force: false,
       });
@@ -133,7 +133,7 @@ describe('CRUD Generation Integration', () => {
       expect(
         mockSwarm.mockSwarmToolsInstance.generateCrud
       ).toHaveBeenCalledWith({
-        dataType: 'User',
+        name: 'User',
         public: ['get'],
         force: false,
         feature: 'main',
@@ -143,7 +143,7 @@ describe('CRUD Generation Integration', () => {
     it('should handle empty public fields', async () => {
       const result = await swarmTools.generateCrud({
         feature: 'main',
-        dataType: 'User',
+        name: 'User',
         public: [],
         force: false,
       });
@@ -153,7 +153,7 @@ describe('CRUD Generation Integration', () => {
       expect(
         mockSwarm.mockSwarmToolsInstance.generateCrud
       ).toHaveBeenCalledWith({
-        dataType: 'User',
+        name: 'User',
         public: [],
         force: false,
         feature: 'main',
@@ -167,7 +167,7 @@ describe('CRUD Generation Integration', () => {
 
       const result = await swarmTools.generateCrud({
         feature: 'main',
-        dataType: 'User',
+        name: 'User',
         override: overrideFields,
         force: false,
       });
@@ -177,7 +177,7 @@ describe('CRUD Generation Integration', () => {
       expect(
         mockSwarm.mockSwarmToolsInstance.generateCrud
       ).toHaveBeenCalledWith({
-        dataType: 'User',
+        name: 'User',
         override: overrideFields,
         force: false,
         feature: 'main',
@@ -187,7 +187,7 @@ describe('CRUD Generation Integration', () => {
     it('should handle single override field', async () => {
       const result = await swarmTools.generateCrud({
         feature: 'main',
-        dataType: 'Post',
+        name: 'Post',
         override: ['update'],
         force: false,
       });
@@ -197,7 +197,7 @@ describe('CRUD Generation Integration', () => {
       expect(
         mockSwarm.mockSwarmToolsInstance.generateCrud
       ).toHaveBeenCalledWith({
-        dataType: 'Post',
+        name: 'Post',
         override: ['update'],
         force: false,
         feature: 'main',
@@ -211,7 +211,7 @@ describe('CRUD Generation Integration', () => {
 
       const result = await swarmTools.generateCrud({
         feature: 'main',
-        dataType: 'User',
+        name: 'User',
         exclude: excludedFields,
         force: false,
       });
@@ -221,7 +221,7 @@ describe('CRUD Generation Integration', () => {
       expect(
         mockSwarm.mockSwarmToolsInstance.generateCrud
       ).toHaveBeenCalledWith({
-        dataType: 'User',
+        name: 'User',
         exclude: excludedFields,
         force: false,
         feature: 'main',
@@ -231,7 +231,7 @@ describe('CRUD Generation Integration', () => {
     it('should handle single excluded field', async () => {
       const result = await swarmTools.generateCrud({
         feature: 'main',
-        dataType: 'Post',
+        name: 'Post',
         exclude: ['create'],
         force: false,
       });
@@ -241,7 +241,7 @@ describe('CRUD Generation Integration', () => {
       expect(
         mockSwarm.mockSwarmToolsInstance.generateCrud
       ).toHaveBeenCalledWith({
-        dataType: 'Post',
+        name: 'Post',
         exclude: ['create'],
         force: false,
         feature: 'main',
@@ -253,7 +253,7 @@ describe('CRUD Generation Integration', () => {
     it('should handle all field configurations together', async () => {
       const result = await swarmTools.generateCrud({
         feature: 'main',
-        dataType: 'ComplexEntity',
+        name: 'ComplexEntity',
         public: ['get', 'getAll'],
         override: ['update', 'delete'],
         exclude: ['create'],
@@ -265,7 +265,7 @@ describe('CRUD Generation Integration', () => {
       expect(
         mockSwarm.mockSwarmToolsInstance.generateCrud
       ).toHaveBeenCalledWith({
-        dataType: 'ComplexEntity',
+        name: 'ComplexEntity',
         public: ['get', 'getAll'],
         override: ['update', 'delete'],
         exclude: ['create'],
@@ -277,7 +277,7 @@ describe('CRUD Generation Integration', () => {
     it('should handle overlapping public and override fields', async () => {
       const result = await swarmTools.generateCrud({
         feature: 'main',
-        dataType: 'OverlapEntity',
+        name: 'OverlapEntity',
         public: ['get', 'getAll'],
         override: ['get', 'getAll'],
         force: false,
@@ -288,7 +288,7 @@ describe('CRUD Generation Integration', () => {
       expect(
         mockSwarm.mockSwarmToolsInstance.generateCrud
       ).toHaveBeenCalledWith({
-        dataType: 'OverlapEntity',
+        name: 'OverlapEntity',
         public: ['get', 'getAll'],
         override: ['get', 'getAll'],
         force: false,
@@ -306,7 +306,7 @@ describe('CRUD Generation Integration', () => {
 
       const result = await swarmTools.generateCrud({
         feature: 'main',
-        dataType: 'User',
+        name: 'User',
         force: true,
       });
 
@@ -315,7 +315,7 @@ describe('CRUD Generation Integration', () => {
       expect(
         mockSwarm.mockSwarmToolsInstance.generateCrud
       ).toHaveBeenCalledWith({
-        dataType: 'User',
+        name: 'User',
         force: true,
         feature: 'main',
       });
@@ -338,7 +338,7 @@ describe('CRUD Generation Integration', () => {
       await expect(
         swarmTools.generateCrud({
           feature: 'main',
-          dataType: 'User',
+          name: 'User',
           public: ['get', 'getAll'],
           force: false,
         })
@@ -355,7 +355,7 @@ describe('CRUD Generation Integration', () => {
       await expect(
         swarmTools.generateCrud({
           feature: 'main',
-          dataType: 'InvalidType',
+          name: 'InvalidType',
           public: [],
           force: false,
         })
@@ -370,7 +370,7 @@ describe('CRUD Generation Integration', () => {
       await expect(
         swarmTools.generateCrud({
           feature: 'main',
-          dataType: 'Dummy',
+          name: 'Dummy',
           public: ['get', 'getAll'],
           force: false,
         })
@@ -382,7 +382,7 @@ describe('CRUD Generation Integration', () => {
     it('should integrate generated CRUD operations with project structure', async () => {
       const result = await swarmTools.generateCrud({
         feature: 'main',
-        dataType: 'User',
+        name: 'User',
         public: ['get', 'getAll'],
         force: false,
       });
@@ -398,7 +398,7 @@ describe('CRUD Generation Integration', () => {
 
       await swarmTools.generateCrud({
         feature: 'main',
-        dataType: 'Post',
+        name: 'Post',
         force: false,
       });
 
@@ -409,7 +409,7 @@ describe('CRUD Generation Integration', () => {
     it('should generate CRUD operations compatible with existing entities', async () => {
       const result = await swarmTools.generateCrud({
         feature: 'main',
-        dataType: 'User',
+        name: 'User',
         public: ['get', 'getAll'],
         exclude: ['create'],
         force: false,
@@ -425,7 +425,7 @@ describe('CRUD Generation Integration', () => {
     it('should handle CRUD generation for entities with relationships', async () => {
       const result = await swarmTools.generateCrud({
         feature: 'main',
-        dataType: 'Post',
+        name: 'Post',
         public: ['get', 'getAll'],
         override: ['update', 'delete'],
         exclude: ['create'],
@@ -437,7 +437,7 @@ describe('CRUD Generation Integration', () => {
       expect(
         mockSwarm.mockSwarmToolsInstance.generateCrud
       ).toHaveBeenCalledWith({
-        dataType: 'Post',
+        name: 'Post',
         public: ['get', 'getAll'],
         override: ['update', 'delete'],
         exclude: ['create'],
@@ -449,7 +449,7 @@ describe('CRUD Generation Integration', () => {
     it('should handle CRUD generation for related entities', async () => {
       const result = await swarmTools.generateCrud({
         feature: 'main',
-        dataType: 'User',
+        name: 'User',
         public: ['get', 'getAll'],
         exclude: ['create'],
         force: false,
@@ -460,7 +460,7 @@ describe('CRUD Generation Integration', () => {
       expect(
         mockSwarm.mockSwarmToolsInstance.generateCrud
       ).toHaveBeenCalledWith({
-        dataType: 'User',
+        name: 'User',
         public: ['get', 'getAll'],
         exclude: ['create'],
         force: false,
@@ -473,7 +473,7 @@ describe('CRUD Generation Integration', () => {
     it('should handle CRUD generation with complex field types', async () => {
       const result = await swarmTools.generateCrud({
         feature: 'main',
-        dataType: 'AdvancedEntity',
+        name: 'AdvancedEntity',
         public: ['get', 'getAll'],
         override: ['update', 'delete'],
         exclude: ['create'],
@@ -485,7 +485,7 @@ describe('CRUD Generation Integration', () => {
       expect(
         mockSwarm.mockSwarmToolsInstance.generateCrud
       ).toHaveBeenCalledWith({
-        dataType: 'AdvancedEntity',
+        name: 'AdvancedEntity',
         public: ['get', 'getAll'],
         override: ['update', 'delete'],
         exclude: ['create'],

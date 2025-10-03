@@ -36,7 +36,7 @@ export interface GenerateFeatureParams extends CliParams {
 
 export interface GenerateCrudParams extends CliParams {
   feature: string;
-  dataType: string;
+  name: string; // Changed from dataType to name to match CLI
   public?: CrudOperation[];
   override?: CrudOperation[];
   exclude?: CrudOperation[];
@@ -46,15 +46,24 @@ export interface GenerateCrudParams extends CliParams {
 export interface GenerateJobParams extends CliParams {
   feature: string;
   name: string;
-  schedule?: string;
-  scheduleArgs?: string;
+  cron?: string; // Changed from schedule to cron to match CLI
+  args?: string; // Changed from scheduleArgs to args to match CLI
   entities?: string[];
   force?: boolean;
 }
 
-export interface GenerateOperationParams extends CliParams {
+export interface GenerateActionParams extends CliParams {
   feature: string;
-  operation: ActionOperation | QueryOperation;
+  operation: ActionOperation;
+  dataType: string;
+  entities?: string[];
+  auth?: boolean;
+  force?: boolean;
+}
+
+export interface GenerateQueryParams extends CliParams {
+  feature: string;
+  operation: QueryOperation;
   dataType: string;
   entities?: string[];
   auth?: boolean;
@@ -122,7 +131,7 @@ export const GenerateFeatureParamsSchema = CliParamsSchema.extend({
 
 export const GenerateCrudParamsSchema = CliParamsSchema.extend({
   feature: z.string().min(1),
-  dataType: z.string().min(1),
+  name: z.string().min(1), // Changed from dataType to name to match CLI
   public: z.array(CrudOperationSchema).optional(),
   override: z.array(CrudOperationSchema).optional(),
   exclude: z.array(CrudOperationSchema).optional(),
@@ -132,15 +141,24 @@ export const GenerateCrudParamsSchema = CliParamsSchema.extend({
 export const GenerateJobParamsSchema = CliParamsSchema.extend({
   feature: z.string().min(1),
   name: z.string().min(1),
-  schedule: z.string().optional(),
-  scheduleArgs: z.string().optional(),
+  cron: z.string().optional(), // Changed from schedule to cron to match CLI
+  args: z.string().optional(), // Changed from scheduleArgs to args to match CLI
   entities: z.array(z.string()).optional(),
   force: z.boolean().optional(),
 });
 
-export const GenerateOperationParamsSchema = CliParamsSchema.extend({
+export const GenerateActionParamsSchema = CliParamsSchema.extend({
   feature: z.string().min(1),
-  operation: z.union([ActionOperationSchema, QueryOperationSchema]),
+  operation: ActionOperationSchema,
+  dataType: z.string().min(1),
+  entities: z.array(z.string()).optional(),
+  auth: z.boolean().optional(),
+  force: z.boolean().optional(),
+});
+
+export const GenerateQueryParamsSchema = CliParamsSchema.extend({
+  feature: z.string().min(1),
+  operation: QueryOperationSchema,
   dataType: z.string().min(1),
   entities: z.array(z.string()).optional(),
   auth: z.boolean().optional(),
@@ -155,10 +173,9 @@ export const GenerateRouteParamsSchema = CliParamsSchema.extend({
   force: z.boolean().optional(),
 });
 
-export const GenerateApiNamespaceParamsSchema =
-  CliParamsSchema.extend({
-    feature: z.string().min(1),
-    name: z.string().min(1),
-    path: z.string().min(1),
-    force: z.boolean().optional(),
-  });
+export const GenerateApiNamespaceParamsSchema = CliParamsSchema.extend({
+  feature: z.string().min(1),
+  name: z.string().min(1),
+  path: z.string().min(1),
+  force: z.boolean().optional(),
+});

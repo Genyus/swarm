@@ -33,12 +33,25 @@ describe('Operation Generation Integration Tests', () => {
     // Setup test project
     await testEnv.setup('withEntities');
 
-    mockSwarm.mockSwarmToolsInstance.generateOperation.mockClear();
-    mockSwarm.mockSwarmToolsInstance.generateOperation.mockImplementation(
+    mockSwarm.mockSwarmToolsInstance.generateAction.mockClear();
+    mockSwarm.mockSwarmToolsInstance.generateQuery.mockClear();
+
+    mockSwarm.mockSwarmToolsInstance.generateAction.mockImplementation(
       (params: any) => {
         return Promise.resolve({
           success: true,
-          output: `Successfully generated operation: ${params.operation} for ${params.dataType}`,
+          output: `Successfully generated action: ${params.operation} for ${params.dataType}`,
+          generatedFiles: ['src/operations/user.ts'],
+          modifiedFiles: [],
+        });
+      }
+    );
+
+    mockSwarm.mockSwarmToolsInstance.generateQuery.mockImplementation(
+      (params: any) => {
+        return Promise.resolve({
+          success: true,
+          output: `Successfully generated query: ${params.operation} for ${params.dataType}`,
           generatedFiles: ['src/operations/user.ts'],
           modifiedFiles: [],
         });
@@ -60,14 +73,14 @@ describe('Operation Generation Integration Tests', () => {
         projectPath: testEnv.tempProjectDir,
       };
 
-      const result = await swarmTools.generateOperation(params);
+      const result = await swarmTools.generateQuery(params);
 
       expect(result.success).toBe(true);
       expect(result.output).toContain(
-        'Successfully generated operation: get for User'
+        'Successfully generated query: get for User'
       );
       expect(
-        mockSwarm.mockSwarmToolsInstance.generateOperation
+        mockSwarm.mockSwarmToolsInstance.generateQuery
       ).toHaveBeenCalledWith(params);
     });
 
@@ -79,14 +92,14 @@ describe('Operation Generation Integration Tests', () => {
         projectPath: testEnv.tempProjectDir,
       };
 
-      const result = await swarmTools.generateOperation(params);
+      const result = await swarmTools.generateQuery(params);
 
       expect(result.success).toBe(true);
       expect(result.output).toContain(
-        'Successfully generated operation: getAll for Post'
+        'Successfully generated query: getAll for Post'
       );
       expect(
-        mockSwarm.mockSwarmToolsInstance.generateOperation
+        mockSwarm.mockSwarmToolsInstance.generateQuery
       ).toHaveBeenCalledWith(params);
     });
 
@@ -99,14 +112,14 @@ describe('Operation Generation Integration Tests', () => {
         projectPath: testEnv.tempProjectDir,
       };
 
-      const result = await swarmTools.generateOperation(params);
+      const result = await swarmTools.generateQuery(params);
 
       expect(result.success).toBe(true);
       expect(result.output).toContain(
-        'Successfully generated operation: get for Post'
+        'Successfully generated query: get for Post'
       );
       expect(
-        mockSwarm.mockSwarmToolsInstance.generateOperation
+        mockSwarm.mockSwarmToolsInstance.generateQuery
       ).toHaveBeenCalledWith(params);
     });
   });
@@ -120,14 +133,14 @@ describe('Operation Generation Integration Tests', () => {
         projectPath: testEnv.tempProjectDir,
       };
 
-      const result = await swarmTools.generateOperation(params);
+      const result = await swarmTools.generateAction(params);
 
       expect(result.success).toBe(true);
       expect(result.output).toContain(
-        'Successfully generated operation: create for User'
+        'Successfully generated action: create for User'
       );
       expect(
-        mockSwarm.mockSwarmToolsInstance.generateOperation
+        mockSwarm.mockSwarmToolsInstance.generateAction
       ).toHaveBeenCalledWith(params);
     });
 
@@ -139,14 +152,14 @@ describe('Operation Generation Integration Tests', () => {
         projectPath: testEnv.tempProjectDir,
       };
 
-      const result = await swarmTools.generateOperation(params);
+      const result = await swarmTools.generateAction(params);
 
       expect(result.success).toBe(true);
       expect(result.output).toContain(
-        'Successfully generated operation: update for Post'
+        'Successfully generated action: update for Post'
       );
       expect(
-        mockSwarm.mockSwarmToolsInstance.generateOperation
+        mockSwarm.mockSwarmToolsInstance.generateAction
       ).toHaveBeenCalledWith(params);
     });
 
@@ -158,14 +171,14 @@ describe('Operation Generation Integration Tests', () => {
         projectPath: testEnv.tempProjectDir,
       };
 
-      const result = await swarmTools.generateOperation(params);
+      const result = await swarmTools.generateAction(params);
 
       expect(result.success).toBe(true);
       expect(result.output).toContain(
-        'Successfully generated operation: delete for Comment'
+        'Successfully generated action: delete for Comment'
       );
       expect(
-        mockSwarm.mockSwarmToolsInstance.generateOperation
+        mockSwarm.mockSwarmToolsInstance.generateAction
       ).toHaveBeenCalledWith(params);
     });
 
@@ -178,14 +191,14 @@ describe('Operation Generation Integration Tests', () => {
         projectPath: testEnv.tempProjectDir,
       };
 
-      const result = await swarmTools.generateOperation(params);
+      const result = await swarmTools.generateAction(params);
 
       expect(result.success).toBe(true);
       expect(result.output).toContain(
-        'Successfully generated operation: create for Post'
+        'Successfully generated action: create for Post'
       );
       expect(
-        mockSwarm.mockSwarmToolsInstance.generateOperation
+        mockSwarm.mockSwarmToolsInstance.generateAction
       ).toHaveBeenCalledWith(params);
     });
   });
@@ -209,11 +222,28 @@ describe('Operation Generation Integration Tests', () => {
             projectPath: testEnv.tempProjectDir,
           };
 
-          const result = await swarmTools.generateOperation(params);
+          // Use appropriate method based on operation type
+          const isQuery = operation === 'get' || operation === 'getAll';
+          const result = isQuery
+            ? await swarmTools.generateQuery({
+                ...params,
+                operation: operation as QueryOperation,
+              })
+            : await swarmTools.generateAction({
+                ...params,
+                operation: operation as ActionOperation,
+              });
+
           expect(result.success).toBe(true);
           expect(
-            mockSwarm.mockSwarmToolsInstance.generateOperation
-          ).toHaveBeenCalledWith(params);
+            isQuery
+              ? mockSwarm.mockSwarmToolsInstance.generateQuery
+              : mockSwarm.mockSwarmToolsInstance.generateAction
+          ).toHaveBeenCalledWith(
+            isQuery
+              ? { ...params, operation: operation as QueryOperation }
+              : { ...params, operation: operation as ActionOperation }
+          );
         }
       }
     });
@@ -226,14 +256,14 @@ describe('Operation Generation Integration Tests', () => {
         projectPath: testEnv.tempProjectDir,
       };
 
-      const result = await swarmTools.generateOperation(params);
+      const result = await swarmTools.generateQuery(params);
 
       expect(result.success).toBe(true);
       expect(result.output).toContain(
-        'Successfully generated operation: get for User'
+        'Successfully generated query: get for User'
       );
       expect(
-        mockSwarm.mockSwarmToolsInstance.generateOperation
+        mockSwarm.mockSwarmToolsInstance.generateQuery
       ).toHaveBeenCalledWith(params);
     });
   });
@@ -251,10 +281,10 @@ describe('Operation Generation Integration Tests', () => {
           projectPath: testEnv.tempProjectDir,
         };
 
-        const result = await swarmTools.generateOperation(params);
+        const result = await swarmTools.generateQuery(params);
         expect(result.success).toBe(true);
         expect(
-          mockSwarm.mockSwarmToolsInstance.generateOperation
+          mockSwarm.mockSwarmToolsInstance.generateQuery
         ).toHaveBeenCalledWith(params);
       }
     });
@@ -267,14 +297,14 @@ describe('Operation Generation Integration Tests', () => {
         projectPath: testEnv.tempProjectDir,
       };
 
-      const result = await swarmTools.generateOperation(params);
+      const result = await swarmTools.generateQuery(params);
 
       expect(result.success).toBe(true);
       expect(result.output).toContain(
-        'Successfully generated operation: get for UserAnalytics'
+        'Successfully generated query: get for UserAnalytics'
       );
       expect(
-        mockSwarm.mockSwarmToolsInstance.generateOperation
+        mockSwarm.mockSwarmToolsInstance.generateQuery
       ).toHaveBeenCalledWith(params);
     });
   });
@@ -289,14 +319,14 @@ describe('Operation Generation Integration Tests', () => {
         projectPath: testEnv.tempProjectDir,
       };
 
-      const result = await swarmTools.generateOperation(params);
+      const result = await swarmTools.generateQuery(params);
 
       expect(result.success).toBe(true);
       expect(result.output).toContain(
-        'Successfully generated operation: get for Post'
+        'Successfully generated query: get for Post'
       );
       expect(
-        mockSwarm.mockSwarmToolsInstance.generateOperation
+        mockSwarm.mockSwarmToolsInstance.generateQuery
       ).toHaveBeenCalledWith(params);
     });
 
@@ -309,14 +339,14 @@ describe('Operation Generation Integration Tests', () => {
         projectPath: testEnv.tempProjectDir,
       };
 
-      const result = await swarmTools.generateOperation(params);
+      const result = await swarmTools.generateAction(params);
 
       expect(result.success).toBe(true);
       expect(result.output).toContain(
-        'Successfully generated operation: create for User'
+        'Successfully generated action: create for User'
       );
       expect(
-        mockSwarm.mockSwarmToolsInstance.generateOperation
+        mockSwarm.mockSwarmToolsInstance.generateAction
       ).toHaveBeenCalledWith(params);
     });
   });
@@ -331,14 +361,14 @@ describe('Operation Generation Integration Tests', () => {
         projectPath: testEnv.tempProjectDir,
       };
 
-      const result = await swarmTools.generateOperation(params);
+      const result = await swarmTools.generateAction(params);
 
       expect(result.success).toBe(true);
       expect(result.output).toContain(
-        'Successfully generated operation: update for Product'
+        'Successfully generated action: update for Product'
       );
       expect(
-        mockSwarm.mockSwarmToolsInstance.generateOperation
+        mockSwarm.mockSwarmToolsInstance.generateAction
       ).toHaveBeenCalledWith(params);
     });
 
@@ -351,21 +381,21 @@ describe('Operation Generation Integration Tests', () => {
         projectPath: testEnv.tempProjectDir,
       };
 
-      const result = await swarmTools.generateOperation(params);
+      const result = await swarmTools.generateQuery(params);
 
       expect(result.success).toBe(true);
       expect(result.output).toContain(
-        'Successfully generated operation: get for UserPermission'
+        'Successfully generated query: get for UserPermission'
       );
       expect(
-        mockSwarm.mockSwarmToolsInstance.generateOperation
+        mockSwarm.mockSwarmToolsInstance.generateQuery
       ).toHaveBeenCalledWith(params);
     });
   });
 
   describe('Error Handling', () => {
     it('should handle operation generation errors gracefully', async () => {
-      mockSwarm.mockSwarmToolsInstance.generateOperation.mockRejectedValue(
+      mockSwarm.mockSwarmToolsInstance.generateQuery.mockRejectedValue(
         new Error('Operation generation failed')
       );
 
@@ -376,7 +406,7 @@ describe('Operation Generation Integration Tests', () => {
         projectPath: testEnv.tempProjectDir,
       };
 
-      await expect(swarmTools.generateOperation(params)).rejects.toThrow(
+      await expect(swarmTools.generateQuery(params)).rejects.toThrow(
         'Operation generation failed'
       );
     });
@@ -394,11 +424,11 @@ describe('Operation Generation Integration Tests', () => {
         projectPath: testEnv.tempProjectDir,
       };
 
-      const result = await swarmTools.generateOperation(params);
+      const result = await swarmTools.generateQuery(params);
 
       expect(result.success).toBe(true);
       expect(result.output).toContain(
-        'Successfully generated operation: get for Data'
+        'Successfully generated query: get for Data'
       );
     });
 
@@ -414,11 +444,11 @@ describe('Operation Generation Integration Tests', () => {
         projectPath: testEnv.tempProjectDir,
       };
 
-      const result = await swarmTools.generateOperation(params);
+      const result = await swarmTools.generateAction(params);
 
       expect(result.success).toBe(true);
       expect(result.output).toContain(
-        'Successfully generated operation: create for User'
+        'Successfully generated action: create for User'
       );
     });
   });
