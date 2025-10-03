@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { createApiNamespaceCommand } from './apinamespace.command';
+import { createApiNamespaceCommand } from './api-namespace.command';
 
 vi.mock('@ingenyus/swarm-core', async () => {
   const actual = await vi.importActual('@ingenyus/swarm-core');
