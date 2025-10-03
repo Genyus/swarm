@@ -19,7 +19,6 @@ import {
   SwarmGenerateRouteParams,
   SwarmGenerateRouteParamsSchema,
 } from '../types/swarm.js';
-import { ErrorFactory, createErrorContext } from '../utils/errors.js';
 
 export class SwarmTools {
   private generatorService: GeneratorService;
@@ -35,11 +34,217 @@ export class SwarmTools {
     return new SwarmTools(logger, fileSystem);
   }
 
+  async generateApi(params: SwarmGenerateApiParams): Promise<GenerationResult> {
+    const validParams = SwarmGenerateApiParamsSchema.parse(params);
+    const projectRoot = this.getProjectRoot(validParams.projectPath);
+
+    return this.executeGenerator(
+      async () => {
+        const apiFlags = {
+          name: validParams.name,
+          method: validParams.method,
+          route: validParams.route,
+          entities: validParams.entities || [],
+          auth: validParams.auth || false,
+          force: validParams.force || false,
+          customMiddleware: validParams.customMiddleware || false,
+        };
+
+        await this.generatorService.generateApi(validParams.feature, apiFlags);
+      },
+      `Successfully generated API: ${validParams.name}`,
+      'Failed to generate API',
+      projectRoot
+    );
+  }
+
+  async generateFeature(
+    params: SwarmGenerateFeatureParams
+  ): Promise<GenerationResult> {
+    const validParams = SwarmGenerateFeatureParamsSchema.parse(params);
+    const projectRoot = this.getProjectRoot(validParams.projectPath);
+
+    return this.executeGenerator(
+      () => {
+        const featurePath = validParams.name;
+        this.generatorService.generateFeature(featurePath);
+        return Promise.resolve();
+      },
+      `Successfully generated feature: ${validParams.name}`,
+      'Failed to generate feature',
+      projectRoot
+    );
+  }
+
+  async generateCrud(
+    params: SwarmGenerateCrudParams
+  ): Promise<GenerationResult> {
+    const validParams = SwarmGenerateCrudParamsSchema.parse(params);
+    const projectRoot = this.getProjectRoot(validParams.projectPath);
+
+    return this.executeGenerator(
+      async () => {
+        const crudFlags = {
+          dataType: validParams.dataType,
+          public: validParams.public || [],
+          override: validParams.override || [],
+          exclude: validParams.exclude || [],
+          force: validParams.force || false,
+        };
+
+        await this.generatorService.generateCrud(
+          validParams.feature,
+          crudFlags
+        );
+      },
+      `Successfully generated CRUD operations for: ${validParams.dataType}`,
+      'Failed to generate CRUD',
+      projectRoot
+    );
+  }
+
+  async generateRoute(
+    params: SwarmGenerateRouteParams
+  ): Promise<GenerationResult> {
+    const validParams = SwarmGenerateRouteParamsSchema.parse(params);
+    const projectRoot = this.getProjectRoot(validParams.projectPath);
+
+    return this.executeGenerator(
+      async () => {
+        const routeFlags = {
+          path: validParams.path,
+          name: validParams.name,
+          auth: validParams.auth || false,
+          force: validParams.force || false,
+        };
+
+        await this.generatorService.generateRoute(
+          validParams.feature,
+          routeFlags
+        );
+      },
+      `Successfully generated route: ${validParams.path}`,
+      'Failed to generate route',
+      projectRoot
+    );
+  }
+
+  async generateJob(params: SwarmGenerateJobParams): Promise<GenerationResult> {
+    const validParams = SwarmGenerateJobParamsSchema.parse(params);
+    const projectRoot = this.getProjectRoot(validParams.projectPath);
+
+    return this.executeGenerator(
+      async () => {
+        const jobFlags = {
+          name: validParams.name,
+          schedule: validParams.schedule || '',
+          scheduleArgs: validParams.scheduleArgs || '',
+          entities: validParams.entities || [],
+          force: validParams.force || false,
+        };
+
+        await this.generatorService.generateJob(validParams.feature, jobFlags);
+      },
+      `Successfully generated job: ${validParams.name}`,
+      'Failed to generate job',
+      projectRoot
+    );
+  }
+
+  async generateOperation(
+    params: SwarmGenerateOperationParams
+  ): Promise<GenerationResult> {
+    const validParams = SwarmGenerateOperationParamsSchema.parse(params);
+    const projectRoot = this.getProjectRoot(validParams.projectPath);
+
+    return this.executeGenerator(
+      async () => {
+        const operationFlags = {
+          dataType: validParams.dataType,
+          operation: validParams.operation,
+          entities: validParams.entities || [],
+          auth: validParams.auth || false,
+          force: validParams.force || false,
+        };
+
+        await this.generatorService.generateOperation(
+          validParams.feature,
+          operationFlags
+        );
+      },
+      `Successfully generated operation: ${validParams.operation} for ${validParams.dataType}`,
+      'Failed to generate operation',
+      projectRoot
+    );
+  }
+
+  async generateApiNamespace(
+    params: SwarmGenerateApiNamespaceParams
+  ): Promise<GenerationResult> {
+    const validParams = SwarmGenerateApiNamespaceParamsSchema.parse(params);
+    const projectRoot = this.getProjectRoot(validParams.projectPath);
+
+    return this.executeGenerator(
+      async () => {
+        const apiNamespaceFlags = {
+          name: validParams.name,
+          path: validParams.path,
+          force: validParams.force || false,
+        };
+
+        await this.generatorService.generateApiNamespace(
+          validParams.feature,
+          apiNamespaceFlags
+        );
+      },
+      `Successfully generated API namespace: ${validParams.name}`,
+      'Failed to generate API namespace',
+      projectRoot
+    );
+  }
+
   private getProjectRoot(projectPath?: string): string {
     if (projectPath) {
       return path.resolve(projectPath);
     }
     return process.cwd();
+  }
+
+  private async executeGenerator(
+    operation: () => Promise<void>,
+    successMessage: string,
+    failureMessage: string,
+    projectRoot: string
+  ): Promise<GenerationResult> {
+    try {
+      const { generatedFiles, modifiedFiles } = await this.trackGeneratedFiles(
+        projectRoot,
+        operation
+      );
+
+      this.logger.info(successMessage);
+
+      return {
+        success: true,
+        output: successMessage,
+        generatedFiles: generatedFiles.map(f => path.relative(projectRoot, f)),
+        modifiedFiles: modifiedFiles.map(f => path.relative(projectRoot, f)),
+        warnings: [],
+      };
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+      this.logger.error(`${failureMessage}: ${errorMessage}`);
+
+      return {
+        success: false,
+        output: failureMessage,
+        error: errorMessage,
+        generatedFiles: [],
+        modifiedFiles: [],
+        warnings: [],
+      };
+    }
   }
 
   private async trackGeneratedFiles(
@@ -114,362 +319,5 @@ export class SwarmTools {
     scanAfter(projectRoot);
 
     return { generatedFiles, modifiedFiles };
-  }
-
-  async generateApi(params: SwarmGenerateApiParams): Promise<GenerationResult> {
-    try {
-      const validParams = SwarmGenerateApiParamsSchema.parse(params);
-      const projectRoot = this.getProjectRoot(validParams.projectPath);
-
-      const { generatedFiles, modifiedFiles } = await this.trackGeneratedFiles(
-        projectRoot,
-        async () => {
-          const apiFlags = {
-            name: validParams.name,
-            method: validParams.method,
-            route: validParams.route,
-            entities: validParams.entities || [],
-            auth: validParams.auth || false,
-            force: validParams.force || false,
-            customMiddleware: validParams.customMiddleware || false,
-          };
-
-          await this.generatorService.generateApi(
-            validParams.feature,
-            apiFlags
-          );
-        }
-      );
-
-      const output = `Successfully generated API: ${validParams.name}`;
-      this.logger.info(output);
-
-      return {
-        success: true,
-        output,
-        generatedFiles: generatedFiles.map(f => path.relative(projectRoot, f)),
-        modifiedFiles: modifiedFiles.map(f => path.relative(projectRoot, f)),
-        warnings: [],
-      };
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : String(error);
-      this.logger.error(`Failed to generate API: ${errorMessage}`);
-
-      throw ErrorFactory.swarmGeneration(
-        'api',
-        'generate',
-        errorMessage,
-        createErrorContext(
-          'swarm_generate_api',
-          'generate',
-          params as unknown as Record<string, unknown>
-        )
-      );
-    }
-  }
-
-  async generateFeature(
-    params: SwarmGenerateFeatureParams
-  ): Promise<GenerationResult> {
-    try {
-      const validParams = SwarmGenerateFeatureParamsSchema.parse(params);
-      const projectRoot = this.getProjectRoot(validParams.projectPath);
-
-      const { generatedFiles, modifiedFiles } = await this.trackGeneratedFiles(
-        projectRoot,
-        () => {
-          const featurePath = validParams.name;
-          this.generatorService.generateFeature(featurePath);
-          return Promise.resolve();
-        }
-      );
-
-      const output = `Successfully generated feature: ${validParams.name}`;
-      this.logger.info(output);
-
-      return {
-        success: true,
-        output,
-        generatedFiles: generatedFiles.map(f => path.relative(projectRoot, f)),
-        modifiedFiles: modifiedFiles.map(f => path.relative(projectRoot, f)),
-        warnings: [],
-      };
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : String(error);
-      this.logger.error(`Failed to generate feature: ${errorMessage}`);
-
-      throw ErrorFactory.swarmGeneration(
-        'feature',
-        'generate',
-        errorMessage,
-        createErrorContext(
-          'swarm_generate_feature',
-          'generate',
-          params as unknown as Record<string, unknown>
-        )
-      );
-    }
-  }
-
-  async generateCrud(
-    params: SwarmGenerateCrudParams
-  ): Promise<GenerationResult> {
-    try {
-      const validParams = SwarmGenerateCrudParamsSchema.parse(params);
-      const projectRoot = this.getProjectRoot(validParams.projectPath);
-
-      const { generatedFiles, modifiedFiles } = await this.trackGeneratedFiles(
-        projectRoot,
-        async () => {
-          const crudFlags = {
-            dataType: validParams.dataType,
-            public: validParams.public || [],
-            override: validParams.override || [],
-            exclude: validParams.exclude || [],
-            force: validParams.force || false,
-          };
-
-          await this.generatorService.generateCrud(
-            validParams.feature,
-            crudFlags
-          );
-        }
-      );
-
-      const output = `Successfully generated CRUD operations for: ${validParams.dataType}`;
-      this.logger.info(output);
-
-      return {
-        success: true,
-        output,
-        generatedFiles: generatedFiles.map(f => path.relative(projectRoot, f)),
-        modifiedFiles: modifiedFiles.map(f => path.relative(projectRoot, f)),
-        warnings: [],
-      };
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : String(error);
-      this.logger.error(`Failed to generate CRUD: ${errorMessage}`);
-
-      throw ErrorFactory.swarmGeneration(
-        'crud',
-        'generate',
-        errorMessage,
-        createErrorContext(
-          'swarm_generate_crud',
-          'generate',
-          params as unknown as Record<string, unknown>
-        )
-      );
-    }
-  }
-
-  async generateRoute(
-    params: SwarmGenerateRouteParams
-  ): Promise<GenerationResult> {
-    try {
-      const validParams = SwarmGenerateRouteParamsSchema.parse(params);
-      const projectRoot = this.getProjectRoot(validParams.projectPath);
-
-      const { generatedFiles, modifiedFiles } = await this.trackGeneratedFiles(
-        projectRoot,
-        async () => {
-          const routeFlags = {
-            path: validParams.path,
-            name: validParams.name,
-            auth: validParams.auth || false,
-            force: validParams.force || false,
-          };
-
-          await this.generatorService.generateRoute(
-            validParams.feature,
-            routeFlags
-          );
-        }
-      );
-
-      const output = `Successfully generated route: ${validParams.path}`;
-      this.logger.info(output);
-
-      return {
-        success: true,
-        output,
-        generatedFiles: generatedFiles.map(f => path.relative(projectRoot, f)),
-        modifiedFiles: modifiedFiles.map(f => path.relative(projectRoot, f)),
-        warnings: [],
-      };
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : String(error);
-      this.logger.error(`Failed to generate route: ${errorMessage}`);
-
-      throw ErrorFactory.swarmGeneration(
-        'route',
-        'generate',
-        errorMessage,
-        createErrorContext(
-          'swarm_generate_route',
-          'generate',
-          params as unknown as Record<string, unknown>
-        )
-      );
-    }
-  }
-
-  async generateJob(params: SwarmGenerateJobParams): Promise<GenerationResult> {
-    try {
-      const validParams = SwarmGenerateJobParamsSchema.parse(params);
-      const projectRoot = this.getProjectRoot(validParams.projectPath);
-
-      const { generatedFiles, modifiedFiles } = await this.trackGeneratedFiles(
-        projectRoot,
-        async () => {
-          const jobFlags = {
-            name: validParams.name,
-            schedule: validParams.schedule || '',
-            scheduleArgs: validParams.scheduleArgs || '',
-            entities: validParams.entities || [],
-            force: validParams.force || false,
-          };
-
-          await this.generatorService.generateJob(
-            validParams.feature,
-            jobFlags
-          );
-        }
-      );
-
-      const output = `Successfully generated job: ${validParams.name}`;
-      this.logger.info(output);
-
-      return {
-        success: true,
-        output,
-        generatedFiles: generatedFiles.map(f => path.relative(projectRoot, f)),
-        modifiedFiles: modifiedFiles.map(f => path.relative(projectRoot, f)),
-        warnings: [],
-      };
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : String(error);
-      this.logger.error(`Failed to generate job: ${errorMessage}`);
-
-      throw ErrorFactory.swarmGeneration(
-        'job',
-        'generate',
-        errorMessage,
-        createErrorContext(
-          'swarm_generate_job',
-          'generate',
-          params as unknown as Record<string, unknown>
-        )
-      );
-    }
-  }
-
-  async generateOperation(
-    params: SwarmGenerateOperationParams
-  ): Promise<GenerationResult> {
-    try {
-      const validParams = SwarmGenerateOperationParamsSchema.parse(params);
-      const projectRoot = this.getProjectRoot(validParams.projectPath);
-
-      const { generatedFiles, modifiedFiles } = await this.trackGeneratedFiles(
-        projectRoot,
-        async () => {
-          const operationFlags = {
-            dataType: validParams.dataType,
-            operation: validParams.operation,
-            entities: validParams.entities || [],
-            auth: validParams.auth || false,
-            force: validParams.force || false,
-          };
-
-          await this.generatorService.generateOperation(
-            validParams.feature,
-            operationFlags
-          );
-        }
-      );
-
-      const output = `Successfully generated operation: ${validParams.operation} for ${validParams.dataType}`;
-      this.logger.info(output);
-
-      return {
-        success: true,
-        output,
-        generatedFiles: generatedFiles.map(f => path.relative(projectRoot, f)),
-        modifiedFiles: modifiedFiles.map(f => path.relative(projectRoot, f)),
-        warnings: [],
-      };
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : String(error);
-      this.logger.error(`Failed to generate operation: ${errorMessage}`);
-
-      throw ErrorFactory.swarmGeneration(
-        'operation',
-        'generate',
-        errorMessage,
-        createErrorContext(
-          'swarm_generate_operation',
-          'generate',
-          params as unknown as Record<string, unknown>
-        )
-      );
-    }
-  }
-
-  async generateApiNamespace(
-    params: SwarmGenerateApiNamespaceParams
-  ): Promise<GenerationResult> {
-    try {
-      const validParams = SwarmGenerateApiNamespaceParamsSchema.parse(params);
-      const projectRoot = this.getProjectRoot(validParams.projectPath);
-
-      const { generatedFiles, modifiedFiles } = await this.trackGeneratedFiles(
-        projectRoot,
-        async () => {
-          const apiNamespaceFlags = {
-            name: validParams.name,
-            path: validParams.path,
-            force: validParams.force || false,
-          };
-
-          await this.generatorService.generateApiNamespace(
-            validParams.feature,
-            apiNamespaceFlags
-          );
-        }
-      );
-
-      const output = `Successfully generated API namespace: ${validParams.name}`;
-      this.logger.info(output);
-
-      return {
-        success: true,
-        output,
-        generatedFiles: generatedFiles.map(f => path.relative(projectRoot, f)),
-        modifiedFiles: modifiedFiles.map(f => path.relative(projectRoot, f)),
-        warnings: [],
-      };
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : String(error);
-      this.logger.error(`Failed to generate API namespace: ${errorMessage}`);
-
-      throw ErrorFactory.swarmGeneration(
-        'apinamespace',
-        'generate',
-        errorMessage,
-        createErrorContext(
-          'swarm_generate_apinamespace',
-          'generate',
-          params as unknown as Record<string, unknown>
-        )
-      );
-    }
   }
 }

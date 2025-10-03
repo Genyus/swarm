@@ -119,6 +119,22 @@ export class SwarmMCPServer {
       if (name in tools) {
         try {
           const result = await (tools as any)[name](args);
+
+          // Check if the result indicates failure
+          if (
+            result &&
+            typeof result === 'object' &&
+            'success' in result &&
+            result.success === false
+          ) {
+            const errorMessage =
+              result.error || result.output || 'Tool execution failed';
+            throw new MCPProtocolError(
+              MCPErrorCode.InternalError,
+              errorMessage
+            );
+          }
+
           return {
             content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
           };
