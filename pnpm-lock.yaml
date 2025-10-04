@@ -108,31 +108,55 @@ importers:
 
   packages/swarm-core:
     dependencies:
+      '@ingenyus/swarm-config':
+        specifier: workspace:*
+        version: link:../swarm-config
+      '@modelcontextprotocol/sdk':
+        specifier: ^1.17.4
+        version: 1.17.4
       '@mrleebo/prisma-ast':
         specifier: ^0.13.0
         version: 0.13.0
       chalk:
-        specifier: ^5.0.0
+        specifier: ^5.6.0
         version: 5.6.0
+      commander:
+        specifier: ^14.0.0
+        version: 14.0.0
       eta:
         specifier: ^4.0.1
         version: 4.0.1
+      mime-types:
+        specifier: ^3.0.1
+        version: 3.0.1
       signale:
         specifier: ^1.4.0
         version: 1.4.0
+      zod:
+        specifier: ^3.25.76
+        version: 3.25.76
     devDependencies:
+      '@commander-js/extra-typings':
+        specifier: ^14.0.0
+        version: 14.0.0(commander@14.0.0)
       '@prisma/client':
         specifier: 5.19.1
         version: 5.19.1(prisma@5.19.1)
       '@types/glob':
         specifier: ^8.1.0
         version: 8.1.0
+      '@types/mime-types':
+        specifier: ^3.0.1
+        version: 3.0.1
       '@types/node':
         specifier: ^24.3.0
         version: 24.3.0
       '@types/signale':
         specifier: ^1.4.7
         version: 1.4.7
+      '@vitest/coverage-v8':
+        specifier: ^2.1.9
+        version: 2.1.9(vitest@3.2.3(@types/node@24.3.0)(tsx@4.20.6))
       glob:
         specifier: ^11.0.3
         version: 11.0.3
@@ -143,7 +167,7 @@ importers:
         specifier: ^8.5.0
         version: 8.5.0(postcss@8.5.5)(tsx@4.20.6)(typescript@5.9.2)
       typescript:
-        specifier: ^5.0.0
+        specifier: ^5.9.2
         version: 5.9.2
       vitest:
         specifier: ^3.1.4
@@ -188,6 +212,28 @@ importers:
       vitest:
         specifier: ^2.1.8
         version: 2.1.9(@types/node@24.3.0)
+
+  packages/swarm-wasp:
+    dependencies:
+      '@ingenyus/swarm-config':
+        specifier: workspace:*
+        version: link:../swarm-config
+      '@ingenyus/swarm-core':
+        specifier: workspace:*
+        version: link:../swarm-core
+    devDependencies:
+      '@types/node':
+        specifier: ^24.3.0
+        version: 24.3.0
+      tsup:
+        specifier: ^8.5.0
+        version: 8.5.0(postcss@8.5.5)(tsx@4.20.6)(typescript@5.9.2)
+      typescript:
+        specifier: ^5.0.0
+        version: 5.9.2
+      vitest:
+        specifier: ^3.1.4
+        version: 3.2.3(@types/node@24.3.0)(tsx@4.20.6)
 
 packages:
 
@@ -3261,6 +3307,24 @@ snapshots:
       test-exclude: 7.0.1
       tinyrainbow: 1.2.0
       vitest: 2.1.9(@types/node@24.3.0)
+    transitivePeerDependencies:
+      - supports-color
+
+  '@vitest/coverage-v8@2.1.9(vitest@3.2.3(@types/node@24.3.0)(tsx@4.20.6))':
+    dependencies:
+      '@ampproject/remapping': 2.3.0
+      '@bcoe/v8-coverage': 0.2.3
+      debug: 4.4.1
+      istanbul-lib-coverage: 3.2.2
+      istanbul-lib-report: 3.0.1
+      istanbul-lib-source-maps: 5.0.6
+      istanbul-reports: 3.2.0
+      magic-string: 0.30.17
+      magicast: 0.3.5
+      std-env: 3.9.0
+      test-exclude: 7.0.1
+      tinyrainbow: 1.2.0
+      vitest: 3.2.3(@types/node@24.3.0)(tsx@4.20.6)
     transitivePeerDependencies:
       - supports-color
 
