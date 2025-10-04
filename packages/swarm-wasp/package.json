@@ -1,0 +1,67 @@
+{
+  "name": "@ingenyus/swarm-wasp",
+  "type": "module",
+  "version": "0.1.0",
+  "description": "Wasp-specific plugins for Swarm - Feature generators, commands, and MCP tools for Wasp development",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "pnpm dlx rimraf dist && tsup && tsc --project tsconfig.dts.json",
+    "build:watch": "tsc --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "lint": "eslint src --ext .ts",
+    "lint:fix": "eslint src --ext .ts --fix",
+    "format": "prettier --write src",
+    "format:check": "prettier --check src",
+    "typecheck": "tsc --project tsconfig.typecheck.json",
+    "validate": "pnpm run build && pnpm run typecheck && pnpm run lint:fix && pnpm run format && pnpm test"
+  },
+  "keywords": [
+    "wasp",
+    "codegen",
+    "generators",
+    "plugins",
+    "templates",
+    "typescript",
+    "fullstack",
+    "react",
+    "nodejs",
+    "prisma",
+    "boilerplate",
+    "swarm"
+  ],
+  "author": "Gary McPherson",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/genyus/swarm.git",
+    "directory": "packages/swarm-wasp"
+  },
+  "homepage": "https://github.com/genyus/swarm/tree/main/packages/swarm-wasp#readme",
+  "bugs": {
+    "url": "https://github.com/genyus/swarm/issues"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "@ingenyus/swarm-core": "workspace:*",
+    "@ingenyus/swarm-config": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^24.3.0",
+    "tsup": "^8.5.0",
+    "typescript": "^5.0.0",
+    "vitest": "^3.1.4"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
