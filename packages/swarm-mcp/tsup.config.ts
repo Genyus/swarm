@@ -15,7 +15,7 @@ export default defineConfig({
   splitting: false,
   sourcemap: false,
   clean: true,
-  target: 'es2020',
+  target: 'es2022',
   platform: 'node',
   external: ['signale', '@prisma/client'],
   outDir: 'dist',
