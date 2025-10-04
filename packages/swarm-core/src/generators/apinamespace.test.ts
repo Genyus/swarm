@@ -18,7 +18,7 @@ vi.mock(import('../utils/filesystem'), async (importOriginal) => {
     ensureDirectoryExists: vi.fn(),
     getFeatureTargetDir: vi.fn().mockReturnValue({
       targetDirectory: '/mock/target/dir',
-      importDirectory: '@src/features/test/_core/server/middleware',
+      importDirectory: '@src/features/test/server/middleware',
     }),
   };
 });
@@ -71,7 +71,7 @@ describe('ApiNamespaceGenerator', () => {
   it('getDefinition returns processed template', () => {
     const result = gen.getDefinition(
       'testNamespace',
-      'features/test/_core/server/middleware/testMiddleware',
+      'features/test/server/middleware/testMiddleware',
       '/api/test'
     );
     expect(typeof result).toBe('string');

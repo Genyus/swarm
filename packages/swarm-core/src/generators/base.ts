@@ -8,6 +8,7 @@ import {
   ensureDirectoryExists,
   getFeatureDir,
   getFeatureTargetDir,
+  normaliseFeaturePath,
 } from '../utils/filesystem';
 import { hasHelperMethodCall } from '../utils/strings';
 import { TemplateUtility } from '../utils/templates';
@@ -90,8 +91,14 @@ export abstract class BaseGenerator<TFlags = any>
    * @throws Error if config file doesn't exist
    */
   protected validateFeatureConfig(featurePath: string): string {
-    const featureName = featurePath.split('/')[0];
-    const featureDir = getFeatureDir(this.fs, featureName);
+    // Normalize the feature path to ensure consistent structure
+    const normalisedPath = normaliseFeaturePath(featurePath);
+
+    // Extract the actual feature name from the normalized path (last segment)
+    const segments = normalisedPath.split('/');
+    const featureName = segments[segments.length - 1];
+
+    const featureDir = getFeatureDir(this.fs, normalisedPath);
     const configPath = path.join(featureDir, `${featureName}.wasp.ts`);
 
     if (!this.fs.existsSync(configPath)) {

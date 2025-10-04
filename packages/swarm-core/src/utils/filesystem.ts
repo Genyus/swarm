@@ -107,6 +107,28 @@ export function getConfigDir(fileSystem: IFileSystem): string {
 }
 
 /**
+ * Normalises the segments of a feature path to always be prefixed by "features".
+ * @param featurePath - The feature path to normalise
+ * @returns The normalised feature path with "features" prefix
+ */
+export function normaliseFeaturePath(featurePath: string): string {
+  const segments = validateFeaturePath(featurePath);
+  const normalisedSegments: string[] = [];
+
+  for (let i = 0; i < segments.length; i++) {
+    const segment = segments[i];
+    const previousSegment = normalisedSegments[normalisedSegments.length - 1];
+
+    if (previousSegment !== 'features' && segment !== 'features') {
+      normalisedSegments.push('features');
+    }
+    normalisedSegments.push(segment);
+  }
+
+  return normalisedSegments.join('/');
+}
+
+/**
  * Gets the absolute path to a feature directory.
  * @param fileSystem - The filesystem abstraction
  * @param featureName - The name of the feature
@@ -117,7 +139,9 @@ export function getFeatureDir(
   featureName: string
 ): string {
   const waspRoot = findWaspRoot(fileSystem);
-  return path.join(waspRoot, 'src', 'features', featureName);
+  const normalisedPath = normaliseFeaturePath(featureName);
+
+  return path.join(waspRoot, 'src', normalisedPath);
 }
 
 /**
@@ -127,8 +151,7 @@ export function getFeatureDir(
  */
 export function getFeatureImportPath(featurePath: string): string {
   const segments = validateFeaturePath(featurePath);
-  const isTopLevel = segments.length === 1;
-  return `${segments[0]}/${isTopLevel ? '_core' : segments.slice(1).join('/')}`;
+  return segments.join('/');
 }
 
 /**
@@ -143,15 +166,14 @@ export function getFeatureTargetDir(
   featurePath: string,
   type: string
 ): { targetDirectory: string; importDirectory: string } {
-  const segments = validateFeaturePath(featurePath);
-  const isTopLevel = segments.length === 1;
-  const featureDir = getFeatureDir(fileSystem, featurePath);
-  const baseDir = isTopLevel ? '_core' : '';
+  validateFeaturePath(featurePath);
+
+  const normalisedPath = normaliseFeaturePath(featurePath);
+  const featureDir = getFeatureDir(fileSystem, normalisedPath);
   const typeKey = type.toLowerCase();
   const typeDirectory = TYPE_DIRECTORIES[typeKey];
-  const targetDirectory = path.join(featureDir, baseDir, typeDirectory);
-  const subDir = isTopLevel ? '_core' : segments.slice(1).join('/');
-  const importDirectory = `@src/features/${segments[0]}/${subDir}/${typeDirectory}`;
+  const targetDirectory = path.join(featureDir, typeDirectory);
+  const importDirectory = `@src/${normalisedPath}/${typeDirectory}`;
 
   return { targetDirectory, importDirectory };
 }

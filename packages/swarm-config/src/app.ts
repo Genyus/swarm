@@ -174,8 +174,7 @@ export class App extends WaspApp {
     name: string,
     options: RouteOptions
   ): this {
-    const componentName =
-      name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
+    const componentName = name.charAt(0).toUpperCase() + name.slice(1);
     const importPath = this.getFeatureImportPath(
       featureName,
       'client',
@@ -428,7 +427,7 @@ export class App extends WaspApp {
   ): string {
     const file = fileName || featureName;
 
-    return `features/${featureName}/_core/${type}/${subPath}/${file}`;
+    return `features/${featureName}/${type}/${subPath}/${file}`;
   }
 
   /**

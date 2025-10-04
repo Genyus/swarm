@@ -19,7 +19,7 @@ vi.mock(import('../utils/filesystem'), async (importOriginal) => {
     findWaspRoot: vi.fn().mockReturnValue('/mock/wasp/root'),
     getFeatureTargetDir: vi.fn().mockReturnValue({
       targetDirectory: '/mock/target/dir',
-      importDirectory: '@src/features/test/_core/server/jobs',
+      importDirectory: '@src/features/test/server/jobs',
     }),
     getTemplatesDir: vi.fn().mockReturnValue('/mock/templates'),
   };

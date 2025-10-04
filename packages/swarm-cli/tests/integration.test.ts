@@ -9,6 +9,7 @@ import {
   OperationGenerator,
   RouteGenerator,
 } from '@ingenyus/swarm-core';
+import * as fs from 'node:fs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 // Mock the filesystem utility functions separately
@@ -43,7 +44,18 @@ vi.mock('node:fs', () => ({
       }
       throw new Error(`File not found: ${path}`);
     }),
-    existsSync: vi.fn((path: string) => path.endsWith('schema.prisma')),
+    existsSync: vi.fn((path: string) => {
+      // Return true for schema.prisma files
+      if (path.endsWith('schema.prisma')) {
+        return true;
+      }
+      // Return true for parent feature directories that exist
+      if (path.includes('/mock/wasp-root/src/features/documents')) {
+        return true;
+      }
+      // Return false for other paths (like non-existent parent directories)
+      return false;
+    }),
     writeFileSync: vi.fn(),
     mkdirSync: vi.fn(),
     readdirSync: vi.fn(),
@@ -249,7 +261,7 @@ export const <%=crudName%> = {
 
       // Check that the success message was logged, which indicates the feature was generated
       expect(logger.success).toHaveBeenCalledWith(
-        expect.stringContaining('Generated top-level feature: documents')
+        expect.stringContaining('Generated feature: features/documents')
       );
     });
 
@@ -257,19 +269,46 @@ export const <%=crudName%> = {
       // First create parent feature
       featureGenerator.generateFeature('documents');
 
-      // Test that sub-features require proper setup
-      // Since we're mocking validateFeaturePath to return path segments,
-      // and the parent path check will fail because we're not mocking existsSync properly,
-      // this should throw an error
-      expect(() => {
-        featureGenerator.generateFeature('documents/admin');
-      }).toThrow();
+      // Now create sub-feature - this should succeed since parent exists
+      featureGenerator.generateFeature('documents/admin');
+
+      // Check that the success message was logged for the sub-feature
+      expect(logger.success).toHaveBeenCalledWith(
+        expect.stringContaining(
+          'Generated feature: features/documents/features/admin'
+        )
+      );
     });
 
     it('should fail to create sub-feature without parent', async () => {
+      // Reset the existsSync mock to not find the parent directory
+      const mockExistsSync = vi.mocked(fs.existsSync);
+      mockExistsSync.mockImplementation((path: string) => {
+        // Return true for schema.prisma files
+        if (path.endsWith('schema.prisma')) {
+          return true;
+        }
+        // Return false for all other paths (including parent directories)
+        return false;
+      });
+
       expect(() => {
         featureGenerator.generateFeature('documents/admin');
       }).toThrow();
+
+      // Restore the original mock behavior
+      mockExistsSync.mockImplementation((path: string) => {
+        // Return true for schema.prisma files
+        if (path.endsWith('schema.prisma')) {
+          return true;
+        }
+        // Return true for parent feature directories that exist
+        if (path.includes('/mock/wasp-root/src/features/documents')) {
+          return true;
+        }
+        // Return false for other paths (like non-existent parent directories)
+        return false;
+      });
     });
   });
 
@@ -984,7 +1023,7 @@ export const <%=crudName%> = {
       });
 
       expect(logger.success).toHaveBeenCalledWith(
-        expect.stringContaining('Generated top-level feature: documents')
+        expect.stringContaining('Generated feature: features/documents')
       );
       expect(fs.writeFileSync).toHaveBeenCalled();
     });

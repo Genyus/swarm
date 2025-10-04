@@ -18,12 +18,12 @@ vi.mock(import('../utils/filesystem'), async (importOriginal) => {
     ...actual,
     getFeatureTargetDir: vi.fn().mockReturnValue({
       targetDirectory: 'features/test/server/queries',
-      importDirectory: '@src/features/test/_core/server/queries',
+      importDirectory: '@src/features/test/server/queries',
     }),
     ensureDirectoryExists: vi.fn(),
     getConfigDir: vi.fn().mockReturnValue('config'),
     getFeatureDir: vi.fn().mockReturnValue('features/test'),
-    getFeatureImportPath: vi.fn().mockReturnValue('test/_core'),
+    getFeatureImportPath: vi.fn().mockReturnValue('test'),
   };
 });
 
@@ -155,7 +155,7 @@ describe('OperationGenerator', () => {
       'test',
       ['User'],
       'query',
-      'features/test/_core/server/queries/testOperation'
+      'features/test/server/queries/testOperation'
     );
     expect(typeof result).toBe('string');
   });

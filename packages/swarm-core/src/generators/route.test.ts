@@ -18,7 +18,7 @@ vi.mock(import('../utils/filesystem'), async (importOriginal) => {
     ensureDirectoryExists: vi.fn(),
     getFeatureTargetDir: vi.fn().mockReturnValue({
       targetDirectory: '/mock/target/dir',
-      importDirectory: '@src/features/test/_core/client/pages',
+      importDirectory: '@src/features/test/client/pages',
     }),
     getTemplatesDir: vi.fn().mockReturnValue('/mock/templates'),
   };

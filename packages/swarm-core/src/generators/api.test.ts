@@ -18,7 +18,7 @@ vi.mock(import('../utils/filesystem'), async (importOriginal) => {
     ensureDirectoryExists: vi.fn(),
     getFeatureTargetDir: vi.fn().mockReturnValue({
       targetDirectory: '/mock/target/dir',
-      importDirectory: '@src/features/test/_core/server/apis',
+      importDirectory: '@src/features/test/server/apis',
     }),
   };
 });
@@ -79,9 +79,9 @@ describe('ApiGenerator', () => {
       ['User'],
       'GET',
       '/api/test',
-      'features/test/_core/server/apis/test',
+      'features/test/server/apis/test',
       false,
-      'features/test/_core/server/apis/test'
+      'features/test/server/apis/test'
     );
     expect(typeof result).toBe('string');
   });

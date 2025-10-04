@@ -10,6 +10,7 @@ import {
   findWaspRoot,
   getFeatureDir,
   getTemplatesDir,
+  normaliseFeaturePath,
 } from '../utils/filesystem';
 import {
   parseHelperMethodDefinition,
@@ -412,7 +413,7 @@ export class FeatureGenerator implements IFeatureGenerator {
    * @returns The path of the configuration file
    */
   public updateFeatureConfig(featurePath: string, definition: string): string {
-    const configFilePrefix = featurePath.split('/').join('.');
+    const configFilePrefix = featurePath.split('/').at(-1)!;
     const configDir = getFeatureDir(this.fs, featurePath);
     const configFilePath = path.join(configDir, `${configFilePrefix}.wasp.ts`);
 
@@ -502,16 +503,21 @@ export class FeatureGenerator implements IFeatureGenerator {
     return configFilePath;
   }
 
-  public generateFeatureConfig(featureName: string): void {
+  public generateFeatureConfig(normalisedPath: string): void {
+    // Extract the actual feature name from the normalized path
+    // e.g., "features/demo" -> "demo", "features/demo/features/sub-feature" -> "sub-feature"
+    const segments = normalisedPath.split('/');
+    const featureName = segments[segments.length - 1];
+
     // Create feature directory if it doesn't exist
-    const featureDir = getFeatureDir(this.fs, featureName);
+    const featureDir = getFeatureDir(this.fs, normalisedPath);
     if (!this.fs.existsSync(featureDir)) {
       this.fs.mkdirSync(featureDir, { recursive: true });
     }
 
     // Generate feature config in the feature directory
     const templatesDir = getTemplatesDir(this.fs);
-    const templatePath = path.join(templatesDir, 'config', 'feature.wasp.eta');
+    const templatePath = path.join(templatesDir, 'files', 'feature.wasp.eta');
 
     if (!this.fs.existsSync(templatePath)) {
       this.logger.error(`Template not found: ${templatePath}`);
@@ -524,7 +530,7 @@ export class FeatureGenerator implements IFeatureGenerator {
       .replace(/\$\{FEATURE_NAME\}/g, featureName)
       .replace(/\$\{FEATURE_KEY\}/g, featureKey);
 
-    // Place config file in feature directory: features/{featureName}/{featureName}.wasp.ts
+    // Place config file in feature directory: {normalisedPath}/{featureName}.wasp.ts
     const outputPath = path.join(featureDir, `${featureName}.wasp.ts`);
 
     this.fs.writeFileSync(outputPath, content);
@@ -533,40 +539,27 @@ export class FeatureGenerator implements IFeatureGenerator {
 
   public generateFeature(featurePath: string): void {
     const segments = validateFeaturePath(featurePath);
+    const normalisedPath = normaliseFeaturePath(featurePath);
+    const sourceRoot = path.join(findWaspRoot(this.fs), 'src');
+
     if (segments.length > 1) {
       const parentPath = segments.slice(0, -1).join('/');
+      const parentNormalisedPath = normaliseFeaturePath(parentPath);
+      const parentFeatureDir = path.join(sourceRoot, parentNormalisedPath);
 
-      if (!this.fs.existsSync(parentPath)) {
+      if (!this.fs.existsSync(parentFeatureDir)) {
         handleFatalError(
           `Parent feature '${parentPath}' does not exist. Please create it first.`
         );
-        handleFatalError('Parent feature does not exist');
       }
     }
 
-    const templateDir = path.join(
-      getTemplatesDir(this.fs),
-      'feature',
-      segments.length === 1 ? '' : '_core'
-    );
-    const featureDir = path.join(
-      findWaspRoot(this.fs, featurePath),
-      'src',
-      'features',
-      featurePath
-    );
+    const templateDir = path.join(getTemplatesDir(this.fs), 'feature');
+    const featureDir = path.join(sourceRoot, normalisedPath);
 
     copyDirectory(this.fs, templateDir, featureDir);
     this.logger.debug(`Copied template from ${templateDir} to ${featureDir}`);
-
-    if (segments.length === 1) {
-      this.generateFeatureConfig(featurePath);
-    }
-
-    this.logger.success(
-      `Generated ${
-        segments.length === 1 ? 'top-level ' : 'sub-'
-      }feature: ${featurePath}`
-    );
+    this.generateFeatureConfig(normalisedPath);
+    this.logger.success(`Generated feature: ${normalisedPath}`);
   }
 }

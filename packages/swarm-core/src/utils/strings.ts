@@ -112,12 +112,15 @@ export function validateFeatureName(name: string): void {
  */
 export function validateFeaturePath(featurePath: string): string[] {
   const segments = featurePath.split('/').filter(Boolean);
+
   if (segments.length === 0) {
     throw new Error('Feature path cannot be empty');
   }
+
   segments.forEach((segment) => {
     validateFeatureName(segment);
   });
+
   return segments;
 }
 

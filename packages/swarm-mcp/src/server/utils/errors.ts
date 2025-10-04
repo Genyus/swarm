@@ -36,7 +36,7 @@ export class ValidationError extends AppError {
 }
 
 export class FileSystemError extends AppError {
-  public readonly cause?: Error;
+  public override readonly cause?: Error;
 
   constructor(
     operation: string,
@@ -116,7 +116,7 @@ export class PermissionDeniedError extends AppError {
 }
 
 export class InternalError extends AppError {
-  public readonly cause?: Error;
+  public override readonly cause?: Error;
 
   constructor(operation: string, cause?: Error, context?: ErrorContext) {
     super(

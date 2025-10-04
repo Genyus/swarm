@@ -58,7 +58,7 @@ describe('filesystem utils', () => {
   });
 
   it('getFeatureImportPath returns correct path', () => {
-    expect(filesystem.getFeatureImportPath('foo')).toBe('foo/_core');
+    expect(filesystem.getFeatureImportPath('foo')).toBe('foo');
     expect(filesystem.getFeatureImportPath('foo/bar')).toBe('foo/bar');
   });
 
@@ -69,12 +69,28 @@ describe('filesystem utils', () => {
       'foo',
       'page'
     );
-    expect(targetDirectory).toMatch(/features\/foo\/_core/);
-    expect(importDirectory).toContain('@src/features/foo/_core');
+    expect(targetDirectory).toMatch(/features\/foo\/client\/pages$/);
+    expect(importDirectory).toContain('@src/features/foo/client/pages');
   });
 
   it('getRouteNameFromPath returns PascalCase Page', () => {
     expect(filesystem.getRouteNameFromPath('/foo-bar')).toBe('FooBarPage');
     expect(filesystem.getRouteNameFromPath('/')).toBe('IndexPage');
+  });
+
+  it('normaliseFeaturePath adds features prefix correctly', () => {
+    expect(filesystem.normaliseFeaturePath('demo')).toBe('features/demo');
+    expect(filesystem.normaliseFeaturePath('demo/sub-feature')).toBe(
+      'features/demo/features/sub-feature'
+    );
+    expect(filesystem.normaliseFeaturePath('features/demo')).toBe(
+      'features/demo'
+    );
+    expect(filesystem.normaliseFeaturePath('features/demo/sub-feature')).toBe(
+      'features/demo/features/sub-feature'
+    );
+    expect(
+      filesystem.normaliseFeaturePath('demo/sub-feature/deep-feature')
+    ).toBe('features/demo/features/sub-feature/features/deep-feature');
   });
 });
