@@ -21,7 +21,8 @@
     "format": "prettier --write src",
     "format:check": "prettier --check src",
     "typecheck": "tsc --project tsconfig.typecheck.json",
-    "validate": "pnpm run build && pnpm run typecheck && pnpm run lint:fix && pnpm run format && pnpm test"
+    "validate": "pnpm run build && pnpm run typecheck && pnpm run lint:fix && pnpm run format && pnpm test",
+    "knip": "knip"
   },
   "keywords": [
     "wasp",
@@ -59,8 +60,9 @@
   "devDependencies": {
     "@types/node": "^24.3.0",
     "glob": "^11.0.3",
+    "knip": "^5.64.2",
     "tsup": "^8.5.0",
-    "typescript": "^5.0.0",
+    "typescript": "^5.9.2",
     "vitest": "^3.1.4"
   },
   "publishConfig": {
