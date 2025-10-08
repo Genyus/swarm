@@ -117,7 +117,7 @@ describe('CommandFactory', () => {
         commandRegistry.executeCommand('validation-error-command', {
           name: 'test',
         })
-      ).rejects.toThrow('Required');
+      ).rejects.toThrow('Invalid input:');
     });
   });
 });

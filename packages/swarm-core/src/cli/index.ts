@@ -16,7 +16,7 @@ export async function main(): Promise<void> {
   ).version;
   const command = new Command()
     .name('swarm')
-    .description('@ingenyus/swarm-cli')
+    .description('Swarm generator command-line interface')
     .version(version);
   const commandsDir = path.join(__dirname, 'cli', 'commands');
   const files = realFileSystem

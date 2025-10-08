@@ -52,11 +52,13 @@
     "node": ">=18.0.0"
   },
   "dependencies": {
+    "@ingenyus/swarm-config": "workspace:*",
     "@ingenyus/swarm-core": "workspace:*",
-    "@ingenyus/swarm-config": "workspace:*"
+    "zod": "^4.1.11"
   },
   "devDependencies": {
     "@types/node": "^24.3.0",
+    "glob": "^11.0.3",
     "tsup": "^8.5.0",
     "typescript": "^5.0.0",
     "vitest": "^3.1.4"

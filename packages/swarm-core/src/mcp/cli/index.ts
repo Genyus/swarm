@@ -34,4 +34,11 @@ Examples:
 `
 );
 
-program.parse();
+// Only parse if this file is being run directly (not imported)
+// Check if this module is being executed directly vs imported
+if (
+  import.meta.url === `file://${process.argv[1]}` ||
+  process.argv[1]?.endsWith('swarm-mcp')
+) {
+  program.parse();
+}

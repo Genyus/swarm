@@ -111,7 +111,7 @@ export const CrudOperationSchema = z.enum([
 
 export const CliParamsSchema = z.object({
   projectPath: z.string().optional(),
-  options: z.record(z.unknown()).optional(),
+  options: z.record(z.string(), z.unknown()).optional(),
 });
 
 export const GenerateApiParamsSchema = CliParamsSchema.extend({

@@ -14,22 +14,20 @@ export class TemplateUtility {
       .map((key) => `${key}=it.${key}`)
       .join(', ');
     const functionHeader = declarations ? `const ${declarations};` : undefined;
-    const templatesDir = getTemplatesDir(this.fileSystem);
+    const templateDir = path.dirname(templatePath);
     const eta = new Eta({
       autoTrim: false,
       autoEscape: false,
-      views: templatesDir,
+      views: templateDir,
       functionHeader,
     });
-    const templateName = templatePath.replace(/\.eta$/, '');
-    const fullPath = path.join(templatesDir, templatePath);
+    const templateName = path.basename(templatePath).replace(/\.eta$/, '');
 
-    if (this.fileSystem.existsSync(fullPath)) {
+    if (this.fileSystem.existsSync(templatePath)) {
       return eta.render(templateName, replacements);
     } else {
       // For testing purposes, we read the template from the file system
       const template = this.fileSystem.readFileSync(templatePath, 'utf8');
-
       return eta.renderString(template, replacements);
     }
   }

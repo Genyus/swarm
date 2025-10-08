@@ -69,7 +69,7 @@ describe('CommandRegistry', () => {
 
       await expect(
         registry.executeCommand('test', invalidArgs)
-      ).rejects.toThrow('Required');
+      ).rejects.toThrow('Invalid input:');
     });
 
     it('should handle handler errors', async () => {

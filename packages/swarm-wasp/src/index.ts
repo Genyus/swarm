@@ -5,22 +5,25 @@
  */
 
 // Export all plugins
-export * from './plugins/api/plugin';
-export * from './plugins/apinamespace/plugin';
-export * from './plugins/crud/plugin';
-export * from './plugins/feature/plugin';
-export * from './plugins/job/plugin';
-export * from './plugins/operation/plugin';
-export * from './plugins/route/plugin';
+export * from './plugin';
 
-// Export Wasp-specific types
-export * from './types/plugin';
-export * from './types/wasp-config';
-export * from './types/wasp-entities';
-export * from './types/wasp-templates';
+// Export interfaces
+export * from './interfaces/feature-directory-generator';
+export * from './interfaces/wasp-config-generator';
 
-// Export Wasp-specific utilities
-export * from './utils/wasp-file-system';
-export * from './utils/wasp-path-utils';
-export * from './utils/wasp-template-utils';
+// Export generators
+export * from './generators/api-namespace/generator';
+export * from './generators/api/generator';
+export * from './generators/config/generator';
+export * from './generators/crud/generator';
+export * from './generators/feature-directory/generator';
+export * from './generators/job/generator';
+export * from './generators/operation/generator';
+export * from './generators/route/generator';
 
+// Export interfaces
+export * from './interfaces/feature-directory-generator';
+
+// Export utils
+export * from './utils/plugin';
+export * from './utils/schemas';

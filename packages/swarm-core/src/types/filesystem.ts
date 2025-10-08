@@ -26,6 +26,14 @@ export interface IFileSystem {
   writeFileSync(path: string, data: string): void;
 
   /**
+   * Write to a file
+   * @param {string} path - The path to the file
+   * @param {string} data - The data to write to the file
+   * @param {string} encoding - The encoding of the file
+   */
+  writeFileSync(path: string, data: string, encoding: BufferEncoding): void;
+
+  /**
    * Check if a file exists
    * @param {string} path - The path to the file
    * @returns {boolean} - True if the file exists, false otherwise

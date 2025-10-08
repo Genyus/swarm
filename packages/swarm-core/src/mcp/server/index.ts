@@ -16,7 +16,7 @@ import {
   realLogger as logger,
   LogLevel,
 } from '../../utils/logger';
-import { tools } from './tools/index.js';
+import { getDynamicTools, getToolDefinitions } from './tools/index.js';
 import {
   MCPErrorCode,
   MCPProtocolError,
@@ -70,7 +70,7 @@ export class SwarmMCPServer {
     );
 
     this.setupEventHandlers();
-    this.registerTools();
+    // Note: registerTools is now async and will be called during start()
   }
 
   async loadConfiguration(): Promise<void> {
@@ -103,11 +103,15 @@ export class SwarmMCPServer {
     };
   }
 
-  private registerTools(): void {
+  private async registerTools(): Promise<void> {
     logger.info('Tool registration framework initialized');
     logger.debug(
       'Available tools: filesystem operations, Swarm CLI generation tools'
     );
+
+    // Get dynamic tools and tool definitions
+    const tools = await getDynamicTools();
+    const toolDefinitions = await getToolDefinitions();
 
     this.mcpServer.setRequestHandler(ListResourcesRequestSchema, () => ({
       resources: [],
@@ -153,266 +157,7 @@ export class SwarmMCPServer {
     });
 
     this.mcpServer.setRequestHandler(ListToolsRequestSchema, () => ({
-      tools: [
-        {
-          name: 'generate_wasp_api',
-          description: 'Generate Wasp API endpoints',
-          inputSchema: {
-            type: 'object',
-            properties: {
-              feature: {
-                type: 'string',
-                description: "Feature name (e.g., 'users')",
-              },
-              name: {
-                type: 'string',
-                description: "API name (e.g., 'UserAPI')",
-              },
-              method: {
-                type: 'string',
-                enum: ['GET', 'POST', 'PUT', 'DELETE', 'ALL'],
-                description: 'HTTP method (GET | POST | PUT | DELETE | ALL)',
-              },
-              route: {
-                type: 'string',
-                description: "API route path (e.g., '/api/users')",
-              },
-              entities: {
-                type: 'array',
-                items: { type: 'string' },
-                description: 'Related entities',
-              },
-              auth: {
-                type: 'boolean',
-                description: 'Require authentication',
-              },
-              force: {
-                type: 'boolean',
-                description: 'Force overwrite existing files',
-              },
-              customMiddleware: {
-                type: 'boolean',
-                description: 'Enable custom middleware for this API',
-              },
-            },
-            required: ['feature', 'name', 'method', 'route'],
-          },
-        },
-        {
-          name: 'generate_wasp_feature',
-          description: 'Generate Wasp feature modules',
-          inputSchema: {
-            type: 'object',
-            properties: {
-              name: {
-                type: 'string',
-                description: "Feature name (e.g., 'users')",
-              },
-            },
-            required: ['name'],
-          },
-        },
-        {
-          name: 'generate_wasp_crud',
-          description: 'Generate Wasp CRUD operations',
-          inputSchema: {
-            type: 'object',
-            properties: {
-              feature: {
-                type: 'string',
-                description: "Feature name (e.g., 'users')",
-              },
-              name: {
-                type: 'string',
-                description: "Data type name (e.g., 'User')",
-              },
-              public: {
-                type: 'array',
-                items: { type: 'string' },
-                description: 'Public operations',
-              },
-              override: {
-                type: 'array',
-                items: { type: 'string' },
-                description: 'Operations to override',
-              },
-              exclude: {
-                type: 'array',
-                items: { type: 'string' },
-                description: 'Operations to exclude',
-              },
-              force: {
-                type: 'boolean',
-                description: 'Force overwrite existing files',
-              },
-            },
-            required: ['feature', 'name'],
-          },
-        },
-        {
-          name: 'generate_wasp_job',
-          description: 'Generate Wasp background jobs',
-          inputSchema: {
-            type: 'object',
-            properties: {
-              feature: {
-                type: 'string',
-                description: "Feature name (e.g., 'users')",
-              },
-              name: {
-                type: 'string',
-                description: "Job name (e.g., 'EmailSender')",
-              },
-              cron: {
-                type: 'string',
-                description: "Cron schedule expression (e.g., '0 9 * * *')",
-              },
-              args: {
-                type: 'string',
-                description: 'Job arguments JSON (e.g., \'{"retry":3}\')',
-              },
-              entities: {
-                type: 'array',
-                items: { type: 'string' },
-                description: 'Related entities',
-              },
-              force: {
-                type: 'boolean',
-                description: 'Force overwrite existing files',
-              },
-            },
-            required: ['feature', 'name'],
-          },
-        },
-        {
-          name: 'generate_wasp_action',
-          description: 'Generate Wasp action operations',
-          inputSchema: {
-            type: 'object',
-            properties: {
-              feature: {
-                type: 'string',
-                description: "Feature name (e.g., 'users')",
-              },
-              operation: {
-                type: 'string',
-                enum: ['create', 'update', 'delete'],
-                description: 'Action operation type (create | update | delete)',
-              },
-              dataType: {
-                type: 'string',
-                description: "Data type (e.g., 'User')",
-              },
-              entities: {
-                type: 'array',
-                items: { type: 'string' },
-                description: 'Related entities',
-              },
-              auth: {
-                type: 'boolean',
-                description: 'Require authentication',
-              },
-              force: {
-                type: 'boolean',
-                description: 'Force overwrite existing files',
-              },
-            },
-            required: ['feature', 'operation', 'dataType'],
-          },
-        },
-        {
-          name: 'generate_wasp_query',
-          description: 'Generate Wasp query operations',
-          inputSchema: {
-            type: 'object',
-            properties: {
-              feature: {
-                type: 'string',
-                description: "Feature name (e.g., 'users')",
-              },
-              operation: {
-                type: 'string',
-                enum: ['get', 'getAll'],
-                description: 'Query operation type (get | getAll)',
-              },
-              dataType: {
-                type: 'string',
-                description: "Data type (e.g., 'User')",
-              },
-              entities: {
-                type: 'array',
-                items: { type: 'string' },
-                description: 'Related entities',
-              },
-              auth: {
-                type: 'boolean',
-                description: 'Require authentication',
-              },
-              force: {
-                type: 'boolean',
-                description: 'Force overwrite existing files',
-              },
-            },
-            required: ['feature', 'operation', 'dataType'],
-          },
-        },
-        {
-          name: 'generate_wasp_route',
-          description: 'Generate Wasp routes',
-          inputSchema: {
-            type: 'object',
-            properties: {
-              feature: {
-                type: 'string',
-                description: "Feature name (e.g., 'users')",
-              },
-              name: {
-                type: 'string',
-                description: "Route name (e.g., 'UserProfile')",
-              },
-              path: {
-                type: 'string',
-                description: "Route path (e.g., '/users/:id')",
-              },
-              auth: {
-                type: 'boolean',
-                description: 'Require authentication',
-              },
-              force: {
-                type: 'boolean',
-                description: 'Force overwrite existing files',
-              },
-            },
-            required: ['feature', 'name', 'path'],
-          },
-        },
-        {
-          name: 'generate_wasp_apinamespace',
-          description: 'Generate Wasp API namespaces',
-          inputSchema: {
-            type: 'object',
-            properties: {
-              feature: {
-                type: 'string',
-                description: "Feature name (e.g., 'users')",
-              },
-              name: {
-                type: 'string',
-                description: "API namespace name (e.g., 'UserAPI')",
-              },
-              path: {
-                type: 'string',
-                description: "API namespace path (e.g., '/api/users')",
-              },
-              force: {
-                type: 'boolean',
-                description: 'Force overwrite existing files',
-              },
-            },
-            required: ['feature', 'name', 'path'],
-          },
-        },
-      ],
+      tools: Object.values(toolDefinitions),
     }));
   }
 
@@ -430,6 +175,9 @@ export class SwarmMCPServer {
         name: this.config.name,
         version: this.config.version,
       });
+
+      // Register tools before connecting
+      await this.registerTools();
 
       this.transport = new StdioServerTransport();
 

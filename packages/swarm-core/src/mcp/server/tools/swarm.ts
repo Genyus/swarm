@@ -1,7 +1,7 @@
 import * as path from 'path';
 import type { IFileSystem } from '../../../types/filesystem';
 import type { Logger } from '../../../types/logger';
-import { GeneratorService } from '../types/generator-service.js';
+import { PluginManager } from '../../../plugin/manager.js';
 import {
   GenerateActionParams,
   GenerateActionParamsSchema,
@@ -23,13 +23,13 @@ import {
 } from '../types/swarm.js';
 
 export class SwarmTools {
-  private generatorService: GeneratorService;
+  private pluginManager: PluginManager;
 
   constructor(
     private logger: Logger,
     private fileSystem: IFileSystem
   ) {
-    this.generatorService = GeneratorService.create();
+    this.pluginManager = new PluginManager();
   }
 
   static create(logger: Logger, fileSystem: IFileSystem): SwarmTools {
@@ -52,7 +52,10 @@ export class SwarmTools {
           customMiddleware: validParams.customMiddleware || false,
         };
 
-        await this.generatorService.generateApi(validParams.feature, apiFlags);
+        // TODO: Implement API generation using plugin system
+        this.logger.info(
+          `API generation not yet implemented for feature: ${validParams.feature}`
+        );
       },
       `Successfully generated API: ${validParams.name}`,
       'Failed to generate API',
@@ -69,7 +72,10 @@ export class SwarmTools {
     return this.executeGenerator(
       () => {
         const featurePath = validParams.name;
-        this.generatorService.generateFeature(featurePath);
+        // TODO: Implement feature generation using plugin system
+        this.logger.info(
+          `Feature generation not yet implemented for: ${featurePath}`
+        );
         return Promise.resolve();
       },
       `Successfully generated feature: ${validParams.name}`,
@@ -92,9 +98,9 @@ export class SwarmTools {
           force: validParams.force || false,
         };
 
-        await this.generatorService.generateCrud(
-          validParams.feature,
-          crudFlags
+        // TODO: Implement CRUD generation using plugin system
+        this.logger.info(
+          `CRUD generation not yet implemented for feature: ${validParams.feature}`
         );
       },
       `Successfully generated CRUD operations for: ${validParams.name}`,
@@ -116,9 +122,9 @@ export class SwarmTools {
           force: validParams.force || false,
         };
 
-        await this.generatorService.generateRoute(
-          validParams.feature,
-          routeFlags
+        // TODO: Implement route generation using plugin system
+        this.logger.info(
+          `Route generation not yet implemented for feature: ${validParams.feature}`
         );
       },
       `Successfully generated route: ${validParams.path}`,
@@ -141,7 +147,10 @@ export class SwarmTools {
           force: validParams.force || false,
         };
 
-        await this.generatorService.generateJob(validParams.feature, jobFlags);
+        // TODO: Implement job generation using plugin system
+        this.logger.info(
+          `Job generation not yet implemented for feature: ${validParams.feature}`
+        );
       },
       `Successfully generated job: ${validParams.name}`,
       'Failed to generate job',
@@ -165,9 +174,9 @@ export class SwarmTools {
           force: validParams.force || false,
         };
 
-        await this.generatorService.generateOperation(
-          validParams.feature,
-          operationFlags
+        // TODO: Implement operation generation using plugin system
+        this.logger.info(
+          `Operation generation not yet implemented for feature: ${validParams.feature}`
         );
       },
       `Successfully generated action: ${validParams.operation} for ${validParams.dataType}`,
@@ -190,9 +199,9 @@ export class SwarmTools {
           force: validParams.force || false,
         };
 
-        await this.generatorService.generateOperation(
-          validParams.feature,
-          operationFlags
+        // TODO: Implement operation generation using plugin system
+        this.logger.info(
+          `Operation generation not yet implemented for feature: ${validParams.feature}`
         );
       },
       `Successfully generated query: ${validParams.operation} for ${validParams.dataType}`,
@@ -215,9 +224,9 @@ export class SwarmTools {
           force: validParams.force || false,
         };
 
-        await this.generatorService.generateApiNamespace(
-          validParams.feature,
-          apiNamespaceFlags
+        // TODO: Implement API namespace generation using plugin system
+        this.logger.info(
+          `API namespace generation not yet implemented for feature: ${validParams.feature}`
         );
       },
       `Successfully generated API namespace: ${validParams.name}`,

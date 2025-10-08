@@ -9,6 +9,7 @@ export default defineConfig({
     ...glob.sync('src/types/*.ts'),
     ...glob.sync('src/cli/*.ts', { ignore: 'src/cli/*.test.ts' }),
     ...glob.sync('src/mcp/**/*.ts', { ignore: 'src/mcp/**/*.test.ts' }),
+    // ...glob.sync('src/plugin/**/*.ts', { ignore: 'src/plugin/**/*.test.ts' }),
   ],
   format: ['esm'],
   dts: false,

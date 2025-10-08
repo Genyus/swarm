@@ -1,4 +1,4 @@
-import { z, ZodSchema } from 'zod';
+import { z, ZodType } from 'zod';
 
 /**
  * Information about a registered command
@@ -6,7 +6,7 @@ import { z, ZodSchema } from 'zod';
 export interface CommandInfo<TArgs = any> {
   name: string;
   description: string;
-  schema: ZodSchema<TArgs>;
+  schema: ZodType<TArgs>;
   handler: (args: TArgs) => Promise<void>;
 }
 
@@ -41,7 +41,7 @@ export class CommandRegistry {
   registerCommand<TArgs>(
     commandName: string,
     description: string,
-    schema: ZodSchema<TArgs>,
+    schema: ZodType<TArgs>,
     handler: (args: TArgs) => Promise<void>
   ): void {
     if (this.commands.has(commandName)) {
@@ -78,7 +78,7 @@ export class CommandRegistry {
       await commandInfo.handler(validatedArgs);
     } catch (error) {
       if (error instanceof z.ZodError) {
-        const errorMessages = error.errors
+        const errorMessages = error.issues
           .map((err) => `'${err.path.join('.')}': ${err.message}`)
           .join('\n');
 

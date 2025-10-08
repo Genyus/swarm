@@ -4,9 +4,6 @@
  * Core Swarm logic - CLI, MCP server, plugin system, generators, templates, utilities, and types for Wasp development
  */
 
-// Export all generators
-export * from './generators';
-
 // Export all utilities
 export * from './utils/index';
 

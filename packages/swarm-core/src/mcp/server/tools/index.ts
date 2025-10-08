@@ -1,35 +1,26 @@
-import { realFileSystem } from '../../../utils/filesystem';
-import { realLogger } from '../../../utils/logger';
-import type {
-  GenerateActionParams,
-  GenerateApiNamespaceParams,
-  GenerateApiParams,
-  GenerateCrudParams,
-  GenerateFeatureParams,
-  GenerateJobParams,
-  GenerateQueryParams,
-  GenerateRouteParams,
-} from '../types/swarm.js';
-import { SwarmTools } from './swarm.js';
+import { dynamicMCPTools } from './dynamic-tools.js';
 
-const swarmTools = SwarmTools.create(realLogger, realFileSystem);
+export * from './dynamic-tools.js';
 
-export * from './swarm.js';
-export const tools = {
-  generate_wasp_api: (params: GenerateApiParams) =>
-    swarmTools.generateApi(params),
-  generate_wasp_feature: (params: GenerateFeatureParams) =>
-    swarmTools.generateFeature(params),
-  generate_wasp_crud: (params: GenerateCrudParams) =>
-    swarmTools.generateCrud(params),
-  generate_wasp_job: (params: GenerateJobParams) =>
-    swarmTools.generateJob(params),
-  generate_wasp_action: (params: GenerateActionParams) =>
-    swarmTools.generateAction(params),
-  generate_wasp_query: (params: GenerateQueryParams) =>
-    swarmTools.generateQuery(params),
-  generate_wasp_route: (params: GenerateRouteParams) =>
-    swarmTools.generateRoute(params),
-  generate_wasp_apinamespace: (params: GenerateApiNamespaceParams) =>
-    swarmTools.generateApiNamespace(params),
-} as const;
+/**
+ * Get dynamic tools built from enabled generators
+ * This is the recommended way to get MCP tools
+ */
+export async function getDynamicTools(
+  configPath?: string
+): Promise<Record<string, (args: any) => Promise<any>>> {
+  return await dynamicMCPTools.getTools(configPath);
+}
+
+/**
+ * Get tool definitions for MCP server registration
+ */
+export async function getToolDefinitions(
+  configPath?: string
+): Promise<Record<string, any>> {
+  await dynamicMCPTools.initialize(configPath);
+  return dynamicMCPTools.getToolDefinitions();
+}
+
+// Export dynamic tools as the default
+export const tools = getDynamicTools;

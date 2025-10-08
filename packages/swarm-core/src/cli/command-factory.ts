@@ -1,6 +1,8 @@
 import { Command } from 'commander';
-import { z, ZodSchema } from 'zod';
+import { z, ZodType } from 'zod';
+import { FieldMetadata } from '../interfaces/field-metadata';
 import { error } from '../utils/errors';
+import { ExtendedSchema } from '../utils/schema-builder';
 import { createCommandBuilder } from './command-builder';
 import { CommandInfo, commandRegistry } from './command-registry';
 
@@ -10,7 +12,7 @@ import { CommandInfo, commandRegistry } from './command-registry';
 export interface CommandConfig<TArgs = any> {
   name: string;
   description: string;
-  schema: ZodSchema<TArgs>;
+  schema: ZodType<TArgs>;
   handler: (args: TArgs) => Promise<void>;
   additionalOptions?: (cmd: Command) => Command;
 }
@@ -74,5 +76,100 @@ export class CommandFactory {
    */
   static isCommandRegistered(commandName: string): boolean {
     return commandRegistry.hasCommand(commandName);
+  }
+
+  /**
+   * Create a command from an ExtendedSchema with metadata.
+   * Automatically generates CLI options from schema fields.
+   *
+   * @param name - Command name
+   * @param description - Command description
+   * @param schema - Extended schema with field metadata
+   * @param handler - Command handler function
+   * @returns A Commander.js command
+   */
+  static createCommandFromSchema<TArgs = any>(
+    name: string,
+    description: string,
+    schema: ExtendedSchema,
+    handler: (args: TArgs) => Promise<void>
+  ): Command {
+    // Register the command with the registry
+    commandRegistry.registerCommand(name, description, schema as any, handler);
+
+    // Create the command
+    const cmd = new Command(name);
+    cmd.description(description);
+
+    // Extract schema shape and add options
+    const shape = (schema as any)._def?.shape;
+    if (shape) {
+      Object.keys(shape).forEach((fieldName) => {
+        const fieldSchema = shape[fieldName];
+        const metadata = fieldSchema._metadata as FieldMetadata | undefined;
+        const isRequired = !fieldSchema._def?.typeName?.includes('Optional');
+
+        this.addOptionFromField(
+          cmd,
+          fieldName,
+          fieldSchema,
+          metadata,
+          isRequired
+        );
+      });
+    }
+
+    // Add action handler
+    cmd.action(async (rawArgs: unknown) => {
+      try {
+        await commandRegistry.executeCommand(name, rawArgs);
+      } catch (err: any) {
+        error(`Error executing '${name}' command`, err);
+        process.exit(1);
+      }
+    });
+
+    return cmd;
+  }
+
+  /**
+   * Add a CLI option from a schema field
+   */
+  private static addOptionFromField(
+    cmd: Command,
+    fieldName: string,
+    fieldSchema: any,
+    metadata: FieldMetadata | undefined,
+    isRequired: boolean
+  ): void {
+    const typeName = fieldSchema._def?.typeName;
+    const description = metadata?.description || `${fieldName} field`;
+    const shortName = metadata?.shortName;
+
+    // Build option string
+    let optionString = '';
+    if (shortName) {
+      optionString = `-${shortName}, --${fieldName}`;
+    } else {
+      optionString = `--${fieldName}`;
+    }
+
+    // Add value placeholder based on type
+    if (typeName === 'ZodBoolean') {
+      // Boolean flags don't need value placeholder
+      cmd.option(optionString, description);
+    } else if (isRequired) {
+      optionString += ` <${fieldName}>`;
+      cmd.requiredOption(optionString, description);
+    } else {
+      optionString += ` [${fieldName}]`;
+      cmd.option(optionString, description);
+    }
+
+    // Add examples to help text if available
+    if (metadata?.examples && metadata.examples.length > 0) {
+      const examples = metadata.examples.join(', ');
+      cmd.option(optionString, `${description} (examples: ${examples})`);
+    }
   }
 }
