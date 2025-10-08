@@ -10,11 +10,11 @@ import {
 } from '.';
 import { getPluginVersion } from './utils/plugin';
 
-export function createApiPlugin(): SwarmPluginInterface {
+export function createWaspPlugin(): SwarmPluginInterface {
   return {
-    name: 'wasp-api',
+    name: 'wasp',
     version: getPluginVersion(),
-    description: 'API Plugin for Swarm Wasp',
+    description: 'Wasp Plugin for Swarm',
     swarmVersion: '0.1.0',
     generators: [
       new ApiGenerator(),
@@ -31,9 +31,13 @@ export function createApiPlugin(): SwarmPluginInterface {
 // Lazy-load the plugin to avoid circular dependency issues
 let _apiPlugin: SwarmPluginInterface | null = null;
 
-export function getApiPlugin(): SwarmPluginInterface {
+export function getWaspPlugin(): SwarmPluginInterface {
   if (!_apiPlugin) {
-    _apiPlugin = createApiPlugin();
+    _apiPlugin = createWaspPlugin();
   }
+
   return _apiPlugin;
 }
+
+// Export for plugin resolver system
+export const wasp = getWaspPlugin;

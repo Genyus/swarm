@@ -10,7 +10,11 @@ export * from './utils/index';
 // Export all types
 export * from './types/index';
 
+// Export plugin system interfaces
+export * from './interfaces/plugin-manifest';
+
 // Export CLI functionality
+export { CommandManager } from './cli/command-manager';
 export * from './cli/index';
 
 // Export MCP functionality
