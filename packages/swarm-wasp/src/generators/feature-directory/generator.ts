@@ -1,19 +1,19 @@
 import {
-  BaseGenerator,
   ExtendedSchema,
-  findWaspRoot,
   Generator,
-  getFeatureDir,
   handleFatalError,
   IFileSystem,
   Logger,
-  normaliseFeaturePath,
-  realFileSystem,
   SwarmLogger,
   validateFeaturePath,
 } from '@ingenyus/swarm-core';
 import path from 'node:path';
 import { BaseWaspGenerator } from '../../base-classes/base-wasp-generator';
+import {
+  findWaspRoot,
+  normaliseFeaturePath,
+  realFileSystem,
+} from '../../utils/filesystem';
 import { schema } from './schema';
 
 export class FeatureDirectoryGenerator

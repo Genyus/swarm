@@ -1,7 +1,8 @@
 import { Command } from 'commander';
-import * as path from 'path';
+import fs from 'node:fs';
+import path from 'node:path';
 import { fileURLToPath } from 'url';
-import { realFileSystem } from '../utils/filesystem';
+import { CommandManager } from './command-manager';
 
 /**
  * Main entry point for the CLI
@@ -11,43 +12,14 @@ import { realFileSystem } from '../utils/filesystem';
 export async function main(): Promise<void> {
   const __dirname = path.dirname(fileURLToPath(import.meta.url));
   const packageJsonPath = path.join(__dirname, '../package.json');
-  const version = JSON.parse(
-    realFileSystem.readFileSync(packageJsonPath, 'utf8')
-  ).version;
+  const version = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8')).version;
   const command = new Command()
     .name('swarm')
     .description('Swarm generator command-line interface')
     .version(version);
-  const commandsDir = path.join(__dirname, 'cli', 'commands');
-  const files = realFileSystem
-    .readdirSync(commandsDir)
-    .filter((f) => f.endsWith('.command.ts') || f.endsWith('.command.js'));
+  const commandManager = new CommandManager();
 
-  for (const file of files) {
-    const module = await import(path.join(commandsDir, file));
-
-    registerSubCommands(command, module);
-  }
-
+  await commandManager.initialize();
+  commandManager.registerCommands(command);
   await command.parseAsync(process.argv);
-}
-
-/**
- * Register sub-commands from a module
- * @param command - The main command instance
- * @param module - The imported module containing command functions
- */
-function registerSubCommands(command: Command, module: any): void {
-  for (const exported of Object.keys(module)) {
-    if (
-      typeof module[exported] === 'function' &&
-      /^create.*Command$/.test(exported)
-    ) {
-      const subCommand = module[exported]();
-
-      if (subCommand && subCommand instanceof Command) {
-        command.addCommand(subCommand);
-      }
-    }
-  }
 }

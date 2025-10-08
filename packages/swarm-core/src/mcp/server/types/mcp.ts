@@ -2,6 +2,12 @@ import { z } from 'zod';
 
 export type RequestId = string | number;
 
+export interface MCPTool {
+  name: string;
+  description: string;
+  parameters: Record<string, unknown>;
+}
+
 export interface BaseMessage {
   jsonrpc: '2.0';
   id?: RequestId;

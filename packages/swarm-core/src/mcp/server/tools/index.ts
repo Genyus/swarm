@@ -1,6 +1,11 @@
-import { dynamicMCPTools } from './dynamic-tools.js';
+import { ToolManager } from './tool-manager';
+
+// Create singleton instance
+const toolManager = new ToolManager();
 
 export * from './dynamic-tools.js';
+export * from './tool-manager.js';
+export { toolManager };
 
 /**
  * Get dynamic tools built from enabled generators
@@ -9,7 +14,7 @@ export * from './dynamic-tools.js';
 export async function getDynamicTools(
   configPath?: string
 ): Promise<Record<string, (args: any) => Promise<any>>> {
-  return await dynamicMCPTools.getTools(configPath);
+  return await toolManager.getTools(configPath);
 }
 
 /**
@@ -18,9 +23,19 @@ export async function getDynamicTools(
 export async function getToolDefinitions(
   configPath?: string
 ): Promise<Record<string, any>> {
-  await dynamicMCPTools.initialize(configPath);
-  return dynamicMCPTools.getToolDefinitions();
+  await toolManager.initialize(configPath);
+  return toolManager.getToolDefinitions();
 }
 
-// Export dynamic tools as the default
+/**
+ * Get tool handlers for MCP server execution
+ */
+export async function getToolHandlers(
+  configPath?: string
+): Promise<Record<string, (args: any) => Promise<any>>> {
+  await toolManager.initialize(configPath);
+  return toolManager.getToolHandlers();
+}
+
+// Export tool manager as the default
 export const tools = getDynamicTools;

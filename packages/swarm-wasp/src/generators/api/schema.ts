@@ -1,5 +1,6 @@
-import { extend, HTTP_METHODS } from '@ingenyus/swarm-core';
+import { extend } from '@ingenyus/swarm-core';
 import { z } from 'zod';
+import { HTTP_METHODS } from '../../types/constants';
 import {
   commonSchemas,
   getTypedValueTransformer,

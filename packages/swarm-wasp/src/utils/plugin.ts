@@ -1,6 +1,6 @@
-import { realFileSystem } from '@ingenyus/swarm-core';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { realFileSystem } from './filesystem';
 
 export function getPluginVersion(): string {
   const __dirname = path.dirname(fileURLToPath(import.meta.url));

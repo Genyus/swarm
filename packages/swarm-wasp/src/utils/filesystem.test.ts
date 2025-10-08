@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { createMockFS } from '../../tests/utils';
-import type { IFileSystem } from '../types/filesystem';
+import { createMockFS } from '@ingenyus/swarm-core/tests/utils';
+import type { IFileSystem } from '@ingenyus/swarm-core/src/types/filesystem';
 import * as filesystem from './filesystem';
 
 describe('filesystem utils', () => {

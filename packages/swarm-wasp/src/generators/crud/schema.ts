@@ -1,5 +1,6 @@
-import { CRUD_OPERATIONS, extend } from '@ingenyus/swarm-core';
+import { extend } from '@ingenyus/swarm-core';
 import { z } from 'zod';
+import { CRUD_OPERATIONS } from '../../types/constants';
 import {
   commonSchemas,
   getTypedArrayTransformer,

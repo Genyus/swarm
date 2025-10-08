@@ -1,30 +1,53 @@
+import { PluginManager } from '../../../plugin/manager';
 import { MCPToolDefinition, MCPToolHandler, ToolFactory } from './tool-factory';
 
 /**
  * Dynamic MCP tools that are built from enabled generators
- * For now, this is a simplified version that doesn't use the plugin manager
  */
 export class DynamicMCPTools {
   private initialized = false;
+  private pluginManager: PluginManager;
   private toolDefinitions: Record<string, MCPToolDefinition> = {};
   private toolHandlers: Record<string, MCPToolHandler> = {};
 
   constructor() {
-    // No plugin manager for now
+    this.pluginManager = new PluginManager();
   }
 
   /**
-   * Initialize the dynamic tools
+   * Initialize the dynamic tools by loading plugins and creating tools from generators
    */
   async initialize(configPath?: string): Promise<void> {
     if (this.initialized) return;
 
-    // For now, just initialize with empty tools
-    // This will be replaced with actual plugin loading later
-    this.toolDefinitions = {};
-    this.toolHandlers = {};
+    try {
+      await this.pluginManager.initialize(configPath);
 
-    this.initialized = true;
+      const generators = this.pluginManager.getEnabledGenerators();
+
+      this.toolDefinitions = {};
+      this.toolHandlers = {};
+
+      for (const generator of generators) {
+        try {
+          const tool = ToolFactory.createTool(generator);
+
+          this.toolDefinitions[generator.name] = tool.definition;
+          this.toolHandlers[generator.name] = tool.handler;
+        } catch (error) {
+          console.warn(
+            `Failed to create MCP tool for generator '${generator.name}':`,
+            error
+          );
+        }
+      }
+
+      this.initialized = true;
+    } catch (error) {
+      console.error('Failed to initialize dynamic MCP tools:', error);
+
+      throw error;
+    }
   }
 
   /**
@@ -68,7 +91,16 @@ export class DynamicMCPTools {
    */
   async refresh(): Promise<void> {
     this.initialized = false;
+    this.pluginManager = new PluginManager();
     await this.initialize();
+  }
+
+  /**
+   * Get the plugin manager instance
+   * @returns The plugin manager
+   */
+  getPluginManager(): PluginManager {
+    return this.pluginManager;
   }
 }
 

@@ -1,11 +1,6 @@
 // Export all types
-export * from './constants';
 export * from './filesystem';
-// export * from './generator';
-export * from './interfaces';
 export * from './logger';
-// export * from './plugin';
-export * from './prisma';
 
 // Export new plugin system interfaces
 export * from '../base-classes/base-generator';
@@ -14,7 +9,7 @@ export * from '../interfaces/field-metadata';
 export * from '../interfaces/generator';
 export * from '../interfaces/plugin';
 export * from '../plugin/registry';
-export * from '../utils/schema-builder';
+export * from '../utils/schema';
 
 // Re-export plugin interfaces with different names to avoid conflicts
 export type {

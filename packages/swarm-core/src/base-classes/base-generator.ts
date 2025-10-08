@@ -2,8 +2,7 @@ import path from 'node:path';
 import { SwarmGenerator, ValidationResult } from '../interfaces/generator';
 import { IFileSystem } from '../types/filesystem';
 import { Logger } from '../types/logger';
-import { getFeatureImportPath } from '../utils/filesystem';
-import { ExtendedSchema } from '../utils/schema-builder';
+import { ExtendedSchema } from '../utils/schema';
 import { toCamelCase, toPascalCase } from '../utils/strings';
 import { TemplateUtility } from '../utils/templates';
 
@@ -135,21 +134,6 @@ export abstract class BaseGenerator<TArgs = any>
       });
     }
     return [error.message || 'Validation failed'];
-  }
-
-  /**
-   * String utility methods
-   */
-  protected toCamelCase(str: string): string {
-    return toCamelCase(str);
-  }
-
-  protected toPascalCase(str: string): string {
-    return toPascalCase(str);
-  }
-
-  protected getFeatureImportPath(featurePath: string): string {
-    return getFeatureImportPath(featurePath);
   }
 
   /**

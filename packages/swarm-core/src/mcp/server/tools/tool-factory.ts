@@ -1,6 +1,6 @@
 import { FieldMetadata } from '../../../interfaces/field-metadata';
 import { SwarmGenerator } from '../../../interfaces/generator';
-import { ExtendedSchema } from '../../../utils/schema-builder';
+import { ExtendedSchema } from '../../../utils/schema';
 
 /**
  * MCP Tool definition interface

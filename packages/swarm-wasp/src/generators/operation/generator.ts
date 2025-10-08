@@ -1,5 +1,5 @@
-import { OperationFlags } from '@ingenyus/swarm-core';
 import { BaseOperationGenerator } from '../../base-classes/base-operation-generator';
+import { OperationFlags } from '../../interfaces/generator-args';
 import { CONFIG_TYPES } from '../../types/constants';
 import { schema } from './schema';
 

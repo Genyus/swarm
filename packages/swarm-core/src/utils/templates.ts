@@ -1,7 +1,6 @@
 import { Eta } from 'eta';
 import path from 'path';
 import type { IFileSystem } from '../types/filesystem';
-import { getTemplatesDir } from './filesystem';
 
 export class TemplateUtility {
   constructor(private fileSystem: IFileSystem) {}

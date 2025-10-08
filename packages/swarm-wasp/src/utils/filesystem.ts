@@ -1,9 +1,12 @@
+import { IFileSystem } from '@ingenyus/swarm-core/src/types/filesystem';
+import {
+  toPascalCase,
+  validateFeaturePath,
+} from '@ingenyus/swarm-core/src/utils/strings';
 import fs from 'node:fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { TYPE_DIRECTORIES } from '../types';
-import { IFileSystem } from '../types/filesystem';
-import { toPascalCase, validateFeaturePath } from './strings';
+import { TYPE_DIRECTORIES } from '../types/constants';
 
 export const realFileSystem: IFileSystem = {
   readFileSync: fs.readFileSync,

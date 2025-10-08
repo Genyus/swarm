@@ -1,14 +1,13 @@
 import {
-  getFeatureDir,
   handleFatalError,
   IFileSystem,
   Logger,
   parseHelperMethodDefinition,
-  realFileSystem,
   SwarmLogger,
 } from '@ingenyus/swarm-core';
 import path from 'node:path';
 import { IWaspConfigGenerator } from '../../interfaces/wasp-config-generator';
+import { getFeatureDir, realFileSystem } from '../../utils/filesystem';
 
 export class WaspConfigGenerator implements IWaspConfigGenerator {
   protected path = path;

@@ -1,21 +1,23 @@
 import {
-  ensureDirectoryExists,
-  getFeatureDir,
-  getFeatureImportPath,
-  getFeatureTargetDir,
   hasHelperMethodCall,
   IFileSystem,
   Logger,
-  normaliseFeaturePath,
-  realFileSystem,
   SwarmLogger,
   toCamelCase,
   toKebabCase,
+  validateFeaturePath,
 } from '@ingenyus/swarm-core';
 import path from 'node:path';
 import { FeatureDirectoryGenerator } from '../generators/feature-directory/generator';
 import { IFeatureDirectoryGenerator } from '../interfaces/feature-directory-generator';
-import { ConfigType, GetFlagsType } from '../types/constants';
+import { ConfigType, GetFlagsType, TYPE_DIRECTORIES } from '../types/constants';
+import {
+  ensureDirectoryExists,
+  getFeatureDir,
+  getFeatureImportPath,
+  normaliseFeaturePath,
+  realFileSystem,
+} from '../utils/filesystem';
 import { BaseWaspGenerator } from './base-wasp-generator';
 
 /**
@@ -113,10 +115,34 @@ export abstract class BaseEntityGenerator<
   }
 
   /**
+   * Gets the appropriate directory for a feature based on its path.
+   * @param fileSystem - The filesystem abstraction
+   * @param featurePath - The full feature path
+   * @param type - The type of file being generated
+   * @returns The target directory and import path
+   */
+  protected getFeatureTargetDir(
+    fileSystem: IFileSystem,
+    featurePath: string,
+    type: string
+  ): { targetDirectory: string; importDirectory: string } {
+    validateFeaturePath(featurePath);
+
+    const normalisedPath = normaliseFeaturePath(featurePath);
+    const featureDir = getFeatureDir(fileSystem, normalisedPath);
+    const typeKey = type.toLowerCase();
+    const typeDirectory = TYPE_DIRECTORIES[typeKey];
+    const targetDirectory = path.join(featureDir, typeDirectory);
+    const importDirectory = `@src/${normalisedPath}/${typeDirectory}`;
+
+    return { targetDirectory, importDirectory };
+  }
+
+  /**
    * Ensures a target directory exists and returns its path
    */
   protected ensureTargetDirectory(featurePath: string, type: string) {
-    const { targetDirectory, importDirectory } = getFeatureTargetDir(
+    const { targetDirectory, importDirectory } = this.getFeatureTargetDir(
       this.fileSystem,
       featurePath,
       type

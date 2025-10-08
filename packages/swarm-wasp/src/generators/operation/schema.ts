@@ -1,9 +1,6 @@
-import {
-  ACTION_OPERATIONS,
-  extend,
-  QUERY_OPERATIONS,
-} from '@ingenyus/swarm-core';
+import { extend } from '@ingenyus/swarm-core';
 import { z } from 'zod';
+import { ACTION_OPERATIONS, QUERY_OPERATIONS } from '../../types/constants';
 import {
   commonSchemas,
   getTypedValueTransformer,

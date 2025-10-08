@@ -55,6 +55,7 @@
   "dependencies": {
     "@ingenyus/swarm-config": "workspace:*",
     "@ingenyus/swarm-core": "workspace:*",
+    "@mrleebo/prisma-ast": "^0.13.0",
     "zod": "^4.1.11"
   },
   "devDependencies": {

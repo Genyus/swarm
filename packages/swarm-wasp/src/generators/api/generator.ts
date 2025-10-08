@@ -1,5 +1,6 @@
-import { ApiFlags } from '@ingenyus/swarm-core';
+import { toCamelCase, toPascalCase } from '@ingenyus/swarm-core';
 import { BaseEntityGenerator } from '../../base-classes/base-entity-generator';
+import { ApiFlags } from '../../interfaces/generator-args';
 import { CONFIG_TYPES } from '../../types/constants';
 import { schema } from './schema';
 
@@ -16,7 +17,7 @@ export class ApiGenerator extends BaseEntityGenerator<typeof CONFIG_TYPES.API> {
     flags: ApiFlags;
   }): Promise<void> {
     const { featurePath, flags } = params;
-    const apiName = this.toCamelCase(flags?.name);
+    const apiName = toCamelCase(flags?.name);
 
     return this.handleGeneratorError(this.entityType, apiName, async () => {
       const {
@@ -134,7 +135,7 @@ export class ApiGenerator extends BaseEntityGenerator<typeof CONFIG_TYPES.API> {
   }
 
   private buildTemplateData(apiName: string, method: string, auth: boolean) {
-    const apiType = this.toPascalCase(apiName);
+    const apiType = toPascalCase(apiName);
     const authCheck = auth
       ? `  if (!context.user) {
   throw new HttpError(401);

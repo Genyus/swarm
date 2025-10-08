@@ -1,5 +1,6 @@
-import { capitalise, JobFlags, toCamelCase } from '@ingenyus/swarm-core';
+import { capitalise, toCamelCase } from '@ingenyus/swarm-core';
 import { BaseEntityGenerator } from '../../base-classes/base-entity-generator';
+import { JobFlags } from '../../interfaces/generator-args';
 import { CONFIG_TYPES } from '../../types/constants';
 import { schema } from './schema';
 

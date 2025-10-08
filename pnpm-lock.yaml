@@ -111,15 +111,9 @@ importers:
 
   packages/swarm-core:
     dependencies:
-      '@ingenyus/swarm-config':
-        specifier: workspace:*
-        version: link:../swarm-config
       '@modelcontextprotocol/sdk':
         specifier: ^1.17.4
         version: 1.17.4
-      '@mrleebo/prisma-ast':
-        specifier: ^0.13.0
-        version: 0.13.0
       '@sliphua/lilconfig-ts-loader':
         specifier: ^3.2.2
         version: 3.2.2(lilconfig@3.1.3)(typescript@5.9.2)
@@ -233,6 +227,9 @@ importers:
       '@ingenyus/swarm-core':
         specifier: workspace:*
         version: link:../swarm-core
+      '@mrleebo/prisma-ast':
+        specifier: ^0.13.0
+        version: 0.13.0
       zod:
         specifier: ^4.1.11
         version: 4.1.11

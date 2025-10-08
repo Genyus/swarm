@@ -2,11 +2,11 @@ import {
   BaseGenerator,
   IFileSystem,
   Logger,
-  realFileSystem,
   SwarmLogger,
   toKebabCase,
 } from '@ingenyus/swarm-core';
 import { WaspConfigGenerator } from '../generators/config/generator';
+import { getFeatureImportPath, realFileSystem } from '../utils/filesystem';
 
 /**
  * Abstract base class for all generators
@@ -46,5 +46,9 @@ export abstract class BaseWaspGenerator<TArgs> extends BaseGenerator<TArgs> {
       'templates',
       templateName
     );
+  }
+
+  protected getFeatureImportPath(featurePath: string): string {
+    return getFeatureImportPath(featurePath);
   }
 }

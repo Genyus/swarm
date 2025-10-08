@@ -57,9 +57,7 @@
     "node": ">=18.0.0"
   },
   "dependencies": {
-    "@ingenyus/swarm-config": "workspace:*",
     "@modelcontextprotocol/sdk": "^1.17.4",
-    "@mrleebo/prisma-ast": "^0.13.0",
     "@sliphua/lilconfig-ts-loader": "^3.2.2",
     "chalk": "^5.6.0",
     "commander": "^14.0.0",

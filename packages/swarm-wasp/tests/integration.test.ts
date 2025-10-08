@@ -1237,9 +1237,7 @@ export const <%=crudName%> = {
     });
 
     it('should validate JSON field metadata is correctly extracted', async () => {
-      const { getEntityMetadata } = await import(
-        '@ingenyus/swarm-core'
-      );
+      const { getEntityMetadata } = await import('../src/utils/prisma');
       const metadata = await getEntityMetadata('Document');
 
       // Verify the settings JSON field is present with correct properties
@@ -1254,7 +1252,7 @@ export const <%=crudName%> = {
 
     it('should ensure Prisma import is required when JSON fields are present', async () => {
       const { needsPrismaImport, getEntityMetadata } = await import(
-        '@ingenyus/swarm-core'
+        '../src/utils/prisma'
       );
       const metadata = await getEntityMetadata('Document');
 
@@ -1264,7 +1262,7 @@ export const <%=crudName%> = {
 
     it('should generate appropriate JSON type handling code', async () => {
       const { generateJsonTypeHandling } = await import(
-        '@ingenyus/swarm-core'
+        '../src/utils/prisma'
       );
       const jsonHandling = generateJsonTypeHandling(['settings']);
 
@@ -1275,7 +1273,7 @@ export const <%=crudName%> = {
 
     it('should identify JSON fields correctly', async () => {
       const { getJsonFields, getEntityMetadata } = await import(
-        '@ingenyus/swarm-core'
+        '../src/utils/prisma'
       );
       const metadata = await getEntityMetadata('Document');
       const jsonFields = getJsonFields(metadata);

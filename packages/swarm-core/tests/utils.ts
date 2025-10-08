@@ -1,7 +1,6 @@
 import { Stats } from 'node:fs';
 import { vi } from 'vitest';
 import type { IFileSystem } from '../src/types/filesystem';
-import type { IFeatureGenerator } from '../src/types/generator';
 import type { Logger } from '../src/types/logger';
 
 /**
@@ -33,18 +32,5 @@ export function createMockLogger(): Logger {
     success: vi.fn(),
     error: vi.fn(),
     warn: vi.fn(),
-  };
-}
-
-/**
- * Creates a mock feature generator implementation for testing.
- *
- * @returns A mock IFeatureGenerator object with methods stubbed using Vitest's vi.fn()
- */
-export function createMockFeatureGen(): IFeatureGenerator {
-  return {
-    updateFeatureConfig: vi.fn(() => 'config'),
-    generateFeatureConfig: vi.fn(() => 'config'),
-    generateFeature: vi.fn(() => 'config'),
   };
 }

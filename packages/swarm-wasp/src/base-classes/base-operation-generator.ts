@@ -1,26 +1,29 @@
 import {
+  capitalise,
+  getPlural,
+  handleFatalError,
+  toPascalCase,
+} from '@ingenyus/swarm-core';
+import { OperationConfigEntry } from '../interfaces/generator-args';
+import { EntityMetadata } from '../interfaces/prisma';
+import {
   ActionOperation,
-  EntityMetadata,
-  OPERATIONS,
+  CONFIG_TYPES,
   OPERATION_TYPES,
-  OperationConfigEntry,
+  OPERATIONS,
   OperationType,
   QueryOperation,
   TYPE_DIRECTORIES,
-  capitalise,
-  copyDirectory,
+} from '../types/constants';
+import { copyDirectory, getFeatureImportPath } from '../utils/filesystem';
+import {
   generateJsonTypeHandling,
   getEntityMetadata,
-  getFeatureImportPath,
   getIdField,
   getJsonFields,
   getOmitFields,
-  getPlural,
-  handleFatalError,
   needsPrismaImport,
-  toPascalCase,
-} from '@ingenyus/swarm-core';
-import { CONFIG_TYPES } from '../types/constants';
+} from '../utils/prisma';
 import { BaseEntityGenerator } from './base-entity-generator';
 
 /**

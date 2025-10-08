@@ -2,7 +2,7 @@ import { Command } from 'commander';
 import { z, ZodType } from 'zod';
 import { FieldMetadata } from '../interfaces/field-metadata';
 import { error } from '../utils/errors';
-import { ExtendedSchema } from '../utils/schema-builder';
+import { ExtendedSchema } from '../utils/schema';
 import { createCommandBuilder } from './command-builder';
 import { CommandInfo, commandRegistry } from './command-registry';
 
