@@ -2,7 +2,6 @@ import { Command } from 'commander';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'url';
-import { PluginManager } from '../plugin/manager';
 import { CommandManager } from './command-manager';
 
 /**

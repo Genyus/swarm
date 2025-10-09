@@ -28,6 +28,10 @@ export abstract class BaseEntityGenerator<
 > extends BaseWaspGenerator<TArgs> {
   protected abstract entityType: TArgs;
 
+  protected getTemplatePath(templateName: string): string {
+    return this.resolveTemplatePath(templateName, this.name, import.meta.url);
+  }
+
   constructor(
     public logger: Logger = new SwarmLogger(),
     public fileSystem: IFileSystem = realFileSystem,
@@ -45,10 +49,7 @@ export abstract class BaseEntityGenerator<
     return toKebabCase(this.entityType.toString());
   }
 
-  public abstract generate(params: {
-    featurePath: string;
-    flags: GetFlagsType<TArgs>;
-  }): Promise<void> | void;
+  public abstract generate(flags: GetFlagsType<TArgs>): Promise<void> | void;
 
   protected getFeatureImportPath(featurePath: string): string {
     return getFeatureImportPath(featurePath);

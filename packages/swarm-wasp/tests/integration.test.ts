@@ -38,7 +38,7 @@ vi.mock('@ingenyus/swarm-core/utils/filesystem', () => ({
     .mockImplementation((path: string) => `@features/${path}`),
 }));
 
-vi.mock('@ingenyus/swarm-core/utils/strings', () => ({
+vi.mock('@ingenyus/swarm-core', () => ({
   validateFeaturePath: vi
     .fn()
     .mockImplementation((path: string) => path.split('/')),

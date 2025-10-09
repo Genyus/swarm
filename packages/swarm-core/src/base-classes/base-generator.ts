@@ -3,7 +3,6 @@ import { SwarmGenerator, ValidationResult } from '../interfaces/generator';
 import { IFileSystem } from '../types/filesystem';
 import { Logger } from '../types/logger';
 import { ExtendedSchema } from '../utils/schema';
-import { toCamelCase, toPascalCase } from '../utils/strings';
 import { TemplateUtility } from '../utils/templates';
 
 /**

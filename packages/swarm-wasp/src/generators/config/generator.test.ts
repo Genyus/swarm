@@ -31,7 +31,7 @@ describe('WaspConfigGenerator', () => {
   });
 
   it('update updates existing config', () => {
-    const initialContent = `import { App } from "@ingenyus/swarm-config";
+    const initialContent = `import { App } from "@ingenyus/swarm-wasp";
 
 export default function configure(app: App, feature: string): void {
   app

@@ -34,6 +34,10 @@ export class FeatureDirectoryGenerator
     this.schema = schema;
   }
 
+  protected getTemplatePath(templateName: string): string {
+    return this.resolveTemplatePath(templateName, this.name, import.meta.url);
+  }
+
   /**
    * Generate feature directory structure (main entry point)
    * @param featurePath - The path to the feature

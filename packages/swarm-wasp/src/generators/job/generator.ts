@@ -12,22 +12,17 @@ export class JobGenerator extends BaseEntityGenerator<typeof CONFIG_TYPES.JOB> {
   description = 'Generate job workers for Wasp applications';
   schema = schema;
 
-  async generate(params: {
-    featurePath: string;
-    flags: JobFlags;
-  }): Promise<void> {
-    const { featurePath, flags } = params;
+  async generate(flags: JobFlags): Promise<void> {
     const jobName = toCamelCase(flags.name);
 
     return this.handleGeneratorError(this.entityType, jobName, async () => {
       const { targetDirectory } = this.ensureTargetDirectory(
-        featurePath,
+        flags.feature,
         this.entityType.toLowerCase()
       );
       const targetFile = `${targetDirectory}/${jobName}.ts`;
-
       this.generateJobFile(targetFile, jobName, flags);
-      this.updateConfigFile(featurePath, jobName, flags);
+      this.updateConfigFile(flags.feature, jobName, flags);
     });
   }
 

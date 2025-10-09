@@ -1,0 +1,28 @@
+# Development stubs
+src/stubs/
+
+# Build artifacts
+dist/
+node_modules/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Test files
+tests/
+*.test.ts
+*.test.js
+vitest.config.ts
+
+# Source files (only include dist)
+src/
+tsconfig*.json
+tsup.config.ts
+eslint.config.js

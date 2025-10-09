@@ -11,19 +11,19 @@ import {
  */
 export interface CommonGeneratorFlags {
   /** Feature path/name */
-  feature?: string;
+  feature: string;
   /** Resource name (API, Job, Route, etc.) */
-  name?: string;
+  name: string;
   /** Data type/model name */
   dataType: string;
   /** Operation type (for queries/actions) */
   operation: ActionOperation | QueryOperation;
   /** HTTP method (for APIs) */
-  method?: HttpMethod;
+  method: HttpMethod;
   /** Route/API path */
-  path?: string;
+  path: string;
   /** Route path (alias for path) */
-  route?: string;
+  route: string;
   /** Entities to include */
   entities?: string | string[];
   /** Force overwrite existing files */
@@ -57,48 +57,37 @@ export type OperationFlags = Pick<
  */
 export type ApiFlags = Pick<
   CommonGeneratorFlags,
-  'force' | 'entities' | 'auth' | 'customMiddleware'
-> & {
-  name: string;
-  method: HttpMethod;
-  route: string;
-};
+  'feature' | 'name' | 'method' | 'route' | 'force' | 'entities' | 'auth' | 'customMiddleware'
+>;
 
 /**
  * Job-specific flags
  */
 export type JobFlags = Pick<
   CommonGeneratorFlags,
-  'entities' | 'cron' | 'args' | 'force'
-> & {
-  name: string;
-};
+  'feature' | 'name' | 'entities' | 'cron' | 'args' | 'force'
+>;
 
 /**
  * Route-specific flags
  */
 export type RouteFlags = Pick<
   CommonGeneratorFlags,
-  'name' | 'force' | 'auth'
-> & {
-  path: string;
-};
+  'name' | 'force' | 'auth' | 'path'
+>;
 
 /**
  * CRUD-specific flags
  */
 export type CrudFlags = Pick<
   CommonGeneratorFlags,
-  'public' | 'override' | 'exclude' | 'force' | 'dataType' | 'auth'
+  'feature' | 'public' | 'override' | 'exclude' | 'force' | 'dataType' | 'auth'
 >;
 
 /**
  * ApiNamespace-specific flags
  */
-export type ApiNamespaceFlags = Pick<CommonGeneratorFlags, 'force'> & {
-  name: string;
-  path: string;
-};
+export type ApiNamespaceFlags = Pick<CommonGeneratorFlags, 'feature' | 'name' | 'path' | 'force'>;
 
 /**
  * Represents a configuration entry for an operation.

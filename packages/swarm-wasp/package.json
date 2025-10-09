@@ -2,7 +2,7 @@
   "name": "@ingenyus/swarm-wasp",
   "type": "module",
   "version": "0.1.0",
-  "description": "Wasp-specific plugins for Swarm - Feature generators, commands, and MCP tools for Wasp development",
+  "description": "Wasp-specific plugins for Swarm - Feature generators, commands, MCP tools, and enhanced Wasp configuration for Wasp development",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
@@ -11,8 +11,9 @@
     "LICENSE"
   ],
   "scripts": {
-    "build": "pnpm dlx rimraf dist && tsup && tsc --project tsconfig.dts.json",
+    "build": "pnpm dlx rimraf dist && tsup && tsc --project tsconfig.dts.json && pnpm copy-templates && pnpm pack",
     "build:watch": "tsc --watch",
+    "copy-templates": "for dir in src/generators/*/templates; do if [ -d \"$dir\" ]; then generator=$(basename $(dirname $dir)); mkdir -p dist/generators/$generator/templates; cp -r $dir/* dist/generators/$generator/templates/; fi; done",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
@@ -30,6 +31,7 @@
     "generators",
     "plugins",
     "templates",
+    "configuration",
     "typescript",
     "fullstack",
     "react",
@@ -53,10 +55,17 @@
     "node": ">=18.0.0"
   },
   "dependencies": {
-    "@ingenyus/swarm-config": "workspace:*",
     "@ingenyus/swarm-core": "workspace:*",
     "@mrleebo/prisma-ast": "^0.13.0",
     "zod": "^4.1.11"
+  },
+  "peerDependencies": {
+    "wasp-config": "*"
+  },
+  "peerDependenciesMeta": {
+    "wasp-config": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "@types/node": "^24.3.0",
@@ -64,7 +73,8 @@
     "knip": "^5.64.2",
     "tsup": "^8.5.0",
     "typescript": "^5.9.2",
-    "vitest": "^3.1.4"
+    "vitest": "^3.1.4",
+    "wasp-config": "link:src/stubs/wasp-config"
   },
   "publishConfig": {
     "access": "public"

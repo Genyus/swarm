@@ -62,48 +62,133 @@ export class NPMPluginResolver implements PluginResolver {
    */
   async resolveFromManifest(packageName: string, pluginName?: string, applicationRoot?: string): Promise<SwarmPlugin | null> {
     try {
-      // Import the package
-      const packageModule = await import(packageName);
+      const packagePath = await this.resolvePackagePath(packageName, applicationRoot);
 
-      // Try to get the package.json manifest
+      if (!packagePath) {
+        console.warn('Could not resolve package path for:', packageName);
+
+        return null;
+      }
+
       let manifest: SwarmPluginManifest | null = null;
+
       try {
-        const packageJsonPath = `${packageName}/package.json`;
-        const packageJson = await import(packageJsonPath);
-        manifest = packageJson.default || packageJson;
+        const path = await import('node:path');
+        const fs = await import('node:fs');
+        const packageJsonPath = path.join(packagePath, 'package.json');
+
+        if (fs.existsSync(packageJsonPath)) {
+          const packageJsonContent = fs.readFileSync(packageJsonPath, 'utf8');
+          const packageJson = JSON.parse(packageJsonContent);
+
+          manifest = packageJson.swarm;
+        }
       } catch (error) {
-        // Package.json not found or not accessible
+        console.error('Could not load package.json manifest:', error);
       }
 
       let plugin: any = null;
 
       if (manifest?.swarm?.plugins) {
-        // Use manifest to find the plugin
         const targetPluginName = pluginName || this.getDefaultPluginName(manifest.swarm.plugins);
         const pluginEntry = manifest.swarm.plugins[targetPluginName];
 
         if (pluginEntry) {
-          // Import the specific entry point
-          const pluginModule = await import(`${packageName}/${pluginEntry.entry}`);
-          plugin = pluginModule.default || pluginModule;
+          const path = await import('node:path');
+          const entryPath = path.join(packagePath, pluginEntry.entry);
+          const pluginModule = await import(entryPath);
+
+          plugin = pluginEntry.name ? pluginModule[pluginEntry.name] : pluginModule.default;
         }
       } else {
-        // Fallback to direct import
-        if (pluginName) {
-          plugin = packageModule[pluginName];
-          if (typeof plugin === 'function') {
-            plugin = plugin();
+        const path = await import('node:path');
+        const fs = await import('node:fs');
+        const packageJsonPath = path.join(packagePath, 'package.json');
+
+        if (fs.existsSync(packageJsonPath)) {
+          const packageJsonContent = fs.readFileSync(packageJsonPath, 'utf8');
+          const packageJson = JSON.parse(packageJsonContent);
+          const mainPath = path.join(packagePath, packageJson.main || 'index.js');
+          const packageModule = await import(mainPath);
+
+          if (pluginName) {
+            plugin = packageModule[pluginName];
+
+            if (typeof plugin === 'function') {
+              plugin = plugin();
+            }
+          } else {
+            plugin = packageModule.default;
           }
-        } else {
-          plugin = packageModule.default;
         }
       }
 
       return this.validatePlugin(plugin);
     } catch (error) {
+      console.error('Failed to resolve plugin from manifest:', error);
       return null;
     }
   }
+
+  /**
+   * Resolve the actual file system path to a package using Node.js module resolution
+   * @param packageName The package name to resolve
+   * @param applicationRoot The application root directory
+   * @returns Promise that resolves to the package path or null if not found
+   */
+  private async resolvePackagePath(packageName: string, applicationRoot?: string): Promise<string | null> {
+    try {
+      const path = await import('node:path');
+      const fs = await import('node:fs');
+
+      const startDir = applicationRoot || process.cwd();
+
+      try {
+        const { createRequire } = await import('module');
+        const require = createRequire(startDir + '/package.json');
+        const resolvedPath = require.resolve(packageName);
+        let packageDir = path.dirname(resolvedPath);
+
+        while (packageDir !== path.dirname(packageDir)) {
+          const packageJsonPath = path.join(packageDir, 'package.json');
+
+          if (fs.existsSync(packageJsonPath)) {
+            const packageJsonContent = fs.readFileSync(packageJsonPath, 'utf8');
+            const packageJson = JSON.parse(packageJsonContent);
+
+            if (packageJson.name === packageName) {
+              return packageDir;
+            }
+          }
+
+          packageDir = path.dirname(packageDir);
+        }
+      } catch (resolveError) {
+        console.error('createRequire.resolve failed:', resolveError);
+      }
+
+      let currentDir = startDir;
+
+      while (currentDir !== path.dirname(currentDir)) {
+        const nodeModulesPath = path.join(currentDir, 'node_modules', packageName);
+
+        if (fs.existsSync(nodeModulesPath)) {
+          return nodeModulesPath;
+        }
+
+        currentDir = path.dirname(currentDir);
+      }
+
+      console.warn('package not found in any node_modules');
+
+      return null;
+    } catch (error) {
+      console.error('Error resolving package path:', error);
+
+      return null;
+    }
+  }
+
 
   private getDefaultPluginName(plugins: Record<string, any>): string {
     // Return the first plugin name as default
@@ -130,18 +215,18 @@ export class NPMPluginResolver implements PluginResolver {
  */
 export class LocalPluginResolver implements PluginResolver {
   async resolve(pluginId: string, applicationRoot?: string): Promise<SwarmPlugin | null> {
-    console.log('resolving local plugin', pluginId, 'from', applicationRoot);
     try {
-      // Check if it's a local path (starts with ./ or ../)
       if (!pluginId.startsWith('./') && !pluginId.startsWith('../')) {
         return null;
       }
 
       // Resolve the path relative to application root
       let resolvedPath = pluginId;
+
       if (applicationRoot) {
         const path = await import('node:path');
-        resolvedPath = path.resolve(applicationRoot, pluginId);
+
+        resolvedPath = `${path.resolve(applicationRoot, pluginId)}/dist/index.js`;
       }
 
       // Try to import the plugin
@@ -156,6 +241,7 @@ export class LocalPluginResolver implements PluginResolver {
   }
 
   private validatePlugin(plugin: any): SwarmPlugin | null {
+    console.log('name:', plugin ? JSON.stringify(plugin, null, 2) : 'null');
     if (
       plugin &&
       typeof plugin === 'object' &&
@@ -166,61 +252,5 @@ export class LocalPluginResolver implements PluginResolver {
       return plugin as SwarmPlugin;
     }
     return null;
-  }
-}
-
-/**
- * Resolves built-in plugins for backward compatibility
- */
-export class BuiltinPluginResolver implements PluginResolver {
-  private builtinPlugins: Record<string, () => Promise<SwarmPlugin | null>> = {};
-
-  constructor() {
-    // Register built-in plugins
-    this.builtinPlugins = {
-      'wasp': () => this.loadWaspPlugin(),
-      'react': () => this.loadReactPlugin(),
-    };
-  }
-
-  async resolve(pluginId: string, applicationRoot?: string): Promise<SwarmPlugin | null> {
-    const loader = this.builtinPlugins[pluginId];
-    if (loader) {
-      try {
-        return await loader();
-      } catch (error) {
-        return null;
-      }
-    }
-    return null;
-  }
-
-  private async loadWaspPlugin(): Promise<SwarmPlugin | null> {
-    try {
-      // Try to load from swarm-wasp package using dynamic import
-      const packageName = '@ingenyus/swarm-wasp';
-      const waspPlugin = await import(packageName);
-      return waspPlugin.getWaspPlugin ? waspPlugin.getWaspPlugin() : null;
-    } catch (error) {
-      // Fallback to local path in monorepo
-      try {
-        const localPath = '../../swarm-wasp/dist/index.js';
-        const waspPlugin = await import(localPath);
-        return waspPlugin.getWaspPlugin ? waspPlugin.getWaspPlugin() : null;
-      } catch (fallbackError) {
-        return null;
-      }
-    }
-  }
-
-  private async loadReactPlugin(): Promise<SwarmPlugin | null> {
-    try {
-      // Try to load from swarm-react package using dynamic import
-      const packageName = '@ingenyus/swarm-react';
-      const reactPlugin = await import(packageName);
-      return reactPlugin.getReactPlugin ? reactPlugin.getReactPlugin() : null;
-    } catch (error) {
-      return null;
-    }
   }
 }

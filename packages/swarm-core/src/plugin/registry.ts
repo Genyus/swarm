@@ -2,7 +2,11 @@ import * as path from 'node:path';
 import { SwarmConfigManager } from '../config/swarm-config';
 import { SwarmGenerator } from '../interfaces/generator';
 import { SwarmPlugin } from '../interfaces/plugin';
-import { BuiltinPluginResolver, LocalPluginResolver, NPMPluginResolver, PluginResolver } from './resolver';
+import {
+  LocalPluginResolver,
+  NPMPluginResolver,
+  PluginResolver,
+} from './resolver';
 
 /**
  * Manages plugin registration and discovery
@@ -10,16 +14,10 @@ import { BuiltinPluginResolver, LocalPluginResolver, NPMPluginResolver, PluginRe
 export class PluginRegistry {
   private plugins: Map<string, SwarmPlugin> = new Map();
   private generators: Map<string, SwarmGenerator> = new Map();
-  private resolvers: PluginResolver[] = [];
+  private npmResolver: NPMPluginResolver = new NPMPluginResolver();
+  private localResolver: LocalPluginResolver = new LocalPluginResolver();
 
-  constructor(private configManager: SwarmConfigManager) {
-    // Initialize resolvers in order of preference
-    this.resolvers = [
-      new NPMPluginResolver(),
-      new LocalPluginResolver(),
-      new BuiltinPluginResolver()
-    ];
-  }
+  constructor(private configManager: SwarmConfigManager) {}
 
   /**
    * Register a plugin and its generators
@@ -39,41 +37,34 @@ export class PluginRegistry {
    */
   async loadFromConfig(): Promise<void> {
     const config = this.configManager.getConfig();
+
     if (!config) {
       throw new Error('No configuration loaded');
     }
 
-    // Get the application root from the config manager
     const applicationRoot = this.getApplicationRoot();
 
-    // Load plugins dynamically based on configuration
     for (const [packageName, pluginConfig] of Object.entries(config.plugins)) {
       if (pluginConfig.enabled) {
         try {
           let plugin: SwarmPlugin | null = null;
 
-          // Check if this is the new format (package name only)
-          if (!packageName.includes('/') && !packageName.includes('@')) {
-            // This is a simple plugin name, use builtin resolver
-            plugin = await this.resolvePlugin(packageName, applicationRoot);
-          } else if (packageName.includes('@') || !packageName.startsWith('.')) {
-            // This is a package name, use NPM resolver with manifest
-            const npmResolver = this.resolvers.find(r => r instanceof NPMPluginResolver) as NPMPluginResolver;
-            if (npmResolver) {
-              plugin = await npmResolver.resolveFromManifest(packageName, pluginConfig.plugin, applicationRoot);
-            } else {
-              // Fallback to old resolution method
-              plugin = await this.resolvePlugin(packageName, applicationRoot);
-            }
+          if (packageName.startsWith('.')) {
+            plugin = await this.localResolver.resolve(
+              packageName,
+              applicationRoot
+            );
           } else {
-            // This is a local path, use local resolver
-            plugin = await this.resolvePlugin(packageName, applicationRoot);
+            plugin = await this.npmResolver.resolveFromManifest(
+              packageName,
+              pluginConfig.plugin,
+              applicationRoot
+            );
           }
 
           if (plugin) {
             this.registerPlugin(plugin);
 
-            // Enable/disable generators based on config
             plugin.generators.forEach((generator) => {
               const isEnabled =
                 pluginConfig.generators?.[generator.name]?.enabled ?? true;
@@ -105,27 +96,6 @@ export class PluginRegistry {
     }
 
     return undefined;
-  }
-
-  /**
-   * Resolve a plugin using available resolvers
-   * @param pluginId The plugin identifier
-   * @param applicationRoot The application root directory for resolving relative paths
-   * @returns Resolved plugin or null if not found
-   */
-  private async resolvePlugin(pluginId: string, applicationRoot?: string): Promise<SwarmPlugin | null> {
-    for (const resolver of this.resolvers) {
-      try {
-        const plugin = await resolver.resolve(pluginId, applicationRoot);
-        if (plugin) {
-          return plugin;
-        }
-      } catch (error) {
-        // Try next resolver
-        continue;
-      }
-    }
-    return null;
   }
 
   /**

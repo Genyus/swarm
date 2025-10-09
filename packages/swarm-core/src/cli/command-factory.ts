@@ -97,24 +97,23 @@ export class CommandFactory {
     // Register the command with the registry
     commandRegistry.registerCommand(name, description, schema as any, handler);
 
-    // Create the command
-    const cmd = new Command(name);
+    // Use the command builder to create a proper sub-command
+    const builder = createCommandBuilder(new Command(), name);
+    const cmd = builder.build();
+
     cmd.description(description);
 
     // Extract schema shape and add options
     const shape = (schema as any)._def?.shape;
+
     if (shape) {
       Object.keys(shape).forEach((fieldName) => {
         const fieldSchema = shape[fieldName];
-        const metadata = fieldSchema._metadata as FieldMetadata | undefined;
-        const isRequired = !fieldSchema._def?.typeName?.includes('Optional');
 
         this.addOptionFromField(
           cmd,
           fieldName,
           fieldSchema,
-          metadata,
-          isRequired
         );
       });
     }
@@ -138,25 +137,26 @@ export class CommandFactory {
   private static addOptionFromField(
     cmd: Command,
     fieldName: string,
-    fieldSchema: any,
-    metadata: FieldMetadata | undefined,
-    isRequired: boolean
+    fieldSchema: any
   ): void {
-    const typeName = fieldSchema._def?.typeName;
-    const description = metadata?.description || `${fieldName} field`;
+    const metadata = fieldSchema._metadata as FieldMetadata | undefined;
+    const isRequired = !fieldSchema.type?.includes('optional');
+    const typeName = isRequired ? fieldSchema.type : fieldSchema.def?.innerType?.type;
     const shortName = metadata?.shortName;
-
-    // Build option string
     let optionString = '';
+    let description = metadata?.description || `${fieldName} field`;
+
+    if (metadata?.examples && metadata.examples.length > 0) {
+      description = `${description} (examples: ${metadata.examples.join(', ')})`;
+    }
+
     if (shortName) {
       optionString = `-${shortName}, --${fieldName}`;
     } else {
       optionString = `--${fieldName}`;
     }
 
-    // Add value placeholder based on type
-    if (typeName === 'ZodBoolean') {
-      // Boolean flags don't need value placeholder
+    if (typeName === 'boolean') {
       cmd.option(optionString, description);
     } else if (isRequired) {
       optionString += ` <${fieldName}>`;
@@ -164,12 +164,6 @@ export class CommandFactory {
     } else {
       optionString += ` [${fieldName}]`;
       cmd.option(optionString, description);
-    }
-
-    // Add examples to help text if available
-    if (metadata?.examples && metadata.examples.length > 0) {
-      const examples = metadata.examples.join(', ');
-      cmd.option(optionString, `${description} (examples: ${examples})`);
     }
   }
 }

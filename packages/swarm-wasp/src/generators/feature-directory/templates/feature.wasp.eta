@@ -1,4 +1,4 @@
-import { App } from "@ingenyus/swarm-config";
+import { App } from "@ingenyus/swarm-wasp";
 
 /**
  * Fluent Wasp feature configuration
@@ -6,9 +6,15 @@ import { App } from "@ingenyus/swarm-config";
  * Example usage:
  * ```ts
  * app
- *   .addApiNamespace(feature, "apiNamespace", { path: "/api/feature" })
- *   .addApi(feature, "getItems", { method: "GET", route: "/api/feature/items", entities: ["Item"], auth: true })
- *   .addRoute(feature, "featureRoute", { path: "/feature", componentName: "Feature", auth: false });
+ *   .addApi(feature, "getItems", {
+ *     method: "GET", route: "/api/feature/items", entities: ["Item"], auth: true
+ *   })
+ *   .addApiNamespace(feature, "apiNamespace", {
+ *     path: "/api/feature"
+ *   })
+ *   .addRoute(feature, "featureRoute", {
+ *     path: "/feature", componentName: "Feature", auth: false
+ *   });
  * ```
  */
 export default function configureFeature(app: App, feature: string): void {

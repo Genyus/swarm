@@ -26,8 +26,12 @@ describe('JobGenerator', () => {
     fs.readFileSync = vi.fn(() => 'template');
     fs.writeFileSync = vi.fn();
     await gen.generate({
-      featurePath: 'foo',
-      flags: { name: 'Job', force: true },
+      feature: 'foo',
+      name: 'Job',
+      force: true,
+      entities: ['User'],
+      cron: '0 0 * * *',
+      args: '{}',
     });
     expect(fs.writeFileSync).toHaveBeenCalled();
     // The WaspBaseGenerator uses its own configGenerator instead of updateFeatureConfig

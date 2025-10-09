@@ -27,7 +27,7 @@ describe('CrudGenerator', () => {
     fs.writeFileSync = vi.fn();
     await gen.generate({
       featurePath: 'foo',
-      flags: { dataType: 'User', force: true },
+      flags: { feature: 'foo', dataType: 'User', force: true },
     });
     expect(fs.writeFileSync).toHaveBeenCalled();
     expect(featureGen.generate).toHaveBeenCalled();
@@ -49,6 +49,7 @@ describe('CrudGenerator', () => {
     await gen.generate({
       featurePath: 'foo',
       flags: {
+        feature: 'foo',
         dataType: 'User',
         force: true,
         public: ['get', 'getAll'],
@@ -93,6 +94,7 @@ describe('CrudGenerator', () => {
     await gen.generate({
       featurePath: 'foo',
       flags: {
+        feature: 'foo',
         dataType: 'User',
         force: true,
       },

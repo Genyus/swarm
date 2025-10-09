@@ -1,11 +1,15 @@
 /**
  * @ingenyus/swarm-wasp
  *
- * Wasp-specific plugins for Swarm - Feature generators, commands, and MCP tools for Wasp development
+ * Wasp-specific plugins for Swarm - Feature generators, commands, MCP tools, and enhanced Wasp configuration for Wasp development
  */
 
 // Export all plugins
 export * from './plugin';
+
+// Export Wasp configuration functionality
+export { App } from './app';
+export * from './config-index';
 
 // Export interfaces
 export * from './interfaces/feature-directory-generator';
@@ -21,9 +25,7 @@ export * from './generators/job/generator';
 export * from './generators/operation/generator';
 export * from './generators/route/generator';
 
-// Export interfaces
-export * from './interfaces/feature-directory-generator';
-
 // Export utils
 export * from './utils/plugin';
 export * from './utils/schemas';
+

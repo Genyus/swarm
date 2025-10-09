@@ -1,15 +1,15 @@
-# @ingenyus/swarm-config
+# @ingenyus/swarm-wasp
 
 Enhanced Wasp configuration with Swarm-specific functionality and simplified helper methods.
 
 ## Overview
 
-`@ingenyus/swarm-config` extends the default Wasp `App` class with additional functionality designed to make Wasp application configuration more intuitive and maintainable. It provides chainable helper methods, feature-based configuration, and simplified API for common Wasp operations.
+`@ingenyus/swarm-wasp` extends the default Wasp `App` class with additional functionality designed to make Wasp application configuration more intuitive and maintainable. It provides chainable helper methods, feature-based configuration, and simplified API for common Wasp operations.
 
 ## Installation
 
 ```bash
-npm install @ingenyus/swarm-config
+npm install @ingenyus/swarm-wasp
 ```
 
 **Note:** This package uses `wasp-config` as a peer dependency. Since `wasp-config` is included with all Wasp projects, no additional installation is needed. The package automatically resolves to the real `wasp-config` when installed in a Wasp project, and uses a development stub during local development and testing.
@@ -17,7 +17,7 @@ npm install @ingenyus/swarm-config
 ## Quick Start
 
 ```typescript
-import { App } from '@ingenyus/swarm-config';
+import { App } from '@ingenyus/swarm-wasp';
 import { AppConfig } from 'wasp-config';
 
 const config: AppConfig = {

@@ -65,7 +65,7 @@ describe('ApiNamespaceGenerator', () => {
 
     await gen.generate({
       featurePath: 'foo',
-      flags: { name: 'ns', path: '/api', force: true },
+      flags: { feature: 'foo', name: 'ns', path: '/api', force: true },
     });
     expect(fs.writeFileSync).toHaveBeenCalled();
     // The WaspBaseGenerator uses its own configGenerator instead of updateFeatureConfig
