@@ -83,7 +83,7 @@ describe('Complete Feature Workflow Tests', () => {
   });
 
   it('should create a fully populated feature like the example', async () => {
-    featureGenerator.generateFeature('documents');
+    featureGenerator.generate({ path: 'documents' });
 
     // Create route
     await routeGenerator.generate({
@@ -159,7 +159,7 @@ describe('Complete Feature Workflow Tests', () => {
   });
 
   it('should handle force flag across multiple generators', async () => {
-    featureGenerator.generateFeature('documents');
+    featureGenerator.generate({ path: 'documents' });
 
     // Create route
     await routeGenerator.generate({
@@ -182,7 +182,7 @@ describe('Complete Feature Workflow Tests', () => {
   });
 
   it('should create multiple APIs with different HTTP methods', async () => {
-    featureGenerator.generateFeature('documents');
+    featureGenerator.generate({ path: 'documents' });
 
     // Create multiple APIs like in the example
     await apiGenerator.generate({
@@ -230,7 +230,7 @@ describe('Complete Feature Workflow Tests', () => {
   });
 
   it('should create jobs with and without schedules', async () => {
-    featureGenerator.generateFeature('documents');
+    featureGenerator.generate({ path: 'documents' });
 
     // Create scheduled job (like in the example)
     await jobGenerator.generate({
@@ -256,7 +256,7 @@ describe('Complete Feature Workflow Tests', () => {
 
   it('should handle nested feature paths correctly', async () => {
     // Create parent feature
-    featureGenerator.generateFeature('documents');
+    featureGenerator.generate({ path: 'documents' });
 
     // Test that we can create routes in the main feature
     await routeGenerator.generate({

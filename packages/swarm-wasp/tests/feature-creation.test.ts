@@ -18,7 +18,7 @@ describe('Feature Creation Tests', () => {
   });
 
   it('should create a top-level feature with config', async () => {
-    featureGenerator.generateFeature('documents');
+    featureGenerator.generate({ path: 'documents' });
 
     // Check that the success message was logged, which indicates the feature was generated
     expect(logger.success).toHaveBeenCalledWith(
@@ -28,10 +28,10 @@ describe('Feature Creation Tests', () => {
 
   it('should create a sub-feature without config', async () => {
     // First create parent feature
-    featureGenerator.generateFeature('documents');
+    featureGenerator.generate({ path: 'documents' });
 
     // Now create sub-feature - this should succeed since parent exists
-    featureGenerator.generateFeature('documents/admin');
+    featureGenerator.generate({ path: 'documents/admin' });
 
     // Check that the success message was logged for the sub-feature
     expect(logger.success).toHaveBeenCalledWith(
@@ -53,9 +53,9 @@ describe('Feature Creation Tests', () => {
       return false;
     });
 
-    expect(() => {
-      featureGenerator.generateFeature('documents/admin');
-    }).toThrow();
+    await expect(
+      featureGenerator.generate({ path: 'documents/admin' })
+    ).rejects.toThrow();
 
     // Restore the original mock behavior
     mockExistsSync.mockImplementation((path: string) => {

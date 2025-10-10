@@ -16,6 +16,7 @@ export class ApiGenerator extends BaseEntityGenerator<typeof CONFIG_TYPES.API> {
     const apiName = toCamelCase(flags?.name);
 
     return this.handleGeneratorError(this.entityType, apiName, async () => {
+      const configPath = this.validateFeatureConfig(flags.feature);
       const {
         targetDirectory: apiTargetDirectory,
         importDirectory: apiImportDirectory,
@@ -42,7 +43,8 @@ export class ApiGenerator extends BaseEntityGenerator<typeof CONFIG_TYPES.API> {
         apiName,
         fileName,
         apiImportDirectory,
-        flags
+        flags,
+        configPath
       );
     });
   }
@@ -68,10 +70,10 @@ export class ApiGenerator extends BaseEntityGenerator<typeof CONFIG_TYPES.API> {
     apiName: string,
     apiFile: string,
     importDirectory: string,
-    flags: any
+    flags: any,
+    configFilePath: string
   ) {
     const { force = false, entities, method, route, auth } = flags;
-    const configFilePath = this.validateFeatureConfig(featurePath);
     const configExists = this.checkConfigExists(
       configFilePath,
       'addApi',

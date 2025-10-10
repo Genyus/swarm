@@ -61,7 +61,11 @@ export abstract class BaseOperationGenerator<
    */
   protected getOperationTemplatePath(templateName: string): string {
     // Resolve operation templates relative to the operation generator
-    return this.resolveTemplatePath(templateName, 'operation', import.meta.url);
+    return this.templateUtility.resolveTemplatePath(
+      templateName,
+      'operation',
+      import.meta.url
+    );
   }
 
   /**

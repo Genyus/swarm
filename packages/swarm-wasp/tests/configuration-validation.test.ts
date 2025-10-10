@@ -71,7 +71,7 @@ describe('Configuration Validation Tests', () => {
     operationGenerator = new OperationGenerator(logger, fs, featureGenerator);
 
     // Create feature first
-    featureGenerator.generateFeature('documents');
+    featureGenerator.generate({ path: 'documents' });
   });
 
   it('should validate that feature config is properly updated', async () => {

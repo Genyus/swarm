@@ -65,7 +65,7 @@ describe('CRUD Generation Tests', () => {
     crudGenerator = new CrudGenerator(logger, fs, featureGenerator);
 
     // Create feature first
-    featureGenerator.generateFeature('documents');
+    featureGenerator.generate({ path: 'documents' });
   });
 
   it('should create a complete CRUD set', async () => {

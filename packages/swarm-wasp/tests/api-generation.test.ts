@@ -19,7 +19,7 @@ describe('API Generation Tests', () => {
     apiGenerator = new ApiGenerator(logger, fs, featureGenerator);
 
     // Create feature first
-    featureGenerator.generateFeature('documents');
+    featureGenerator.generate({ path: 'documents' });
   });
 
   it('should create an API endpoint', async () => {

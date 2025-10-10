@@ -43,6 +43,11 @@ describe('RouteGenerator', () => {
         }
         return `// Generated route template for ${replacements.componentName || 'unknown'}`;
       }),
+      resolveTemplatePath: vi.fn(
+        (templateName, generatorName, currentFileUrl) => {
+          return `/mock/templates/${generatorName}/templates/${templateName}`;
+        }
+      ),
     };
 
     await gen.generate({

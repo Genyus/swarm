@@ -39,6 +39,7 @@ export class OperationGenerator extends BaseOperationGenerator<
       this.entityType,
       operationName,
       async () => {
+        const configPath = this.validateFeatureConfig(feature);
         const { targetDirectory: operationsDir, importDirectory } =
           this.ensureTargetDirectory(feature, operationType);
         const importPath = `${importDirectory}/${operationName}`;
@@ -55,7 +56,8 @@ export class OperationGenerator extends BaseOperationGenerator<
           operation,
           entities,
           importPath,
-          flags
+          flags,
+          configPath
         );
       }
     );
@@ -67,9 +69,9 @@ export class OperationGenerator extends BaseOperationGenerator<
     operation: string,
     entities: string[],
     importPath: string,
-    flags: OperationFlags
+    flags: OperationFlags,
+    configPath: string
   ): void {
-    const configPath = this.validateFeatureConfig(feature);
     const isAction = ['create', 'update', 'delete'].includes(operation);
     const methodName = isAction ? 'addAction' : 'addQuery';
     const configExists = this.checkConfigExists(

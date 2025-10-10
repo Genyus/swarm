@@ -69,7 +69,7 @@ describe('JSON Field Handling Tests', () => {
     apiGenerator = new ApiGenerator(logger, fs, featureGenerator);
 
     // Create feature first
-    featureGenerator.generateFeature('documents');
+    featureGenerator.generate({ path: 'documents' });
   });
 
   it('should properly handle JSON fields in CRUD operations', async () => {

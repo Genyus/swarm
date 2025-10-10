@@ -105,7 +105,7 @@ describe('Error Handling Tests', () => {
   });
 
   it('should handle missing required parameters', async () => {
-    featureGenerator.generateFeature('documents');
+    featureGenerator.generate({ path: 'documents' });
 
     // Test that generator handles missing parameters gracefully
     await apiGenerator.generate({
@@ -121,7 +121,7 @@ describe('Error Handling Tests', () => {
   });
 
   it('should handle duplicate CRUD creation without force', async () => {
-    featureGenerator.generateFeature('documents');
+    featureGenerator.generate({ path: 'documents' });
 
     // Create CRUD first time
     await crudGenerator.generate({
@@ -143,7 +143,7 @@ describe('Error Handling Tests', () => {
   });
 
   it('should handle duplicate API creation without force', async () => {
-    featureGenerator.generateFeature('documents');
+    featureGenerator.generate({ path: 'documents' });
 
     // Create API first time
     await apiGenerator.generate({
@@ -171,7 +171,7 @@ describe('Error Handling Tests', () => {
   });
 
   it('should handle duplicate job creation without force', async () => {
-    featureGenerator.generateFeature('documents');
+    featureGenerator.generate({ path: 'documents' });
 
     // Create job first time
     await jobGenerator.generate({
@@ -193,7 +193,7 @@ describe('Error Handling Tests', () => {
   });
 
   it('should handle duplicate operation creation without force', async () => {
-    featureGenerator.generateFeature('documents');
+    featureGenerator.generate({ path: 'documents' });
 
     // Create operation first time
     await operationGenerator.generate({
@@ -219,7 +219,7 @@ describe('Error Handling Tests', () => {
   });
 
   it('should handle duplicate API namespace creation without force', async () => {
-    featureGenerator.generateFeature('documents');
+    featureGenerator.generate({ path: 'documents' });
 
     // Create API namespace first time
     await apiNamespaceGenerator.generate({

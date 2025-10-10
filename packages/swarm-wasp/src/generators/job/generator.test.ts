@@ -43,6 +43,11 @@ describe('JobGenerator', () => {
         }
         return `// Generated job template for ${replacements.jobName || 'unknown'}`;
       }),
+      resolveTemplatePath: vi.fn(
+        (templateName, generatorName, currentFileUrl) => {
+          return `/mock/templates/${generatorName}/templates/${templateName}`;
+        }
+      ),
     };
 
     await gen.generate({
@@ -64,6 +69,18 @@ describe('JobGenerator', () => {
   });
 
   it('getDefinition returns processed template', () => {
+    // Mock the template utility to process templates
+    (gen as any).templateUtility = {
+      processTemplate: vi.fn((templatePath, replacements) => {
+        return `testJob: { schedule: "", args: {} }`;
+      }),
+      resolveTemplatePath: vi.fn(
+        (templateName, generatorName, currentFileUrl) => {
+          return `/mock/templates/${generatorName}/templates/${templateName}`;
+        }
+      ),
+    };
+
     const result = gen.getDefinition('testJob', [], '', '{}');
     expect(typeof result).toBe('string');
   });

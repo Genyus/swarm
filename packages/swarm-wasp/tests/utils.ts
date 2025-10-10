@@ -74,6 +74,13 @@ vi.mock('../src/utils/templates', () => ({
         return processedContent;
       }
     ),
+    resolveTemplatePath: vi.fn(
+      (templateName: string, generatorName: string, currentFileUrl: string) => {
+        // Mock implementation that returns a predictable path
+        const basePath = '/Users/gary/Dev/swarm/packages/swarm-wasp/src/generators';
+        return `${basePath}/${generatorName}/templates/${templateName}`;
+      }
+    ),
   })),
 }));
 
@@ -522,7 +529,9 @@ export function createMockFS(): IFileSystem {
  */
 export function createMockFeatureGen(): IFeatureDirectoryGenerator {
   return {
-    generate: vi.fn(() => {}),
+    generate: vi.fn((params: { path: string }) => {
+      return Promise.resolve();
+    }),
   };
 }
 

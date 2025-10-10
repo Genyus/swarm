@@ -65,7 +65,7 @@ describe('Operation Generation Tests', () => {
     operationGenerator = new OperationGenerator(logger, fs, featureGenerator);
 
     // Create feature first
-    featureGenerator.generateFeature('documents');
+    featureGenerator.generate({ path: 'documents' });
   });
 
   it('should create a query operation', async () => {

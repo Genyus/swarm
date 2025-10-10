@@ -24,13 +24,14 @@ export class RouteGenerator extends BaseEntityGenerator<
     const routeName = toCamelCase(name || getRouteNameFromPath(routePath));
     const componentName = toPascalCase(routeName);
     const fileName = `${componentName}.tsx`;
-    const { targetDirectory } = this.ensureTargetDirectory(feature, 'page');
 
     return this.handleGeneratorError(this.entityType, routeName, async () => {
+      const configPath = this.validateFeatureConfig(feature);
+      const { targetDirectory } = this.ensureTargetDirectory(feature, 'page');
       const targetFile = `${targetDirectory}/${fileName}`;
 
       this.generatePageFile(targetFile, componentName, flags);
-      this.updateConfigFile(feature, routeName, routePath, flags);
+      this.updateConfigFile(feature, routeName, routePath, flags, configPath);
     });
   }
 
@@ -58,9 +59,9 @@ export class RouteGenerator extends BaseEntityGenerator<
     featurePath: string,
     routeName: string,
     routePath: string,
-    flags: RouteFlags
+    flags: RouteFlags,
+    configPath: string
   ) {
-    const configPath = this.validateFeatureConfig(featurePath);
     const configExists = this.checkConfigExists(
       configPath,
       'addRoute',

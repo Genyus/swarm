@@ -16,14 +16,15 @@ export class JobGenerator extends BaseEntityGenerator<typeof CONFIG_TYPES.JOB> {
     const jobName = toCamelCase(flags.name);
 
     return this.handleGeneratorError(this.entityType, jobName, async () => {
+      const configPath = this.validateFeatureConfig(flags.feature);
       const { targetDirectory } = this.ensureTargetDirectory(
         flags.feature,
         this.entityType.toLowerCase()
       );
       const targetFile = `${targetDirectory}/${jobName}.ts`;
-      console.log('>>> targetDirectory:', targetDirectory);
+
       this.generateJobFile(targetFile, jobName, flags);
-      this.updateConfigFile(flags.feature, jobName, flags);
+      this.updateConfigFile(flags.feature, jobName, flags, configPath);
     });
   }
 
@@ -62,9 +63,9 @@ export class JobGenerator extends BaseEntityGenerator<typeof CONFIG_TYPES.JOB> {
   private updateConfigFile(
     featurePath: string,
     jobName: string,
-    flags: JobFlags
+    flags: JobFlags,
+    configPath: string
   ) {
-    const configPath = this.validateFeatureConfig(featurePath);
     const configExists = this.checkConfigExists(
       configPath,
       'job',

@@ -29,7 +29,11 @@ export abstract class BaseEntityGenerator<
   protected abstract entityType: TArgs;
 
   protected getTemplatePath(templateName: string): string {
-    return this.resolveTemplatePath(templateName, this.name, import.meta.url);
+    return this.templateUtility.resolveTemplatePath(
+      templateName,
+      this.name,
+      import.meta.url
+    );
   }
 
   constructor(
@@ -56,22 +60,34 @@ export abstract class BaseEntityGenerator<
   }
 
   /**
-   * Validates that the feature config file exists
+   * Validates that the feature config file exists in the target or ancestor directories
    */
   protected validateFeatureConfig(featurePath: string): string {
     const normalisedPath = normaliseFeaturePath(featurePath);
     const segments = normalisedPath.split('/');
-    const featureName = segments[segments.length - 1];
 
-    const featureDir = getFeatureDir(this.fileSystem, normalisedPath);
-    const configPath = path.join(featureDir, `${featureName}.wasp.ts`);
+    // Search from the target directory up through all ancestor feature directories
+    for (let i = segments.length; i > 0; i--) {
+      const pathSegments = segments.slice(0, i);
+      const currentPath = pathSegments.join('/');
+      const featureName = pathSegments[pathSegments.length - 1];
 
-    if (!this.fileSystem.existsSync(configPath)) {
-      this.logger.error(`Feature config file not found: ${configPath}`);
-      throw new Error('Feature config file not found');
+      const featureDir = getFeatureDir(this.fileSystem, currentPath);
+      const configPath = path.join(featureDir, `${featureName}.wasp.ts`);
+
+      if (this.fileSystem.existsSync(configPath)) {
+        return configPath;
+      }
     }
 
-    return configPath;
+    // No config file found in any ancestor directory
+    this.logger.error(
+      `Feature config file not found in '${normalisedPath}' or any ancestor directories`
+    );
+    this.logger.error(
+      `Expected to find a .wasp.ts config file in one of the feature directories`
+    );
+    throw new Error('Feature config file not found');
   }
 
   /**

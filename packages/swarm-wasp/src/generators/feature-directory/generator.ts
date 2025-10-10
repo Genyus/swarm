@@ -1,6 +1,5 @@
 import {
   ExtendedSchema,
-  Generator,
   handleFatalError,
   IFileSystem,
   Logger,
@@ -14,12 +13,9 @@ import {
   normaliseFeaturePath,
   realFileSystem,
 } from '../../utils/filesystem';
-import { schema } from './schema';
+import { schema, SchemaArgs } from './schema';
 
-export class FeatureDirectoryGenerator
-  extends BaseWaspGenerator<string>
-  implements Generator<string>
-{
+export class FeatureDirectoryGenerator extends BaseWaspGenerator<string> {
   name: string;
   description: string;
   schema: ExtendedSchema;
@@ -35,22 +31,20 @@ export class FeatureDirectoryGenerator
   }
 
   protected getTemplatePath(templateName: string): string {
-    return this.resolveTemplatePath(templateName, this.name, import.meta.url);
+    return this.templateUtility.resolveTemplatePath(
+      templateName,
+      this.name,
+      import.meta.url
+    );
   }
 
   /**
    * Generate feature directory structure (main entry point)
    * @param featurePath - The path to the feature
    */
-  async generate(featurePath: string): Promise<void> {
-    this.generateFeature(featurePath);
-  }
-
-  /**
-   * Generates a feature directory structure and configuration.
-   * @param featurePath - The path to the feature
-   */
-  generateFeature(featurePath: string): void {
+  async generate(flags: SchemaArgs): Promise<void> {
+    const { path: featurePath } = flags;
+    console.log('generate feature directory:', featurePath);
     const segments = validateFeaturePath(featurePath);
     const normalisedPath = normaliseFeaturePath(featurePath);
     const sourceRoot = path.join(findWaspRoot(this.fileSystem), 'src');
@@ -69,10 +63,8 @@ export class FeatureDirectoryGenerator
 
     // Create the feature directory structure
     const featureDir = path.join(sourceRoot, normalisedPath);
-    this.fileSystem.mkdirSync(featureDir, { recursive: true });
-    this.logger.debug(`Created feature directory: ${featureDir}`);
 
-    // Generate the feature config
+    this.fileSystem.mkdirSync(featureDir, { recursive: true });
     this.configGenerator.generate(normalisedPath);
     this.logger.success(`Generated feature: ${normalisedPath}`);
   }

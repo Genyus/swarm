@@ -27,6 +27,8 @@ export class CrudGenerator extends BaseOperationGenerator<
     const crudName = toCamelCase(getPlural(dataType));
 
     return this.handleGeneratorError(this.entityType, crudName, async () => {
+      const configPath = this.validateFeatureConfig(feature);
+
       if (flags.override && flags.override.length > 0) {
         const { targetDirectory } = this.ensureTargetDirectory(
           feature,
@@ -47,7 +49,7 @@ export class CrudGenerator extends BaseOperationGenerator<
         );
       }
 
-      this.updateConfigFile(feature, crudName, dataType, flags);
+      this.updateConfigFile(feature, crudName, dataType, flags, configPath);
     });
   }
 
@@ -80,9 +82,9 @@ import { type ${toPascalCase(crudName)} } from "wasp/server/crud";`;
     feature: string,
     crudName: string,
     dataType: string,
-    flags: CrudFlags
+    flags: CrudFlags,
+    configPath: string
   ) {
-    const configPath = this.validateFeatureConfig(feature);
     const configExists = this.checkConfigExists(
       configPath,
       'addCrud',

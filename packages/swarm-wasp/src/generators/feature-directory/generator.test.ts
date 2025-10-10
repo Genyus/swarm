@@ -19,7 +19,7 @@ describe('WaspFeatureDirectoryGenerator', () => {
     fs.mkdirSync = vi.fn();
     fs.copyFileSync = vi.fn();
 
-    await gen.generate('test-feature');
+    await gen.generate({ path: 'test-feature' });
 
     // Since copyDirectory is mocked, we expect the generate method to complete successfully
     // The actual copyDirectory call is internal to the generator

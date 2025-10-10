@@ -78,7 +78,7 @@ describe('Performance and Stress Tests', () => {
     operationGenerator = new OperationGenerator(logger, fs, featureGenerator);
 
     // Create feature first
-    featureGenerator.generateFeature('documents');
+    featureGenerator.generate({ path: 'documents' });
   });
 
   it('should handle multiple rapid API generations', async () => {

@@ -8,14 +8,18 @@ import {
 import path from 'node:path';
 import { IWaspConfigGenerator } from '../../interfaces/wasp-config-generator';
 import { getFeatureDir, realFileSystem } from '../../utils/filesystem';
+import { TemplateUtility } from '../../utils/templates';
 
 export class WaspConfigGenerator implements IWaspConfigGenerator {
   protected path = path;
+  protected templateUtility: TemplateUtility;
 
   constructor(
     protected logger: Logger = new SwarmLogger(),
     protected fileSystem: IFileSystem = realFileSystem
-  ) {}
+  ) {
+    this.templateUtility = new TemplateUtility(fileSystem);
+  }
 
   /**
    * Gets the template path for feature config templates.
@@ -24,15 +28,10 @@ export class WaspConfigGenerator implements IWaspConfigGenerator {
    * @returns The full path to the template file
    */
   private getTemplatePath(templateName: string): string {
-    // Get the directory of the current generator class
-    const generatorDir = this.path.dirname(new URL(import.meta.url).pathname);
-    // Go up to the generators directory and then to feature-directory/templates
-    const generatorsDir = this.path.dirname(generatorDir);
-    return this.path.join(
-      generatorsDir,
+    return this.templateUtility.resolveTemplatePath(
+      templateName,
       'feature-directory',
-      'templates',
-      templateName
+      import.meta.url
     );
   }
 

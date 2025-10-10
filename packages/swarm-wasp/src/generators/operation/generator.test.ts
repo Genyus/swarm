@@ -67,6 +67,11 @@ describe('OperationGenerator', () => {
         }
         return `// Generated operation template for ${replacements.operationName || 'unknown'}`;
       }),
+      resolveTemplatePath: vi.fn(
+        (templateName, generatorName, currentFileUrl) => {
+          return `/mock/templates/${generatorName}/templates/${templateName}`;
+        }
+      ),
     };
 
     await gen.generate({
@@ -121,6 +126,11 @@ describe('OperationGenerator', () => {
         }
         return `// Generated operation template for ${replacements.operationName || 'unknown'}`;
       }),
+      resolveTemplatePath: vi.fn(
+        (templateName, generatorName, currentFileUrl) => {
+          return `/mock/templates/${generatorName}/templates/${templateName}`;
+        }
+      ),
     };
 
     await gen.generate({

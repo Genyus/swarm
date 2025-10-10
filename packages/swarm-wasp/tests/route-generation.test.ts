@@ -19,7 +19,7 @@ describe('Route Generation Tests', () => {
     routeGenerator = new RouteGenerator(logger, fs, featureGenerator);
 
     // Create feature first
-    featureGenerator.generateFeature('documents');
+    featureGenerator.generate({ path: 'documents' });
   });
 
   it('should create a route with default settings', async () => {

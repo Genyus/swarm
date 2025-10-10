@@ -32,45 +32,6 @@ export abstract class BaseWaspGenerator<TArgs> extends BaseGenerator<TArgs> {
    */
   protected abstract getTemplatePath(templateName: string): string;
 
-  /**
-   * Helper method to resolve template paths for concrete generators
-   * @param templateName - The name of the template file
-   * @param generatorName - The name of the generator (e.g., 'api', 'job')
-   * @param currentFileUrl - The import.meta.url from the concrete generator class
-   * @returns The full path to the template file
-   */
-  protected resolveTemplatePath(
-    templateName: string,
-    generatorName: string,
-    currentFileUrl: string
-  ): string {
-    const generatorDirName = toKebabCase(generatorName);
-    const currentFilePath = new URL(currentFileUrl).pathname;
-    const currentFileDir = this.path.dirname(currentFilePath);
-    const currentFileName = this.path.basename(currentFilePath);
-    const isInstalledPackage =
-      currentFileDir.includes('node_modules') &&
-      currentFileDir.endsWith('/dist') &&
-      currentFileName === 'index.js';
-    // When bundled, currentFileDir is:
-    // [app root]/node_modules/@ingenyus/swarm-wasp/dist
-    // Templates are in dist/generators/[generator]/templates/
-    // In development, currentFileDir is:
-    // [project root]/packages/swarm-wasp/src/base-classes/
-    // We need to go up to the src directory and then to generators/[generator]/templates/
-    const startDir = isInstalledPackage
-      ? currentFileDir
-      : this.path.dirname(currentFileDir);
-
-    return this.path.join(
-      startDir,
-      'generators',
-      generatorDirName,
-      'templates',
-      templateName
-    );
-  }
-
   protected getFeatureImportPath(featurePath: string): string {
     return getFeatureImportPath(featurePath);
   }

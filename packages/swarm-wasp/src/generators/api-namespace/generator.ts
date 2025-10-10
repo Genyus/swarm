@@ -23,6 +23,7 @@ export class ApiNamespaceGenerator extends BaseEntityGenerator<
       this.entityType,
       namespaceName,
       async () => {
+        const configPath = this.validateFeatureConfig(feature);
         const { targetDirectory, importDirectory } = this.ensureTargetDirectory(
           feature,
           'middleware'
@@ -39,7 +40,8 @@ export class ApiNamespaceGenerator extends BaseEntityGenerator<
           namespaceName,
           importDirectory,
           apiPath,
-          flags
+          flags,
+          configPath
         );
       }
     );
@@ -50,9 +52,9 @@ export class ApiNamespaceGenerator extends BaseEntityGenerator<
     namespaceName: string,
     importDirectory: string,
     apiPath: string,
-    flags: ApiNamespaceFlags
+    flags: ApiNamespaceFlags,
+    configFilePath: string
   ) {
-    const configFilePath = this.validateFeatureConfig(feature);
     const { force = false } = flags;
     const configExists = this.checkConfigExists(
       configFilePath,

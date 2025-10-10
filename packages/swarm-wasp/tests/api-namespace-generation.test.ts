@@ -23,7 +23,7 @@ describe('API Namespace Generation Tests', () => {
     );
 
     // Create feature first
-    featureGenerator.generateFeature('documents');
+    featureGenerator.generate({ path: 'documents' });
   });
 
   it('should create an API namespace with middleware', async () => {
