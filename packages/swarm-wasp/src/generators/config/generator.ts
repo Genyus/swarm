@@ -18,15 +18,22 @@ export class WaspConfigGenerator implements IWaspConfigGenerator {
   ) {}
 
   /**
-   * Gets the template path relative to the generator class
-   * Templates are now co-located with each generator in a flat `templates` directory
-   * @param templateName - The name of the template file (e.g., 'api.eta')
+   * Gets the template path for feature config templates.
+   * Feature config templates are located in the feature-directory generator's templates directory.
+   * @param templateName - The name of the template file (e.g., 'feature.wasp.eta')
    * @returns The full path to the template file
    */
   private getTemplatePath(templateName: string): string {
     // Get the directory of the current generator class
     const generatorDir = this.path.dirname(new URL(import.meta.url).pathname);
-    return this.path.join(generatorDir, 'templates', templateName);
+    // Go up to the generators directory and then to feature-directory/templates
+    const generatorsDir = this.path.dirname(generatorDir);
+    return this.path.join(
+      generatorsDir,
+      'feature-directory',
+      'templates',
+      templateName
+    );
   }
 
   /**

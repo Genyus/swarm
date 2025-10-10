@@ -23,11 +23,33 @@ describe('RouteGenerator', () => {
 
   it('generate writes route file and updates config', async () => {
     fs.existsSync = vi.fn((p) => !p.includes('notfound'));
-    fs.readFileSync = vi.fn(() => 'template');
+    fs.readFileSync = vi.fn(
+      () =>
+        'import React from "react";\n\nexport const <%=componentName%> = () => {\n  return (\n    <div className="container mx-auto px-4 py-8">\n      <h1 className="text-2xl font-bold mb-4"><%=displayName%></h1>\n      {/* TODO: Add page content */}\n    </div>\n  );\n};'
+    );
     fs.writeFileSync = vi.fn();
+
+    // Create generator after setting up mocks
+    gen = new RouteGenerator(logger, fs, featureGen);
+
+    // Mock the template utility to return a simple template
+    (gen as any).templateUtility = {
+      processTemplate: vi.fn((templatePath, replacements) => {
+        if (templatePath.includes('route.eta')) {
+          return `app.addPage("${replacements.routeName}", {
+  path: "${replacements.routePath}",
+  component: "${replacements.componentName}"
+});`;
+        }
+        return `// Generated route template for ${replacements.componentName || 'unknown'}`;
+      }),
+    };
+
     await gen.generate({
-      featurePath: 'foo',
-      flags: { name: 'route', path: '/foo', force: true },
+      feature: 'foo',
+      name: 'route',
+      path: '/foo',
+      force: true,
     });
     expect(fs.writeFileSync).toHaveBeenCalled();
     // The WaspBaseGenerator uses its own configGenerator instead of updateFeatureConfig

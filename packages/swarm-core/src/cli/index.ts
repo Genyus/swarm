@@ -24,7 +24,10 @@ export async function main(): Promise<void> {
     commandManager.registerCommands(command);
     await command.parseAsync(process.argv);
   } catch (error) {
-    if (error instanceof Error && error.message.includes('No configuration file found')) {
+    if (
+      error instanceof Error &&
+      error.message.includes('No configuration file found')
+    ) {
       console.error('❌ Swarm configuration not found');
       console.error('');
       console.error('To get started with Swarm:');
@@ -32,22 +35,33 @@ export async function main(): Promise<void> {
       console.error('2. Add your plugin configuration');
       console.error('');
       console.error('Example configuration:');
-      console.error(JSON.stringify({
-        plugins: {
-          wasp: {
-            enabled: true,
-            generators: {
-              api: { enabled: true },
-              job: { enabled: true }
-            }
-          }
-        }
-      }, null, 2));
+      console.error(
+        JSON.stringify(
+          {
+            plugins: {
+              wasp: {
+                enabled: true,
+                generators: {
+                  api: { enabled: true },
+                  job: { enabled: true },
+                },
+              },
+            },
+          },
+          null,
+          2
+        )
+      );
       console.error('');
-      console.error('For more information, visit: https://github.com/your-org/swarm');
+      console.error(
+        'For more information, visit: https://github.com/your-org/swarm'
+      );
       process.exit(1);
     } else {
-      console.error('❌ Error:', error instanceof Error ? error.message : 'Unknown error');
+      console.error(
+        '❌ Error:',
+        error instanceof Error ? error.message : 'Unknown error'
+      );
       process.exit(1);
     }
   }

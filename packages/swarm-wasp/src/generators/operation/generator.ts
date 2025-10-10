@@ -14,12 +14,8 @@ export class OperationGenerator extends BaseOperationGenerator<
     'Generate operations (queries and actions) for Wasp applications';
   schema = schema;
 
-  async generate(params: {
-    featurePath: string;
-    flags: OperationFlags;
-  }): Promise<void> {
-    const { featurePath, flags } = params;
-    const dataType = flags.dataType;
+  async generate(flags: OperationFlags): Promise<void> {
+    const { dataType, feature } = flags;
     const operation = flags.operation;
     const operationType = this.getOperationType(operation);
     const entities = flags.entities
@@ -44,7 +40,7 @@ export class OperationGenerator extends BaseOperationGenerator<
       operationName,
       async () => {
         const { targetDirectory: operationsDir, importDirectory } =
-          this.ensureTargetDirectory(featurePath, operationType);
+          this.ensureTargetDirectory(feature, operationType);
         const importPath = `${importDirectory}/${operationName}`;
 
         this.generateOperationFile(
@@ -54,7 +50,7 @@ export class OperationGenerator extends BaseOperationGenerator<
           flags.force || false
         );
         this.updateConfigFile(
-          featurePath,
+          feature,
           operationName,
           operation,
           entities,
@@ -66,14 +62,14 @@ export class OperationGenerator extends BaseOperationGenerator<
   }
 
   private updateConfigFile(
-    featurePath: string,
+    feature: string,
     operationName: string,
     operation: string,
     entities: string[],
     importPath: string,
     flags: OperationFlags
   ): void {
-    const configPath = this.validateFeatureConfig(featurePath);
+    const configPath = this.validateFeatureConfig(feature);
     const isAction = ['create', 'update', 'delete'].includes(operation);
     const methodName = isAction ? 'addAction' : 'addQuery';
     const configExists = this.checkConfigExists(
@@ -86,7 +82,7 @@ export class OperationGenerator extends BaseOperationGenerator<
     if (!configExists || flags.force) {
       const definition = this.getDefinition(
         operationName,
-        featurePath,
+        feature,
         entities,
         isAction ? 'action' : 'query',
         importPath,
@@ -94,7 +90,7 @@ export class OperationGenerator extends BaseOperationGenerator<
       );
 
       this.updateFeatureConfig(
-        featurePath,
+        feature,
         definition,
         configPath,
         configExists,

@@ -55,6 +55,16 @@ export abstract class BaseOperationGenerator<
   }
 
   /**
+   * Gets the template path for operation templates.
+   * This method resolves operation templates to the operation generator's directory
+   * instead of the current generator's directory.
+   */
+  protected getOperationTemplatePath(templateName: string): string {
+    // Resolve operation templates relative to the operation generator
+    return this.resolveTemplatePath(templateName, 'operation', import.meta.url);
+  }
+
+  /**
    * Gets the TypeScript type name for an operation.
    */
   getOperationTypeName(
@@ -158,7 +168,7 @@ export abstract class BaseOperationGenerator<
     crudName: string | null = null
   ): string {
     const operationType = this.getOperationType(operation);
-    const templatePath = this.getTemplatePath(`${operation}.eta`);
+    const templatePath = this.getOperationTemplatePath(`${operation}.eta`);
     const idField = getIdField(model);
     const omitFields = getOmitFields(model);
     const jsonFields = getJsonFields(model);

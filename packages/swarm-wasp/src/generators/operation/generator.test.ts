@@ -8,6 +8,17 @@ import {
 import type { IFeatureDirectoryGenerator } from '../../interfaces/feature-directory-generator';
 import { OperationGenerator } from './generator';
 
+// Mock the fs module at the module level
+vi.mock('node:fs', () => ({
+  readFileSync: vi.fn(
+    () => `model User {
+  id    Int     @id @default(autoincrement())
+  email String  @unique
+  name  String?
+}`
+  ),
+}));
+
 describe('OperationGenerator', () => {
   let fs: IFileSystem;
   let logger: Logger;
@@ -37,21 +48,33 @@ describe('OperationGenerator', () => {
   name  String?
 }`;
       }
-      return 'template';
+      return 'export const <%=operationName%> = async (args: any) => { return {}; }';
     });
     fs.writeFileSync = vi.fn();
     fs.copyFileSync = vi.fn();
     fs.mkdirSync = vi.fn();
+
+    // Create generator after setting up mocks
     gen = new OperationGenerator(logger, fs, featureGen);
 
+    // Mock the template utility to return a simple template
+    (gen as any).templateUtility = {
+      processTemplate: vi.fn((templatePath, replacements) => {
+        if (templatePath.includes('operation.eta')) {
+          return `app.addAction("${replacements.operationName}", {
+  handler: "${replacements.importPath}"
+});`;
+        }
+        return `// Generated operation template for ${replacements.operationName || 'unknown'}`;
+      }),
+    };
+
     await gen.generate({
-      featurePath: 'foo',
-      flags: {
-        dataType: 'User',
-        operation: 'get',
-        entities: 'User',
-        force: true,
-      },
+      feature: 'foo',
+      dataType: 'User',
+      operation: 'get',
+      entities: 'User',
+      force: true,
     });
 
     expect(fs.writeFileSync).toHaveBeenCalled();
@@ -81,19 +104,31 @@ describe('OperationGenerator', () => {
   name  String?
 }`;
       }
-      return 'template';
+      return 'export const <%=operationName%> = async (args: any) => { return {}; }';
     });
     fs.writeFileSync = vi.fn();
+
+    // Create generator after setting up mocks
     gen = new OperationGenerator(logger, fs, featureGen);
 
+    // Mock the template utility to return a simple template
+    (gen as any).templateUtility = {
+      processTemplate: vi.fn((templatePath, replacements) => {
+        if (templatePath.includes('operation.eta')) {
+          return `app.addAction("${replacements.operationName}", {
+  handler: "${replacements.importPath}"
+});`;
+        }
+        return `// Generated operation template for ${replacements.operationName || 'unknown'}`;
+      }),
+    };
+
     await gen.generate({
-      featurePath: 'bar',
-      flags: {
-        dataType: 'User',
-        operation: 'get',
-        entities: 'User',
-        force: true,
-      },
+      feature: 'bar',
+      dataType: 'User',
+      operation: 'get',
+      entities: 'User',
+      force: true,
     });
 
     expect(fs.writeFileSync).toHaveBeenCalled();

@@ -57,6 +57,7 @@
   "dependencies": {
     "@ingenyus/swarm-core": "workspace:*",
     "@mrleebo/prisma-ast": "^0.13.0",
+    "eta": "^4.0.1",
     "zod": "^4.1.11"
   },
   "peerDependencies": {

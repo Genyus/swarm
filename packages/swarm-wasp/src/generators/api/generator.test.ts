@@ -72,17 +72,14 @@ describe('ApiGenerator', () => {
     (gen as any).getConfigDefinition = mockGetConfigDefinition;
 
     await gen.generate({
-      featurePath: 'foo',
-      flags: {
-        feature: 'foo',
-        name: 'api',
-        method: 'GET',
-        route: '/api',
-        force: true,
-        entities: ['User'],
-        auth: true,
-        customMiddleware: false,
-      },
+      feature: 'foo',
+      name: 'api',
+      method: 'GET',
+      route: '/api',
+      force: true,
+      entities: ['User'],
+      auth: true,
+      customMiddleware: false,
     });
 
     expect(fs.writeFileSync).toHaveBeenCalled();

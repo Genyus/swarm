@@ -25,10 +25,7 @@ describe('CrudGenerator', () => {
     fs.existsSync = vi.fn((p) => !p.includes('notfound'));
     fs.readFileSync = vi.fn(() => 'template');
     fs.writeFileSync = vi.fn();
-    await gen.generate({
-      featurePath: 'foo',
-      flags: { feature: 'foo', dataType: 'User', force: true },
-    });
+    await gen.generate({ feature: 'foo', dataType: 'User', force: true });
     expect(fs.writeFileSync).toHaveBeenCalled();
     expect(featureGen.generate).toHaveBeenCalled();
   });
@@ -47,15 +44,12 @@ describe('CrudGenerator', () => {
       gen as unknown as { templateUtility: typeof mockTemplateUtility }
     ).templateUtility = mockTemplateUtility;
     await gen.generate({
-      featurePath: 'foo',
-      flags: {
-        feature: 'foo',
-        dataType: 'User',
-        force: true,
-        public: ['get', 'getAll'],
-        override: ['create'],
-        exclude: ['delete'],
-      },
+      feature: 'foo',
+      dataType: 'User',
+      force: true,
+      public: ['get', 'getAll'],
+      override: ['create'],
+      exclude: ['delete'],
     });
 
     expect(mockProcessTemplate).toHaveBeenCalledWith('/mock/template/path', {
@@ -92,12 +86,9 @@ describe('CrudGenerator', () => {
       gen as unknown as { templateUtility: typeof mockTemplateUtility }
     ).templateUtility = mockTemplateUtility;
     await gen.generate({
-      featurePath: 'foo',
-      flags: {
-        feature: 'foo',
-        dataType: 'User',
-        force: true,
-      },
+      feature: 'foo',
+      dataType: 'User',
+      force: true,
     });
 
     const callArgs = mockProcessTemplate.mock.calls[0][1];

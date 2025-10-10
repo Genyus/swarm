@@ -26,6 +26,4 @@ export * from './generators/operation/generator';
 export * from './generators/route/generator';
 
 // Export utils
-export * from './utils/plugin';
-export * from './utils/schemas';
-
+export * from './utils';

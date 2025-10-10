@@ -21,6 +21,7 @@ export class JobGenerator extends BaseEntityGenerator<typeof CONFIG_TYPES.JOB> {
         this.entityType.toLowerCase()
       );
       const targetFile = `${targetDirectory}/${jobName}.ts`;
+      console.log('>>> targetDirectory:', targetDirectory);
       this.generateJobFile(targetFile, jobName, flags);
       this.updateConfigFile(flags.feature, jobName, flags);
     });

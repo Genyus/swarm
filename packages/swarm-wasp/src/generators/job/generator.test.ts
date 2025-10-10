@@ -23,8 +23,28 @@ describe('JobGenerator', () => {
 
   it('generate writes worker file and updates config', async () => {
     fs.existsSync = vi.fn((p) => !p.includes('notfound'));
-    fs.readFileSync = vi.fn(() => 'template');
+    fs.readFileSync = vi.fn(
+      () =>
+        '<%=imports%>\nexport const <%=jobName%>: <%=jobType%><never, void> = async (_args, _context) => {\n  // TODO: Implement job logic\n  console.log("Job executed");\n}'
+    );
     fs.writeFileSync = vi.fn();
+
+    // Create generator after setting up mocks
+    gen = new JobGenerator(logger, fs, featureGen);
+
+    // Mock the template utility to return a simple template
+    (gen as any).templateUtility = {
+      processTemplate: vi.fn((templatePath, replacements) => {
+        if (templatePath.includes('config/job.eta')) {
+          return `app.addJob("${replacements.jobName}", {
+  schedule: "${replacements.cron}",
+  args: ${replacements.args}
+});`;
+        }
+        return `// Generated job template for ${replacements.jobName || 'unknown'}`;
+      }),
+    };
+
     await gen.generate({
       feature: 'foo',
       name: 'Job',

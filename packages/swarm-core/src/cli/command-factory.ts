@@ -110,11 +110,7 @@ export class CommandFactory {
       Object.keys(shape).forEach((fieldName) => {
         const fieldSchema = shape[fieldName];
 
-        this.addOptionFromField(
-          cmd,
-          fieldName,
-          fieldSchema,
-        );
+        this.addOptionFromField(cmd, fieldName, fieldSchema);
       });
     }
 
@@ -141,7 +137,9 @@ export class CommandFactory {
   ): void {
     const metadata = fieldSchema._metadata as FieldMetadata | undefined;
     const isRequired = !fieldSchema.type?.includes('optional');
-    const typeName = isRequired ? fieldSchema.type : fieldSchema.def?.innerType?.type;
+    const typeName = isRequired
+      ? fieldSchema.type
+      : fieldSchema.def?.innerType?.type;
     const shortName = metadata?.shortName;
     let optionString = '';
     let description = metadata?.description || `${fieldName} field`;

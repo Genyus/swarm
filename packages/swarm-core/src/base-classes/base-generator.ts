@@ -3,7 +3,6 @@ import { SwarmGenerator, ValidationResult } from '../interfaces/generator';
 import { IFileSystem } from '../types/filesystem';
 import { Logger } from '../types/logger';
 import { ExtendedSchema } from '../utils/schema';
-import { TemplateUtility } from '../utils/templates';
 
 /**
  * Abstract base class for all generators
@@ -15,15 +14,12 @@ export abstract class BaseGenerator<TArgs = any>
   abstract description: string;
   abstract schema: ExtendedSchema;
   templates?: string[];
-  protected templateUtility: TemplateUtility;
   protected path = path;
 
   constructor(
     protected fileSystem: IFileSystem,
     protected logger: Logger
-  ) {
-    this.templateUtility = new TemplateUtility(fileSystem);
-  }
+  ) {}
 
   /**
    * Generate code based on parameters
@@ -98,32 +94,6 @@ export abstract class BaseGenerator<TArgs = any>
     }
   }
 
-  /**
-   * Processes a template and writes the result to a file
-   */
-  protected renderTemplateToFile(
-    templateName: string,
-    replacements: Record<string, any>,
-    outputPath: string,
-    readableFileType: string,
-    force: boolean
-  ): boolean {
-    const templatePath = this.getTemplatePath(templateName);
-    const fileExists = this.checkFileExists(
-      outputPath,
-      force,
-      readableFileType
-    );
-
-    const content = this.templateUtility.processTemplate(
-      templatePath,
-      replacements
-    );
-    this.writeFile(outputPath, content, readableFileType, fileExists);
-
-    return fileExists;
-  }
-
   private formatValidationErrors(error: any): string[] {
     if (error.errors) {
       return error.errors.map((err: any) => {
@@ -133,40 +103,6 @@ export abstract class BaseGenerator<TArgs = any>
       });
     }
     return [error.message || 'Validation failed'];
-  }
-
-  /**
-   * Checks if a file exists and handles force flag logic
-   */
-  protected checkFileExists(
-    filePath: string,
-    force: boolean,
-    fileType: string
-  ): boolean {
-    const fileExists = this.fileSystem.existsSync(filePath);
-
-    if (fileExists && !force) {
-      this.logger.error(`${fileType} already exists: ${filePath}`);
-      this.logger.error('Use --force to overwrite');
-      throw new Error(`${fileType} already exists`);
-    }
-
-    return fileExists;
-  }
-
-  /**
-   * Safely writes a file with proper error handling and logging
-   */
-  protected writeFile(
-    filePath: string,
-    content: string,
-    fileType: string,
-    fileExists: boolean
-  ): void {
-    this.fileSystem.writeFileSync(filePath, content);
-    this.logger.success(
-      `${fileExists ? 'Overwrote' : 'Generated'} ${fileType}: ${filePath}`
-    );
   }
 
   /**
@@ -197,11 +133,4 @@ export abstract class BaseGenerator<TArgs = any>
   protected logCompletion(itemType: string, itemName: string): void {
     this.logger.success(`\n${itemType} ${itemName} processing complete.`);
   }
-
-  /**
-   * Gets the template path, relative to the generator
-   * @param templateName - The name of the template file (e.g., 'api.eta')
-   * @returns The full path to the template file
-   */
-  protected abstract getTemplatePath(templateName: string): string;
 }

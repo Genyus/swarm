@@ -22,18 +22,14 @@ export class CrudGenerator extends BaseOperationGenerator<
   description = 'Generate CRUD operations for Wasp applications';
   schema = schema;
 
-  async generate(params: {
-    featurePath: string;
-    flags: CrudFlags;
-  }): Promise<void> {
-    const { featurePath, flags } = params;
-    const { dataType } = flags;
+  async generate(flags: CrudFlags): Promise<void> {
+    const { dataType, feature } = flags;
     const crudName = toCamelCase(getPlural(dataType));
 
     return this.handleGeneratorError(this.entityType, crudName, async () => {
       if (flags.override && flags.override.length > 0) {
         const { targetDirectory } = this.ensureTargetDirectory(
-          featurePath,
+          feature,
           this.entityType.toLowerCase()
         );
         const targetFile = `${targetDirectory}/${crudName}.ts`;
@@ -51,7 +47,7 @@ export class CrudGenerator extends BaseOperationGenerator<
         );
       }
 
-      this.updateConfigFile(featurePath, crudName, dataType, flags);
+      this.updateConfigFile(feature, crudName, dataType, flags);
     });
   }
 
@@ -81,12 +77,12 @@ import { type ${toPascalCase(crudName)} } from "wasp/server/crud";`;
   }
 
   private updateConfigFile(
-    featurePath: string,
+    feature: string,
     crudName: string,
     dataType: string,
     flags: CrudFlags
   ) {
-    const configPath = this.validateFeatureConfig(featurePath);
+    const configPath = this.validateFeatureConfig(feature);
     const configExists = this.checkConfigExists(
       configPath,
       'addCrud',
@@ -97,7 +93,7 @@ import { type ${toPascalCase(crudName)} } from "wasp/server/crud";`;
     const operations = this.buildOperations(flags);
     const definition = this.getDefinition(crudName, dataType, operations);
     this.updateFeatureConfig(
-      featurePath,
+      feature,
       definition,
       configPath,
       configExists,

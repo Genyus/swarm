@@ -19,22 +19,18 @@ export class RouteGenerator extends BaseEntityGenerator<
   description = 'Generate route handlers for Wasp applications';
   schema = schema;
 
-  async generate(params: {
-    featurePath: string;
-    flags: RouteFlags;
-  }): Promise<void> {
-    const { featurePath, flags } = params;
-    const { path: routePath, name } = flags;
+  async generate(flags: RouteFlags): Promise<void> {
+    const { path: routePath, name, feature } = flags;
     const routeName = toCamelCase(name || getRouteNameFromPath(routePath));
     const componentName = toPascalCase(routeName);
     const fileName = `${componentName}.tsx`;
-    const { targetDirectory } = this.ensureTargetDirectory(featurePath, 'page');
+    const { targetDirectory } = this.ensureTargetDirectory(feature, 'page');
 
     return this.handleGeneratorError(this.entityType, routeName, async () => {
       const targetFile = `${targetDirectory}/${fileName}`;
 
       this.generatePageFile(targetFile, componentName, flags);
-      this.updateConfigFile(featurePath, routeName, routePath, flags);
+      this.updateConfigFile(feature, routeName, routePath, flags);
     });
   }
 

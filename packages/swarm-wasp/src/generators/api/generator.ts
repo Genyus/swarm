@@ -12,18 +12,14 @@ export class ApiGenerator extends BaseEntityGenerator<typeof CONFIG_TYPES.API> {
   description = 'Generate API endpoints for Wasp applications';
   schema = schema;
 
-  async generate(params: {
-    featurePath: string;
-    flags: ApiFlags;
-  }): Promise<void> {
-    const { featurePath, flags } = params;
+  async generate(flags: ApiFlags): Promise<void> {
     const apiName = toCamelCase(flags?.name);
 
     return this.handleGeneratorError(this.entityType, apiName, async () => {
       const {
         targetDirectory: apiTargetDirectory,
         importDirectory: apiImportDirectory,
-      } = this.ensureTargetDirectory(featurePath, this.name);
+      } = this.ensureTargetDirectory(flags.feature, this.name);
       const fileName = `${apiName}.ts`;
       const targetFile = `${apiTargetDirectory}/${fileName}`;
 
@@ -31,7 +27,7 @@ export class ApiGenerator extends BaseEntityGenerator<typeof CONFIG_TYPES.API> {
 
       if (flags.customMiddleware) {
         const { targetDirectory: middlewareTargetDirectory } =
-          this.ensureTargetDirectory(featurePath, 'middleware');
+          this.ensureTargetDirectory(flags.feature, 'middleware');
         const middlewareFile = `${middlewareTargetDirectory}/${apiName}.ts`;
 
         this.generateMiddlewareFile(
@@ -42,7 +38,7 @@ export class ApiGenerator extends BaseEntityGenerator<typeof CONFIG_TYPES.API> {
       }
 
       this.updateConfigFile(
-        featurePath,
+        flags.feature,
         apiName,
         fileName,
         apiImportDirectory,

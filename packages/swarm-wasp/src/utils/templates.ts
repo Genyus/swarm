@@ -1,6 +1,6 @@
+import type { IFileSystem } from '@ingenyus/swarm-core';
 import { Eta } from 'eta';
 import path from 'path';
-import type { IFileSystem } from '../types/filesystem';
 
 export class TemplateUtility {
   constructor(private fileSystem: IFileSystem) {}

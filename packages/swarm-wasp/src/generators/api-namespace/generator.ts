@@ -15,12 +15,8 @@ export class ApiNamespaceGenerator extends BaseEntityGenerator<
   description = 'Generate API namespaces for Wasp applications';
   schema = schema;
 
-  async generate(params: {
-    featurePath: string;
-    flags: ApiNamespaceFlags;
-  }): Promise<void> {
-    const { featurePath, flags } = params;
-    const { name, path: apiPath } = flags;
+  async generate(flags: ApiNamespaceFlags): Promise<void> {
+    const { name, path: apiPath, feature } = flags;
     const namespaceName = toCamelCase(name);
 
     return this.handleGeneratorError(
@@ -28,7 +24,7 @@ export class ApiNamespaceGenerator extends BaseEntityGenerator<
       namespaceName,
       async () => {
         const { targetDirectory, importDirectory } = this.ensureTargetDirectory(
-          featurePath,
+          feature,
           'middleware'
         );
         const targetFile = `${targetDirectory}/${namespaceName}.ts`;
@@ -39,7 +35,7 @@ export class ApiNamespaceGenerator extends BaseEntityGenerator<
           flags.force || false
         );
         this.updateConfigFile(
-          featurePath,
+          feature,
           namespaceName,
           importDirectory,
           apiPath,
@@ -50,13 +46,13 @@ export class ApiNamespaceGenerator extends BaseEntityGenerator<
   }
 
   private updateConfigFile(
-    featurePath: string,
+    feature: string,
     namespaceName: string,
     importDirectory: string,
     apiPath: string,
     flags: ApiNamespaceFlags
   ) {
-    const configFilePath = this.validateFeatureConfig(featurePath);
+    const configFilePath = this.validateFeatureConfig(feature);
     const { force = false } = flags;
     const configExists = this.checkConfigExists(
       configFilePath,
@@ -75,7 +71,7 @@ export class ApiNamespaceGenerator extends BaseEntityGenerator<
       const definition = this.getDefinition(namespaceName, importPath, apiPath);
 
       this.updateFeatureConfig(
-        featurePath,
+        feature,
         definition,
         configFilePath,
         configExists,

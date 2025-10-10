@@ -11,14 +11,20 @@ export interface PluginResolver {
    * @param applicationRoot The application root directory for resolving relative paths
    * @returns Promise that resolves to the plugin or null if not found
    */
-  resolve(pluginId: string, applicationRoot?: string): Promise<SwarmPlugin | null>;
+  resolve(
+    pluginId: string,
+    applicationRoot?: string
+  ): Promise<SwarmPlugin | null>;
 }
 
 /**
  * Resolves plugins from NPM packages using package.json plugin declarations
  */
 export class NPMPluginResolver implements PluginResolver {
-  async resolve(pluginId: string, applicationRoot?: string): Promise<SwarmPlugin | null> {
+  async resolve(
+    pluginId: string,
+    applicationRoot?: string
+  ): Promise<SwarmPlugin | null> {
     try {
       // Check if it's an NPM package format (contains @ or /)
       if (!pluginId.includes('@') && !pluginId.includes('/')) {
@@ -60,9 +66,16 @@ export class NPMPluginResolver implements PluginResolver {
    * @param applicationRoot The application root directory for resolving relative paths
    * @returns Promise that resolves to the plugin or null if not found
    */
-  async resolveFromManifest(packageName: string, pluginName?: string, applicationRoot?: string): Promise<SwarmPlugin | null> {
+  async resolveFromManifest(
+    packageName: string,
+    pluginName?: string,
+    applicationRoot?: string
+  ): Promise<SwarmPlugin | null> {
     try {
-      const packagePath = await this.resolvePackagePath(packageName, applicationRoot);
+      const packagePath = await this.resolvePackagePath(
+        packageName,
+        applicationRoot
+      );
 
       if (!packagePath) {
         console.warn('Could not resolve package path for:', packageName);
@@ -90,7 +103,8 @@ export class NPMPluginResolver implements PluginResolver {
       let plugin: any = null;
 
       if (manifest?.swarm?.plugins) {
-        const targetPluginName = pluginName || this.getDefaultPluginName(manifest.swarm.plugins);
+        const targetPluginName =
+          pluginName || this.getDefaultPluginName(manifest.swarm.plugins);
         const pluginEntry = manifest.swarm.plugins[targetPluginName];
 
         if (pluginEntry) {
@@ -98,7 +112,9 @@ export class NPMPluginResolver implements PluginResolver {
           const entryPath = path.join(packagePath, pluginEntry.entry);
           const pluginModule = await import(entryPath);
 
-          plugin = pluginEntry.name ? pluginModule[pluginEntry.name] : pluginModule.default;
+          plugin = pluginEntry.name
+            ? pluginModule[pluginEntry.name]
+            : pluginModule.default;
         }
       } else {
         const path = await import('node:path');
@@ -108,7 +124,10 @@ export class NPMPluginResolver implements PluginResolver {
         if (fs.existsSync(packageJsonPath)) {
           const packageJsonContent = fs.readFileSync(packageJsonPath, 'utf8');
           const packageJson = JSON.parse(packageJsonContent);
-          const mainPath = path.join(packagePath, packageJson.main || 'index.js');
+          const mainPath = path.join(
+            packagePath,
+            packageJson.main || 'index.js'
+          );
           const packageModule = await import(mainPath);
 
           if (pluginName) {
@@ -136,7 +155,10 @@ export class NPMPluginResolver implements PluginResolver {
    * @param applicationRoot The application root directory
    * @returns Promise that resolves to the package path or null if not found
    */
-  private async resolvePackagePath(packageName: string, applicationRoot?: string): Promise<string | null> {
+  private async resolvePackagePath(
+    packageName: string,
+    applicationRoot?: string
+  ): Promise<string | null> {
     try {
       const path = await import('node:path');
       const fs = await import('node:fs');
@@ -170,7 +192,11 @@ export class NPMPluginResolver implements PluginResolver {
       let currentDir = startDir;
 
       while (currentDir !== path.dirname(currentDir)) {
-        const nodeModulesPath = path.join(currentDir, 'node_modules', packageName);
+        const nodeModulesPath = path.join(
+          currentDir,
+          'node_modules',
+          packageName
+        );
 
         if (fs.existsSync(nodeModulesPath)) {
           return nodeModulesPath;
@@ -188,7 +214,6 @@ export class NPMPluginResolver implements PluginResolver {
       return null;
     }
   }
-
 
   private getDefaultPluginName(plugins: Record<string, any>): string {
     // Return the first plugin name as default
@@ -214,7 +239,10 @@ export class NPMPluginResolver implements PluginResolver {
  * Resolves plugins from local file paths
  */
 export class LocalPluginResolver implements PluginResolver {
-  async resolve(pluginId: string, applicationRoot?: string): Promise<SwarmPlugin | null> {
+  async resolve(
+    pluginId: string,
+    applicationRoot?: string
+  ): Promise<SwarmPlugin | null> {
     try {
       if (!pluginId.startsWith('./') && !pluginId.startsWith('../')) {
         return null;

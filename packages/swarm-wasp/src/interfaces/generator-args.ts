@@ -49,7 +49,7 @@ export interface CommonGeneratorFlags {
  */
 export type OperationFlags = Pick<
   CommonGeneratorFlags,
-  'entities' | 'force' | 'auth' | 'operation' | 'dataType'
+  'feature' | 'entities' | 'force' | 'auth' | 'operation' | 'dataType'
 >;
 
 /**
@@ -57,7 +57,14 @@ export type OperationFlags = Pick<
  */
 export type ApiFlags = Pick<
   CommonGeneratorFlags,
-  'feature' | 'name' | 'method' | 'route' | 'force' | 'entities' | 'auth' | 'customMiddleware'
+  | 'feature'
+  | 'name'
+  | 'method'
+  | 'route'
+  | 'force'
+  | 'entities'
+  | 'auth'
+  | 'customMiddleware'
 >;
 
 /**
@@ -73,7 +80,7 @@ export type JobFlags = Pick<
  */
 export type RouteFlags = Pick<
   CommonGeneratorFlags,
-  'name' | 'force' | 'auth' | 'path'
+  'feature' | 'name' | 'force' | 'auth' | 'path'
 >;
 
 /**
@@ -87,7 +94,10 @@ export type CrudFlags = Pick<
 /**
  * ApiNamespace-specific flags
  */
-export type ApiNamespaceFlags = Pick<CommonGeneratorFlags, 'feature' | 'name' | 'path' | 'force'>;
+export type ApiNamespaceFlags = Pick<
+  CommonGeneratorFlags,
+  'feature' | 'name' | 'path' | 'force'
+>;
 
 /**
  * Represents a configuration entry for an operation.
