@@ -1,4 +1,4 @@
-import { realLogger as logger } from '../../utils/logger';
+import { logger } from '../../utils/logger';
 import { SwarmMCPServer } from '../server/index.js';
 import type { ServerConfig } from '../server/types/mcp.js';
 import { configManager } from '../server/utils/config.js';

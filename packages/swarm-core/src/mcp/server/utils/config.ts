@@ -1,13 +1,13 @@
-import {
-  configureLogger,
-  LogFormat,
-  realLogger as logger,
-  LogLevel,
-} from '../../../utils/logger';
 import { existsSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { z } from 'zod';
+import {
+  configureLogger,
+  LogFormat,
+  logger,
+  LogLevel,
+} from '../../../utils/logger';
 import { createErrorContext, ErrorFactory } from './errors.js';
 
 const ENV_PREFIX = 'SWARM_MCP_';

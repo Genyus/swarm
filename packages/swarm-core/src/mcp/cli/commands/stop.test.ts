@@ -1,5 +1,5 @@
-import { realLogger as logger } from '../../../utils/logger';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { logger } from '../../../utils/logger';
 import { ServerManager } from '../server-manager.js';
 import { createStopCommand } from './stop.js';
 
@@ -9,7 +9,7 @@ vi.mock('../server-manager.js', () => ({
 }));
 
 vi.mock('../../../utils/logger', () => ({
-  realLogger: {
+  logger: {
     info: vi.fn(),
     error: vi.fn(),
   },

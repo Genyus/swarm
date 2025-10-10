@@ -101,7 +101,7 @@ export class SwarmLogger implements Logger {
 }
 
 const singleton = new SwarmLogger();
-export const realLogger: Logger = singleton;
+export const logger: Logger = singleton;
 
 export function configureLogger(options: {
   level?: LogLevel;

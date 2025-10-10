@@ -1,4 +1,4 @@
-import { realLogger as logger } from '../../../utils/logger';
+import { logger } from '../../../utils/logger';
 import { MCPProtocolError } from '../types/mcp.js';
 import { createErrorContext, normalizeToMCPError } from './errors.js';
 

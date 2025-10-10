@@ -13,7 +13,7 @@ import { randomUUID } from 'crypto';
 import {
   configureLogger,
   LogFormat,
-  realLogger as logger,
+  logger,
   LogLevel,
 } from '../../utils/logger';
 import { getDynamicTools, getToolDefinitions } from './tools/index.js';

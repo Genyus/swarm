@@ -1,10 +1,10 @@
+import { Command } from 'commander';
 import {
   configureLogger,
   LogFormat,
-  realLogger as logger,
+  logger,
   LogLevel,
 } from '../../../utils/logger';
-import { Command } from 'commander';
 import { ServerManager } from '../server-manager.js';
 
 interface StatusOptions {
