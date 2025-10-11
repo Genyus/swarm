@@ -16,6 +16,8 @@ import {
     logger,
     LogLevel,
 } from '../../common/signale-logger';
+import { configManager } from './common/config.js';
+import { createErrorContext, ErrorFactory } from './common/errors.js';
 import { getDynamicTools, getToolDefinitions } from './tools/index.js';
 import {
     MCPErrorCode,
@@ -25,8 +27,6 @@ import {
     ServerState,
     Tool,
 } from './types/mcp.js';
-import { configManager } from './utils/config.js';
-import { createErrorContext, ErrorFactory } from './utils/errors.js';
 
 export class SwarmMCPServer {
   private mcpServer: MCPServer;

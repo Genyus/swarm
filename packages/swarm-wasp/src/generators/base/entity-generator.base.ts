@@ -9,9 +9,6 @@ import {
     validateFeaturePath,
 } from '@ingenyus/swarm-core';
 import path from 'node:path';
-import { FeatureDirectoryGenerator } from '../feature-directory/generator';
-import { SchemaArgs as FeatureSchemaArgs } from '../feature-directory/schema';
-import { ConfigType, GetFlagsType, TYPE_DIRECTORIES } from '../../types/constants';
 import {
     ensureDirectoryExists,
     getFeatureDir,
@@ -19,6 +16,9 @@ import {
     normaliseFeaturePath,
     realFileSystem,
 } from '../../common/filesystem';
+import { ConfigType, GetFlagsType, TYPE_DIRECTORIES } from '../../types/constants';
+import { FeatureDirectoryGenerator } from '../feature-directory/feature-directory-generator';
+import { SchemaArgs as FeatureSchemaArgs } from '../feature-directory/schema';
 import { WaspGeneratorBase } from './wasp-generator.base';
 
 /**

@@ -1,10 +1,10 @@
 import {
-  ApiFlags,
-  ApiNamespaceFlags,
-  CrudFlags,
-  JobFlags,
-  OperationFlags,
-  RouteFlags,
+    ApiFlags,
+    ApiNamespaceFlags,
+    CrudFlags,
+    JobFlags,
+    OperationFlags,
+    RouteFlags,
 } from '../generators/args.types.js';
 
 /**
