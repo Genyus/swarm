@@ -1,5 +1,5 @@
 import { ZodType } from 'zod';
-import { FieldMetadata } from '../interfaces/field-metadata';
+import { FieldMetadata } from '../contracts/field-metadata';
 
 /**
  * Extends a Zod schema with metadata

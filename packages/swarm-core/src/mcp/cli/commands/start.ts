@@ -4,7 +4,7 @@ import {
     LogFormat,
     logger,
     LogLevel,
-} from '../../../utils/signale-logger';
+} from '../../../common/signale-logger';
 import { ServerManager } from '../server-manager.js';
 
 export function createStartCommand(serverManager: ServerManager): Command {

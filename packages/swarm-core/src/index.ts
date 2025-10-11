@@ -5,13 +5,13 @@
  */
 
 // Export all utilities
-export * from './utils/index';
+export * from './common/index';
 
 // Export all types
 export * from './types/index';
 
 // Export plugin system interfaces
-export * from './interfaces/plugin-manifest';
+export * from './contracts/plugin-manifest';
 
 // Export CLI functionality
 export { CommandManager } from './cli/command-manager';

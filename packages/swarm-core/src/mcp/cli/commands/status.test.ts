@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { logger } from '../../../utils/signale-logger';
+import { logger } from '../../../common/signale-logger';
 import { ServerManager } from '../server-manager.js';
 import { createStatusCommand } from './status.js';
 

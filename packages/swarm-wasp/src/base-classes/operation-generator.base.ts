@@ -15,7 +15,7 @@ import {
   QueryOperation,
   TYPE_DIRECTORIES,
 } from '../types/constants';
-import { copyDirectory, getFeatureImportPath } from '../utils/filesystem';
+import { copyDirectory, getFeatureImportPath } from '../common/filesystem';
 import {
   generateJsonTypeHandling,
   getEntityMetadata,
@@ -23,7 +23,7 @@ import {
   getJsonFields,
   getOmitFields,
   needsPrismaImport,
-} from '../utils/prisma';
+} from '../common/prisma';
 import { EntityGeneratorBase } from './entity-generator.base';
 
 /**

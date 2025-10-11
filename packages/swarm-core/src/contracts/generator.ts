@@ -1,4 +1,4 @@
-import { ExtendedSchema } from '../utils/schema';
+import { ExtendedSchema } from '../common/schema';
 
 /**
  * Core generator interface

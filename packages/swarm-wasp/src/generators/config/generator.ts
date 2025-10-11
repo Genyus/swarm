@@ -1,14 +1,14 @@
 import {
-    handleFatalError,
     FileSystem,
+    handleFatalError,
     Logger,
     parseHelperMethodDefinition,
     SignaleLogger,
 } from '@ingenyus/swarm-core';
 import path from 'node:path';
 import { ConfigGenerator } from '../../interfaces/wasp-config-generator';
-import { getFeatureDir, realFileSystem } from '../../utils/filesystem';
-import { TemplateUtility } from '../../utils/templates';
+import { getFeatureDir, realFileSystem } from '../../common/filesystem';
+import { TemplateUtility } from '../../common/templates';
 
 export class WaspConfigGenerator implements ConfigGenerator {
   protected path = path;

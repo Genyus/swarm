@@ -1,5 +1,5 @@
-import { SwarmGenerator } from '../../../interfaces/generator';
-import { GeneratorInterfaceManager } from '../../../interfaces/generator-interface-manager';
+import { SwarmGenerator } from '../../../contracts/generator';
+import { GeneratorInterfaceManager } from '../../../plugin/generator-interface-manager';
 import { MCPToolDefinition, MCPToolHandler, ToolFactory } from './tool-factory';
 
 /**

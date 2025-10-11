@@ -6,8 +6,8 @@ import {
   toKebabCase,
 } from '@ingenyus/swarm-core';
 import { WaspConfigGenerator } from '../generators/config/generator';
-import { getFeatureImportPath, realFileSystem } from '../utils/filesystem';
-import { TemplateUtility } from '../utils/templates';
+import { getFeatureImportPath, realFileSystem } from '../common/filesystem';
+import { TemplateUtility } from '../common/templates';
 
 /**
  * Abstract base class for all Wasp generators

@@ -18,7 +18,7 @@ import {
     getFeatureImportPath,
     normaliseFeaturePath,
     realFileSystem,
-} from '../utils/filesystem';
+} from '../common/filesystem';
 import { WaspGeneratorBase } from './wasp-generator.base';
 
 /**

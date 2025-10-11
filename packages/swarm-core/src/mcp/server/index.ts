@@ -15,7 +15,7 @@ import {
     LogFormat,
     logger,
     LogLevel,
-} from '../../utils/signale-logger';
+} from '../../common/signale-logger';
 import { getDynamicTools, getToolDefinitions } from './tools/index.js';
 import {
     MCPErrorCode,

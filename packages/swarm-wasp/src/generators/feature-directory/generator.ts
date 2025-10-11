@@ -1,7 +1,7 @@
 import {
   ExtendedSchema,
-  handleFatalError,
   FileSystem,
+  handleFatalError,
   Logger,
   SignaleLogger,
   validateFeaturePath,
@@ -12,7 +12,7 @@ import {
   findWaspRoot,
   normaliseFeaturePath,
   realFileSystem,
-} from '../../utils/filesystem';
+} from '../../common/filesystem';
 import { schema, SchemaArgs } from './schema';
 
 export class FeatureDirectoryGenerator extends WaspGeneratorBase<SchemaArgs> {

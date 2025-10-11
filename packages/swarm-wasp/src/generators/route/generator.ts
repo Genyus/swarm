@@ -6,7 +6,7 @@ import {
 import { EntityGeneratorBase } from '../../base-classes/entity-generator.base';
 import { RouteFlags } from '../../interfaces/generator-args';
 import { CONFIG_TYPES } from '../../types/constants';
-import { getRouteNameFromPath } from '../../utils/filesystem';
+import { getRouteNameFromPath } from '../../common/filesystem';
 import { schema } from './schema';
 
 export class RouteGenerator extends EntityGeneratorBase<

@@ -5,7 +5,7 @@ import {
   commonSchemas,
   getTypedValueTransformer,
   getTypedValueValidator,
-} from '../../utils/schemas';
+} from '../../common/schemas';
 
 const validHttpMethods = Object.values(HTTP_METHODS);
 

@@ -1,4 +1,4 @@
-import { PluginManager } from '../../../plugin/manager';
+import { PluginManager } from '../../../plugin/plugin-manager';
 import { MCPToolDefinition, MCPToolHandler, ToolFactory } from './tool-factory';
 
 /**

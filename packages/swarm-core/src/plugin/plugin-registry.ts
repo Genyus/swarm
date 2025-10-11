@@ -1,12 +1,12 @@
 import * as path from 'node:path';
 import { SwarmConfigManager } from '../config/swarm-config';
-import { SwarmGenerator } from '../interfaces/generator';
-import { SwarmPlugin } from '../interfaces/plugin';
+import { SwarmGenerator } from '../contracts/generator';
+import { SwarmPlugin } from '../contracts/plugin';
 import {
   LocalPluginResolver,
   NPMPluginResolver,
   PluginResolver,
-} from './resolver';
+} from './plugin-resolver';
 
 /**
  * Manages plugin registration and discovery

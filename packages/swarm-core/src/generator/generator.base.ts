@@ -1,8 +1,8 @@
 import path from 'node:path';
-import { SwarmGenerator, ValidationResult } from '../interfaces/generator';
+import { SwarmGenerator, ValidationResult } from '../contracts/generator';
 import { FileSystem } from '../types/filesystem';
 import { Logger } from '../types/logger';
-import { ExtendedSchema } from '../utils/schema';
+import { ExtendedSchema } from '../common/schema';
 
 /**
  * Abstract base class for all generators
