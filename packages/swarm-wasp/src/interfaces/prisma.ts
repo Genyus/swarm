@@ -1,7 +1,7 @@
 /**
  * Represents a field in a Prisma model.
  */
-export interface EntityField {
+interface EntityField {
   name: string;
   type: string;
   tsType: string;

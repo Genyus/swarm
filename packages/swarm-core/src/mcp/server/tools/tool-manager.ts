@@ -5,7 +5,7 @@ import { MCPToolDefinition, MCPToolHandler, ToolFactory } from './tool-factory';
 /**
  * MCP Tool interface combining definition and handler
  */
-export interface MCPTool {
+interface MCPTool {
   definition: MCPToolDefinition;
   handler: MCPToolHandler;
 }

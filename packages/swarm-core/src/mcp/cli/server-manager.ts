@@ -1,8 +1,11 @@
 import { logger } from '../../utils/logger';
 import { SwarmMCPServer } from '../server/index.js';
-import type { ServerConfig } from '../server/types/mcp.js';
-import { configManager } from '../server/utils/config.js';
-import { ErrorFactory, createErrorContext } from '../server/utils/errors.js';
+import type { ServerConfig } from '../server/types/index.js';
+import {
+  ErrorFactory,
+  configManager,
+  createErrorContext,
+} from '../server/utils/index.js';
 
 export class ServerManager {
   private server: SwarmMCPServer | null = null;

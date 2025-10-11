@@ -33,7 +33,7 @@ export interface ApiNamespaceConfig {
   };
 }
 
-export interface Wasp {
+interface Wasp {
   version: string;
 }
 
@@ -43,7 +43,7 @@ export interface AppConfig {
   head?: string[];
 }
 
-export interface AuthMethods {
+interface AuthMethods {
   usernameAndPassword?: UsernameAndPasswordConfig;
   discord?: ExternalAuthConfig;
   google?: ExternalAuthConfig;
@@ -66,33 +66,33 @@ export interface AuthConfig {
   onAfterLogin?: ExtImport;
 }
 
-export interface UsernameAndPasswordConfig {
+interface UsernameAndPasswordConfig {
   userSignupFields?: ExtImport;
 }
 
-export interface EmailAuthConfig {
+interface EmailAuthConfig {
   userSignupFields?: ExtImport;
   fromField: EmailFromField;
   emailVerification: EmailVerificationConfig;
   passwordReset: PasswordResetConfig;
 }
 
-export interface EmailVerificationConfig {
+interface EmailVerificationConfig {
   getEmailContentFn?: ExtImport;
   clientRoute: string;
 }
 
-export interface PasswordResetConfig {
+interface PasswordResetConfig {
   getEmailContentFn?: ExtImport;
   clientRoute: string;
 }
 
-export interface ExternalAuthConfig {
+interface ExternalAuthConfig {
   configFn?: ExtImport;
   userSignupFields?: ExtImport;
 }
 
-export type ExtImport =
+type ExtImport =
   | {
       import: string;
       from: AppSpecExtImport['path'];
@@ -102,13 +102,13 @@ export type ExtImport =
       from: AppSpecExtImport['path'];
     };
 
-export interface EmailFromField {
+interface EmailFromField {
   name?: string;
   email: string;
 }
 
-export type ExtImportKind = 'named' | 'default';
-export interface AppSpecExtImport {
+type ExtImportKind = 'named' | 'default';
+interface AppSpecExtImport {
   kind: ExtImportKind;
   name: string;
   path: `@src/${string}`;

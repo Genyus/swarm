@@ -1,14 +1,14 @@
 import { z } from 'zod';
 
-export type RequestId = string | number;
+type RequestId = string | number;
 
-export interface MCPTool {
+interface MCPTool {
   name: string;
   description: string;
   parameters: Record<string, unknown>;
 }
 
-export interface BaseMessage {
+interface BaseMessage {
   jsonrpc: '2.0';
   id?: RequestId;
   method?: string;
@@ -17,7 +17,7 @@ export interface BaseMessage {
   error?: MCPError;
 }
 
-export interface MCPError {
+interface MCPError {
   code: number;
   message: string;
   data?: unknown;
@@ -40,12 +40,12 @@ export interface MCPNotification extends BaseMessage {
   params?: unknown;
 }
 
-export interface ServerImplementation {
+interface ServerImplementation {
   name: string;
   version: string;
 }
 
-export interface ServerCapabilities {
+interface ServerCapabilities {
   tools?: ToolCapabilities;
   prompts?: PromptCapabilities;
   resources?: ResourceCapabilities;
@@ -60,31 +60,31 @@ export interface ServerInfo {
   status: ServerState;
 }
 
-export interface ToolCapabilities {
+interface ToolCapabilities {
   listChanged?: boolean;
 }
 
-export interface PromptCapabilities {
+interface PromptCapabilities {
   listChanged?: boolean;
 }
 
-export interface ResourceCapabilities {
+interface ResourceCapabilities {
   listChanged?: boolean;
   subscribe?: boolean;
 }
 
-export interface LoggingCapabilities {
+interface LoggingCapabilities {
   level?: 'debug' | 'info' | 'warn' | 'error';
 }
 
-export interface ClientCapabilities {
+interface ClientCapabilities {
   tools?: ToolCapabilities;
   prompts?: PromptCapabilities;
   resources?: ResourceCapabilities;
   logging?: LoggingCapabilities;
 }
 
-export interface ClientImplementation {
+interface ClientImplementation {
   name: string;
   version: string;
 }
@@ -95,14 +95,14 @@ export interface Tool {
   inputSchema: ToolInputSchema;
 }
 
-export interface ToolInputSchema {
+interface ToolInputSchema {
   type: 'object';
   properties: Record<string, ToolProperty>;
   required?: string[];
   additionalProperties?: boolean;
 }
 
-export interface ToolProperty {
+interface ToolProperty {
   type: string;
   description?: string;
   enum?: string[];
@@ -111,7 +111,7 @@ export interface ToolProperty {
   [key: string]: unknown;
 }
 
-export interface ToolCallRequest extends MCPRequest {
+interface ToolCallRequest extends MCPRequest {
   method: 'tools/call';
   params: {
     name: string;
@@ -119,19 +119,19 @@ export interface ToolCallRequest extends MCPRequest {
   };
 }
 
-export interface ToolCallResult {
+interface ToolCallResult {
   content: ToolCallContent[];
   isError?: boolean;
 }
 
-export interface ToolCallContent {
+interface ToolCallContent {
   type: 'text' | 'image' | 'audio';
   text?: string;
   data?: string;
   mimeType?: string;
 }
 
-export interface Transport {
+interface Transport {
   start(): Promise<void>;
   send(message: JSONRPCMessage): Promise<void>;
   close(): Promise<void>;
@@ -141,7 +141,7 @@ export interface Transport {
   sessionId?: string;
 }
 
-export type JSONRPCMessage = MCPRequest | MCPResponse | MCPNotification;
+type JSONRPCMessage = MCPRequest | MCPResponse | MCPNotification;
 
 export interface ServerConfig {
   name: string;

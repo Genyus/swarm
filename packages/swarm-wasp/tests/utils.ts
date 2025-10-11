@@ -237,14 +237,14 @@ vi.mock('@ingenyus/swarm-core', async () => {
   };
 });
 
-export interface TestSetup {
+interface TestSetup {
   fs: IFileSystem;
   logger: Logger;
   mockFiles: Record<string, string>;
   fileCallCounts: Record<string, number>;
 }
 
-export function createMockFilesystem(
+function createMockFilesystem(
   mockFiles: Record<string, string>
 ): IFileSystem {
   // Add mock template files for each generator

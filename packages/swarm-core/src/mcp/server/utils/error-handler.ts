@@ -2,7 +2,7 @@ import { logger } from '../../../utils/logger';
 import { MCPProtocolError } from '../types/mcp.js';
 import { createErrorContext, normalizeToMCPError } from './errors.js';
 
-export interface ErrorHandlingContext {
+interface ErrorHandlingContext {
   tool?: string;
   operation?: string;
   parameters?: Record<string, unknown> | undefined;

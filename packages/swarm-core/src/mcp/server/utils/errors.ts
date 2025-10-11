@@ -11,7 +11,7 @@ export abstract class AppError extends MCPProtocolError {
   }
 }
 
-export interface ErrorContext {
+interface ErrorContext {
   tool?: string | undefined;
   operation?: string | undefined;
   parameters?: Record<string, unknown> | undefined;

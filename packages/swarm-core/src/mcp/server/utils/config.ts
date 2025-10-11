@@ -21,12 +21,12 @@ const ServerConfigSchema = z.object({
   logging: LoggingConfigSchema.optional(),
 });
 
-export interface LoggingConfig {
+interface LoggingConfig {
   level?: 'debug' | 'info' | 'warn' | 'error' | undefined;
   format?: 'json' | 'text' | undefined;
 }
 
-export interface ServerConfig {
+interface ServerConfig {
   logging?: LoggingConfig | undefined;
 }
 

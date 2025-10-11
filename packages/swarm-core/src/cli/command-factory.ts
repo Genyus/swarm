@@ -9,7 +9,7 @@ import { CommandInfo, commandRegistry } from './command-registry';
 /**
  * Configuration for creating a command with the registry
  */
-export interface CommandConfig<TArgs = any> {
+interface CommandConfig<TArgs = any> {
   name: string;
   description: string;
   schema: ZodType<TArgs>;
@@ -20,7 +20,7 @@ export interface CommandConfig<TArgs = any> {
 /**
  * Configuration for creating a command with CommandBuilder
  */
-export interface CommandBuilderConfig<TArgs = any> {
+interface CommandBuilderConfig<TArgs = any> {
   name: string;
   description: string;
   schema: z.ZodType<any, any, any>;

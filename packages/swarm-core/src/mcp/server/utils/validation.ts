@@ -92,7 +92,7 @@ export const WriteFileSchema = z.object({
   rollbackToken: z.string().optional(),
 });
 
-export const ListDirectorySchema = z.object({
+const ListDirectorySchema = z.object({
   uri: z
     .string()
     .min(1, 'Directory URI cannot be empty')
@@ -127,7 +127,7 @@ export const ListDirectorySchema = z.object({
     .optional(),
 });
 
-export const DeleteFileSchema = z.object({
+const DeleteFileSchema = z.object({
   uri: z
     .string()
     .min(1, 'File URI cannot be empty')

@@ -5,7 +5,7 @@ const toolManager = new ToolManager();
 
 export * from './dynamic-tools.js';
 export * from './tool-manager.js';
-export { toolManager };
+;
 
 /**
  * Get dynamic tools built from enabled generators
@@ -30,12 +30,9 @@ export async function getToolDefinitions(
 /**
  * Get tool handlers for MCP server execution
  */
-export async function getToolHandlers(
+async function getToolHandlers(
   configPath?: string
 ): Promise<Record<string, (args: any) => Promise<any>>> {
   await toolManager.initialize(configPath);
   return toolManager.getToolHandlers();
 }
-
-// Export tool manager as the default
-export const tools = getDynamicTools;

@@ -19,20 +19,20 @@ export type OperationType = (typeof OPERATION_TYPES)[number];
 /**
  * List of valid action types.
  */
-export const ACTION_TYPES = ['create', 'update', 'delete'] as const;
+const ACTION_TYPES = ['create', 'update', 'delete'] as const;
 /**
  * Type for valid action types.
  */
-export type ActionType = (typeof ACTION_TYPES)[number];
+type ActionType = (typeof ACTION_TYPES)[number];
 
 /**
  * List of valid query types.
  */
-export const QUERY_TYPES = ['get', 'getAll', 'getFiltered'] as const;
+const QUERY_TYPES = ['get', 'getAll', 'getFiltered'] as const;
 /**
  * Type for valid query types.
  */
-export type QueryType = (typeof QUERY_TYPES)[number];
+type QueryType = (typeof QUERY_TYPES)[number];
 
 /**
  * List of valid HTTP methods.
@@ -57,7 +57,7 @@ export const OPERATIONS = {
 /**
  * Type for valid operation values.
  */
-export type Operation = (typeof OPERATIONS)[keyof typeof OPERATIONS];
+type Operation = (typeof OPERATIONS)[keyof typeof OPERATIONS];
 
 export const CRUD_OPERATIONS = {
   CREATE: 'create',
@@ -138,7 +138,7 @@ export type ConfigType = (typeof CONFIG_TYPES)[keyof typeof CONFIG_TYPES];
 /**
  * Maps config types to their corresponding flags types
  */
-export interface ConfigToFlagsMap {
+interface ConfigToFlagsMap {
   API: ApiFlags;
   JOB: JobFlags;
   ROUTE: RouteFlags;
@@ -157,7 +157,7 @@ export type GetFlagsType<T extends ConfigType> =
 /**
  * Reverse mapping from flags types to config types
  */
-export type FlagsToConfigMap = {
+type FlagsToConfigMap = {
   [K in keyof ConfigToFlagsMap]: ConfigToFlagsMap[K] extends infer U
     ? U extends ConfigToFlagsMap[K]
       ? K
@@ -168,6 +168,6 @@ export type FlagsToConfigMap = {
 /**
  * Type helper to get config type from flags type
  */
-export type GetConfigType<T> = {
+type GetConfigType<T> = {
   [K in keyof ConfigToFlagsMap]: T extends ConfigToFlagsMap[K] ? K : never;
 }[keyof ConfigToFlagsMap];

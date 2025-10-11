@@ -9,5 +9,5 @@
     "noEmit": false
   },
   "include": ["src/**/*", "tests/**/*"],
-  "exclude": ["src/templates/**/*", "dist", "node_modules", "tests/mcp/output/**/*"]
+  "exclude": ["src/templates/**/*", "dist", "node_modules"]
 }

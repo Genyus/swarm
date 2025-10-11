@@ -17,7 +17,9 @@
     "changeset:autogenerate-batch": "node .changeset/changeset-autogenerate-batch.js",
     "version-packages": "changeset version",
     "release": "pnpm build && changeset publish",
-    "validate": "pnpm -r run validate"
+    "validate": "pnpm -r run validate && pnpm knip:fix",
+    "knip": "knip",
+    "knip:fix": "knip --fix"
   },
   "keywords": [
     "monorepo",
@@ -42,13 +44,15 @@
     "@changesets/changelog-github": "^0.5.0",
     "@changesets/cli": "^2.29.4",
     "@eslint/js": "^9.34.0",
+    "@types/node": "^24.3.0",
     "@typescript-eslint/eslint-plugin": "^8.41.0",
     "@typescript-eslint/parser": "^8.41.0",
     "eslint": "^9.34.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.2.1",
+    "knip": "^5.64.3",
     "prettier": "^3.6.2",
-    "tsx": "^4.20.6"
+    "typescript": "^5.9.2"
   },
   "packageManager": "pnpm@10.17.1"
 }

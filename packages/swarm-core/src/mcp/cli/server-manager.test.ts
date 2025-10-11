@@ -7,15 +7,12 @@ vi.mock('../server/index.js', () => ({
 }));
 
 // Mock logger
-vi.mock('../server/utils/logger.js', () => ({
+vi.mock('../server/utils/index.js', async (importOriginal) => ({
+  ...(await importOriginal()),
   logger: {
     info: vi.fn(),
     error: vi.fn(),
   },
-}));
-
-// Mock configManager
-vi.mock('../server/utils/config.js', () => ({
   configManager: {
     loadConfig: vi.fn().mockResolvedValue(undefined),
   },

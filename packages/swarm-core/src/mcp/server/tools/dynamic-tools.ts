@@ -4,7 +4,7 @@ import { MCPToolDefinition, MCPToolHandler, ToolFactory } from './tool-factory';
 /**
  * Dynamic MCP tools that are built from enabled generators
  */
-export class DynamicMCPTools {
+class DynamicMCPTools {
   private initialized = false;
   private pluginManager: PluginManager;
   private toolDefinitions: Record<string, MCPToolDefinition> = {};
@@ -105,4 +105,4 @@ export class DynamicMCPTools {
 }
 
 // Create singleton instance
-export const dynamicMCPTools = new DynamicMCPTools();
+const dynamicMCPTools = new DynamicMCPTools();

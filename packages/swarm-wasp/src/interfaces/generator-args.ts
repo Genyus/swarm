@@ -9,7 +9,7 @@ import {
  * Common flags used across different generators
  * @interface CommonGeneratorFlags
  */
-export interface CommonGeneratorFlags {
+interface CommonGeneratorFlags {
   /** Feature path/name */
   feature: string;
   /** Resource name (API, Job, Route, etc.) */

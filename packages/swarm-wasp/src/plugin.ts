@@ -31,7 +31,7 @@ export function createWaspPlugin(): SwarmPluginInterface {
 // Lazy-load the plugin to avoid circular dependency issues
 let _apiPlugin: SwarmPluginInterface | null = null;
 
-export function getWaspPlugin(): SwarmPluginInterface {
+function getWaspPlugin(): SwarmPluginInterface {
   if (!_apiPlugin) {
     _apiPlugin = createWaspPlugin();
   }

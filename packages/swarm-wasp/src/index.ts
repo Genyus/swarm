@@ -16,14 +16,7 @@ export * from './interfaces/feature-directory-generator';
 export * from './interfaces/wasp-config-generator';
 
 // Export generators
-export * from './generators/api-namespace/generator';
-export * from './generators/api/generator';
-export * from './generators/config/generator';
-export * from './generators/crud/generator';
-export * from './generators/feature-directory/generator';
-export * from './generators/job/generator';
-export * from './generators/operation/generator';
-export * from './generators/route/generator';
+export * from './generators';
 
 // Export utils
 export * from './utils';

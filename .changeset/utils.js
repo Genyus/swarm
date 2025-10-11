@@ -43,10 +43,10 @@ function mapScopeToPackage(scope) {
 }
 
 // Export for use in help messages
-export const validScopes = getValidScopes();
+const validScopes = getValidScopes();
 
 // Define regex patterns for conventional commits
-export const commitPatterns = {
+const commitPatterns = {
   major: /^BREAKING CHANGE(?:\(([^)]+)\))?: (.+)/,
   majorAlt: /^(\w+)(?:\(([^)]+)\))?!: (.+)/, // feat!: or fix!: syntax
   minor: /^feat(?:\(([^)]+)\))?: (.+)/,

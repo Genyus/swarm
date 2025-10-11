@@ -240,4 +240,3 @@ export class SwarmMCPServer {
 }
 
 export type { MCPErrorCode, MCPProtocolError, ServerConfig, ServerState, Tool };
-export default SwarmMCPServer;

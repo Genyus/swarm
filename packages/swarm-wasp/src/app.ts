@@ -21,12 +21,12 @@ import {
 } from 'wasp-config';
 
 // Type definitions for helper method options
-export interface RouteOptions {
+interface RouteOptions {
   path: string;
   auth?: boolean;
 }
 
-export interface ApiOptions {
+interface ApiOptions {
   method: 'GET' | 'POST' | 'PUT' | 'DELETE';
   route: string;
   customMiddleware?: boolean;
@@ -34,13 +34,13 @@ export interface ApiOptions {
   auth?: boolean;
 }
 
-export interface CrudOperationOptions {
+interface CrudOperationOptions {
   entities?: string[];
   isPublic?: boolean;
   override?: boolean;
 }
 
-export interface CrudOptions {
+interface CrudOptions {
   entity: string;
   getAll?: CrudOperationOptions;
   get?: CrudOperationOptions;
@@ -49,18 +49,18 @@ export interface CrudOptions {
   delete?: CrudOperationOptions;
 }
 
-export interface OperationOptions {
+interface OperationOptions {
   entities?: string[];
   auth?: boolean;
 }
 
-export interface JobOptions {
+interface JobOptions {
   entities?: string[];
   cron: string;
   args?: Record<string, unknown>;
 }
 
-export interface ApiNamespaceOptions {
+interface ApiNamespaceOptions {
   path: string;
 }
 
