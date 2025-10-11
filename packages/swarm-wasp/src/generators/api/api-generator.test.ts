@@ -41,7 +41,9 @@ describe('ApiGenerator', () => {
         // Default API handler template
         return `// Generated API handler for ${replacements.apiName || 'unknown'}`;
       }),
-      resolveTemplatePath: vi.fn((templateName) => `/mock/templates/${templateName}`),
+      resolveTemplatePath: vi.fn(
+        (templateName) => `/mock/templates/${templateName}`
+      ),
     };
 
     await gen.generate({
@@ -69,7 +71,9 @@ describe('ApiGenerator', () => {
     // Mock the template utility
     (gen as any).templateUtility = {
       processTemplate: vi.fn(() => 'app.addApi("testApi", { method: "GET" });'),
-      resolveTemplatePath: vi.fn((templateName) => `/mock/templates/${templateName}`),
+      resolveTemplatePath: vi.fn(
+        (templateName) => `/mock/templates/${templateName}`
+      ),
     };
 
     const result = (gen as any).getConfigDefinition(

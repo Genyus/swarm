@@ -1,10 +1,10 @@
 import { Command } from 'commander';
 import {
-    configureLogger,
-    LogFormat,
-    logger,
-    LogLevel,
-} from '../../../common/signale-logger';
+  configureLogger,
+  LogFormat,
+  logger,
+  LogLevel,
+} from '../../../common';
 import { ServerManager } from '../server-manager.js';
 
 interface StatusOptions {

@@ -4,8 +4,16 @@ import {
   handleFatalError,
   toPascalCase,
 } from '@ingenyus/swarm-core';
-import { OperationConfigEntry } from '../args.types';
-import { EntityMetadata } from '../../types/prisma.types';
+import {
+  copyDirectory,
+  generateJsonTypeHandling,
+  getEntityMetadata,
+  getFeatureImportPath,
+  getIdField,
+  getJsonFields,
+  getOmitFields,
+  needsPrismaImport,
+} from '../../common';
 import {
   ActionOperation,
   CONFIG_TYPES,
@@ -15,15 +23,8 @@ import {
   QueryOperation,
   TYPE_DIRECTORIES,
 } from '../../types/constants';
-import { copyDirectory, getFeatureImportPath } from '../../common';
-import {
-  generateJsonTypeHandling,
-  getEntityMetadata,
-  getIdField,
-  getJsonFields,
-  getOmitFields,
-  needsPrismaImport,
-} from '../../common';
+import { EntityMetadata } from '../../types/prisma.types';
+import { OperationConfigEntry } from '../args.types';
 import { EntityGeneratorBase } from './entity-generator.base';
 
 /**
@@ -307,13 +308,13 @@ export abstract class OperationGeneratorBase<
     const directory = TYPE_DIRECTORIES[operationType];
     const featureDir = getFeatureImportPath(featurePath);
     // Config templates are in the config generator's templates directory
+    // Current file is in generators/base/, so we go up to generators/ then to config/templates/
     const configGeneratorDir = this.path.dirname(
       new URL(import.meta.url).pathname
     );
     const configTemplatesDir = this.path.join(
       configGeneratorDir,
       '..',
-      'generators',
       'config',
       'templates'
     );

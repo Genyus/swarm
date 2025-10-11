@@ -5,8 +5,6 @@ const toolManager = new ToolManager();
 
 export * from './dynamic-tools.js';
 export * from './tool-manager.js';
-;
-
 /**
  * Get dynamic tools built from enabled generators
  * This is the recommended way to get MCP tools

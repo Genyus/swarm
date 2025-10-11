@@ -11,7 +11,7 @@ import {
 import { createPrismaMock, createTestSetup } from './utils';
 
 // Mock the Prisma utilities at the test level
-vi.mock('../src/utils/prisma', () => ({
+vi.mock('../src/common/prisma', () => ({
   getEntityMetadata: vi.fn().mockResolvedValue({
     name: 'Document',
     fields: [

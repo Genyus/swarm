@@ -41,9 +41,6 @@ importers:
       prettier:
         specifier: ^3.6.2
         version: 3.6.2
-      tsx:
-        specifier: ^4.20.6
-        version: 4.20.6
       typescript:
         specifier: ^5.9.2
         version: 5.9.2
@@ -66,9 +63,6 @@ importers:
         specifier: ^4.1.11
         version: 4.1.11
     devDependencies:
-      '@commander-js/extra-typings':
-        specifier: ^14.0.0
-        version: 14.0.0(commander@14.0.0)
       '@types/node':
         specifier: ^24.3.0
         version: 24.3.0
@@ -122,8 +116,8 @@ importers:
         specifier: ^3.1.4
         version: 3.2.3(@types/node@24.3.0)(jiti@2.6.1)(tsx@4.20.6)
       wasp-config:
-        specifier: link:src/stubs/wasp-config
-        version: link:src/stubs/wasp-config
+        specifier: link:src/wasp-config/stubs
+        version: link:src/wasp-config/stubs
 
 packages:
 
@@ -228,11 +222,6 @@ packages:
 
   '@chevrotain/utils@10.5.0':
     resolution: {integrity: sha512-hBzuU5+JjB2cqNZyszkDHZgOSrUUT8V3dhgRl8Q9Gp6dAj/H5+KILGjbhDpc3Iy9qmqlm/akuOI2ut9VUtzJxQ==}
-
-  '@commander-js/extra-typings@14.0.0':
-    resolution: {integrity: sha512-hIn0ncNaJRLkZrxBIp5AsW/eXEHNKYQBh0aPdoUqNgD+Io3NIykQqpKFyKcuasZhicGaEZJX/JBSIkZ4e5x8Dg==}
-    peerDependencies:
-      commander: ~14.0.0
 
   '@emnapi/core@1.5.0':
     resolution: {integrity: sha512-sbP8GzB1WDzacS8fgNPpHlp6C9VZe+SJP3F90W9rLemaQj2PzIuTEl1qDOYQf58YIpyjViI24y9aPWCjEzY2cg==}
@@ -2546,10 +2535,6 @@ snapshots:
 
   '@chevrotain/utils@10.5.0': {}
 
-  '@commander-js/extra-typings@14.0.0(commander@14.0.0)':
-    dependencies:
-      commander: 14.0.0
-
   '@emnapi/core@1.5.0':
     dependencies:
       '@emnapi/wasi-threads': 1.1.0
@@ -3648,6 +3633,7 @@ snapshots:
   get-tsconfig@4.10.1:
     dependencies:
       resolve-pkg-maps: 1.0.0
+    optional: true
 
   glob-parent@5.1.2:
     dependencies:
@@ -4171,7 +4157,8 @@ snapshots:
 
   resolve-from@5.0.0: {}
 
-  resolve-pkg-maps@1.0.0: {}
+  resolve-pkg-maps@1.0.0:
+    optional: true
 
   reusify@1.1.0: {}
 
@@ -4461,6 +4448,7 @@ snapshots:
       get-tsconfig: 4.10.1
     optionalDependencies:
       fsevents: 2.3.3
+    optional: true
 
   type-check@0.4.0:
     dependencies:

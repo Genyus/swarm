@@ -7,4 +7,3 @@ export { FeatureDirectoryGenerator } from './feature-directory/feature-directory
 export { JobGenerator } from './job/job-generator';
 export { OperationGenerator } from './operation/operation-generator';
 export { RouteGenerator } from './route/route-generator';
-

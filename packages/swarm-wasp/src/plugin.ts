@@ -1,14 +1,14 @@
 import { SwarmPluginInterface } from '@ingenyus/swarm-core';
 import {
-    ApiGenerator,
-    ApiNamespaceGenerator,
-    CrudGenerator,
-    FeatureDirectoryGenerator,
-    JobGenerator,
-    OperationGenerator,
-    RouteGenerator,
+  ApiGenerator,
+  ApiNamespaceGenerator,
+  CrudGenerator,
+  FeatureDirectoryGenerator,
+  JobGenerator,
+  OperationGenerator,
+  RouteGenerator,
 } from '.';
-import { getPluginVersion } from './common/plugin';
+import { getPluginVersion } from './common';
 
 export function createWaspPlugin(): SwarmPluginInterface {
   return {

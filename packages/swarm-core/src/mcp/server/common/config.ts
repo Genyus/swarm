@@ -3,11 +3,11 @@ import { readFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { z } from 'zod';
 import {
-    configureLogger,
-    LogFormat,
-    logger,
-    LogLevel,
-} from '../../../common/signale-logger';
+  configureLogger,
+  LogFormat,
+  logger,
+  LogLevel,
+} from '../../../common';
 import { createErrorContext, ErrorFactory } from './errors.js';
 
 const ENV_PREFIX = 'SWARM_MCP_';

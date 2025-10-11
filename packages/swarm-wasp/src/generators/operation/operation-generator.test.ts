@@ -1,9 +1,9 @@
 import type { FileSystem, Logger, SwarmGenerator } from '@ingenyus/swarm-core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
-    createMockFeatureGen,
-    createMockFS,
-    createMockLogger,
+  createMockFeatureGen,
+  createMockFS,
+  createMockLogger,
 } from '../../../tests/utils';
 import { OperationGenerator } from './operation-generator';
 
@@ -146,8 +146,12 @@ describe('OperationGenerator', () => {
   it('getDefinition returns processed template', () => {
     // Mock the template utility
     (gen as any).templateUtility = {
-      processTemplate: vi.fn(() => 'app.addQuery("testOperation", { fn: import("...") });'),
-      resolveTemplatePath: vi.fn((templateName) => `/mock/templates/${templateName}`),
+      processTemplate: vi.fn(
+        () => 'app.addQuery("testOperation", { fn: import("...") });'
+      ),
+      resolveTemplatePath: vi.fn(
+        (templateName) => `/mock/templates/${templateName}`
+      ),
     };
 
     const result = gen.getDefinition(

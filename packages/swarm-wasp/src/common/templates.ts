@@ -55,11 +55,11 @@ export class TemplateUtility {
     // [app root]/node_modules/@ingenyus/swarm-wasp/dist
     // Templates are in dist/generators/[generator]/templates/
     // In development, currentFileDir is:
-    // [project root]/packages/swarm-wasp/src/base-classes/
-    // We need to go up to the src directory and then to generators/[generator]/templates/
+    // [project root]/packages/swarm-wasp/src/generators/base/
+    // We need to go up two levels to src directory and then to generators/[generator]/templates/
     const startDir = isInstalledPackage
       ? currentFileDir
-      : path.dirname(currentFileDir);
+      : path.dirname(path.dirname(currentFileDir));
 
     return path.join(
       startDir,

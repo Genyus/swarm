@@ -1,11 +1,11 @@
 import { extend } from '@ingenyus/swarm-core';
 import { z } from 'zod';
-import { HTTP_METHODS } from '../../types/constants';
 import {
   commonSchemas,
   getTypedValueTransformer,
   getTypedValueValidator,
 } from '../../common';
+import { HTTP_METHODS } from '../../types/constants';
 
 const validHttpMethods = Object.values(HTTP_METHODS);
 

@@ -1,11 +1,15 @@
 import {
-    FileSystem,
-    GeneratorBase,
-    Logger,
-    SignaleLogger,
-    toKebabCase,
+  FileSystem,
+  GeneratorBase,
+  Logger,
+  SignaleLogger,
+  toKebabCase,
 } from '@ingenyus/swarm-core';
-import { getFeatureImportPath, realFileSystem, TemplateUtility } from '../../common';
+import {
+  getFeatureImportPath,
+  realFileSystem,
+  TemplateUtility,
+} from '../../common';
 import { WaspConfigGenerator } from '../config/wasp-config-generator';
 
 /**

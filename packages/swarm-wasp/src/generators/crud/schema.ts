@@ -1,11 +1,11 @@
 import { extend } from '@ingenyus/swarm-core';
 import { z } from 'zod';
-import { CRUD_OPERATIONS } from '../../types/constants';
 import {
   commonSchemas,
   getTypedArrayTransformer,
   getTypedArrayValidator,
 } from '../../common';
+import { CRUD_OPERATIONS } from '../../types/constants';
 
 const validCrudOperations = Object.values(CRUD_OPERATIONS);
 const publicOperations = getCrudOperationsArray();

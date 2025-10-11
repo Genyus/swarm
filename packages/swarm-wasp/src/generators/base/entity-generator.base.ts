@@ -1,22 +1,26 @@
 import {
-    FileSystem,
-    hasHelperMethodCall,
-    Logger,
-    SignaleLogger,
-    SwarmGenerator,
-    toCamelCase,
-    toKebabCase,
-    validateFeaturePath,
+  FileSystem,
+  hasHelperMethodCall,
+  Logger,
+  SignaleLogger,
+  SwarmGenerator,
+  toCamelCase,
+  toKebabCase,
+  validateFeaturePath,
 } from '@ingenyus/swarm-core';
 import path from 'node:path';
 import {
-    ensureDirectoryExists,
-    getFeatureDir,
-    getFeatureImportPath,
-    normaliseFeaturePath,
-    realFileSystem,
+  ensureDirectoryExists,
+  getFeatureDir,
+  getFeatureImportPath,
+  normaliseFeaturePath,
+  realFileSystem,
 } from '../../common';
-import { ConfigType, GetFlagsType, TYPE_DIRECTORIES } from '../../types/constants';
+import {
+  ConfigType,
+  GetFlagsType,
+  TYPE_DIRECTORIES,
+} from '../../types/constants';
 import { FeatureDirectoryGenerator } from '../feature-directory/feature-directory-generator';
 import { SchemaArgs as FeatureSchemaArgs } from '../feature-directory/schema';
 import { WaspGeneratorBase } from './wasp-generator.base';

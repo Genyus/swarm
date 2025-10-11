@@ -4,7 +4,6 @@ export type {
   CrudOperation,
   GetFlagsType,
   HttpMethod,
-  OperationType
+  OperationType,
 } from './constants';
 export type { EntityMetadata } from './prisma.types';
-

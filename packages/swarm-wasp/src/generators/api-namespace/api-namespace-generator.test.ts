@@ -81,8 +81,13 @@ describe('ApiNamespaceGenerator', () => {
   it('getDefinition returns processed template', () => {
     // Mock the template utility
     (gen as any).templateUtility = {
-      processTemplate: vi.fn(() => 'app.addApiNamespace("testNamespace", { middleware: import("..."), path: "/api/test" });'),
-      resolveTemplatePath: vi.fn((templateName) => `/mock/templates/${templateName}`),
+      processTemplate: vi.fn(
+        () =>
+          'app.addApiNamespace("testNamespace", { middleware: import("..."), path: "/api/test" });'
+      ),
+      resolveTemplatePath: vi.fn(
+        (templateName) => `/mock/templates/${templateName}`
+      ),
     };
 
     const result = gen.getDefinition(
