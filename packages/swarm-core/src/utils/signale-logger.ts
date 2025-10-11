@@ -8,7 +8,7 @@ export type LogLevel = 'debug' | 'info' | 'warn' | 'error';
 export type LogFormat = 'json' | 'text';
 export type LogStream = 'stdout' | 'stderr';
 
-export class SwarmLogger implements Logger {
+export class SignaleLogger implements Logger {
   private signale: Signale;
   private logLevel: LogLevel;
   private logFormat: LogFormat;
@@ -100,7 +100,7 @@ export class SwarmLogger implements Logger {
   }
 }
 
-const singleton = new SwarmLogger();
+const singleton = new SignaleLogger();
 export const logger: Logger = singleton;
 
 export function configureLogger(options: {
@@ -108,7 +108,7 @@ export function configureLogger(options: {
   format?: LogFormat;
   stream?: LogStream;
 }): void {
-  const logger = singleton as SwarmLogger;
+  const logger = singleton as SignaleLogger;
   if (options.level) logger.setLogLevel(options.level);
   if (options.format) logger.setLogFormat(options.format);
   if (options.stream) logger.setLogStream(options.stream);

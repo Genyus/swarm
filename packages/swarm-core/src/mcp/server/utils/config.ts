@@ -7,7 +7,7 @@ import {
   LogFormat,
   logger,
   LogLevel,
-} from '../../../utils/logger';
+} from '../../../utils/signale-logger';
 import { createErrorContext, ErrorFactory } from './errors.js';
 
 const ENV_PREFIX = 'SWARM_MCP_';

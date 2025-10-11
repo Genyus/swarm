@@ -2,7 +2,7 @@ import {
   hasHelperMethodCall,
   IFileSystem,
   Logger,
-  SwarmLogger,
+  SignaleLogger,
   toCamelCase,
   toKebabCase,
   validateFeaturePath,
@@ -37,7 +37,7 @@ export abstract class BaseEntityGenerator<
   }
 
   constructor(
-    public logger: Logger = new SwarmLogger(),
+    public logger: Logger = new SignaleLogger(),
     public fileSystem: IFileSystem = realFileSystem,
     protected featureDirectoryGenerator: IFeatureDirectoryGenerator = new FeatureDirectoryGenerator(
       logger,

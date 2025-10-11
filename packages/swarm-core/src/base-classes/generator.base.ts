@@ -7,7 +7,7 @@ import { ExtendedSchema } from '../utils/schema';
 /**
  * Abstract base class for all generators
  */
-export abstract class BaseGenerator<TArgs = any>
+export abstract class GeneratorBase<TArgs = any>
   implements SwarmGenerator<TArgs>
 {
   abstract name: string;

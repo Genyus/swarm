@@ -1,4 +1,4 @@
 export * from './errors';
-export * from './logger';
+export * from './signale-logger';
 export * from './schema';
 export * from './strings';

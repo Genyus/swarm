@@ -4,7 +4,7 @@ import {
   LogFormat,
   logger,
   LogLevel,
-} from '../../../utils/logger';
+} from '../../../utils/signale-logger';
 import { ServerManager } from '../server-manager.js';
 
 interface StopOptions {

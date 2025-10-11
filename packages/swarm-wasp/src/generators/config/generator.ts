@@ -3,7 +3,7 @@ import {
   IFileSystem,
   Logger,
   parseHelperMethodDefinition,
-  SwarmLogger,
+  SignaleLogger,
 } from '@ingenyus/swarm-core';
 import path from 'node:path';
 import { IWaspConfigGenerator } from '../../interfaces/wasp-config-generator';
@@ -15,7 +15,7 @@ export class WaspConfigGenerator implements IWaspConfigGenerator {
   protected templateUtility: TemplateUtility;
 
   constructor(
-    protected logger: Logger = new SwarmLogger(),
+    protected logger: Logger = new SignaleLogger(),
     protected fileSystem: IFileSystem = realFileSystem
   ) {
     this.templateUtility = new TemplateUtility(fileSystem);

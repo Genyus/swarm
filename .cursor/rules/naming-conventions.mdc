@@ -1,0 +1,260 @@
+---
+description: Naming and structural conventions for TypeScript files, classes, interfaces, and directories
+globs: packages/**/*.ts, packages/**/*.js, packages/**/*.tsx, packages/**/*.jsx
+alwaysApply: true
+---
+
+# Naming and Structural Conventions
+
+## High-Level Rules
+
+- **Use kebab-case for file and directory names; PascalCase for classes/types/interfaces/enums**
+- **One main thing per file; filename mirrors that thing**
+- **Prefer co-locating types with their usage; centralize only true cross-cutting types**
+- **Prefer named exports over default exports** (better tree-shaking, discoverability)
+- **Avoid Hungarian notation like IThing** - name interfaces with clear nouns
+
+## Directory Layout
+
+- **Co-locate where possible** - reserve `/types` only for shared, project-wide types
+- **Group by feature or domain, not by artifact type**
+- **Use descriptive base names with light suffixes only when clarifying intent**
+
+## File Naming Conventions
+
+### Types & Interfaces
+```typescript
+// ✅ DO: File name matches the concept
+// user.ts
+export interface User { ... }
+
+// plugin-manifest.ts
+export type PluginManifest = ...
+
+// ✅ DO: Use .types.ts suffix for files containing only types/utility types
+// user.types.ts
+export interface User { ... }
+export type UserId = string & { __brand: 'UserId' }
+```
+
+```typescript
+// ❌ DON'T: Use Hungarian notation
+interface IUser { ... }
+
+// ❌ DON'T: Use .d.ts for your own types (those are for ambient declarations)
+// user.d.ts
+```
+
+### Abstract Base Classes
+```typescript
+// ✅ DO: Use Base suffix for class name, .base.ts for filename
+// plugin-runner.base.ts
+export abstract class PluginRunnerBase { ... }
+
+// generator.base.ts
+export abstract class GeneratorBase { ... }
+```
+
+### Concrete Classes
+```typescript
+// ✅ DO: PascalCase class name, kebab-case filename
+// foo-bar.ts
+export class FooBar { ... }
+
+// ✅ DO: Use qualifiers for multiple implementations
+// cache-repository.memory.ts
+export class MemoryCacheRepository { ... }
+
+// cache-repository.redis.ts
+export class RedisCacheRepository { ... }
+```
+
+### Factories & Builders
+```typescript
+// ✅ DO: Use descriptive factory/builder names
+// foo-factory.ts
+export class FooFactory { ... }
+
+// foo-builder.ts
+export class FooBuilder { ... }
+```
+
+### Errors
+```typescript
+// ✅ DO: Group related errors in one file
+// plugin-errors.ts
+export class PluginLoadError extends Error { ... }
+export class PluginValidationError extends Error { ... }
+
+// ✅ DO: One error per file if large
+// plugin-load-error.ts
+export class PluginLoadError extends Error { ... }
+```
+
+### Adapters & Ports (Hexagonal Architecture)
+```typescript
+// ✅ DO: Ports (interfaces) in ports/ directory
+// ports/plugin-store.ts
+export interface PluginStore { ... }
+
+// ✅ DO: Adapters (implementations) in adapters/ directory
+// adapters/plugin-store.fs.ts
+export class FileSystemPluginStore implements PluginStore { ... }
+
+// adapters/plugin-store.http.ts
+export class HttpPluginStore implements PluginStore { ... }
+```
+
+## Interface Naming
+
+```typescript
+// ✅ DO: Clear nouns without Hungarian notation
+interface Plugin { ... }
+interface Registry { ... }
+type PluginId = string & { __brand: 'PluginId' }
+
+// ❌ DON'T: Hungarian notation
+interface IPlugin { ... }
+interface IRegistry { ... }
+```
+
+## Type Organization
+
+### Private Helper Types
+```typescript
+// ✅ DO: Inline in class file, not exported
+class ApiGenerator {
+  private type ApiFlags = {
+    name: string;
+    method: string;
+  };
+}
+
+// ✅ DO: Use @internal if exported for internal use
+/** @internal */
+export type InternalApiConfig = { ... };
+```
+
+### Public Contract Types
+```typescript
+// ✅ DO: Group in options.ts or schema.ts
+// options.ts
+export interface ApiOptions { ... }
+export interface GeneratorOptions { ... }
+
+// schema.ts
+export const apiSchema = z.object({ ... });
+```
+
+### Implementation Groupings
+```typescript
+// ✅ DO: Use descriptive labels reflecting usage
+// model.ts - data models
+// io.ts - input/output types
+// runtime.ts - runtime configuration
+// contracts.ts - stable API boundaries
+```
+
+## Barrel Exports (index.ts)
+
+```typescript
+// ✅ DO: Use at feature boundaries to expose public surface
+// generators/index.ts
+export { ApiGenerator } from './api/generator';
+export { CrudGenerator } from './crud/generator';
+
+// ❌ DON'T: Deep wildcard barrels that encourage coupling
+export * from './api';
+export * from './crud';
+export * from './job';
+// ... many more
+```
+
+## Directory Structure Examples
+
+```
+packages/swarm-core/src/
+├── base-classes/           # Inheritance chain
+│   ├── generator.base.ts   # GeneratorBase
+│   └── entity.base.ts      # EntityBase
+├── contracts/              # Stable API boundaries
+│   ├── generator.ts        # Generator interface
+│   └── plugin.ts          # Plugin interface
+├── registry/               # Lifecycle concerns
+│   ├── manager.ts         # PluginManager
+│   ├── resolver.ts        # PluginResolver
+│   └── registry.ts        # PluginRegistry
+├── common/                 # Pure utilities (dependency-light)
+│   ├── errors.ts          # Error utilities
+│   ├── logger.ts          # Logging utilities
+│   └── strings.ts         # String utilities
+├── types/                  # Cross-cutting types only
+│   ├── logger.ts          # Logger interface
+│   └── filesystem.ts      # FileSystem interface
+└── generators/             # Feature-specific generators
+    ├── api/
+    │   ├── generator.ts    # ApiGenerator
+    │   ├── schema.ts       # apiSchema
+    │   └── templates/      # Template files
+    └── crud/
+        ├── generator.ts    # CrudGenerator
+        ├── schema.ts       # crudSchema
+        └── templates/      # Template files
+```
+
+## Examples from Codebase
+
+### Good Examples
+```typescript
+// packages/swarm-core/src/interfaces/generator.ts
+export interface Generator<TArgs = any> { ... }
+export interface SwarmGenerator<TArgs = any> extends Generator<TArgs> { ... }
+
+// packages/swarm-core/src/base-classes/base-generator.ts
+export abstract class BaseGenerator<TArgs = any> implements SwarmGenerator<TArgs> { ... }
+
+// packages/swarm-wasp/src/generators/api/generator.ts
+export class ApiGenerator extends BaseEntityGenerator<typeof CONFIG_TYPES.API> { ... }
+```
+
+### Base Class Naming Convention
+```typescript
+// ✅ DO: Use Base suffix for abstract base classes
+// generator.base.ts
+export abstract class GeneratorBase<TArgs = any> { ... }
+
+// entity.base.ts
+export abstract class EntityBase<TArgs = any> { ... }
+
+// ❌ DON'T: Use Abstract prefix
+// abstract-generator.ts
+export abstract class AbstractGenerator { ... }
+```
+
+### Type vs Interface Guidelines
+```typescript
+// ✅ DO: Use type for unions/mapped/utility types
+type PluginId = string & { __brand: 'PluginId' };
+type GeneratorArgs = ApiArgs | CrudArgs | JobArgs;
+type Partial<T> = { [P in keyof T]?: T[P] };
+
+// ✅ DO: Use interface for object shapes you expect to extend/merge
+interface Generator<TArgs = any> {
+  generate: (params: TArgs) => Promise<void> | void;
+}
+
+interface SwarmGenerator<TArgs = any> extends Generator<TArgs> {
+  name: string;
+  description: string;
+  schema: ExtendedSchema;
+}
+```
+
+## Enforcement
+
+- **File naming**: Use kebab-case for all files and directories
+- **Class naming**: Use PascalCase, filename matches class name in kebab-case
+- **Interface naming**: Use PascalCase, no Hungarian notation
+- **Type naming**: Use PascalCase for type aliases
+- **Export style**: Prefer named exports over default exports
+- **Co-location**: Keep types close to their usage, centralize only cross-cutting concerns

@@ -3,7 +3,7 @@ import {
   handleFatalError,
   IFileSystem,
   Logger,
-  SwarmLogger,
+  SignaleLogger,
   validateFeaturePath,
 } from '@ingenyus/swarm-core';
 import path from 'node:path';
@@ -21,7 +21,7 @@ export class FeatureDirectoryGenerator extends BaseWaspGenerator<string> {
   schema: ExtendedSchema;
 
   constructor(
-    public logger: Logger = new SwarmLogger(),
+    public logger: Logger = new SignaleLogger(),
     public fileSystem: IFileSystem = realFileSystem
   ) {
     super(fileSystem, logger);

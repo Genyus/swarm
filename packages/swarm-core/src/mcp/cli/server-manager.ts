@@ -1,4 +1,4 @@
-import { logger } from '../../utils/logger';
+import { logger } from '../../utils/signale-logger';
 import { SwarmMCPServer } from '../server/index.js';
 import type { ServerConfig } from '../server/types/index.js';
 import {

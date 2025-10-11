@@ -1,8 +1,8 @@
 import {
-  BaseGenerator,
+  GeneratorBase,
   IFileSystem,
   Logger,
-  SwarmLogger,
+  SignaleLogger,
   toKebabCase,
 } from '@ingenyus/swarm-core';
 import { WaspConfigGenerator } from '../generators/config/generator';
@@ -12,10 +12,10 @@ import { TemplateUtility } from '../utils/templates';
 /**
  * Abstract base class for all generators
  */
-export abstract class BaseWaspGenerator<TArgs> extends BaseGenerator<TArgs> {
+export abstract class BaseWaspGenerator<TArgs> extends GeneratorBase<TArgs> {
   constructor(
     public fileSystem: IFileSystem = realFileSystem,
-    public logger: Logger = new SwarmLogger()
+    public logger: Logger = new SignaleLogger()
   ) {
     super(fileSystem, logger);
     this.configGenerator = new WaspConfigGenerator(logger, fileSystem);

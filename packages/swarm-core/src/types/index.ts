@@ -3,7 +3,7 @@ export * from './filesystem';
 export * from './logger';
 
 // Export new plugin system interfaces
-export * from '../base-classes/base-generator';
+export * from '../base-classes/generator.base';
 export * from '../config/swarm-config';
 export * from '../interfaces/field-metadata';
 export * from '../interfaces/generator';
