@@ -12,7 +12,6 @@ export { App } from './app';
 export * from './config-index';
 
 // Export interfaces
-export * from './interfaces/feature-directory-generator';
 export * from './interfaces/wasp-config-generator';
 
 // Export generators

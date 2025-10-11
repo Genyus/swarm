@@ -1,7 +1,7 @@
 import {
   ExtendedSchema,
   handleFatalError,
-  IFileSystem,
+  FileSystem,
   Logger,
   SignaleLogger,
   validateFeaturePath,
@@ -15,14 +15,14 @@ import {
 } from '../../utils/filesystem';
 import { schema, SchemaArgs } from './schema';
 
-export class FeatureDirectoryGenerator extends WaspGeneratorBase<string> {
+export class FeatureDirectoryGenerator extends WaspGeneratorBase<SchemaArgs> {
   name: string;
   description: string;
   schema: ExtendedSchema;
 
   constructor(
     public logger: Logger = new SignaleLogger(),
-    public fileSystem: IFileSystem = realFileSystem
+    public fileSystem: FileSystem = realFileSystem
   ) {
     super(fileSystem, logger);
     this.name = 'feature-directory';

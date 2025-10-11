@@ -1,4 +1,4 @@
-import type { IFileSystem, Logger } from '@ingenyus/swarm-core';
+import type { FileSystem, Logger } from '@ingenyus/swarm-core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   createMockFeatureGen,
@@ -19,7 +19,7 @@ vi.mock('node:fs', () => ({
 }));
 
 describe('OperationGenerator', () => {
-  let fs: IFileSystem;
+  let fs: FileSystem;
   let logger: Logger;
   let featureGen: Generator<string>;
   let gen: OperationGenerator;

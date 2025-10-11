@@ -1,22 +1,22 @@
 import {
     handleFatalError,
-    IFileSystem,
+    FileSystem,
     Logger,
     parseHelperMethodDefinition,
     SignaleLogger,
 } from '@ingenyus/swarm-core';
 import path from 'node:path';
-import { IWaspConfigGenerator } from '../../interfaces/wasp-config-generator';
+import { ConfigGenerator } from '../../interfaces/wasp-config-generator';
 import { getFeatureDir, realFileSystem } from '../../utils/filesystem';
 import { TemplateUtility } from '../../utils/templates';
 
-export class WaspConfigGenerator implements IWaspConfigGenerator {
+export class WaspConfigGenerator implements ConfigGenerator {
   protected path = path;
   protected templateUtility: TemplateUtility;
 
   constructor(
     protected logger: Logger = new SignaleLogger(),
-    protected fileSystem: IFileSystem = realFileSystem
+    protected fileSystem: FileSystem = realFileSystem
   ) {
     this.templateUtility = new TemplateUtility(fileSystem);
   }

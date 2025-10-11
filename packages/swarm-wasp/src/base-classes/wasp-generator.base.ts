@@ -1,6 +1,6 @@
 import {
   GeneratorBase,
-  IFileSystem,
+  FileSystem,
   Logger,
   SignaleLogger,
   toKebabCase,
@@ -14,7 +14,7 @@ import { TemplateUtility } from '../utils/templates';
  */
 export abstract class WaspGeneratorBase<TArgs> extends GeneratorBase<TArgs> {
   constructor(
-    public fileSystem: IFileSystem = realFileSystem,
+    public fileSystem: FileSystem = realFileSystem,
     public logger: Logger = new SignaleLogger()
   ) {
     super(fileSystem, logger);

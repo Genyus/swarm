@@ -1,4 +1,4 @@
-import type { IFileSystem, Logger } from '@ingenyus/swarm-core';
+import type { FileSystem, Logger, SwarmGenerator } from '@ingenyus/swarm-core';
 import { Stats } from 'node:fs';
 import { vi } from 'vitest';
 
@@ -526,11 +526,16 @@ export function createMockFS(): IFileSystem {
 /**
  * Creates a mock feature generator implementation for testing.
  */
-export function createMockFeatureGen(): Generator<string> {
+export function createMockFeatureGen(): SwarmGenerator<{ path: string }> {
   return {
+    name: 'mock-feature-gen',
+    description: 'Mock feature directory generator',
+    schema: {} as any,
     generate: vi.fn((params: { path: string }) => {
       return Promise.resolve();
     }),
+    validate: vi.fn(() => ({ valid: true, data: {} })),
+    generateHelp: vi.fn(() => 'Mock help'),
   };
 }
 

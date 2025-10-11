@@ -1,10 +1,10 @@
-import type { IFileSystem } from '@ingenyus/swarm-core/src/types/filesystem';
+import type { FileSystem } from '@ingenyus/swarm-core/src/types/filesystem';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createMockFS } from '../../tests/utils';
 import * as filesystem from './filesystem';
 
 describe('filesystem utils', () => {
-  let fs: IFileSystem;
+  let fs: FileSystem;
   beforeEach(() => {
     fs = createMockFS();
   });

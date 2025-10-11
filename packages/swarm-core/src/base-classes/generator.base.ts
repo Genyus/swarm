@@ -1,6 +1,6 @@
 import path from 'node:path';
 import { SwarmGenerator, ValidationResult } from '../interfaces/generator';
-import { IFileSystem } from '../types/filesystem';
+import { FileSystem } from '../types/filesystem';
 import { Logger } from '../types/logger';
 import { ExtendedSchema } from '../utils/schema';
 
@@ -17,7 +17,7 @@ export abstract class GeneratorBase<TArgs = any>
   protected path = path;
 
   constructor(
-    protected fileSystem: IFileSystem,
+    protected fileSystem: FileSystem,
     protected logger: Logger
   ) {}
 

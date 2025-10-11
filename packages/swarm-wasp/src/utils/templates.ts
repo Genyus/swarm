@@ -1,9 +1,9 @@
-import { toKebabCase, type IFileSystem } from '@ingenyus/swarm-core';
+import { toKebabCase, type FileSystem } from '@ingenyus/swarm-core';
 import { Eta } from 'eta';
 import path from 'path';
 
 export class TemplateUtility {
-  constructor(private fileSystem: IFileSystem) {}
+  constructor(private fileSystem: FileSystem) {}
 
   processTemplate(
     templatePath: string,

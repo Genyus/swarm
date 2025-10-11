@@ -1,4 +1,4 @@
-import type { IFileSystem, Logger } from '@ingenyus/swarm-core';
+import type { FileSystem, Logger } from '@ingenyus/swarm-core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   createMockFeatureGen,
@@ -8,7 +8,7 @@ import {
 import { ApiNamespaceGenerator } from './generator';
 
 describe('ApiNamespaceGenerator', () => {
-  let fs: IFileSystem;
+  let fs: FileSystem;
   let logger: Logger;
   let featureGen: Generator<string>;
   let gen: ApiNamespaceGenerator;

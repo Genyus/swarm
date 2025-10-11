@@ -1,5 +1,5 @@
 import {
-  IFileSystem,
+  FileSystem,
   toPascalCase,
   validateFeaturePath,
 } from '@ingenyus/swarm-core';
@@ -8,7 +8,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { TYPE_DIRECTORIES } from '../types/constants';
 
-export const realFileSystem: IFileSystem = {
+export const realFileSystem: FileSystem = {
   readFileSync: fs.readFileSync,
   writeFileSync: fs.writeFileSync,
   existsSync: fs.existsSync,
@@ -26,7 +26,7 @@ export const realFileSystem: IFileSystem = {
  * @throws Error if .wasproot file is not found
  */
 export function findWaspRoot(
-  fileSystem: IFileSystem,
+  fileSystem: FileSystem,
   startDir: string = process.cwd()
 ): string {
   const startDirPath = path.resolve(startDir);
@@ -53,7 +53,7 @@ export function findWaspRoot(
  * @param dest - The destination directory path
  */
 export function copyDirectory(
-  fileSystem: IFileSystem,
+  fileSystem: FileSystem,
   src: string,
   dest: string
 ): void {
@@ -78,7 +78,7 @@ export function copyDirectory(
  * @param dir - The directory path to ensure
  */
 export function ensureDirectoryExists(
-  fileSystem: IFileSystem,
+  fileSystem: FileSystem,
   dir: string
 ): void {
   if (!fileSystem.existsSync(dir)) {
@@ -93,7 +93,7 @@ export function ensureDirectoryExists(
  * @returns True if the feature exists
  */
 export function featureExists(
-  fileSystem: IFileSystem,
+  fileSystem: FileSystem,
   featurePath: string
 ): boolean {
   return fileSystem.existsSync(getFeatureDir(fileSystem, featurePath));
@@ -104,7 +104,7 @@ export function featureExists(
  * @param fileSystem - The filesystem abstraction
  * @returns The absolute path to the config directory
  */
-export function getConfigDir(fileSystem: IFileSystem): string {
+export function getConfigDir(fileSystem: FileSystem): string {
   const waspRoot = findWaspRoot(fileSystem);
   return path.join(waspRoot, 'config');
 }
@@ -138,7 +138,7 @@ export function normaliseFeaturePath(featurePath: string): string {
  * @returns The absolute path to the feature directory
  */
 export function getFeatureDir(
-  fileSystem: IFileSystem,
+  fileSystem: FileSystem,
   featureName: string
 ): string {
   const waspRoot = findWaspRoot(fileSystem);
@@ -165,7 +165,7 @@ export function getFeatureImportPath(featurePath: string): string {
  * @returns The target directory and import path
  */
 export function getFeatureTargetDir(
-  fileSystem: IFileSystem,
+  fileSystem: FileSystem,
   featurePath: string,
   type: string
 ): { targetDirectory: string; importDirectory: string } {
@@ -199,7 +199,7 @@ export function getRouteNameFromPath(routePath: string): string {
  * @param fileSystem - The filesystem abstraction
  * @returns The absolute path to the application root directory
  */
-export function getAppRootDir(fileSystem: IFileSystem): string {
+export function getAppRootDir(fileSystem: FileSystem): string {
   // Start from this file's location
   const currentFile = fileURLToPath(import.meta.url);
   let currentDir = path.dirname(currentFile);
@@ -238,7 +238,7 @@ export function getAppRootDir(fileSystem: IFileSystem): string {
  * @param fileSystem - The filesystem abstraction
  * @returns The absolute path to the templates directory
  */
-export function getTemplatesDir(fileSystem: IFileSystem): string {
+export function getTemplatesDir(fileSystem: FileSystem): string {
   const appRoot = getAppRootDir(fileSystem);
   return path.join(appRoot, 'templates');
 }

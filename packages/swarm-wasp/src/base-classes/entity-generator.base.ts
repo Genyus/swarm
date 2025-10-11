@@ -1,22 +1,23 @@
 import {
-  Generator,
-  hasHelperMethodCall,
-  FileSystem,
-  Logger,
-  SignaleLogger,
-  toCamelCase,
-  toKebabCase,
-  validateFeaturePath,
+    FileSystem,
+    hasHelperMethodCall,
+    Logger,
+    SignaleLogger,
+    SwarmGenerator,
+    toCamelCase,
+    toKebabCase,
+    validateFeaturePath,
 } from '@ingenyus/swarm-core';
 import path from 'node:path';
 import { FeatureDirectoryGenerator } from '../generators/feature-directory/generator';
+import { SchemaArgs as FeatureSchemaArgs } from '../generators/feature-directory/schema';
 import { ConfigType, GetFlagsType, TYPE_DIRECTORIES } from '../types/constants';
 import {
-  ensureDirectoryExists,
-  getFeatureDir,
-  getFeatureImportPath,
-  normaliseFeaturePath,
-  realFileSystem,
+    ensureDirectoryExists,
+    getFeatureDir,
+    getFeatureImportPath,
+    normaliseFeaturePath,
+    realFileSystem,
 } from '../utils/filesystem';
 import { WaspGeneratorBase } from './wasp-generator.base';
 
@@ -39,7 +40,7 @@ export abstract class EntityGeneratorBase<
   constructor(
     public logger: Logger = new SignaleLogger(),
     public fileSystem: FileSystem = realFileSystem,
-    protected featureDirectoryGenerator: Generator<string> = new FeatureDirectoryGenerator(
+    protected featureDirectoryGenerator: SwarmGenerator<FeatureSchemaArgs> = new FeatureDirectoryGenerator(
       logger,
       fileSystem
     )
@@ -139,7 +140,7 @@ export abstract class EntityGeneratorBase<
    * @returns The target directory and import path
    */
   protected getFeatureTargetDir(
-    fileSystem: IFileSystem,
+    fileSystem: FileSystem,
     featurePath: string,
     type: string
   ): { targetDirectory: string; importDirectory: string } {
