@@ -1,16 +1,16 @@
-import type { FileSystem, Logger } from '@ingenyus/swarm-core';
+import type { FileSystem, Logger, SwarmGenerator } from '@ingenyus/swarm-core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   createMockFeatureGen,
   createMockFS,
   createMockLogger,
 } from '../../../tests/utils';
-import { ApiGenerator } from './generator';
+import { ApiGenerator } from './api-generator';
 
 describe('ApiGenerator', () => {
   let fs: FileSystem;
   let logger: Logger;
-  let featureGen: Generator<string>;
+  let featureGen: SwarmGenerator<{ path: string }>;
   let gen: ApiGenerator;
 
   beforeEach(() => {
@@ -26,49 +26,23 @@ describe('ApiGenerator', () => {
     fs.readFileSync = vi.fn(() => 'template');
     fs.writeFileSync = vi.fn();
 
-    // Mock the path methods to return predictable paths
-    const mockPathJoin = vi.fn((...args) => args.join('/'));
-    const mockPathDirname = vi.fn((path) => {
-      return path.split('/').slice(0, -1).join('/');
-    });
-    (gen as any).path = { join: mockPathJoin, dirname: mockPathDirname };
-
-    // Mock the checkConfigExists method to return false
-    (gen as any).checkConfigExists = vi.fn(() => false);
-
-    // Mock the getTemplatePath method to return a predictable path
-    const mockGetTemplatePath = vi.fn((templateName) => {
-      return `/mock/templates/${templateName}`;
-    });
-    (gen as any).getTemplatePath = mockGetTemplatePath;
-
-    // Mock the template utility to return a simple template
+    // Mock the template utility to return proper templates
     (gen as any).templateUtility = {
       processTemplate: vi.fn((templatePath, replacements) => {
         // Return different content based on the template path
-        if (templatePath.includes('api.eta')) {
-          return `// Generated API template for ${replacements.apiName || 'unknown'}`;
-        } else if (templatePath.includes('config/templates/api.eta')) {
+        if (templatePath.includes('config/api.eta')) {
           // Return a valid config definition that can be parsed
           return `app.addApi("${replacements.apiName}", {
-  method: "${replacements.method}",
+  method: ${replacements.method},
   route: "${replacements.route}",
   handler: "${replacements.importPath}"
 });`;
         }
-        return `// Generated template for ${replacements.apiName || 'unknown'}`;
+        // Default API handler template
+        return `// Generated API handler for ${replacements.apiName || 'unknown'}`;
       }),
+      resolveTemplatePath: vi.fn((templateName) => `/mock/templates/${templateName}`),
     };
-
-    // Mock the getConfigDefinition method to return a proper config definition
-    const mockGetConfigDefinition = vi.fn(() => {
-      return `app.addApi("api", {
-  method: "GET",
-  route: "/api",
-  handler: "@src/features/foo/server/apis/api.ts"
-});`;
-    });
-    (gen as any).getConfigDefinition = mockGetConfigDefinition;
 
     await gen.generate({
       feature: 'foo',
@@ -92,6 +66,12 @@ describe('ApiGenerator', () => {
   });
 
   it('getConfigDefinition returns processed template', () => {
+    // Mock the template utility
+    (gen as any).templateUtility = {
+      processTemplate: vi.fn(() => 'app.addApi("testApi", { method: "GET" });'),
+      resolveTemplatePath: vi.fn((templateName) => `/mock/templates/${templateName}`),
+    };
+
     const result = (gen as any).getConfigDefinition(
       'testApi',
       'test',
