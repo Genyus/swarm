@@ -66,12 +66,6 @@ export class JobGenerator extends EntityGeneratorBase<typeof CONFIG_TYPES.JOB> {
     flags: JobFlags,
     configPath: string
   ) {
-    const configExists = this.checkConfigExists(
-      configPath,
-      'job',
-      jobName,
-      flags.force || false
-    );
     const entities = Array.isArray(flags.entities)
       ? flags.entities
       : flags.entities
@@ -86,12 +80,13 @@ export class JobGenerator extends EntityGeneratorBase<typeof CONFIG_TYPES.JOB> {
       args || '{}'
     );
 
-    this.updateFeatureConfig(
-      featurePath,
-      definition,
+    this.updateConfigWithCheck(
       configPath,
-      configExists,
-      'job'
+      'job',
+      jobName,
+      definition,
+      featurePath,
+      flags.force || false
     );
   }
 

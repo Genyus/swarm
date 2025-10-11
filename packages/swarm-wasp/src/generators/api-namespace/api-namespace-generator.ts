@@ -56,30 +56,17 @@ export class ApiNamespaceGenerator extends EntityGeneratorBase<
     configFilePath: string
   ) {
     const { force = false } = flags;
-    const configExists = this.checkConfigExists(
+    const importPath = path.join(importDirectory, namespaceName);
+    const definition = this.getDefinition(namespaceName, importPath, apiPath);
+
+    this.updateConfigWithCheck(
       configFilePath,
       'addApiNamespace',
       namespaceName,
+      definition,
+      feature,
       force
     );
-
-    if (configExists && !force) {
-      this.logger.info(
-        `apiNamespace config already exists in ${configFilePath}`
-      );
-      this.logger.info('Use --force to overwrite');
-    } else {
-      const importPath = path.join(importDirectory, namespaceName);
-      const definition = this.getDefinition(namespaceName, importPath, apiPath);
-
-      this.updateFeatureConfig(
-        feature,
-        definition,
-        configFilePath,
-        configExists,
-        'apiNamespace'
-      );
-    }
   }
 
   /**

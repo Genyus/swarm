@@ -1,4 +1,5 @@
 import { toCamelCase, toPascalCase } from '@ingenyus/swarm-core';
+import { getFeatureImportPath } from '../../common';
 import { ApiFlags } from '../../generators/args.types';
 import { CONFIG_TYPES } from '../../types';
 import { EntityGeneratorBase } from '../base';
@@ -74,35 +75,27 @@ export class ApiGenerator extends EntityGeneratorBase<typeof CONFIG_TYPES.API> {
     configFilePath: string
   ) {
     const { force = false, entities, method, route, auth } = flags;
-    const configExists = this.checkConfigExists(
+    const importPath = this.path.join(importDirectory, apiFile);
+    const definition = this.getConfigDefinition(
+      apiName,
+      featurePath,
+      Array.isArray(entities) ? entities : entities ? [entities] : [],
+      method,
+      route,
+      apiFile,
+      auth,
+      importPath,
+      flags.customMiddleware || false
+    );
+
+    this.updateConfigWithCheck(
       configFilePath,
       'addApi',
       apiName,
+      definition,
+      featurePath,
       force
     );
-
-    if (!configExists || force) {
-      const importPath = this.path.join(importDirectory, apiFile);
-      const definition = this.getConfigDefinition(
-        apiName,
-        featurePath,
-        Array.isArray(entities) ? entities : entities ? [entities] : [],
-        method,
-        route,
-        apiFile,
-        auth,
-        importPath,
-        flags.customMiddleware || false
-      );
-
-      this.updateFeatureConfig(
-        featurePath,
-        definition,
-        configFilePath,
-        configExists,
-        'API'
-      );
-    }
   }
 
   private getConfigDefinition(
@@ -116,7 +109,7 @@ export class ApiGenerator extends EntityGeneratorBase<typeof CONFIG_TYPES.API> {
     importPath: string,
     customMiddleware = false
   ): string {
-    const featureDir = this.getFeatureImportPath(featurePath);
+    const featureDir = getFeatureImportPath(featurePath);
     const configTemplatePath = this.getTemplatePath('config/api.eta');
 
     return this.templateUtility.processTemplate(configTemplatePath, {

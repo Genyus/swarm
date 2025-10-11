@@ -4,11 +4,7 @@ import {
   Logger,
   SignaleLogger,
 } from '@ingenyus/swarm-core';
-import {
-  getFeatureImportPath,
-  realFileSystem,
-  TemplateUtility,
-} from '../../common';
+import { realFileSystem, TemplateUtility } from '../../common';
 import { WaspConfigGenerator } from '../config';
 
 /**
@@ -33,10 +29,6 @@ export abstract class WaspGeneratorBase<TArgs> extends GeneratorBase<TArgs> {
    * @returns The full path to the template file
    */
   protected abstract getTemplatePath(templateName: string): string;
-
-  protected getFeatureImportPath(featurePath: string): string {
-    return getFeatureImportPath(featurePath);
-  }
 
   /**
    * Processes a template and writes the result to a file
@@ -65,6 +57,24 @@ export abstract class WaspGeneratorBase<TArgs> extends GeneratorBase<TArgs> {
   }
 
   /**
+   * Generic existence check with force flag handling
+   * Consolidates the pattern used in both file and config checks
+   */
+  protected checkExistence(
+    exists: boolean,
+    itemDescription: string,
+    force: boolean,
+    errorMessage?: string
+  ): boolean {
+    if (exists && !force) {
+      this.logger.error(itemDescription);
+      this.logger.error('Use --force to overwrite');
+      throw new Error(errorMessage || itemDescription);
+    }
+    return exists;
+  }
+
+  /**
    * Checks if a file exists and handles force flag logic
    */
   protected checkFileExists(
@@ -73,14 +83,12 @@ export abstract class WaspGeneratorBase<TArgs> extends GeneratorBase<TArgs> {
     fileType: string
   ): boolean {
     const fileExists = this.fileSystem.existsSync(filePath);
-
-    if (fileExists && !force) {
-      this.logger.error(`${fileType} already exists: ${filePath}`);
-      this.logger.error('Use --force to overwrite');
-      throw new Error(`${fileType} already exists`);
-    }
-
-    return fileExists;
+    return this.checkExistence(
+      fileExists,
+      `${fileType} already exists: ${filePath}`,
+      force,
+      `${fileType} already exists`
+    );
   }
 
   /**

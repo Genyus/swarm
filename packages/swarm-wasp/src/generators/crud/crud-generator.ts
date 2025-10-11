@@ -85,21 +85,16 @@ import { type ${toPascalCase(crudName)} } from "wasp/server/crud";`;
     flags: CrudFlags,
     configPath: string
   ) {
-    const configExists = this.checkConfigExists(
+    const operations = this.buildOperations(flags);
+    const definition = this.getDefinition(crudName, dataType, operations);
+
+    this.updateConfigWithCheck(
       configPath,
       'addCrud',
       crudName,
-      flags.force || false
-    );
-
-    const operations = this.buildOperations(flags);
-    const definition = this.getDefinition(crudName, dataType, operations);
-    this.updateFeatureConfig(
-      feature,
       definition,
-      configPath,
-      configExists,
-      'CRUD'
+      feature,
+      flags.force || false
     );
   }
 

@@ -12,7 +12,6 @@ import path from 'node:path';
 import {
   ensureDirectoryExists,
   getFeatureDir,
-  getFeatureImportPath,
   normaliseFeaturePath,
   realFileSystem,
 } from '../../common';
@@ -55,10 +54,6 @@ export abstract class EntityGeneratorBase<
   }
 
   public abstract generate(flags: GetFlagsType<TArgs>): Promise<void> | void;
-
-  protected getFeatureImportPath(featurePath: string): string {
-    return getFeatureImportPath(featurePath);
-  }
 
   /**
    * Validates that the feature config file exists in the target or ancestor directories
@@ -107,13 +102,12 @@ export abstract class EntityGeneratorBase<
       itemName
     );
 
-    if (configExists && !force) {
-      this.logger.error(`${methodName} config already exists in ${configPath}`);
-      this.logger.error('Use --force to overwrite');
-      throw new Error(`${methodName} config already exists`);
-    }
-
-    return configExists;
+    return this.checkExistence(
+      configExists,
+      `${methodName} config already exists in ${configPath}`,
+      force,
+      `${methodName} config already exists`
+    );
   }
 
   /**
@@ -130,6 +124,36 @@ export abstract class EntityGeneratorBase<
     this.logger.success(
       `${configExists ? 'Updated' : 'Added'} ${methodName} config in: ${configPath}`
     );
+  }
+
+  /**
+   * Consolidated helper for updating config files with existence check
+   * This replaces the duplicated updateConfigFile pattern in concrete generators
+   */
+  protected updateConfigWithCheck(
+    configPath: string,
+    methodName: string,
+    entityName: string,
+    definition: string,
+    featurePath: string,
+    force: boolean
+  ): void {
+    const configExists = this.checkConfigExists(
+      configPath,
+      methodName,
+      entityName,
+      force
+    );
+
+    if (!configExists || force) {
+      this.updateFeatureConfig(
+        featurePath,
+        definition,
+        configPath,
+        configExists,
+        methodName
+      );
+    }
   }
 
   /**

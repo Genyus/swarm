@@ -74,30 +74,22 @@ export class OperationGenerator extends OperationGeneratorBase<
   ): void {
     const isAction = ['create', 'update', 'delete'].includes(operation);
     const methodName = isAction ? 'addAction' : 'addQuery';
-    const configExists = this.checkConfigExists(
+    const definition = this.getDefinition(
+      operationName,
+      feature,
+      entities,
+      isAction ? 'action' : 'query',
+      importPath,
+      flags.auth
+    );
+
+    this.updateConfigWithCheck(
       configPath,
       methodName,
       operationName,
+      definition,
+      feature,
       flags.force || false
     );
-
-    if (!configExists || flags.force) {
-      const definition = this.getDefinition(
-        operationName,
-        feature,
-        entities,
-        isAction ? 'action' : 'query',
-        importPath,
-        flags.auth
-      );
-
-      this.updateFeatureConfig(
-        feature,
-        definition,
-        configPath,
-        configExists,
-        operation
-      );
-    }
   }
 }

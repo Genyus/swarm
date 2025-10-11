@@ -62,29 +62,21 @@ export class RouteGenerator extends EntityGeneratorBase<
     flags: RouteFlags,
     configPath: string
   ) {
-    const configExists = this.checkConfigExists(
+    const definition = this.getDefinition(
+      routeName,
+      routePath,
+      featurePath,
+      flags.auth
+    );
+
+    this.updateConfigWithCheck(
       configPath,
       'addRoute',
       routeName,
+      definition,
+      featurePath,
       flags.force || false
     );
-
-    if (!configExists || flags.force) {
-      const definition = this.getDefinition(
-        routeName,
-        routePath,
-        featurePath,
-        flags.auth
-      );
-
-      this.updateFeatureConfig(
-        featurePath,
-        definition,
-        configPath,
-        configExists,
-        this.entityType
-      );
-    }
   }
 
   /**
