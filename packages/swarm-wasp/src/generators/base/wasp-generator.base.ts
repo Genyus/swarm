@@ -5,8 +5,7 @@ import {
     SignaleLogger,
     toKebabCase,
 } from '@ingenyus/swarm-core';
-import { getFeatureImportPath, realFileSystem } from '../../common/filesystem';
-import { TemplateUtility } from '../../common/templates';
+import { getFeatureImportPath, realFileSystem, TemplateUtility } from '../../common';
 import { WaspConfigGenerator } from '../config/wasp-config-generator';
 
 /**

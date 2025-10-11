@@ -1,6 +1,6 @@
 import { extend } from '@ingenyus/swarm-core';
 import { z } from 'zod';
-import { commonSchemas } from '../../common/schemas';
+import { commonSchemas } from '../../common';
 
 const cronSchema = extend(
   z

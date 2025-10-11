@@ -1,6 +1,6 @@
 import { toCamelCase } from '@ingenyus/swarm-core';
 import path from 'node:path';
-import { EntityGeneratorBase } from '../../generators/base/entity-generator.base';
+import { EntityGeneratorBase } from '../base';
 import { ApiNamespaceFlags } from '../../generators/args.types';
 import { CONFIG_TYPES } from '../../types/constants';
 import { schema } from './schema';

@@ -5,7 +5,7 @@ import {
   commonSchemas,
   getTypedValueTransformer,
   getTypedValueValidator,
-} from '../../common/schemas';
+} from '../../common';
 
 const validOperations = [
   ...Object.values(ACTION_OPERATIONS),

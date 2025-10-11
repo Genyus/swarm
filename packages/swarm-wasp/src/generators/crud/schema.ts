@@ -5,7 +5,7 @@ import {
   commonSchemas,
   getTypedArrayTransformer,
   getTypedArrayValidator,
-} from '../../common/schemas';
+} from '../../common';
 
 const validCrudOperations = Object.values(CRUD_OPERATIONS);
 const publicOperations = getCrudOperationsArray();

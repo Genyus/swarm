@@ -1,6 +1,6 @@
 import { Command } from 'commander';
-import { SwarmGenerator } from '../contracts/generator';
-import { GeneratorInterfaceManager } from '../plugin/generator-interface-manager';
+import { SwarmGenerator } from '../contracts';
+import { GeneratorInterfaceManager } from '../plugin';
 import { CommandFactory } from './command-factory';
 
 /**

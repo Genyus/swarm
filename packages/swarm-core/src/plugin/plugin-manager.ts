@@ -1,6 +1,5 @@
 import { SwarmConfigManager } from '../config/swarm-config';
-import { SwarmGenerator } from '../contracts/generator';
-import { SwarmPlugin } from '../contracts/plugin';
+import { SwarmGenerator, SwarmPlugin } from '../contracts';
 import { PluginRegistry } from './plugin-registry';
 
 /**

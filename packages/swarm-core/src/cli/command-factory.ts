@@ -1,8 +1,7 @@
 import { Command } from 'commander';
 import { z, ZodType } from 'zod';
-import { FieldMetadata } from '../contracts/field-metadata';
-import { error } from '../common/errors';
-import { ExtendedSchema } from '../common/schema';
+import { FieldMetadata } from '../contracts';
+import { error, ExtendedSchema } from '../common';
 import { createCommandBuilder } from './command-builder';
 import { CommandInfo, commandRegistry } from './command-registry';
 

@@ -7,8 +7,7 @@ import {
 } from '@ingenyus/swarm-core';
 import path from 'node:path';
 import { ConfigGenerator } from '../../generators/config/config-generator';
-import { getFeatureDir, realFileSystem } from '../../common/filesystem';
-import { TemplateUtility } from '../../common/templates';
+import { getFeatureDir, realFileSystem, TemplateUtility } from '../../common';
 
 export class WaspConfigGenerator implements ConfigGenerator {
   protected path = path;

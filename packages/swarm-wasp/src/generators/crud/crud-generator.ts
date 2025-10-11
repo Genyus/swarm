@@ -1,5 +1,5 @@
 import { getPlural, toCamelCase, toPascalCase } from '@ingenyus/swarm-core';
-import { OperationGeneratorBase } from '../../generators/base/operation-generator.base';
+import { OperationGeneratorBase } from '../base';
 import { CrudFlags } from '../../generators/args.types';
 import { CONFIG_TYPES, CrudOperation } from '../../types/constants';
 import { schema } from './schema';

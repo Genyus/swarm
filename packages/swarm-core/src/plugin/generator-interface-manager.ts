@@ -1,4 +1,4 @@
-import { SwarmGenerator } from '../contracts/generator';
+import { SwarmGenerator } from '../contracts';
 import { PluginManager } from './plugin-manager';
 
 /**

@@ -1,5 +1,4 @@
-import { SwarmPlugin } from '../contracts/plugin';
-import { SwarmPluginManifest } from '../contracts/plugin-manifest';
+import { SwarmPlugin, SwarmPluginManifest } from '../contracts';
 
 /**
  * Interface for resolving plugins from different sources

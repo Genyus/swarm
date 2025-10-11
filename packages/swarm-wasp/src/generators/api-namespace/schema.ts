@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { commonSchemas } from '../../common/schemas';
+import { commonSchemas } from '../../common';
 
 export const schema = z.object({
   feature: commonSchemas.feature,

@@ -1,4 +1,4 @@
-import { OperationGeneratorBase } from '../../generators/base/operation-generator.base';
+import { OperationGeneratorBase } from '../base';
 import { OperationFlags } from '../../generators/args.types';
 import { CONFIG_TYPES } from '../../types/constants';
 import { schema } from './schema';

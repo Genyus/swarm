@@ -15,7 +15,7 @@ import {
     getFeatureImportPath,
     normaliseFeaturePath,
     realFileSystem,
-} from '../../common/filesystem';
+} from '../../common';
 import { ConfigType, GetFlagsType, TYPE_DIRECTORIES } from '../../types/constants';
 import { FeatureDirectoryGenerator } from '../feature-directory/feature-directory-generator';
 import { SchemaArgs as FeatureSchemaArgs } from '../feature-directory/schema';
