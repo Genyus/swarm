@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { EntityMetadata } from '../types/prisma.types';
+import type { EntityMetadata } from '../types';
 import * as prisma from './prisma';
 
 describe('prisma utils', () => {

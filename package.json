@@ -17,7 +17,7 @@
     "changeset:autogenerate-batch": "node .changeset/changeset-autogenerate-batch.js",
     "version-packages": "changeset version",
     "release": "pnpm build && changeset publish",
-    "validate": "pnpm -r run validate && pnpm knip:fix",
+    "validate": "pnpm -r run validate && pnpm knip",
     "knip": "knip",
     "knip:fix": "knip --fix"
   },

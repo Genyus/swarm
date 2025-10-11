@@ -5,7 +5,7 @@ import {
   getTypedArrayTransformer,
   getTypedArrayValidator,
 } from '../../common';
-import { CRUD_OPERATIONS } from '../../types/constants';
+import { CRUD_OPERATIONS } from '../../types';
 
 const validCrudOperations = Object.values(CRUD_OPERATIONS);
 const publicOperations = getCrudOperationsArray();

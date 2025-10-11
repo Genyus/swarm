@@ -1,14 +1,14 @@
 import type { FileSystem, Logger } from '@ingenyus/swarm-core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
-    ApiGenerator,
-    FeatureDirectoryGenerator,
-    JobGenerator,
-    OperationGenerator,
-    RouteGenerator,
+  ApiGenerator,
+  FeatureDirectoryGenerator,
+  JobGenerator,
+  OperationGenerator,
+  RouteGenerator,
 } from '../src';
-import { ActionOperation, QueryOperation } from '../src/types/constants';
-import { createPrismaMock, createTestSetup } from './utils';
+import { ActionOperation, QueryOperation } from '../src/types';
+import { createTestSetup } from './utils';
 
 // Mock the Prisma utilities at the test level
 vi.mock('../src/common/prisma', () => ({

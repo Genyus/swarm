@@ -1,11 +1,4 @@
 export type { FieldMetadata } from './field-metadata';
-export type {
-  CommandResult,
-  GenerationResult,
-  Generator,
-  MCPToolResult,
-  SwarmGenerator,
-  ValidationResult,
-} from './generator';
-export type { PluginDependency, SwarmPlugin } from './plugin';
-export type { PluginEntry, SwarmPluginManifest } from './plugin-manifest';
+export type { Generator, SwarmGenerator, ValidationResult } from './generator';
+export type { SwarmPlugin } from './plugin';
+export type { SwarmPluginManifest } from './plugin-manifest';

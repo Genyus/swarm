@@ -17,13 +17,13 @@ import {
 import {
   ActionOperation,
   CONFIG_TYPES,
+  EntityMetadata,
   OPERATION_TYPES,
   OPERATIONS,
   OperationType,
   QueryOperation,
   TYPE_DIRECTORIES,
-} from '../../types/constants';
-import { EntityMetadata } from '../../types/prisma.types';
+} from '../../types';
 import { OperationConfigEntry } from '../args.types';
 import { EntityGeneratorBase } from './entity-generator.base';
 

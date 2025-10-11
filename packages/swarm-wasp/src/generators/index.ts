@@ -1,9 +1,9 @@
 // Export all generators
-export { ApiNamespaceGenerator } from './api-namespace/api-namespace-generator';
-export { ApiGenerator } from './api/api-generator';
-export { WaspConfigGenerator } from './config/wasp-config-generator';
-export { CrudGenerator } from './crud/crud-generator';
-export { FeatureDirectoryGenerator } from './feature-directory/feature-directory-generator';
-export { JobGenerator } from './job/job-generator';
-export { OperationGenerator } from './operation/operation-generator';
-export { RouteGenerator } from './route/route-generator';
+export { ApiGenerator } from './api';
+export { ApiNamespaceGenerator } from './api-namespace';
+export { WaspConfigGenerator } from './config';
+export { CrudGenerator } from './crud';
+export { FeatureDirectoryGenerator } from './feature-directory';
+export { JobGenerator } from './job';
+export { OperationGenerator } from './operation';
+export { RouteGenerator } from './route';

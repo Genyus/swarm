@@ -1,3 +1,7 @@
 {
-  "ignore": [".github/changeset-version.js"]
+  "ignore": [".github/changeset-version.js"],
+  "ignoreDependencies": [
+    "@commander-js/extra-typings",
+    "wasp-config"
+  ]
 }

@@ -6,7 +6,7 @@ import {
 import fs from 'node:fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { TYPE_DIRECTORIES } from '../types/constants';
+import { TYPE_DIRECTORIES } from '../types';
 
 export const realFileSystem: FileSystem = {
   readFileSync: fs.readFileSync,

@@ -1,10 +1,5 @@
 import { Command } from 'commander';
-import {
-  configureLogger,
-  LogFormat,
-  logger,
-  LogLevel,
-} from '../../../common';
+import { configureLogger, LogFormat, logger, LogLevel } from '../../../common';
 import { ServerManager } from '../server-manager.js';
 
 export function createStartCommand(serverManager: ServerManager): Command {

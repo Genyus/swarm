@@ -1,5 +1,5 @@
 import * as path from 'node:path';
-import { SwarmConfigManager } from '../config/swarm-config';
+import { SwarmConfigManager } from '../config/swarm-config-manager';
 import { SwarmGenerator, SwarmPlugin } from '../contracts';
 import {
   LocalPluginResolver,

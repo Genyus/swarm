@@ -1,6 +1,6 @@
-import { OperationGeneratorBase } from '../base';
 import { OperationFlags } from '../../generators/args.types';
-import { CONFIG_TYPES } from '../../types/constants';
+import { CONFIG_TYPES } from '../../types';
+import { OperationGeneratorBase } from '../base';
 import { schema } from './schema';
 
 export class OperationGenerator extends OperationGeneratorBase<

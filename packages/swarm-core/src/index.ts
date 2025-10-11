@@ -11,14 +11,19 @@ export * from './common/index';
 export * from './types/index';
 
 // Export plugin system interfaces
-export * from './contracts/plugin-manifest';
+export * from './contracts/index';
 
 // Export CLI functionality
-export { CommandManager } from './cli/command-manager';
 export * from './cli/index';
 
 // Export MCP functionality
 export * from './mcp/index';
+
+// Export new plugin system interfaces
+export * from './plugin/index';
+
+// Export generator base classes
+export * from './generator/index';
 
 // Export templates (will be available at runtime)
 export const TEMPLATES_DIR = './templates';

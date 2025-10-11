@@ -16,11 +16,7 @@ import {
   normaliseFeaturePath,
   realFileSystem,
 } from '../../common';
-import {
-  ConfigType,
-  GetFlagsType,
-  TYPE_DIRECTORIES,
-} from '../../types/constants';
+import { ConfigType, GetFlagsType, TYPE_DIRECTORIES } from '../../types';
 import { FeatureDirectoryGenerator } from '../feature-directory/feature-directory-generator';
 import { SchemaArgs as FeatureSchemaArgs } from '../feature-directory/schema';
 import { WaspGeneratorBase } from './wasp-generator.base';

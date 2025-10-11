@@ -1,7 +1,7 @@
 import { getPlural, toCamelCase, toPascalCase } from '@ingenyus/swarm-core';
-import { OperationGeneratorBase } from '../base';
 import { CrudFlags } from '../../generators/args.types';
-import { CONFIG_TYPES, CrudOperation } from '../../types/constants';
+import { CONFIG_TYPES, CrudOperation } from '../../types';
+import { OperationGeneratorBase } from '../base';
 import { schema } from './schema';
 
 const CRUD_OPERATIONS_LIST: readonly CrudOperation[] = [

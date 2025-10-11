@@ -5,7 +5,7 @@ import {
   getTypedValueTransformer,
   getTypedValueValidator,
 } from '../../common';
-import { HTTP_METHODS } from '../../types/constants';
+import { HTTP_METHODS } from '../../types';
 
 const validHttpMethods = Object.values(HTTP_METHODS);
 

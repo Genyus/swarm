@@ -3,7 +3,7 @@ import {
   CrudOperation,
   HttpMethod,
   QueryOperation,
-} from '../types/constants.js';
+} from '../types';
 
 /**
  * Common flags used across different generators

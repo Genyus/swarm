@@ -2,15 +2,6 @@
 export * from './filesystem';
 export * from './logger';
 
-// Export new plugin system interfaces
-export * from '../generator/generator.base';
-export * from '../config/swarm-config';
-export * from '../contracts/field-metadata';
-export * from '../contracts/generator';
-export * from '../contracts/plugin';
-export * from '../plugin/plugin-registry';
-export * from '../common/schema';
-
 // Re-export plugin interfaces with different names to avoid conflicts
 export type {
   CommandResult,

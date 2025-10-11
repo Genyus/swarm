@@ -3,10 +3,10 @@ import {
   toCamelCase,
   toPascalCase,
 } from '@ingenyus/swarm-core';
-import { EntityGeneratorBase } from '../base';
-import { RouteFlags } from '../../generators/args.types';
-import { CONFIG_TYPES } from '../../types/constants';
 import { getRouteNameFromPath } from '../../common';
+import { RouteFlags } from '../../generators/args.types';
+import { CONFIG_TYPES } from '../../types';
+import { EntityGeneratorBase } from '../base';
 import { schema } from './schema';
 
 export class RouteGenerator extends EntityGeneratorBase<

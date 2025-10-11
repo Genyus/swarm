@@ -17,7 +17,7 @@ export interface SwarmPluginManifest {
 /**
  * Plugin entry information
  */
-export interface PluginEntry {
+interface PluginEntry {
   entry: string;
   name: string;
   description?: string;

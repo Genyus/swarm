@@ -5,7 +5,7 @@ import {
   getTypedValueTransformer,
   getTypedValueValidator,
 } from '../../common';
-import { ACTION_OPERATIONS, QUERY_OPERATIONS } from '../../types/constants';
+import { ACTION_OPERATIONS, QUERY_OPERATIONS } from '../../types';
 
 const validOperations = [
   ...Object.values(ACTION_OPERATIONS),

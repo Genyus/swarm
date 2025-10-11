@@ -3,14 +3,13 @@ import {
   GeneratorBase,
   Logger,
   SignaleLogger,
-  toKebabCase,
 } from '@ingenyus/swarm-core';
 import {
   getFeatureImportPath,
   realFileSystem,
   TemplateUtility,
 } from '../../common';
-import { WaspConfigGenerator } from '../config/wasp-config-generator';
+import { WaspConfigGenerator } from '../config';
 
 /**
  * Abstract base class for all Wasp generators

@@ -1,7 +1,7 @@
 import { capitalise, toCamelCase } from '@ingenyus/swarm-core';
-import { EntityGeneratorBase } from '../base';
 import { JobFlags } from '../../generators/args.types';
-import { CONFIG_TYPES } from '../../types/constants';
+import { CONFIG_TYPES } from '../../types';
+import { EntityGeneratorBase } from '../base';
 import { schema } from './schema';
 
 export class JobGenerator extends EntityGeneratorBase<typeof CONFIG_TYPES.JOB> {

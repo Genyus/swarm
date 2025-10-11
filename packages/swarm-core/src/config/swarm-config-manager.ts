@@ -5,7 +5,7 @@ import * as path from 'node:path';
 /**
  * Swarm configuration interface
  */
-export interface SwarmConfig {
+interface SwarmConfig {
   plugins: {
     [packageName: string]: {
       plugin?: string; // Specific plugin name within the package
