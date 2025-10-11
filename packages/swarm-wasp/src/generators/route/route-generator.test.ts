@@ -1,16 +1,16 @@
-import type { FileSystem, Logger } from '@ingenyus/swarm-core';
+import type { FileSystem, Logger, SwarmGenerator } from '@ingenyus/swarm-core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   createMockFeatureGen,
   createMockFS,
   createMockLogger,
 } from '../../../tests/utils';
-import { RouteGenerator } from './generator';
+import { RouteGenerator } from './route-generator';
 
 describe('RouteGenerator', () => {
   let fs: FileSystem;
   let logger: Logger;
-  let featureGen: Generator<string>;
+  let featureGen: SwarmGenerator<{ path: string }>;
   let gen: RouteGenerator;
 
   beforeEach(() => {
@@ -66,6 +66,12 @@ describe('RouteGenerator', () => {
   });
 
   it('getDefinition returns processed template', () => {
+    // Mock the template utility
+    (gen as any).templateUtility = {
+      processTemplate: vi.fn(() => 'app.addRoute("testRoute", { path: "/test", component: "test" });'),
+      resolveTemplatePath: vi.fn((templateName) => `/mock/templates/${templateName}`),
+    };
+
     const result = gen.getDefinition('testRoute', '/test', 'test', false);
     expect(typeof result).toBe('string');
   });

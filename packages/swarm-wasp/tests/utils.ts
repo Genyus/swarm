@@ -1,4 +1,4 @@
-import type { FileSystem, Logger, SwarmGenerator } from '@ingenyus/swarm-core';
+import type { ExtendedSchema, FileSystem, Logger, SwarmGenerator } from '@ingenyus/swarm-core';
 import { Stats } from 'node:fs';
 import { vi } from 'vitest';
 
@@ -7,8 +7,8 @@ vi.mock('@ingenyus/swarm-core/utils/filesystem', () => ({
   getTemplatesDir: vi.fn().mockReturnValue('/mock/templates'),
   findWaspRoot: vi
     .fn()
-    .mockImplementation((fileSystem: any, startDir?: string) => {
-      // Mock implementation that uses the passed fileSystem
+    .mockImplementation((_fileSystem: FileSystem, _startDir?: string) => {
+      // Mock implementation that doesn't use the passed parameters
       return '/mock/wasp-root';
     }),
   getFeatureDir: vi.fn().mockReturnValue('/mock/features'),
@@ -23,7 +23,7 @@ vi.mock('@ingenyus/swarm-core/utils/filesystem', () => ({
     targetDirectory: '/mock/target',
     importDirectory: '/mock/import',
   }),
-  ensureDirectoryExists: vi.fn().mockImplementation((fs: any, path: string) => {
+  ensureDirectoryExists: vi.fn().mockImplementation((_fs: FileSystem, _path: string) => {
     // Mock implementation that doesn't actually create directories
     return true;
   }),
@@ -54,19 +54,19 @@ vi.mock('@ingenyus/swarm-core', () => ({
 
 // Mock the TemplateUtility from the local utils
 vi.mock('../src/utils/templates', () => ({
-  TemplateUtility: vi.fn().mockImplementation((fileSystem) => ({
+  TemplateUtility: vi.fn().mockImplementation((fileSystem: FileSystem) => ({
     processTemplate: vi.fn(
-      (templatePath: string, replacements: Record<string, any>) => {
+      (templatePath: string, replacements: Record<string, unknown>) => {
         // Get the template content from the mock filesystem
         const templateContent = fileSystem.readFileSync(templatePath, 'utf8');
 
         // Simple template processing - replace placeholders
-        let processedContent = templateContent;
+        let processedContent = templateContent as string;
         Object.keys(replacements).forEach((key) => {
           const placeholder = `<%=${key}%>`;
           processedContent = processedContent.replace(
             new RegExp(placeholder, 'g'),
-            replacements[key]
+            String(replacements[key])
           );
         });
 
@@ -74,7 +74,7 @@ vi.mock('../src/utils/templates', () => ({
       }
     ),
     resolveTemplatePath: vi.fn(
-      (templateName: string, generatorName: string, currentFileUrl: string) => {
+      (templateName: string, generatorName: string, _currentFileUrl: string) => {
         // Mock implementation that returns a predictable path
         const basePath = '/Users/gary/Dev/swarm/packages/swarm-wasp/src/generators';
         return `${basePath}/${generatorName}/templates/${templateName}`;
@@ -181,14 +181,14 @@ model User {
 
 // Mock the prisma utilities at the module level
 vi.mock('@ingenyus/swarm-core', async () => {
-  const actual = await vi.importActual('@ingenyus/swarm-core');
+  const actual = await vi.importActual<typeof import('@ingenyus/swarm-core')>('@ingenyus/swarm-core');
   return {
     ...actual,
     getTemplatesDir: vi.fn().mockReturnValue('/mock/templates'),
     findWaspRoot: vi
       .fn()
-      .mockImplementation((fileSystem: any, startDir?: string) => {
-        // Mock implementation that uses the passed fileSystem
+      .mockImplementation((_fileSystem: FileSystem, _startDir?: string) => {
+        // Mock implementation that doesn't use the passed parameters
         return '/mock/wasp-root';
       }),
     getEntityMetadata: vi.fn().mockResolvedValue({
@@ -237,7 +237,7 @@ vi.mock('@ingenyus/swarm-core', async () => {
 });
 
 interface TestSetup {
-  fs: IFileSystem;
+  fs: FileSystem;
   logger: Logger;
   mockFiles: Record<string, string>;
   fileCallCounts: Record<string, number>;
@@ -245,7 +245,7 @@ interface TestSetup {
 
 function createMockFilesystem(
   mockFiles: Record<string, string>
-): IFileSystem {
+): FileSystem {
   // Add mock template files for each generator
   const basePath = '/Users/gary/Dev/swarm/packages/swarm-wasp/src/generators';
 
@@ -359,7 +359,7 @@ export default function getConfig(app: App) {
 `;
 
   return {
-    readFileSync: vi.fn((path: string) => {
+    readFileSync: vi.fn((path: string | Buffer) => {
       if (typeof path === 'string') {
         if (path.includes('feature.wasp.eta')) {
           return 'export default function getConfig(app: App) { return {}; }';
@@ -391,9 +391,9 @@ model User {
           try {
             const fs = require('fs');
             if (fs.existsSync(path)) {
-              return fs.readFileSync(path, 'utf8');
+              return fs.readFileSync(path, 'utf8') as string;
             }
-          } catch (e) {
+          } catch (_e) {
             // Fall back to mock files
           }
         }
@@ -403,12 +403,12 @@ model User {
       }
       return 'template content';
     }),
-    writeFileSync: vi.fn((path: string, content: string) => {
+    writeFileSync: vi.fn((path: string | Buffer, content: string) => {
       if (typeof path === 'string') {
         mockFiles[path] = content;
       }
     }),
-    existsSync: vi.fn((path: string) => {
+    existsSync: vi.fn((path: string | Buffer) => {
       if (typeof path === 'string') {
         // Mock .wasproot file to make findWaspRoot work
         if (path.includes('.wasproot')) return true;
@@ -448,7 +448,7 @@ model User {
     statSync: vi.fn().mockReturnValue({
       isDirectory: () => false,
       isFile: () => true,
-    }),
+    } as Stats),
   };
 }
 
@@ -511,7 +511,7 @@ export function createMockLogger(): Logger {
  * Creates a simple mock filesystem implementation for testing.
  * This is the original simple version that tests expect to override.
  */
-export function createMockFS(): IFileSystem {
+export function createMockFS(): FileSystem {
   return {
     readFileSync: vi.fn(() => '<%=jobName%>'),
     writeFileSync: vi.fn(),
@@ -530,12 +530,10 @@ export function createMockFeatureGen(): SwarmGenerator<{ path: string }> {
   return {
     name: 'mock-feature-gen',
     description: 'Mock feature directory generator',
-    schema: {} as any,
+    schema: {} as ExtendedSchema,
     generate: vi.fn((params: { path: string }) => {
       return Promise.resolve();
     }),
-    validate: vi.fn(() => ({ valid: true, data: {} })),
-    generateHelp: vi.fn(() => 'Mock help'),
   };
 }
 

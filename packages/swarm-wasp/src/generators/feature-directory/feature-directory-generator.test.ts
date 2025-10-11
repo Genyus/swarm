@@ -1,7 +1,7 @@
 import type { FileSystem, Logger } from '@ingenyus/swarm-core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createMockFS, createMockLogger } from '../../../tests/utils';
-import { FeatureDirectoryGenerator } from './generator';
+import { FeatureDirectoryGenerator } from './feature-directory-generator';
 
 describe('WaspFeatureDirectoryGenerator', () => {
   let fs: FileSystem;

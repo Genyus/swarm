@@ -1,16 +1,16 @@
-import type { FileSystem, Logger } from '@ingenyus/swarm-core';
+import type { FileSystem, Logger, SwarmGenerator } from '@ingenyus/swarm-core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   createMockFeatureGen,
   createMockFS,
   createMockLogger,
 } from '../../../tests/utils';
-import { JobGenerator } from './generator';
+import { JobGenerator } from './job-generator';
 
 describe('JobGenerator', () => {
   let fs: FileSystem;
   let logger: Logger;
-  let featureGen: Generator<string>;
+  let featureGen: SwarmGenerator<{ path: string }>;
   let gen: JobGenerator;
 
   beforeEach(() => {

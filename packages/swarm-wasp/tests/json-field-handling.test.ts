@@ -1,4 +1,4 @@
-import type { IFileSystem, Logger } from '@ingenyus/swarm-core';
+import type { FileSystem, Logger } from '@ingenyus/swarm-core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ApiGenerator, CrudGenerator, FeatureDirectoryGenerator, OperationGenerator } from '../src';
 import { createPrismaMock, createTestSetup } from './utils';
@@ -50,7 +50,7 @@ vi.mock('../src/utils/prisma', () => ({
 }));
 
 describe('JSON Field Handling Tests', () => {
-  let fs: IFileSystem;
+  let fs: FileSystem;
   let logger: Logger;
   let featureGenerator: FeatureDirectoryGenerator;
   let crudGenerator: CrudGenerator;
@@ -137,7 +137,7 @@ describe('JSON Field Handling Tests', () => {
   });
 
   it('should validate JSON field metadata is correctly extracted', async () => {
-    const { getEntityMetadata } = await import('../src/utils/prisma');
+    const { getEntityMetadata } = await import('../src/common/prisma');
     const metadata = await getEntityMetadata('Document');
 
     // Verify the settings JSON field is present with correct properties
@@ -152,7 +152,7 @@ describe('JSON Field Handling Tests', () => {
 
   it('should ensure Prisma import is required when JSON fields are present', async () => {
     const { needsPrismaImport, getEntityMetadata } = await import(
-      '../src/utils/prisma'
+      '../src/common/prisma'
     );
     const metadata = await getEntityMetadata('Document');
 
@@ -162,7 +162,7 @@ describe('JSON Field Handling Tests', () => {
 
   it('should generate appropriate JSON type handling code', async () => {
     const { generateJsonTypeHandling } = await import(
-      '../src/utils/prisma'
+      '../src/common/prisma'
     );
     const jsonHandling = generateJsonTypeHandling(['settings']);
 
@@ -173,7 +173,7 @@ describe('JSON Field Handling Tests', () => {
 
   it('should identify JSON fields correctly', async () => {
     const { getJsonFields, getEntityMetadata } = await import(
-      '../src/utils/prisma'
+      '../src/common/prisma'
     );
     const metadata = await getEntityMetadata('Document');
     const jsonFields = getJsonFields(metadata);

@@ -1,4 +1,4 @@
-import type { IFileSystem, Logger } from '@ingenyus/swarm-core';
+import type { FileSystem, Logger } from '@ingenyus/swarm-core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { CrudGenerator, FeatureDirectoryGenerator } from '../src';
 import { createPrismaMock, createTestSetup } from './utils';
@@ -50,7 +50,7 @@ vi.mock('../src/utils/prisma', () => ({
 }));
 
 describe('CRUD Generation Tests', () => {
-  let fs: IFileSystem;
+  let fs: FileSystem;
   let logger: Logger;
   let featureGenerator: FeatureDirectoryGenerator;
   let crudGenerator: CrudGenerator;

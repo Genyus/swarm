@@ -1,16 +1,16 @@
-import type { FileSystem, Logger } from '@ingenyus/swarm-core';
+import type { FileSystem, Logger, SwarmGenerator } from '@ingenyus/swarm-core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   createMockFeatureGen,
   createMockFS,
   createMockLogger,
 } from '../../../tests/utils';
-import { ApiNamespaceGenerator } from './generator';
+import { ApiNamespaceGenerator } from './api-namespace-generator';
 
 describe('ApiNamespaceGenerator', () => {
   let fs: FileSystem;
   let logger: Logger;
-  let featureGen: Generator<string>;
+  let featureGen: SwarmGenerator<{ path: string }>;
   let gen: ApiNamespaceGenerator;
 
   beforeEach(() => {
@@ -79,6 +79,12 @@ describe('ApiNamespaceGenerator', () => {
   });
 
   it('getDefinition returns processed template', () => {
+    // Mock the template utility
+    (gen as any).templateUtility = {
+      processTemplate: vi.fn(() => 'app.addApiNamespace("testNamespace", { middleware: import("..."), path: "/api/test" });'),
+      resolveTemplatePath: vi.fn((templateName) => `/mock/templates/${templateName}`),
+    };
+
     const result = gen.getDefinition(
       'testNamespace',
       'features/test/server/middleware/testMiddleware',

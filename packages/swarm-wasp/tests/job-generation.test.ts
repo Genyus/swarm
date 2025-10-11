@@ -1,10 +1,10 @@
-import type { IFileSystem, Logger } from '@ingenyus/swarm-core';
+import type { FileSystem, Logger } from '@ingenyus/swarm-core';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { FeatureDirectoryGenerator, JobGenerator } from '../src';
 import { createTestSetup } from './utils';
 
 describe('Job Generation Tests', () => {
-  let fs: IFileSystem;
+  let fs: FileSystem;
   let logger: Logger;
   let featureGenerator: FeatureDirectoryGenerator;
   let jobGenerator: JobGenerator;

@@ -1,4 +1,4 @@
-import type { IFileSystem, Logger } from '@ingenyus/swarm-core';
+import type { FileSystem, Logger } from '@ingenyus/swarm-core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   ApiGenerator,
@@ -57,7 +57,7 @@ vi.mock('../src/utils/prisma', () => ({
 }));
 
 describe('Complete Feature Workflow Tests', () => {
-  let fs: IFileSystem;
+  let fs: FileSystem;
   let logger: Logger;
   let mockFiles: Record<string, string>;
   let featureGenerator: FeatureDirectoryGenerator;

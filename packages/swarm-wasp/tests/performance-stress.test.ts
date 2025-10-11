@@ -1,11 +1,11 @@
-import type { IFileSystem, Logger } from '@ingenyus/swarm-core';
+import type { FileSystem, Logger } from '@ingenyus/swarm-core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
-  ApiGenerator,
-  FeatureDirectoryGenerator,
-  JobGenerator,
-  OperationGenerator,
-  RouteGenerator,
+    ApiGenerator,
+    FeatureDirectoryGenerator,
+    JobGenerator,
+    OperationGenerator,
+    RouteGenerator,
 } from '../src';
 import { ActionOperation, QueryOperation } from '../src/types/constants';
 import { createPrismaMock, createTestSetup } from './utils';
@@ -57,7 +57,7 @@ vi.mock('../src/utils/prisma', () => ({
 }));
 
 describe('Performance and Stress Tests', () => {
-  let fs: IFileSystem;
+  let fs: FileSystem;
   let logger: Logger;
   let featureGenerator: FeatureDirectoryGenerator;
   let routeGenerator: RouteGenerator;

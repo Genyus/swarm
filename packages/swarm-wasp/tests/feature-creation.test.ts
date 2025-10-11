@@ -1,10 +1,10 @@
-import type { IFileSystem, Logger } from '@ingenyus/swarm-core';
+import type { FileSystem, Logger } from '@ingenyus/swarm-core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { FeatureDirectoryGenerator } from '../src';
 import { createTestSetup } from './utils';
 
 describe('Feature Creation Tests', () => {
-  let fs: IFileSystem;
+  let fs: FileSystem;
   let logger: Logger;
   let featureGenerator: FeatureDirectoryGenerator;
 
