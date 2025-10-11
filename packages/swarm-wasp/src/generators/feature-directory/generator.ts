@@ -7,7 +7,7 @@ import {
   validateFeaturePath,
 } from '@ingenyus/swarm-core';
 import path from 'node:path';
-import { BaseWaspGenerator } from '../../base-classes/base-wasp-generator';
+import { WaspGeneratorBase } from '../../base-classes/wasp-generator.base';
 import {
   findWaspRoot,
   normaliseFeaturePath,
@@ -15,7 +15,7 @@ import {
 } from '../../utils/filesystem';
 import { schema, SchemaArgs } from './schema';
 
-export class FeatureDirectoryGenerator extends BaseWaspGenerator<string> {
+export class FeatureDirectoryGenerator extends WaspGeneratorBase<string> {
   name: string;
   description: string;
   schema: ExtendedSchema;

@@ -13,15 +13,15 @@ export * from '../utils/schema';
 
 // Re-export plugin interfaces with different names to avoid conflicts
 export type {
-  CommandResult,
-  GenerationResult,
-  SwarmGenerator as GeneratorInterface,
-  MCPToolResult,
-  ValidationResult,
+    CommandResult,
+    GenerationResult,
+    SwarmGenerator as GeneratorInterface,
+    MCPToolResult,
+    ValidationResult
 } from '../interfaces/generator';
 export type {
-  PluginDependency as PluginDependencyInterface,
-  SwarmPlugin as SwarmPluginInterface,
+    PluginDependency as PluginDependencyInterface,
+    SwarmPlugin as SwarmPluginInterface
 } from '../interfaces/plugin';
 
 // Export plugin manager separately to avoid conflicts

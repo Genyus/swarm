@@ -1,9 +1,9 @@
-import { BaseOperationGenerator } from '../../base-classes/base-operation-generator';
+import { OperationGeneratorBase } from '../../base-classes/base-operation-generator';
 import { OperationFlags } from '../../interfaces/generator-args';
 import { CONFIG_TYPES } from '../../types/constants';
 import { schema } from './schema';
 
-export class OperationGenerator extends BaseOperationGenerator<
+export class OperationGenerator extends OperationGeneratorBase<
   typeof CONFIG_TYPES.ACTION | typeof CONFIG_TYPES.QUERY
 > {
   protected get entityType() {

@@ -1,11 +1,11 @@
 import { toCamelCase } from '@ingenyus/swarm-core';
 import path from 'node:path';
-import { BaseEntityGenerator } from '../../base-classes/base-entity-generator';
+import { EntityGeneratorBase } from '../../base-classes/entity-generator.base';
 import { ApiNamespaceFlags } from '../../interfaces/generator-args';
 import { CONFIG_TYPES } from '../../types/constants';
 import { schema } from './schema';
 
-export class ApiNamespaceGenerator extends BaseEntityGenerator<
+export class ApiNamespaceGenerator extends EntityGeneratorBase<
   typeof CONFIG_TYPES.API_NAMESPACE
 > {
   protected get entityType() {

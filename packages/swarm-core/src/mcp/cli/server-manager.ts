@@ -2,9 +2,9 @@ import { logger } from '../../utils/signale-logger';
 import { SwarmMCPServer } from '../server/index.js';
 import type { ServerConfig } from '../server/types/index.js';
 import {
-  ErrorFactory,
-  configManager,
-  createErrorContext,
+    ErrorFactory,
+    configManager,
+    createErrorContext,
 } from '../server/utils/index.js';
 
 export class ServerManager {

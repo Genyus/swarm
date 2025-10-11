@@ -3,13 +3,13 @@ import {
   toCamelCase,
   toPascalCase,
 } from '@ingenyus/swarm-core';
-import { BaseEntityGenerator } from '../../base-classes/base-entity-generator';
+import { EntityGeneratorBase } from '../../base-classes/entity-generator.base';
 import { RouteFlags } from '../../interfaces/generator-args';
 import { CONFIG_TYPES } from '../../types/constants';
 import { getRouteNameFromPath } from '../../utils/filesystem';
 import { schema } from './schema';
 
-export class RouteGenerator extends BaseEntityGenerator<
+export class RouteGenerator extends EntityGeneratorBase<
   typeof CONFIG_TYPES.ROUTE
 > {
   protected get entityType() {

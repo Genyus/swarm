@@ -1,10 +1,10 @@
 import { toCamelCase, toPascalCase } from '@ingenyus/swarm-core';
-import { BaseEntityGenerator } from '../../base-classes/base-entity-generator';
+import { EntityGeneratorBase } from '../../base-classes/entity-generator.base';
 import { ApiFlags } from '../../interfaces/generator-args';
 import { CONFIG_TYPES } from '../../types/constants';
 import { schema } from './schema';
 
-export class ApiGenerator extends BaseEntityGenerator<typeof CONFIG_TYPES.API> {
+export class ApiGenerator extends EntityGeneratorBase<typeof CONFIG_TYPES.API> {
   protected get entityType() {
     return CONFIG_TYPES.API;
   }

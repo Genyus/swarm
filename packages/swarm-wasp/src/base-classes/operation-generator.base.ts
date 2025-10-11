@@ -24,19 +24,19 @@ import {
   getOmitFields,
   needsPrismaImport,
 } from '../utils/prisma';
-import { BaseEntityGenerator } from './base-entity-generator';
+import { EntityGeneratorBase } from './entity-generator.base';
 
 /**
  * Abstract base class for generators that need to generate operation files.
  * Provides shared logic for operation file generation that can be used by
  * both OperationGenerator and CrudGenerator.
  */
-export abstract class BaseOperationGenerator<
+export abstract class OperationGeneratorBase<
   TArgs extends
     | typeof CONFIG_TYPES.ACTION
     | typeof CONFIG_TYPES.QUERY
     | typeof CONFIG_TYPES.CRUD,
-> extends BaseEntityGenerator<TArgs> {
+> extends EntityGeneratorBase<TArgs> {
   /**
    * Gets the operation name based on operation type and model name.
    */

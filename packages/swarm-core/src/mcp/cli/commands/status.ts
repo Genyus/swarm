@@ -1,9 +1,9 @@
 import { Command } from 'commander';
 import {
-  configureLogger,
-  LogFormat,
-  logger,
-  LogLevel,
+    configureLogger,
+    LogFormat,
+    logger,
+    LogLevel,
 } from '../../../utils/signale-logger';
 import { ServerManager } from '../server-manager.js';
 

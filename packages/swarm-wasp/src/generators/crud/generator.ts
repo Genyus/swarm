@@ -1,5 +1,5 @@
 import { getPlural, toCamelCase, toPascalCase } from '@ingenyus/swarm-core';
-import { BaseOperationGenerator } from '../../base-classes/base-operation-generator';
+import { OperationGeneratorBase } from '../../base-classes/base-operation-generator';
 import { CrudFlags } from '../../interfaces/generator-args';
 import { CONFIG_TYPES, CrudOperation } from '../../types/constants';
 import { schema } from './schema';
@@ -12,7 +12,7 @@ const CRUD_OPERATIONS_LIST: readonly CrudOperation[] = [
   'delete',
 ] as const;
 
-export class CrudGenerator extends BaseOperationGenerator<
+export class CrudGenerator extends OperationGeneratorBase<
   typeof CONFIG_TYPES.CRUD
 > {
   protected get entityType() {

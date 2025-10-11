@@ -18,14 +18,14 @@ import {
   normaliseFeaturePath,
   realFileSystem,
 } from '../utils/filesystem';
-import { BaseWaspGenerator } from './base-wasp-generator';
+import { WaspGeneratorBase } from './wasp-generator.base';
 
 /**
- * Abstract base class for all generators
+ * Abstract base class for all entity generators
  */
-export abstract class BaseEntityGenerator<
+export abstract class EntityGeneratorBase<
   TArgs extends ConfigType,
-> extends BaseWaspGenerator<TArgs> {
+> extends WaspGeneratorBase<TArgs> {
   protected abstract entityType: TArgs;
 
   protected getTemplatePath(templateName: string): string {

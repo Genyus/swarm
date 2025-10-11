@@ -1,10 +1,10 @@
 import { capitalise, toCamelCase } from '@ingenyus/swarm-core';
-import { BaseEntityGenerator } from '../../base-classes/base-entity-generator';
+import { EntityGeneratorBase } from '../../base-classes/entity-generator.base';
 import { JobFlags } from '../../interfaces/generator-args';
 import { CONFIG_TYPES } from '../../types/constants';
 import { schema } from './schema';
 
-export class JobGenerator extends BaseEntityGenerator<typeof CONFIG_TYPES.JOB> {
+export class JobGenerator extends EntityGeneratorBase<typeof CONFIG_TYPES.JOB> {
   protected get entityType() {
     return CONFIG_TYPES.JOB;
   }

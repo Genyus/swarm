@@ -1,9 +1,9 @@
 import {
-  handleFatalError,
-  IFileSystem,
-  Logger,
-  parseHelperMethodDefinition,
-  SignaleLogger,
+    handleFatalError,
+    IFileSystem,
+    Logger,
+    parseHelperMethodDefinition,
+    SignaleLogger,
 } from '@ingenyus/swarm-core';
 import path from 'node:path';
 import { IWaspConfigGenerator } from '../../interfaces/wasp-config-generator';

@@ -1,29 +1,29 @@
 import {
-  Server as MCPServer,
-  ServerOptions,
+    Server as MCPServer,
+    ServerOptions,
 } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import type { Transport as MCPTransport } from '@modelcontextprotocol/sdk/shared/transport.js';
 import {
-  CallToolRequestSchema,
-  ListResourcesRequestSchema,
-  ListToolsRequestSchema,
+    CallToolRequestSchema,
+    ListResourcesRequestSchema,
+    ListToolsRequestSchema,
 } from '@modelcontextprotocol/sdk/types.js';
 import { randomUUID } from 'crypto';
 import {
-  configureLogger,
-  LogFormat,
-  logger,
-  LogLevel,
+    configureLogger,
+    LogFormat,
+    logger,
+    LogLevel,
 } from '../../utils/signale-logger';
 import { getDynamicTools, getToolDefinitions } from './tools/index.js';
 import {
-  MCPErrorCode,
-  MCPProtocolError,
-  ServerConfig,
-  ServerInfo,
-  ServerState,
-  Tool,
+    MCPErrorCode,
+    MCPProtocolError,
+    ServerConfig,
+    ServerInfo,
+    ServerState,
+    Tool,
 } from './types/mcp.js';
 import { configManager } from './utils/config.js';
 import { createErrorContext, ErrorFactory } from './utils/errors.js';

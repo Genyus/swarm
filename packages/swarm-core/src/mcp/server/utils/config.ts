@@ -3,10 +3,10 @@ import { readFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { z } from 'zod';
 import {
-  configureLogger,
-  LogFormat,
-  logger,
-  LogLevel,
+    configureLogger,
+    LogFormat,
+    logger,
+    LogLevel,
 } from '../../../utils/signale-logger';
 import { createErrorContext, ErrorFactory } from './errors.js';
 

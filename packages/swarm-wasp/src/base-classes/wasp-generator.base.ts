@@ -10,9 +10,9 @@ import { getFeatureImportPath, realFileSystem } from '../utils/filesystem';
 import { TemplateUtility } from '../utils/templates';
 
 /**
- * Abstract base class for all generators
+ * Abstract base class for all Wasp generators
  */
-export abstract class BaseWaspGenerator<TArgs> extends GeneratorBase<TArgs> {
+export abstract class WaspGeneratorBase<TArgs> extends GeneratorBase<TArgs> {
   constructor(
     public fileSystem: IFileSystem = realFileSystem,
     public logger: Logger = new SignaleLogger()
