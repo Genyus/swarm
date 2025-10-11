@@ -12,7 +12,7 @@ import {
 } from '@mrleebo/prisma-ast';
 import fs from 'node:fs';
 import path from 'node:path';
-import type { EntityMetadata } from '../interfaces/prisma';
+import type { EntityMetadata } from '../types/prisma.types';
 
 /**
  * Gets metadata about a Prisma model.

@@ -1,5 +1,5 @@
-import { PluginManager } from './plugin-manager';
 import { SwarmGenerator } from '../contracts/generator';
+import { PluginManager } from './plugin-manager';
 
 /**
  * Base interface for managing generator-to-interface conversion

@@ -3,8 +3,8 @@ import {
   toCamelCase,
   toPascalCase,
 } from '@ingenyus/swarm-core';
-import { EntityGeneratorBase } from '../../base-classes/entity-generator.base';
-import { RouteFlags } from '../../interfaces/generator-args';
+import { EntityGeneratorBase } from '../../generators/base/entity-generator.base';
+import { RouteFlags } from '../../generators/args.types';
 import { CONFIG_TYPES } from '../../types/constants';
 import { getRouteNameFromPath } from '../../common/filesystem';
 import { schema } from './schema';

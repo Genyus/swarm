@@ -5,7 +5,7 @@ import {
   JobFlags,
   OperationFlags,
   RouteFlags,
-} from '../interfaces/generator-args.js';
+} from '../generators/args.types.js';
 
 /**
  * List of valid operation types.

@@ -8,14 +8,14 @@
 export * from './plugin';
 
 // Export Wasp configuration functionality
-export { App } from './app';
-export * from './config-index';
+export { App } from './wasp-config/app';
+export * from './wasp-config/index';
 
 // Export interfaces
-export * from './interfaces/wasp-config-generator';
+export * from './generators/config/config-generator';
 
 // Export generators
 export * from './generators';
 
 // Export utils
-export * from './utils';
+export * from './common';

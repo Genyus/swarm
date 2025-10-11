@@ -8,7 +8,7 @@ import {
   OperationGenerator,
   RouteGenerator,
 } from '.';
-import { getPluginVersion } from './utils/plugin';
+import { getPluginVersion } from './common/plugin';
 
 export function createWaspPlugin(): SwarmPluginInterface {
   return {

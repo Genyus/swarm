@@ -4,8 +4,8 @@ import {
   handleFatalError,
   toPascalCase,
 } from '@ingenyus/swarm-core';
-import { OperationConfigEntry } from '../interfaces/generator-args';
-import { EntityMetadata } from '../interfaces/prisma';
+import { OperationConfigEntry } from '../args.types';
+import { EntityMetadata } from '../../types/prisma.types';
 import {
   ActionOperation,
   CONFIG_TYPES,
@@ -14,8 +14,8 @@ import {
   OperationType,
   QueryOperation,
   TYPE_DIRECTORIES,
-} from '../types/constants';
-import { copyDirectory, getFeatureImportPath } from '../common/filesystem';
+} from '../../types/constants';
+import { copyDirectory, getFeatureImportPath } from '../../common/filesystem';
 import {
   generateJsonTypeHandling,
   getEntityMetadata,
@@ -23,7 +23,7 @@ import {
   getJsonFields,
   getOmitFields,
   needsPrismaImport,
-} from '../common/prisma';
+} from '../../common/prisma';
 import { EntityGeneratorBase } from './entity-generator.base';
 
 /**

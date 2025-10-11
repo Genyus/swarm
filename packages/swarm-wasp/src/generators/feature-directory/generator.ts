@@ -7,7 +7,7 @@ import {
   validateFeaturePath,
 } from '@ingenyus/swarm-core';
 import path from 'node:path';
-import { WaspGeneratorBase } from '../../base-classes/wasp-generator.base';
+import { WaspGeneratorBase } from '../../generators/base/wasp-generator.base';
 import {
   findWaspRoot,
   normaliseFeaturePath,
