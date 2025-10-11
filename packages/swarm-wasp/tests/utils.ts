@@ -1,7 +1,6 @@
 import type { IFileSystem, Logger } from '@ingenyus/swarm-core';
 import { Stats } from 'node:fs';
 import { vi } from 'vitest';
-import type { IFeatureDirectoryGenerator } from '../src/interfaces/feature-directory-generator';
 
 // Mock the filesystem utility functions separately
 vi.mock('@ingenyus/swarm-core/utils/filesystem', () => ({
@@ -527,7 +526,7 @@ export function createMockFS(): IFileSystem {
 /**
  * Creates a mock feature generator implementation for testing.
  */
-export function createMockFeatureGen(): IFeatureDirectoryGenerator {
+export function createMockFeatureGen(): Generator<string> {
   return {
     generate: vi.fn((params: { path: string }) => {
       return Promise.resolve();

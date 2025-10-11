@@ -1,7 +1,7 @@
 import type { Dirent, ObjectEncodingOptions, Stats } from 'node:fs';
 /**
  * Interface for file system operations
- * @interface IFileSystem
+ * @interface FileSystem
  * @property {Function} readFileSync - Read a file
  * @property {Function} writeFileSync - Write to a file
  * @property {Function} existsSync - Check if a file exists
@@ -9,7 +9,7 @@ import type { Dirent, ObjectEncodingOptions, Stats } from 'node:fs';
  * @property {Function} mkdirSync - Create a directory
  * @property {Function} readdirSync - Read directory contents
  */
-export interface IFileSystem {
+export interface FileSystem {
   /**
    * Read a file
    * @param {string} path - The path to the file

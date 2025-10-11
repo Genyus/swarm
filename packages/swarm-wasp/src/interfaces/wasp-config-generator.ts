@@ -2,11 +2,11 @@ import { Generator } from '@ingenyus/swarm-core';
 
 /**
  * Interface for Wasp configuration generators
- * @interface IWaspConfigGenerator
+ * @interface ConfigGenerator
  * @property {Generator<string>} Generator - The generator interface
  * @property {string} update - The update method
  */
-export interface IWaspConfigGenerator extends Generator<string> {
+export interface ConfigGenerator extends Generator<string> {
   /**
    * Updates a declaration in a Wasp configuration file
    * @param featurePath - The path to the feature directory

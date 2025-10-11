@@ -5,13 +5,12 @@ import {
   createMockFS,
   createMockLogger,
 } from '../../../tests/utils';
-import type { IFeatureDirectoryGenerator } from '../../interfaces/feature-directory-generator';
 import { CrudGenerator } from './generator';
 
 describe('CrudGenerator', () => {
   let fs: IFileSystem;
   let logger: Logger;
-  let featureGen: IFeatureDirectoryGenerator;
+  let featureGen: Generator<string>;
   let gen: CrudGenerator;
 
   beforeEach(() => {

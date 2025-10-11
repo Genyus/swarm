@@ -5,7 +5,6 @@ import {
   createMockFS,
   createMockLogger,
 } from '../../../tests/utils';
-import type { IFeatureDirectoryGenerator } from '../../interfaces/feature-directory-generator';
 import { OperationGenerator } from './generator';
 
 // Mock the fs module at the module level
@@ -22,7 +21,7 @@ vi.mock('node:fs', () => ({
 describe('OperationGenerator', () => {
   let fs: IFileSystem;
   let logger: Logger;
-  let featureGen: IFeatureDirectoryGenerator;
+  let featureGen: Generator<string>;
   let gen: OperationGenerator;
 
   beforeEach(() => {

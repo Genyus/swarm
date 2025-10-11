@@ -5,13 +5,12 @@ import {
   createMockFS,
   createMockLogger,
 } from '../../../tests/utils';
-import type { IFeatureDirectoryGenerator } from '../../interfaces/feature-directory-generator';
 import { JobGenerator } from './generator';
 
 describe('JobGenerator', () => {
   let fs: IFileSystem;
   let logger: Logger;
-  let featureGen: IFeatureDirectoryGenerator;
+  let featureGen: Generator<string>;
   let gen: JobGenerator;
 
   beforeEach(() => {

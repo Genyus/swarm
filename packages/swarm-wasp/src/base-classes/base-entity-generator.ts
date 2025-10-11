@@ -1,24 +1,23 @@
 import {
-  Generator,
-  hasHelperMethodCall,
-  FileSystem,
-  Logger,
-  SignaleLogger,
-  toCamelCase,
-  toKebabCase,
-  validateFeaturePath,
+    hasHelperMethodCall,
+    IFileSystem,
+    Logger,
+    SignaleLogger,
+    toCamelCase,
+    toKebabCase,
+    validateFeaturePath,
 } from '@ingenyus/swarm-core';
 import path from 'node:path';
 import { FeatureDirectoryGenerator } from '../generators/feature-directory/generator';
 import { ConfigType, GetFlagsType, TYPE_DIRECTORIES } from '../types/constants';
 import {
-  ensureDirectoryExists,
-  getFeatureDir,
-  getFeatureImportPath,
-  normaliseFeaturePath,
-  realFileSystem,
+    ensureDirectoryExists,
+    getFeatureDir,
+    getFeatureImportPath,
+    normaliseFeaturePath,
+    realFileSystem,
 } from '../utils/filesystem';
-import { WaspGeneratorBase } from './wasp-generator.base';
+import { WaspGeneratorBase } from './base-wasp-generator';
 
 /**
  * Abstract base class for all entity generators
@@ -38,7 +37,7 @@ export abstract class EntityGeneratorBase<
 
   constructor(
     public logger: Logger = new SignaleLogger(),
-    public fileSystem: FileSystem = realFileSystem,
+    public fileSystem: IFileSystem = realFileSystem,
     protected featureDirectoryGenerator: Generator<string> = new FeatureDirectoryGenerator(
       logger,
       fileSystem
