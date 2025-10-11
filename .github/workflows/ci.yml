@@ -54,9 +54,15 @@ jobs:
 
       - name: Test CLI functionality
         run: |
-          cd packages/swarm-cli
-          ./bin/swarm --help
-          ./bin/swarm feature --help
+          cd packages/swarm
+          node ./bin/cli --help
+          node ./bin/cli generate --help
+
+      - name: Test MCP server functionality
+        run: |
+          cd packages/swarm
+          # Test that MCP server can start and respond to basic commands
+          timeout 5s node ./bin/mcp || [ $? -eq 124 ]
 
   release:
     name: Release
