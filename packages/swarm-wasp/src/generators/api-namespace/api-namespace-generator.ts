@@ -1,4 +1,4 @@
-import { toCamelCase } from '@ingenyus/swarm-core';
+import { toCamelCase } from '@ingenyus/swarm';
 import path from 'node:path';
 import { ApiNamespaceFlags } from '../../generators/args.types';
 import { CONFIG_TYPES } from '../../types';

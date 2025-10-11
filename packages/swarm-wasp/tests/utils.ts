@@ -1,9 +1,9 @@
-import type { ExtendedSchema, FileSystem, Logger, SwarmGenerator } from '@ingenyus/swarm-core';
+import type { ExtendedSchema, FileSystem, Logger, SwarmGenerator } from '@ingenyus/swarm';
 import { Stats } from 'node:fs';
 import { vi } from 'vitest';
 
 // Mock the filesystem utility functions separately
-vi.mock('@ingenyus/swarm-core/utils/filesystem', () => ({
+vi.mock('@ingenyus/swarm/utils/filesystem', () => ({
   getTemplatesDir: vi.fn().mockReturnValue('/mock/templates'),
   findWaspRoot: vi
     .fn()
@@ -32,7 +32,7 @@ vi.mock('@ingenyus/swarm-core/utils/filesystem', () => ({
     .mockImplementation((path: string) => `@features/${path}`),
 }));
 
-vi.mock('@ingenyus/swarm-core', () => ({
+vi.mock('@ingenyus/swarm', () => ({
   validateFeaturePath: vi
     .fn()
     .mockImplementation((path: string) => path.split('/')),
@@ -180,8 +180,8 @@ model User {
 }));
 
 // Mock the prisma utilities at the module level
-vi.mock('@ingenyus/swarm-core', async () => {
-  const actual = await vi.importActual<typeof import('@ingenyus/swarm-core')>('@ingenyus/swarm-core');
+vi.mock('@ingenyus/swarm', async () => {
+  const actual = await vi.importActual<typeof import('@ingenyus/swarm')>('@ingenyus/swarm');
   return {
     ...actual,
     getTemplatesDir: vi.fn().mockReturnValue('/mock/templates'),

@@ -3,7 +3,7 @@ import {
   getPlural,
   handleFatalError,
   toPascalCase,
-} from '@ingenyus/swarm-core';
+} from '@ingenyus/swarm';
 import {
   copyDirectory,
   generateJsonTypeHandling,

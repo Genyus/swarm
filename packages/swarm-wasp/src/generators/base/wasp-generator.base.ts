@@ -3,7 +3,7 @@ import {
   GeneratorBase,
   Logger,
   SignaleLogger,
-} from '@ingenyus/swarm-core';
+} from '@ingenyus/swarm';
 import { realFileSystem, TemplateUtility } from '../../common';
 import { WaspConfigGenerator } from '../config';
 

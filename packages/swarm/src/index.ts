@@ -1,5 +1,5 @@
 /**
- * @ingenyus/swarm-core
+ * @ingenyus/swarm
  *
  * Core Swarm logic - CLI, MCP server, plugin system, generators, templates, utilities, and types for Wasp development
  */

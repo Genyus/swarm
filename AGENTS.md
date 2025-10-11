@@ -1,16 +1,16 @@
-# Vitest AI Agent Guide
+# Swarm AI Agent Guide
 
-This document provides comprehensive information for AI agents working on the Vitest codebase.
+This document provides comprehensive information for AI agents working on the Swarm codebase.
 
 ## Project Overview
 
-Swarm is a set of code generation tools for rapid [Wasp](https://wasp.sh) application development. This is a monorepo using pnpm workspaces with the following key characteristics:
+Swarm is a set of code generation tools for rapid Typescript application development. This is a monorepo using pnpm workspaces with the following key characteristics:
 
 - **Language**: TypeScript (ESM-first)
 - **Package Manager**: pnpm (required)
 - **Node Version**: ^20.0.0 || ^22.0.0 || >=24.0.0
 - **Build System**: Vite
-- **Monorepo Structure**: 4 packages in `packages/` directory
+- **Monorepo Structure**: 2 packages in `packages/` directory
 
 ## Setup and Development
 
@@ -36,16 +36,14 @@ Swarm is a set of code generation tools for rapid [Wasp](https://wasp.sh) applic
 ## Project Structure
 
 ### Core Packages (`packages/`)
-- `swarm-core` - Main business logic, containing Wasp entity generators and templates
-- `swarm-cli` - CLI interface
-- `swarm-mcp` - MCP server
-- `swarn-config` - Wasp configuration
+- `swarm` - Base package containing plugin infrastructure, with CLI command and MCP tool generation
+- `swarm-wasp` - Plugin containing Wasp entity generators and enhanced configuration
 
 ### Test Organization (`packages/*/tests/`)
-- Various test suites organized by feature
+- Various test suites organised by feature
 
 ### Important Directories
-- `docs/` - Documentation (Vite-powered)
+- `docs/` - Documentation
 - `examples/` - Example projects and integrations
 - `scripts/` - Build and development scripts
 - `.github/` - GitHub Actions workflows
@@ -65,7 +63,6 @@ Swarm is a set of code generation tools for rapid [Wasp](https://wasp.sh) applic
 ### Code Quality
 - ESM-first approach
 - Follow existing patterns in the codebase
-- Use utilities from `@vitest/utils/*` when available. Never import from `@vitest/utils` main entry point directly.
 
 ## Common Workflows
 

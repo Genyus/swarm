@@ -1,4 +1,4 @@
-import { Generator } from '@ingenyus/swarm-core';
+import { Generator } from '@ingenyus/swarm';
 
 /**
  * Interface for Wasp configuration generators

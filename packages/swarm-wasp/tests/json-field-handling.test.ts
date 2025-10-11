@@ -1,4 +1,4 @@
-import type { FileSystem, Logger } from '@ingenyus/swarm-core';
+import type { FileSystem, Logger } from '@ingenyus/swarm';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ApiGenerator, CrudGenerator, FeatureDirectoryGenerator, OperationGenerator } from '../src';
 import { createPrismaMock, createTestSetup } from './utils';

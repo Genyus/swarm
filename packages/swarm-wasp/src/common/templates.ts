@@ -1,4 +1,4 @@
-import { toKebabCase, type FileSystem } from '@ingenyus/swarm-core';
+import { toKebabCase, type FileSystem } from '@ingenyus/swarm';
 import { Eta } from 'eta';
 import path from 'path';
 

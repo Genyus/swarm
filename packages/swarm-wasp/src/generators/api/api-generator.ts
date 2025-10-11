@@ -1,4 +1,4 @@
-import { toCamelCase, toPascalCase } from '@ingenyus/swarm-core';
+import { toCamelCase, toPascalCase } from '@ingenyus/swarm';
 import { getFeatureImportPath } from '../../common';
 import { ApiFlags } from '../../generators/args.types';
 import { CONFIG_TYPES } from '../../types';

@@ -1,11 +1,11 @@
-import type { FileSystem, Logger } from '@ingenyus/swarm-core';
+import type { FileSystem, Logger } from '@ingenyus/swarm';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
-  ApiGenerator,
-  FeatureDirectoryGenerator,
-  JobGenerator,
-  OperationGenerator,
-  RouteGenerator,
+    ApiGenerator,
+    FeatureDirectoryGenerator,
+    JobGenerator,
+    OperationGenerator,
+    RouteGenerator,
 } from '../src';
 import { ActionOperation, QueryOperation } from '../src/types';
 import { createTestSetup } from './utils';

@@ -5,14 +5,14 @@ import {
   Logger,
   SignaleLogger,
   validateFeaturePath,
-} from '@ingenyus/swarm-core';
+} from '@ingenyus/swarm';
 import path from 'node:path';
-import { WaspGeneratorBase } from '../base/wasp-generator.base';
 import {
   findWaspRoot,
   normaliseFeaturePath,
   realFileSystem,
 } from '../../common';
+import { WaspGeneratorBase } from '../base/wasp-generator.base';
 import { schema, SchemaArgs } from './schema';
 
 export class FeatureDirectoryGenerator extends WaspGeneratorBase<SchemaArgs> {

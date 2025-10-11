@@ -173,7 +173,7 @@ export * from './job';
 ## Directory Structure Examples
 
 ```
-packages/swarm-core/src/
+packages/swarm/src/
 ├── base-classes/           # Inheritance chain
 │   ├── generator.base.ts   # GeneratorBase
 │   └── entity.base.ts      # EntityBase
@@ -206,11 +206,11 @@ packages/swarm-core/src/
 
 ### Good Examples
 ```typescript
-// packages/swarm-core/src/interfaces/generator.ts
+// packages/swarm/src/interfaces/generator.ts
 export interface Generator<TArgs = any> { ... }
 export interface SwarmGenerator<TArgs = any> extends Generator<TArgs> { ... }
 
-// packages/swarm-core/src/base-classes/base-generator.ts
+// packages/swarm/src/base-classes/base-generator.ts
 export abstract class BaseGenerator<TArgs = any> implements SwarmGenerator<TArgs> { ... }
 
 // packages/swarm-wasp/src/generators/api/generator.ts

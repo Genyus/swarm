@@ -1,8 +1,4 @@
-import {
-  formatDisplayName,
-  toCamelCase,
-  toPascalCase,
-} from '@ingenyus/swarm-core';
+import { formatDisplayName, toCamelCase, toPascalCase } from '@ingenyus/swarm';
 import { getRouteNameFromPath } from '../../common';
 import { RouteFlags } from '../../generators/args.types';
 import { CONFIG_TYPES } from '../../types';

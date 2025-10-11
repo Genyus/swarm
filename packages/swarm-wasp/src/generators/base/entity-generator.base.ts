@@ -7,7 +7,7 @@ import {
   toCamelCase,
   toKebabCase,
   validateFeaturePath,
-} from '@ingenyus/swarm-core';
+} from '@ingenyus/swarm';
 import path from 'node:path';
 import {
   ensureDirectoryExists,

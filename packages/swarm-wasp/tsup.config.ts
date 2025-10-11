@@ -16,7 +16,7 @@ export default defineConfig({
   clean: true,
   target: 'es2022',
   platform: 'node',
-  external: ['@ingenyus/swarm-core'],
+  external: ['@ingenyus/swarm'],
   outDir: 'dist',
   // Preserve directory structure
   outExtension() {

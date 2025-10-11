@@ -4,7 +4,7 @@ import {
   Logger,
   parseHelperMethodDefinition,
   SignaleLogger,
-} from '@ingenyus/swarm-core';
+} from '@ingenyus/swarm';
 import path from 'node:path';
 import { getFeatureDir, realFileSystem, TemplateUtility } from '../../common';
 import { ConfigGenerator } from '../../generators/config';

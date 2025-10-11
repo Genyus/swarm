@@ -1,4 +1,4 @@
-import { capitalise, toCamelCase } from '@ingenyus/swarm-core';
+import { capitalise, toCamelCase } from '@ingenyus/swarm';
 import { JobFlags } from '../../generators/args.types';
 import { CONFIG_TYPES } from '../../types';
 import { EntityGeneratorBase } from '../base';

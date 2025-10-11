@@ -1,4 +1,4 @@
-import { SwarmPluginInterface } from '@ingenyus/swarm-core';
+import { SwarmPluginInterface } from '@ingenyus/swarm';
 import {
   ApiGenerator,
   ApiNamespaceGenerator,

@@ -1,8 +1,4 @@
-import {
-  FileSystem,
-  toPascalCase,
-  validateFeaturePath,
-} from '@ingenyus/swarm-core';
+import { FileSystem, toPascalCase, validateFeaturePath } from '@ingenyus/swarm';
 import fs from 'node:fs';
 import path from 'path';
 import { fileURLToPath } from 'url';

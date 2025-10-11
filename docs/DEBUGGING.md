@@ -47,7 +47,7 @@ I've set up several debugging configurations in `.vscode/launch.json`:
 ### Key Files to Debug
 
 1. **Feature Generator Entry Point**:
-   - `packages/swarm-core/src/generators/feature.ts`
+   - `packages/swarm/src/generators/feature.ts`
    - Set breakpoints in the `create` method (line ~104)
 
 2. **CLI Command Handler**:
@@ -81,7 +81,7 @@ async create(featurePath: string, flags: FeatureFlags): Promise<void> {
 
 ### Step 1: Prepare for Debugging
 1. Ensure the project is built: `pnpm build`
-2. Open the feature generator file: `packages/swarm-core/src/generators/feature.ts`
+2. Open the feature generator file: `packages/swarm/src/generators/feature.ts`
 3. Set breakpoints at the locations you want to inspect
 
 ### Step 2: Start Debugging
@@ -168,7 +168,7 @@ async create(featurePath: string, flags: FeatureFlags): Promise<void> {
 
 ## Example Debugging Session
 
-1. Open `packages/swarm-core/src/generators/feature.ts`
+1. Open `packages/swarm/src/generators/feature.ts`
 2. Set breakpoint at line 104 (start of `create` method)
 3. Press F5 and select "Debug Feature Generator (CLI)"
 4. When the debugger stops:

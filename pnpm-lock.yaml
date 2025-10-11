@@ -45,7 +45,7 @@ importers:
         specifier: ^5.9.2
         version: 5.9.2
 
-  packages/swarm-core:
+  packages/swarm:
     dependencies:
       '@modelcontextprotocol/sdk':
         specifier: ^1.17.4
@@ -87,9 +87,9 @@ importers:
 
   packages/swarm-wasp:
     dependencies:
-      '@ingenyus/swarm-core':
+      '@ingenyus/swarm':
         specifier: workspace:*
-        version: link:../swarm-core
+        version: link:../swarm
       '@mrleebo/prisma-ast':
         specifier: ^0.13.0
         version: 0.13.0

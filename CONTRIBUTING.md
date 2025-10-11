@@ -23,23 +23,23 @@ Thank you for your interest in contributing to Swarm! This document outlines bes
 ## TypeScript & Typing
 - All code must be written in TypeScript.
 - Use strong typing everywhere; avoid `any` unless absolutely necessary.
-- Shared types and interfaces belong in `packages/swarm-core/src/types/`.
+- Shared types and interfaces belong in `packages/swarm/src/types/`.
 - Package-specific types belong in the respective package's `src/types/` directory.
 - Prefer type aliases and enums for clarity.
 
 ## Error Handling
-- **Always use the centralized error utility from `@ingenyus/swarm-core`.**
+- **Always use the centralized error utility from `@ingenyus/swarm`.**
 - Do **not** use `console.log`, `console.error`, or `process.exit` directly.
 - For user-facing errors, use:
   ```ts
-  import { error, handleFatalError } from '@ingenyus/swarm-core';
+  import { error, handleFatalError } from '@ingenyus/swarm';
   error('Something went wrong');
   // or for fatal errors:
   handleFatalError('Critical failure', err);
   ```
 - For non-fatal warnings or info:
   ```ts
-  import { warn, info, success } from '@ingenyus/swarm-core';
+  import { warn, info, success } from '@ingenyus/swarm';
   warn('This is a warning');
   info('This is an info message');
   success('Operation completed successfully');
@@ -52,7 +52,7 @@ Thank you for your interest in contributing to Swarm! This document outlines bes
   - Do not call `process.exit` directly in command handlers.
 
 ## Logging
-- All logging should use the [signale](https://github.com/klaussinani/signale) logger via the error utility from `@ingenyus/swarm-core`.
+- All logging should use the [signale](https://github.com/klaussinani/signale) logger via the error utility from `@ingenyus/swarm`.
 - Use the appropriate log level: `info`, `success`, `warn`, `error`.
 - Avoid raw `console` statements.
 
@@ -72,7 +72,7 @@ Thank you for your interest in contributing to Swarm! This document outlines bes
 
 ## Package-Specific Guidelines
 
-### swarm-core
+### swarm
 - This is the foundational package containing shared logic.
 - All generators, utilities, and types should be CLI-agnostic.
 - Do not include any CLI-specific dependencies (like `commander`).
@@ -80,13 +80,13 @@ Thank you for your interest in contributing to Swarm! This document outlines bes
 
 ### swarm-cli
 - CLI-specific logic and command implementations.
-- Depends on `@ingenyus/swarm-core` for shared functionality.
+- Depends on `@ingenyus/swarm` for shared functionality.
 - Command registration and CLI-specific types belong here.
 - Use Commander.js for CLI argument parsing and validation.
 
 ### swarm-mcp
 - MCP server implementation for AI agent integration.
-- Depends on `@ingenyus/swarm-core` for shared functionality.
+- Depends on `@ingenyus/swarm` for shared functionality.
 - Focus on MCP protocol compliance and AI agent workflows.
 - Ensure all MCP tools are properly documented and tested.
 
@@ -99,11 +99,11 @@ Thank you for your interest in contributing to Swarm! This document outlines bes
 
 ### Adding New Features
 1. Determine which package the feature belongs to:
-   - Core functionality → `swarm-core`
+   - Core functionality → `swarm`
    - CLI-specific → `swarm-cli`
    - MCP-specific → `swarm-mcp`
 2. Add the feature to the appropriate package
-3. Add any new templates to `packages/swarm-core/src/templates/`
+3. Add any new templates to `packages/swarm/src/templates/`
 4. Update types in the appropriate `src/types/` directory
 5. Add tests for the new functionality
 6. Update documentation

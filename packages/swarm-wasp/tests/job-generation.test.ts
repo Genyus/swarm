@@ -1,4 +1,4 @@
-import type { FileSystem, Logger } from '@ingenyus/swarm-core';
+import type { FileSystem, Logger } from '@ingenyus/swarm';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { FeatureDirectoryGenerator, JobGenerator } from '../src';
 import { createTestSetup } from './utils';

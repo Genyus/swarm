@@ -1,4 +1,4 @@
-# @ingenyus/swarm-core
+# @ingenyus/swarm
 
 A powerful TypeScript library providing core generators, templates, utilities, and types for **Wasp full-stack framework** development. Built with type safety, modularity, and extensibility in mind.
 
@@ -18,11 +18,11 @@ Wasp is a full-stack web framework that lets you develop web apps in React, Node
 ## Installation
 
 ```bash
-npm install @ingenyus/swarm-core
+npm install @ingenyus/swarm
 # or
-yarn add @ingenyus/swarm-core
+yarn add @ingenyus/swarm
 # or
-pnpm add @ingenyus/swarm-core
+pnpm add @ingenyus/swarm
 ```
 
 ## Quick Start
@@ -34,7 +34,7 @@ import {
   CrudGenerator,
   FileSystem,
   Logger 
-} from '@ingenyus/swarm-core';
+} from '@ingenyus/swarm';
 
 // Initialize generators
 const apiGen = new ApiGenerator();
@@ -71,7 +71,7 @@ await crudGen.generate('users', {
 Creates API endpoints with handlers and configurations.
 
 ```typescript
-import { ApiGenerator, ApiFlags } from '@ingenyus/swarm-core';
+import { ApiGenerator, ApiFlags } from '@ingenyus/swarm';
 
 const generator = new ApiGenerator();
 const flags: ApiFlags = {
@@ -90,7 +90,7 @@ await generator.generate('users', flags);
 Creates complete feature structures with directories and configurations.
 
 ```typescript
-import { FeatureGenerator, CommonGeneratorFlags } from '@ingenyus/swarm-core';
+import { FeatureGenerator, CommonGeneratorFlags } from '@ingenyus/swarm';
 
 const generator = new FeatureGenerator();
 const flags: CommonGeneratorFlags = {
@@ -104,7 +104,7 @@ await generator.generate('blog/posts', flags);
 Generates complete CRUD operations for data types.
 
 ```typescript
-import { CrudGenerator, CrudFlags } from '@ingenyus/swarm-core';
+import { CrudGenerator, CrudFlags } from '@ingenyus/swarm';
 
 const generator = new CrudGenerator();
 const flags: CrudFlags = {
@@ -122,7 +122,7 @@ await generator.generate('blog', flags);
 Creates background job workers with scheduling.
 
 ```typescript
-import { JobGenerator, JobFlags } from '@ingenyus/swarm-core';
+import { JobGenerator, JobFlags } from '@ingenyus/swarm';
 
 const generator = new JobGenerator();
 const flags: JobFlags = {
@@ -140,7 +140,7 @@ await generator.generate('users', flags);
 Creates individual query or action operations.
 
 ```typescript
-import { OperationGenerator, OperationFlags } from '@ingenyus/swarm-core';
+import { OperationGenerator, OperationFlags } from '@ingenyus/swarm';
 
 const generator = new OperationGenerator();
 const flags: OperationFlags = {
@@ -158,7 +158,7 @@ await generator.generate('users', flags);
 Generates route definitions and page components.
 
 ```typescript
-import { RouteGenerator, RouteFlags } from '@ingenyus/swarm-core';
+import { RouteGenerator, RouteFlags } from '@ingenyus/swarm';
 
 const generator = new RouteGenerator();
 const flags: RouteFlags = {
@@ -175,7 +175,7 @@ await generator.generate('users', flags);
 Creates API namespaces with middleware.
 
 ```typescript
-import { ApiNamespaceGenerator, ApiNamespaceFlags } from '@ingenyus/swarm-core';
+import { ApiNamespaceGenerator, ApiNamespaceFlags } from '@ingenyus/swarm';
 
 const generator = new ApiNamespaceGenerator();
 const flags: ApiNamespaceFlags = {

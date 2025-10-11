@@ -1,4 +1,4 @@
-import { extend } from '@ingenyus/swarm-core';
+import { extend } from '@ingenyus/swarm';
 import { z } from 'zod';
 
 /**
