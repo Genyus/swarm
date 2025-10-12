@@ -11,9 +11,6 @@ interface EntityField {
   hasDefaultValue: boolean;
   isGenerated: boolean;
   isUpdatedAt: boolean;
-  relationName?: string;
-  relationToFields?: Readonly<string[]>;
-  relationFromFields?: Readonly<string[]>;
 }
 
 /**

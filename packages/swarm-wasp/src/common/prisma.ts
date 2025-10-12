@@ -35,95 +35,44 @@ export async function getEntityMetadata(
       throw new Error(`Model ${modelName} not found in schema`);
     }
 
-    const fields = (
-      (model.properties || []).filter(
-        (item: Property | Break | Comment): item is Field =>
-          item.type === 'field'
-      ) as Field[]
-    ).map((field) => {
-      const fieldType =
-        typeof field.fieldType === 'string'
-          ? field.fieldType
-          : field.fieldType.name;
-      const tsType = getPrismaToTsType(fieldType);
-      const isRequired = !field.optional;
-      const isId =
-        field.attributes?.some((attr: Attribute) => attr.name === 'id') ||
-        false;
-      const isUnique =
-        field.attributes?.some((attr: Attribute) => attr.name === 'unique') ||
-        false;
-      const hasDefaultValue =
-        field.attributes?.some((attr: Attribute) => attr.name === 'default') ||
-        false;
-      const isUpdatedAt =
-        field.attributes?.some(
-          (attr: Attribute) => attr.name === 'updatedAt'
-        ) || false;
-      const isGenerated =
-        field.attributes?.some((attr: Attribute) => attr.name === 'map') ||
-        false;
-      const relationAttr = field.attributes?.find(
-        (attr: Attribute) => attr.name === 'relation'
-      );
-      const relationName = relationAttr?.args?.[0]?.value as string | undefined;
-      const relationToKeyValue = relationAttr?.args?.find(
-        (arg: AttributeArgument) =>
-          arg.value &&
-          typeof arg.value === 'object' &&
-          'key' in arg.value &&
-          arg.value.key === 'fields'
-      )?.value as KeyValue | undefined;
-      let relationToFields: string[] | undefined;
+    // Filter out array fields and relation fields
+    const fields = (model.properties || [])
+      .filter(
+        (item): item is Field =>
+          item.type === 'field' &&
+          !item.array &&
+          !item.attributes?.some((attr) => attr.name === 'relation')
+      )
+      .map((field) => {
+        const fieldType =
+          typeof field.fieldType === 'string'
+            ? field.fieldType
+            : field.fieldType.name;
+        const tsType = getPrismaToTsType(fieldType);
+        const isRequired = !field.optional;
+        const isId =
+          field.attributes?.some((attr) => attr.name === 'id') || false;
+        const isUnique =
+          field.attributes?.some((attr) => attr.name === 'unique') || false;
+        const hasDefaultValue =
+          field.attributes?.some((attr) => attr.name === 'default') || false;
+        const isUpdatedAt =
+          field.attributes?.some((attr) => attr.name === 'updatedAt') || false;
+        const isGenerated =
+          field.attributes?.some((attr) => attr.name === 'map') || false;
 
-      if (relationToKeyValue?.value) {
-        const value = relationToKeyValue.value;
-
-        if (
-          typeof value === 'object' &&
-          'args' in value &&
-          Array.isArray(value.args)
-        ) {
-          relationToFields = value.args as string[];
-        }
-      }
-
-      const relationFromKeyValue = relationAttr?.args?.find(
-        (arg: AttributeArgument) =>
-          arg.value &&
-          typeof arg.value === 'object' &&
-          'key' in arg.value &&
-          arg.value.key === 'references'
-      )?.value as KeyValue | undefined;
-      let relationFromFields: string[] | undefined;
-
-      if (relationFromKeyValue?.value) {
-        const value = relationFromKeyValue.value;
-
-        if (
-          typeof value === 'object' &&
-          'args' in value &&
-          Array.isArray(value.args)
-        ) {
-          relationFromFields = value.args as string[];
-        }
-      }
-
-      return {
-        name: field.name,
-        type: fieldType,
-        tsType,
-        isRequired,
-        isId,
-        isUnique,
-        hasDefaultValue,
-        isGenerated,
-        isUpdatedAt,
-        relationName,
-        relationToFields,
-        relationFromFields,
-      };
-    });
+        return {
+          name: field.name,
+          type: fieldType,
+          tsType,
+          isRequired,
+          isId,
+          isUnique,
+          hasDefaultValue,
+          isGenerated,
+          isUpdatedAt,
+        };
+      });
 
     return {
       name: modelName,
@@ -162,12 +111,11 @@ export function getOmitFields(model: EntityMetadata): string {
   return model.fields
     .filter(
       (f) =>
-        (f.isId ||
-          f.isGenerated ||
-          f.isUpdatedAt ||
-          f.hasDefaultValue ||
-          !f.isRequired) &&
-        !f.relationName
+        f.isId ||
+        f.isGenerated ||
+        f.isUpdatedAt ||
+        f.hasDefaultValue ||
+        !f.isRequired
     )
     .map((f) => `"${f.name}"`)
     .join(' | ');
@@ -191,8 +139,7 @@ export function getOptionalFields(
         !field.isRequired) &&
       !field.isId &&
       !field.isGenerated &&
-      !field.isUpdatedAt &&
-      !field.relationName
+      !field.isUpdatedAt
     ) {
       optionalFields[field.name] = field.tsType;
     }
