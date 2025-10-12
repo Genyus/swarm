@@ -1,11 +1,12 @@
 import { SwarmPluginInterface } from '@ingenyus/swarm';
 import {
+  ActionGenerator,
   ApiGenerator,
   ApiNamespaceGenerator,
   CrudGenerator,
   FeatureDirectoryGenerator,
   JobGenerator,
-  OperationGenerator,
+  QueryGenerator,
   RouteGenerator,
 } from '.';
 import { getPluginVersion } from './common';
@@ -17,12 +18,13 @@ export function createWaspPlugin(): SwarmPluginInterface {
     description: 'Wasp Plugin for Swarm',
     swarmVersion: '0.1.0',
     generators: [
+      new ActionGenerator(),
       new ApiGenerator(),
       new ApiNamespaceGenerator(),
       new CrudGenerator(),
       new FeatureDirectoryGenerator(),
       new JobGenerator(),
-      new OperationGenerator(),
+      new QueryGenerator(),
       new RouteGenerator(),
     ],
   };

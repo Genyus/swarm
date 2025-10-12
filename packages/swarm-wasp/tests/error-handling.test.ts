@@ -1,13 +1,14 @@
 import type { FileSystem, Logger } from '@ingenyus/swarm';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
-    ApiGenerator,
-    ApiNamespaceGenerator,
-    CrudGenerator,
-    FeatureDirectoryGenerator,
-    JobGenerator,
-    OperationGenerator,
-    RouteGenerator,
+  ActionGenerator,
+  ApiGenerator,
+  ApiNamespaceGenerator,
+  CrudGenerator,
+  FeatureDirectoryGenerator,
+  JobGenerator,
+  QueryGenerator,
+  RouteGenerator,
 } from '../src';
 import { createTestSetup } from './utils';
 
@@ -65,7 +66,8 @@ describe('Error Handling Tests', () => {
   let apiGenerator: ApiGenerator;
   let jobGenerator: JobGenerator;
   let crudGenerator: CrudGenerator;
-  let operationGenerator: OperationGenerator;
+  let actionGenerator: ActionGenerator;
+  let queryGenerator: QueryGenerator;
   let apiNamespaceGenerator: ApiNamespaceGenerator;
 
   beforeEach(async () => {
@@ -79,7 +81,8 @@ describe('Error Handling Tests', () => {
     apiGenerator = new ApiGenerator(logger, fs, featureGenerator);
     jobGenerator = new JobGenerator(logger, fs, featureGenerator);
     crudGenerator = new CrudGenerator(logger, fs, featureGenerator);
-    operationGenerator = new OperationGenerator(logger, fs, featureGenerator);
+    actionGenerator = new ActionGenerator(logger, fs, featureGenerator);
+    queryGenerator = new QueryGenerator(logger, fs, featureGenerator);
     apiNamespaceGenerator = new ApiNamespaceGenerator(
       logger,
       fs,
@@ -195,8 +198,8 @@ describe('Error Handling Tests', () => {
   it('should handle duplicate operation creation without force', async () => {
     featureGenerator.generate({ path: 'documents' });
 
-    // Create operation first time
-    await operationGenerator.generate({
+    // Create query first time
+    await queryGenerator.generate({
       feature: 'documents',
       dataType: 'Document',
       operation: 'get',
@@ -207,7 +210,7 @@ describe('Error Handling Tests', () => {
 
     // Try to create again without force - should throw error
     await expect(
-      operationGenerator.generate({
+      queryGenerator.generate({
         feature: 'documents',
         dataType: 'Document',
         operation: 'get',

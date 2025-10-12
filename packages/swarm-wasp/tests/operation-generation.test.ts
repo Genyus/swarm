@@ -1,6 +1,10 @@
 import type { FileSystem, Logger } from '@ingenyus/swarm';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { FeatureDirectoryGenerator, OperationGenerator } from '../src';
+import {
+  ActionGenerator,
+  FeatureDirectoryGenerator,
+  QueryGenerator,
+} from '../src';
 import { createPrismaMock, createTestSetup } from './utils';
 
 // Mock the Prisma utilities at the test level
@@ -53,7 +57,8 @@ describe('Operation Generation Tests', () => {
   let fs: FileSystem;
   let logger: Logger;
   let featureGenerator: FeatureDirectoryGenerator;
-  let operationGenerator: OperationGenerator;
+  let actionGenerator: ActionGenerator;
+  let queryGenerator: QueryGenerator;
 
   beforeEach(async () => {
     const setup = createTestSetup();
@@ -62,14 +67,15 @@ describe('Operation Generation Tests', () => {
 
     // Initialize generators
     featureGenerator = new FeatureDirectoryGenerator(logger, fs);
-    operationGenerator = new OperationGenerator(logger, fs, featureGenerator);
+    actionGenerator = new ActionGenerator(logger, fs, featureGenerator);
+    queryGenerator = new QueryGenerator(logger, fs, featureGenerator);
 
     // Create feature first
     featureGenerator.generate({ path: 'documents' });
   });
 
   it('should create a query operation', async () => {
-    await operationGenerator.generate({
+    await queryGenerator.generate({
       feature: 'documents',
       dataType: 'Document',
       operation: 'get',
@@ -79,12 +85,12 @@ describe('Operation Generation Tests', () => {
     });
 
     expect(fs.writeFileSync).toHaveBeenCalled();
-    // Operation generator creates operation file and updates config
+    // Query generator creates query file and updates config
     expect(logger.success).toHaveBeenCalled();
   });
 
   it('should create an action operation', async () => {
-    await operationGenerator.generate({
+    await actionGenerator.generate({
       feature: 'documents',
       dataType: 'Document',
       operation: 'create',
@@ -94,12 +100,12 @@ describe('Operation Generation Tests', () => {
     });
 
     expect(fs.writeFileSync).toHaveBeenCalled();
-    // Operation generator creates operation file and updates config
+    // Action generator creates action file and updates config
     expect(logger.success).toHaveBeenCalled();
   });
 
   it('should create multiple entity operation', async () => {
-    await operationGenerator.generate({
+    await queryGenerator.generate({
       feature: 'documents',
       dataType: 'Document',
       operation: 'getAll',
@@ -109,13 +115,13 @@ describe('Operation Generation Tests', () => {
     });
 
     expect(fs.writeFileSync).toHaveBeenCalled();
-    // Operation generator creates operation file and updates config
+    // Query generator creates query file and updates config
     expect(logger.success).toHaveBeenCalled();
   });
 
   it('should handle duplicate operation creation without force', async () => {
-    // Create operation first time
-    await operationGenerator.generate({
+    // Create query first time
+    await queryGenerator.generate({
       feature: 'documents',
       dataType: 'Document',
       operation: 'get',
@@ -126,7 +132,7 @@ describe('Operation Generation Tests', () => {
 
     // Try to create again without force - should throw error
     await expect(
-      operationGenerator.generate({
+      queryGenerator.generate({
         feature: 'documents',
         dataType: 'Document',
         operation: 'get',
@@ -138,8 +144,8 @@ describe('Operation Generation Tests', () => {
   });
 
   it('should overwrite operation with force flag', async () => {
-    // Create operation first time
-    await operationGenerator.generate({
+    // Create query first time
+    await queryGenerator.generate({
       feature: 'documents',
       dataType: 'Document',
       operation: 'get',
@@ -149,7 +155,7 @@ describe('Operation Generation Tests', () => {
     });
 
     // Overwrite with force
-    await operationGenerator.generate({
+    await queryGenerator.generate({
       feature: 'documents',
       dataType: 'Document',
       operation: 'get',
@@ -158,13 +164,13 @@ describe('Operation Generation Tests', () => {
       force: true,
     });
 
-    // Operation generator creates files and updates config
+    // Query generator creates files and updates config
     expect(logger.success).toHaveBeenCalled();
   });
 
   it('should create both queries and actions for the same entity', async () => {
     // Create queries (like in the example)
-    await operationGenerator.generate({
+    await queryGenerator.generate({
       feature: 'documents',
       dataType: 'Document',
       operation: 'get',
@@ -173,7 +179,7 @@ describe('Operation Generation Tests', () => {
       force: false,
     });
 
-    await operationGenerator.generate({
+    await queryGenerator.generate({
       feature: 'documents',
       dataType: 'Document',
       operation: 'getAll',
@@ -183,7 +189,7 @@ describe('Operation Generation Tests', () => {
     });
 
     // Create actions (like in the example)
-    await operationGenerator.generate({
+    await actionGenerator.generate({
       feature: 'documents',
       dataType: 'Document',
       operation: 'create',
@@ -192,7 +198,7 @@ describe('Operation Generation Tests', () => {
       force: false,
     });
 
-    await operationGenerator.generate({
+    await actionGenerator.generate({
       feature: 'documents',
       dataType: 'Document',
       operation: 'update',
@@ -201,7 +207,7 @@ describe('Operation Generation Tests', () => {
       force: false,
     });
 
-    await operationGenerator.generate({
+    await actionGenerator.generate({
       feature: 'documents',
       dataType: 'Document',
       operation: 'delete',
@@ -210,12 +216,12 @@ describe('Operation Generation Tests', () => {
       force: false,
     });
 
-    // Operations generate multiple files (operation + config updates)
+    // Operations generate multiple files (action/query + config updates)
     expect(fs.writeFileSync).toHaveBeenCalled();
   });
 
   it('should handle multiple entities in operations', async () => {
-    await operationGenerator.generate({
+    await queryGenerator.generate({
       feature: 'documents',
       dataType: 'Document',
       operation: 'getAll',
@@ -225,7 +231,7 @@ describe('Operation Generation Tests', () => {
     });
 
     expect(fs.writeFileSync).toHaveBeenCalled();
-    // Operation generator creates operation file and updates config
+    // Query generator creates query file and updates config
     expect(logger.success).toHaveBeenCalled();
   });
 });

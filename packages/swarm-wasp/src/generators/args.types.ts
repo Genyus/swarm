@@ -53,6 +53,26 @@ export type OperationFlags = Pick<
 >;
 
 /**
+ * Action-specific flags
+ */
+export type ActionFlags = Pick<
+  CommonGeneratorFlags,
+  'feature' | 'entities' | 'force' | 'auth' | 'dataType'
+> & {
+  operation: ActionOperation;
+};
+
+/**
+ * Query-specific flags
+ */
+export type QueryFlags = Pick<
+  CommonGeneratorFlags,
+  'feature' | 'entities' | 'force' | 'auth' | 'dataType'
+> & {
+  operation: QueryOperation;
+};
+
+/**
  * API-specific flags
  */
 export type ApiFlags = Pick<

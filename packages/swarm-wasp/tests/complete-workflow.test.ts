@@ -1,12 +1,13 @@
 import type { FileSystem, Logger } from '@ingenyus/swarm';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
-    ApiGenerator,
-    CrudGenerator,
-    FeatureDirectoryGenerator,
-    JobGenerator,
-    OperationGenerator,
-    RouteGenerator,
+  ActionGenerator,
+  ApiGenerator,
+  CrudGenerator,
+  FeatureDirectoryGenerator,
+  JobGenerator,
+  QueryGenerator,
+  RouteGenerator,
 } from '../src';
 import { createPrismaMock, createTestSetup } from './utils';
 
@@ -65,7 +66,8 @@ describe('Complete Feature Workflow Tests', () => {
   let apiGenerator: ApiGenerator;
   let jobGenerator: JobGenerator;
   let crudGenerator: CrudGenerator;
-  let operationGenerator: OperationGenerator;
+  let actionGenerator: ActionGenerator;
+  let queryGenerator: QueryGenerator;
 
   beforeEach(async () => {
     const setup = createTestSetup();
@@ -79,7 +81,8 @@ describe('Complete Feature Workflow Tests', () => {
     apiGenerator = new ApiGenerator(logger, fs, featureGenerator);
     jobGenerator = new JobGenerator(logger, fs, featureGenerator);
     crudGenerator = new CrudGenerator(logger, fs, featureGenerator);
-    operationGenerator = new OperationGenerator(logger, fs, featureGenerator);
+    actionGenerator = new ActionGenerator(logger, fs, featureGenerator);
+    queryGenerator = new QueryGenerator(logger, fs, featureGenerator);
   });
 
   it('should create a fully populated feature like the example', async () => {
@@ -120,7 +123,7 @@ describe('Complete Feature Workflow Tests', () => {
     });
 
     // Create operations
-    await operationGenerator.generate({
+    await queryGenerator.generate({
       feature: 'documents',
       dataType: 'Document',
       operation: 'get',
@@ -129,7 +132,7 @@ describe('Complete Feature Workflow Tests', () => {
       force: false,
     });
 
-    await operationGenerator.generate({
+    await queryGenerator.generate({
       feature: 'documents',
       dataType: 'Document',
       operation: 'getAll',
@@ -138,7 +141,7 @@ describe('Complete Feature Workflow Tests', () => {
       force: false,
     });
 
-    await operationGenerator.generate({
+    await actionGenerator.generate({
       feature: 'documents',
       dataType: 'Document',
       operation: 'create',

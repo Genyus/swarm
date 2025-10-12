@@ -307,18 +307,13 @@ export abstract class OperationGeneratorBase<
     }
     const directory = TYPE_DIRECTORIES[operationType];
     const featureDir = getFeatureImportPath(featurePath);
-    // Config templates are in the config generator's templates directory
-    // Current file is in generators/base/, so we go up to generators/ then to config/templates/
-    const configGeneratorDir = this.path.dirname(
-      new URL(import.meta.url).pathname
-    );
-    const configTemplatesDir = this.path.join(
-      configGeneratorDir,
-      '..',
+    
+    // Use templateUtility to resolve the config template path
+    const templatePath = this.templateUtility.resolveTemplatePath(
+      'operation.eta',
       'config',
-      'templates'
+      import.meta.url
     );
-    const templatePath = this.path.join(configTemplatesDir, 'operation.eta');
 
     return this.templateUtility.processTemplate(templatePath, {
       operationType: capitalise(operationType),

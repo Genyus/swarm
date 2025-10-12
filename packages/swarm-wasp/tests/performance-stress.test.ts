@@ -1,11 +1,12 @@
 import type { FileSystem, Logger } from '@ingenyus/swarm';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
-    ApiGenerator,
-    FeatureDirectoryGenerator,
-    JobGenerator,
-    OperationGenerator,
-    RouteGenerator,
+  ActionGenerator,
+  ApiGenerator,
+  FeatureDirectoryGenerator,
+  JobGenerator,
+  QueryGenerator,
+  RouteGenerator,
 } from '../src';
 import { ActionOperation, QueryOperation } from '../src/types';
 import { createTestSetup } from './utils';
@@ -63,7 +64,8 @@ describe('Performance and Stress Tests', () => {
   let routeGenerator: RouteGenerator;
   let apiGenerator: ApiGenerator;
   let jobGenerator: JobGenerator;
-  let operationGenerator: OperationGenerator;
+  let actionGenerator: ActionGenerator;
+  let queryGenerator: QueryGenerator;
 
   beforeEach(async () => {
     const setup = createTestSetup();
@@ -75,7 +77,8 @@ describe('Performance and Stress Tests', () => {
     routeGenerator = new RouteGenerator(logger, fs, featureGenerator);
     apiGenerator = new ApiGenerator(logger, fs, featureGenerator);
     jobGenerator = new JobGenerator(logger, fs, featureGenerator);
-    operationGenerator = new OperationGenerator(logger, fs, featureGenerator);
+    actionGenerator = new ActionGenerator(logger, fs, featureGenerator);
+    queryGenerator = new QueryGenerator(logger, fs, featureGenerator);
 
     // Create feature first
     featureGenerator.generate({ path: 'documents' });
@@ -136,15 +139,19 @@ describe('Performance and Stress Tests', () => {
     ];
 
     for (let i = 0; i < 5; i++) {
+      const operation = operations[i];
+      const generator = ['create', 'update', 'delete'].includes(operation)
+        ? actionGenerator
+        : queryGenerator;
       promises.push(
-        operationGenerator.generate({
+        generator.generate({
           feature: 'documents',
           dataType: 'Document',
-          operation: operations[i],
+          operation,
           entities: 'Document',
           auth: false,
           force: false,
-        })
+        } as any)
       );
     }
 
@@ -197,7 +204,7 @@ describe('Performance and Stress Tests', () => {
         entities: ['Document'],
         force: false,
       }),
-      operationGenerator.generate({
+      queryGenerator.generate({
         feature: 'documents',
         dataType: 'Document',
         operation: 'get',
@@ -218,7 +225,7 @@ describe('Performance and Stress Tests', () => {
       ','
     );
 
-    await operationGenerator.generate({
+    await queryGenerator.generate({
       feature: 'documents',
       dataType: 'Document',
       operation: 'getAll',

@@ -1,6 +1,12 @@
 import type { FileSystem, Logger } from '@ingenyus/swarm';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { ApiGenerator, CrudGenerator, FeatureDirectoryGenerator, OperationGenerator } from '../src';
+import {
+  ActionGenerator,
+  ApiGenerator,
+  CrudGenerator,
+  FeatureDirectoryGenerator,
+  QueryGenerator,
+} from '../src';
 import { createPrismaMock, createTestSetup } from './utils';
 
 // Mock the Prisma utilities at the test level
@@ -54,7 +60,8 @@ describe('JSON Field Handling Tests', () => {
   let logger: Logger;
   let featureGenerator: FeatureDirectoryGenerator;
   let crudGenerator: CrudGenerator;
-  let operationGenerator: OperationGenerator;
+  let actionGenerator: ActionGenerator;
+  let queryGenerator: QueryGenerator;
   let apiGenerator: ApiGenerator;
 
   beforeEach(async () => {
@@ -65,7 +72,8 @@ describe('JSON Field Handling Tests', () => {
     // Initialize generators
     featureGenerator = new FeatureDirectoryGenerator(logger, fs);
     crudGenerator = new CrudGenerator(logger, fs, featureGenerator);
-    operationGenerator = new OperationGenerator(logger, fs, featureGenerator);
+    actionGenerator = new ActionGenerator(logger, fs, featureGenerator);
+    queryGenerator = new QueryGenerator(logger, fs, featureGenerator);
     apiGenerator = new ApiGenerator(logger, fs, featureGenerator);
 
     // Create feature first
@@ -87,7 +95,7 @@ describe('JSON Field Handling Tests', () => {
   });
 
   it('should handle JSON fields in operation generation', async () => {
-    await operationGenerator.generate({
+    await actionGenerator.generate({
       feature: 'documents',
       dataType: 'Document',
       operation: 'create',

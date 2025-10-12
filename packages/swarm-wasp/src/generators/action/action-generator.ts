@@ -1,23 +1,22 @@
-import { OperationFlags } from '../../generators/args.types';
+import { ActionFlags } from '../../generators/args.types';
 import { CONFIG_TYPES } from '../../types';
 import { OperationGeneratorBase } from '../base';
 import { schema } from './schema';
 
-export class OperationGenerator extends OperationGeneratorBase<
-  typeof CONFIG_TYPES.ACTION | typeof CONFIG_TYPES.QUERY
+export class ActionGenerator extends OperationGeneratorBase<
+  typeof CONFIG_TYPES.ACTION
 > {
   protected get entityType() {
     return CONFIG_TYPES.ACTION;
   }
 
-  description =
-    'Generate operations (queries and actions) for Wasp applications';
+  description = 'Generate actions (mutations) for Wasp applications';
   schema = schema;
 
-  async generate(flags: OperationFlags): Promise<void> {
+  async generate(flags: ActionFlags): Promise<void> {
     const { dataType, feature } = flags;
     const operation = flags.operation;
-    const operationType = this.getOperationType(operation);
+    const operationType = 'action';
     const entities = flags.entities
       ? Array.isArray(flags.entities)
         ? flags.entities
@@ -50,46 +49,26 @@ export class OperationGenerator extends OperationGeneratorBase<
           operationCode,
           flags.force || false
         );
-        this.updateConfigFile(
-          feature,
+
+        // Generate config definition and update
+        const definition = this.getDefinition(
           operationName,
-          operation,
+          feature,
           entities,
+          'action',
           importPath,
-          flags,
-          configPath
+          flags.auth
+        );
+
+        this.updateConfigWithCheck(
+          configPath,
+          'addAction',
+          operationName,
+          definition,
+          feature,
+          flags.force || false
         );
       }
-    );
-  }
-
-  private updateConfigFile(
-    feature: string,
-    operationName: string,
-    operation: string,
-    entities: string[],
-    importPath: string,
-    flags: OperationFlags,
-    configPath: string
-  ): void {
-    const isAction = ['create', 'update', 'delete'].includes(operation);
-    const methodName = isAction ? 'addAction' : 'addQuery';
-    const definition = this.getDefinition(
-      operationName,
-      feature,
-      entities,
-      isAction ? 'action' : 'query',
-      importPath,
-      flags.auth
-    );
-
-    this.updateConfigWithCheck(
-      configPath,
-      methodName,
-      operationName,
-      definition,
-      feature,
-      flags.force || false
     );
   }
 }

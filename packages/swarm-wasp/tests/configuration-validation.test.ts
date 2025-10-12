@@ -1,6 +1,7 @@
 import type { FileSystem, Logger } from '@ingenyus/swarm';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { ApiGenerator, FeatureDirectoryGenerator, OperationGenerator, RouteGenerator } from '../src';
+import { ApiGenerator, FeatureDirectoryGenerator, ActionGenerator,
+    QueryGenerator, RouteGenerator } from '../src';
 import { createPrismaMock, createTestSetup } from './utils';
 
 // Mock the Prisma utilities at the test level
@@ -56,7 +57,8 @@ describe('Configuration Validation Tests', () => {
   let featureGenerator: FeatureDirectoryGenerator;
   let routeGenerator: RouteGenerator;
   let apiGenerator: ApiGenerator;
-  let operationGenerator: OperationGenerator;
+  let actionGenerator: ActionGenerator;
+  let queryGenerator: QueryGenerator;
 
   beforeEach(async () => {
     const setup = createTestSetup();
@@ -68,7 +70,8 @@ describe('Configuration Validation Tests', () => {
     featureGenerator = new FeatureDirectoryGenerator(logger, fs);
     routeGenerator = new RouteGenerator(logger, fs, featureGenerator);
     apiGenerator = new ApiGenerator(logger, fs, featureGenerator);
-    operationGenerator = new OperationGenerator(logger, fs, featureGenerator);
+    actionGenerator = new ActionGenerator(logger, fs, featureGenerator);
+    queryGenerator = new QueryGenerator(logger, fs, featureGenerator);
 
     // Create feature first
     featureGenerator.generate({ path: 'documents' });
@@ -103,7 +106,7 @@ describe('Configuration Validation Tests', () => {
   });
 
   it('should handle multiple entities in operations', async () => {
-    await operationGenerator.generate({
+    await queryGenerator.generate({
       feature: 'documents',
       dataType: 'Document',
       operation: 'getAll',

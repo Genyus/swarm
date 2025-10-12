@@ -1,6 +1,7 @@
 import type { FileSystem, Logger } from '@ingenyus/swarm';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { ApiGenerator, FeatureDirectoryGenerator, JobGenerator, OperationGenerator, RouteGenerator } from '../src';
+import { ApiGenerator, FeatureDirectoryGenerator, JobGenerator, ActionGenerator,
+    QueryGenerator, RouteGenerator } from '../src';
 import { createPrismaMock, createTestSetup } from './utils';
 
 // Mock the Prisma utilities at the test level
@@ -56,7 +57,8 @@ describe('Edge Cases Tests', () => {
   let routeGenerator: RouteGenerator;
   let apiGenerator: ApiGenerator;
   let jobGenerator: JobGenerator;
-  let operationGenerator: OperationGenerator;
+  let actionGenerator: ActionGenerator;
+  let queryGenerator: QueryGenerator;
 
   beforeEach(async () => {
     const setup = createTestSetup();
@@ -68,14 +70,15 @@ describe('Edge Cases Tests', () => {
     routeGenerator = new RouteGenerator(logger, fs, featureGenerator);
     apiGenerator = new ApiGenerator(logger, fs, featureGenerator);
     jobGenerator = new JobGenerator(logger, fs, featureGenerator);
-    operationGenerator = new OperationGenerator(logger, fs, featureGenerator);
+    actionGenerator = new ActionGenerator(logger, fs, featureGenerator);
+    queryGenerator = new QueryGenerator(logger, fs, featureGenerator);
 
     // Create feature first
     featureGenerator.generate({ path: 'documents' });
   });
 
   it('should handle empty entity arrays', async () => {
-    await operationGenerator.generate({
+    await queryGenerator.generate({
       feature: 'documents',
       dataType: 'Document',
       operation: 'get',
@@ -89,7 +92,7 @@ describe('Edge Cases Tests', () => {
   });
 
   it('should handle single entity string', async () => {
-    await operationGenerator.generate({
+    await queryGenerator.generate({
       feature: 'documents',
       dataType: 'Document',
       operation: 'get',
@@ -154,7 +157,7 @@ describe('Edge Cases Tests', () => {
   });
 
   it('should handle operation with special characters in name', async () => {
-    await operationGenerator.generate({
+    await queryGenerator.generate({
       feature: 'documents',
       dataType: 'Document',
       operation: 'get',
