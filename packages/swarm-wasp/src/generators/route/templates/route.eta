@@ -1,4 +1,0 @@
-.addRoute(feature, "<%=routeName%>", {
-    path: "<%=routePath%>",
-    auth: <%=auth%>,
-  })

@@ -84,7 +84,7 @@ export class RouteGenerator extends EntityGeneratorBase<
     featurePath: string,
     auth = false
   ): string {
-    const templatePath = this.getTemplatePath('route.eta');
+    const templatePath = this.getTemplatePath('config/route.eta');
 
     return this.templateUtility.processTemplate(templatePath, {
       featureName: featurePath.split('/').pop() || featurePath,
