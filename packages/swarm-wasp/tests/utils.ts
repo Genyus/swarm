@@ -1,4 +1,9 @@
-import type { ExtendedSchema, FileSystem, Logger, SwarmGenerator } from '@ingenyus/swarm';
+import type {
+  ExtendedSchema,
+  FileSystem,
+  Logger,
+  SwarmGenerator,
+} from '@ingenyus/swarm';
 import { Stats } from 'node:fs';
 import { vi } from 'vitest';
 
@@ -23,10 +28,12 @@ vi.mock('@ingenyus/swarm/utils/filesystem', () => ({
     targetDirectory: '/mock/target',
     importDirectory: '/mock/import',
   }),
-  ensureDirectoryExists: vi.fn().mockImplementation((_fs: FileSystem, _path: string) => {
-    // Mock implementation that doesn't actually create directories
-    return true;
-  }),
+  ensureDirectoryExists: vi
+    .fn()
+    .mockImplementation((_fs: FileSystem, _path: string) => {
+      // Mock implementation that doesn't actually create directories
+      return true;
+    }),
   getFeatureImportPath: vi
     .fn()
     .mockImplementation((path: string) => `@features/${path}`),
@@ -74,9 +81,14 @@ vi.mock('../src/utils/templates', () => ({
       }
     ),
     resolveTemplatePath: vi.fn(
-      (templateName: string, generatorName: string, _currentFileUrl: string) => {
+      (
+        templateName: string,
+        generatorName: string,
+        _currentFileUrl: string
+      ) => {
         // Mock implementation that returns a predictable path
-        const basePath = '/Users/gary/Dev/swarm/packages/swarm-wasp/src/generators';
+        const basePath =
+          '/Users/gary/Dev/swarm/packages/swarm-wasp/src/generators';
         return `${basePath}/${generatorName}/templates/${templateName}`;
       }
     ),
@@ -181,7 +193,8 @@ model User {
 
 // Mock the prisma utilities at the module level
 vi.mock('@ingenyus/swarm', async () => {
-  const actual = await vi.importActual<typeof import('@ingenyus/swarm')>('@ingenyus/swarm');
+  const actual =
+    await vi.importActual<typeof import('@ingenyus/swarm')>('@ingenyus/swarm');
   return {
     ...actual,
     getTemplatesDir: vi.fn().mockReturnValue('/mock/templates'),
@@ -209,6 +222,13 @@ vi.mock('@ingenyus/swarm', async () => {
           isRequired: false,
         },
         {
+          name: 'isArchived',
+          type: 'Boolean',
+          tsType: 'boolean',
+          isRequired: false,
+          hasDefaultValue: true,
+        },
+        {
           name: 'settings',
           type: 'Json',
           tsType: 'Prisma.JsonValue',
@@ -225,7 +245,8 @@ vi.mock('@ingenyus/swarm', async () => {
       ],
     }),
     getIdField: vi.fn().mockReturnValue({ name: 'id', tsType: 'string' }),
-    getOmitFields: vi.fn().mockReturnValue('"id" | "createdAt"'),
+    getOmitFields: vi.fn().mockReturnValue('"id" | "createdAt" | "isArchived"'),
+    getOptionalFields: vi.fn().mockReturnValue({ isArchived: 'boolean' }),
     getJsonFields: vi.fn().mockReturnValue(['settings']),
     needsPrismaImport: vi.fn().mockReturnValue(true),
     generateJsonTypeHandling: vi
@@ -243,9 +264,7 @@ interface TestSetup {
   fileCallCounts: Record<string, number>;
 }
 
-function createMockFilesystem(
-  mockFiles: Record<string, string>
-): FileSystem {
+function createMockFilesystem(mockFiles: Record<string, string>): FileSystem {
   // Add mock template files for each generator
   const basePath = '/Users/gary/Dev/swarm/packages/swarm-wasp/src/generators';
 
@@ -471,6 +490,13 @@ export const createPrismaMock = () => ({
         isRequired: false,
       },
       {
+        name: 'isArchived',
+        type: 'Boolean',
+        tsType: 'boolean',
+        isRequired: false,
+        hasDefaultValue: true,
+      },
+      {
         name: 'settings',
         type: 'Json',
         tsType: 'Prisma.JsonValue',
@@ -487,7 +513,8 @@ export const createPrismaMock = () => ({
     ],
   }),
   getIdField: vi.fn().mockReturnValue({ name: 'id', tsType: 'string' }),
-  getOmitFields: vi.fn().mockReturnValue('"id" | "createdAt"'),
+  getOmitFields: vi.fn().mockReturnValue('"id" | "createdAt" | "isArchived"'),
+  getOptionalFields: vi.fn().mockReturnValue({ isArchived: 'boolean' }),
   getJsonFields: vi.fn().mockReturnValue(['settings']),
   needsPrismaImport: vi.fn().mockReturnValue(true),
   generateJsonTypeHandling: vi

@@ -30,6 +30,13 @@ vi.mock('../src/common/prisma', () => ({
         hasDefaultValue: true,
       },
       {
+        name: 'isArchived',
+        type: 'Boolean',
+        tsType: 'boolean',
+        isRequired: false,
+        hasDefaultValue: true,
+      },
+      {
         name: 'createdAt',
         type: 'DateTime',
         tsType: 'Date',
@@ -39,7 +46,8 @@ vi.mock('../src/common/prisma', () => ({
     ],
   }),
   getIdField: vi.fn().mockReturnValue({ name: 'id', tsType: 'string' }),
-  getOmitFields: vi.fn().mockReturnValue('"id" | "createdAt"'),
+  getOmitFields: vi.fn().mockReturnValue('"id" | "createdAt" | "isArchived"'),
+  getOptionalFields: vi.fn().mockReturnValue({ isArchived: 'boolean' }),
   getJsonFields: vi.fn().mockReturnValue(['settings']),
   needsPrismaImport: vi.fn().mockReturnValue(true),
   generateJsonTypeHandling: vi

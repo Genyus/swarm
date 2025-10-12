@@ -74,9 +74,20 @@ export async function getEntityMetadata(
           'key' in arg.value &&
           arg.value.key === 'fields'
       )?.value as KeyValue | undefined;
-      const relationToFields = relationToKeyValue?.value as
-        | string[]
-        | undefined;
+      let relationToFields: string[] | undefined;
+
+      if (relationToKeyValue?.value) {
+        const value = relationToKeyValue.value;
+
+        if (
+          typeof value === 'object' &&
+          'args' in value &&
+          Array.isArray(value.args)
+        ) {
+          relationToFields = value.args as string[];
+        }
+      }
+
       const relationFromKeyValue = relationAttr?.args?.find(
         (arg: AttributeArgument) =>
           arg.value &&
@@ -84,9 +95,19 @@ export async function getEntityMetadata(
           'key' in arg.value &&
           arg.value.key === 'references'
       )?.value as KeyValue | undefined;
-      const relationFromFields = relationFromKeyValue?.value as
-        | string[]
-        | undefined;
+      let relationFromFields: string[] | undefined;
+
+      if (relationFromKeyValue?.value) {
+        const value = relationFromKeyValue.value;
+
+        if (
+          typeof value === 'object' &&
+          'args' in value &&
+          Array.isArray(value.args)
+        ) {
+          relationFromFields = value.args as string[];
+        }
+      }
 
       return {
         name: field.name,
@@ -141,13 +162,43 @@ export function getOmitFields(model: EntityMetadata): string {
   return model.fields
     .filter(
       (f) =>
-        f.isId ||
-        f.isGenerated ||
-        f.isUpdatedAt ||
-        (f.type === 'DateTime' && f.hasDefaultValue)
+        (f.isId ||
+          f.isGenerated ||
+          f.isUpdatedAt ||
+          f.hasDefaultValue ||
+          !f.isRequired) &&
+        !f.relationName
     )
     .map((f) => `"${f.name}"`)
     .join(' | ');
+}
+
+/**
+ * Gets fields that should be optional in create operations.
+ * These are fields with default values that are not DateTime.
+ * Excludes ID fields, generated fields, and updatedAt fields.
+ * @param model - The model metadata
+ * @returns Object mapping field names to their TypeScript types
+ */
+export function getOptionalFields(
+  model: EntityMetadata
+): Record<string, string> {
+  const optionalFields: Record<string, string> = {};
+
+  model.fields.forEach((field) => {
+    if (
+      ((field.hasDefaultValue && field.type !== 'DateTime') ||
+        !field.isRequired) &&
+      !field.isId &&
+      !field.isGenerated &&
+      !field.isUpdatedAt &&
+      !field.relationName
+    ) {
+      optionalFields[field.name] = field.tsType;
+    }
+  });
+
+  return optionalFields;
 }
 
 /**

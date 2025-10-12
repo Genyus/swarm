@@ -12,6 +12,7 @@ import {
   getIdField,
   getJsonFields,
   getOmitFields,
+  getOptionalFields,
   needsPrismaImport,
 } from '../../common';
 import {
@@ -176,6 +177,7 @@ export abstract class OperationGeneratorBase<
     const templatePath = this.getOperationTemplatePath(`${operation}.eta`);
     const idField = getIdField(model);
     const omitFields = getOmitFields(model);
+    const optionalFields = getOptionalFields(model);
     const jsonFields = getJsonFields(model);
     const pluralModelName = getPlural(model.name);
     const pluralModelNameLower = pluralModelName.toLowerCase();
@@ -189,7 +191,15 @@ export abstract class OperationGeneratorBase<
 
     switch (operation) {
       case 'create':
-        typeParams = `<Omit<${model.name}, ${omitFields}>>`;
+        // Build the type with optional fields
+        if (Object.keys(optionalFields).length > 0) {
+          const optionalFieldsType = Object.entries(optionalFields)
+            .map(([name, type]) => `${name}?: ${type}`)
+            .join('; ');
+          typeParams = `<Omit<${model.name}, ${omitFields}> & { ${optionalFieldsType} }>`;
+        } else {
+          typeParams = `<Omit<${model.name}, ${omitFields}>>`;
+        }
         break;
       case 'update':
         typeParams = `<Pick<${model.name}, "${idField.name}"> & Partial<Omit<${model.name}, ${omitFields}>>>`;

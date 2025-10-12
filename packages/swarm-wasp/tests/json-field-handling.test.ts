@@ -7,7 +7,7 @@ import {
   FeatureDirectoryGenerator,
   QueryGenerator,
 } from '../src';
-import { createPrismaMock, createTestSetup } from './utils';
+import { createTestSetup } from './utils';
 
 // Mock the Prisma utilities at the test level
 vi.mock('../src/common/prisma', () => ({
@@ -45,7 +45,8 @@ vi.mock('../src/common/prisma', () => ({
     ],
   }),
   getIdField: vi.fn().mockReturnValue({ name: 'id', tsType: 'string' }),
-  getOmitFields: vi.fn().mockReturnValue('"id" | "createdAt"'),
+  getOmitFields: vi.fn().mockReturnValue('"id" | "createdAt" | "isArchived"'),
+  getOptionalFields: vi.fn().mockReturnValue({ isArchived: 'boolean' }),
   getJsonFields: vi.fn().mockReturnValue(['settings']),
   needsPrismaImport: vi.fn().mockReturnValue(true),
   generateJsonTypeHandling: vi

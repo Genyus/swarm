@@ -1,7 +1,10 @@
 import type { FileSystem, Logger } from '@ingenyus/swarm';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { ApiGenerator, FeatureDirectoryGenerator, ActionGenerator,
-    QueryGenerator, RouteGenerator } from '../src';
+import {
+  ActionGenerator,
+  ApiGenerator, FeatureDirectoryGenerator,
+  QueryGenerator, RouteGenerator
+} from '../src';
 import { createPrismaMock, createTestSetup } from './utils';
 
 // Mock the Prisma utilities at the test level
@@ -31,6 +34,13 @@ vi.mock('../src/common/prisma', () => ({
         hasDefaultValue: true,
       },
       {
+        name: 'isArchived',
+        type: 'Boolean',
+        tsType: 'boolean',
+        isRequired: false,
+        hasDefaultValue: true,
+      },
+      {
         name: 'createdAt',
         type: 'DateTime',
         tsType: 'Date',
@@ -40,7 +50,8 @@ vi.mock('../src/common/prisma', () => ({
     ],
   }),
   getIdField: vi.fn().mockReturnValue({ name: 'id', tsType: 'string' }),
-  getOmitFields: vi.fn().mockReturnValue('"id" | "createdAt"'),
+  getOmitFields: vi.fn().mockReturnValue('"id" | "createdAt" | "isArchived"'),
+  getOptionalFields: vi.fn().mockReturnValue({ isArchived: 'boolean' }),
   getJsonFields: vi.fn().mockReturnValue(['settings']),
   needsPrismaImport: vi.fn().mockReturnValue(true),
   generateJsonTypeHandling: vi
