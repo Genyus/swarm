@@ -96,6 +96,12 @@ export class WaspConfigGenerator implements ConfigGenerator {
 
     const { methodName } = parsed;
 
+    // Check if there are any existing definitions of this type before removal
+    const hadExistingDefinitions = this.hasExistingDefinitions(
+      content,
+      methodName
+    );
+
     // Remove existing definition before adding new one
     content = this.removeExistingDefinition(content, declaration);
 
@@ -133,11 +139,13 @@ export class WaspConfigGenerator implements ConfigGenerator {
       lines.splice(insertIndex, 0, ...itemsToInsert);
     } else {
       // Find the correct insertion point based on ordering
+      // Use hadExistingDefinitions to determine if we should add a comment
+      // If there were existing definitions before removal, don't add a comment (we're replacing)
       const { insertIndex, addComment } = this.findGroupInsertionPoint(
         lines,
         methodName,
         declaration,
-        hasExistingDefinitions
+        hadExistingDefinitions || hasExistingDefinitions
       );
 
       // Insert with proper spacing
@@ -455,9 +463,10 @@ export class WaspConfigGenerator implements ConfigGenerator {
       return content;
     }
 
-    // Find the closing parenthesis and semicolon
+    // Find the closing parenthesis
     let closingLineIndex = -1;
     let parenCount = 0;
+    let braceCount = 0;
     let foundOpening = false;
 
     for (let i = openingLineIndex; i < contentLines.length; i++) {
@@ -469,13 +478,15 @@ export class WaspConfigGenerator implements ConfigGenerator {
           foundOpening = true;
         } else if (char === ')') {
           parenCount--;
-          if (foundOpening && parenCount === 0) {
-            // Check if this line ends with semicolon
-            if (line.trim().endsWith(';')) {
-              closingLineIndex = i;
-              break;
-            }
+          if (foundOpening && parenCount === 0 && braceCount === 0) {
+            // Found the closing parenthesis for the method call
+            closingLineIndex = i;
+            break;
           }
+        } else if (char === '{') {
+          braceCount++;
+        } else if (char === '}') {
+          braceCount--;
         }
       }
 
