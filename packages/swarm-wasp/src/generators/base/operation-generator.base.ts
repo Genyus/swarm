@@ -186,23 +186,21 @@ export abstract class OperationGeneratorBase<
     const imports = isCrudOverride
       ? ''
       : this.generateImports(model, model.name, operation);
+    const optionalFieldsType =
+      Object.keys(optionalFields).length === 0
+        ? ''
+        : ` & {${Object.entries(optionalFields)
+            .map(([name, type]) => `${name}?: ${type}`)
+            .join('; ')} }`;
     const jsonTypeHandling = generateJsonTypeHandling(jsonFields);
     let typeParams = '';
 
     switch (operation) {
       case 'create':
-        // Build the type with optional fields
-        if (Object.keys(optionalFields).length > 0) {
-          const optionalFieldsType = Object.entries(optionalFields)
-            .map(([name, type]) => `${name}?: ${type}`)
-            .join('; ');
-          typeParams = `<Omit<${model.name}, ${omitFields}> & { ${optionalFieldsType} }>`;
-        } else {
-          typeParams = `<Omit<${model.name}, ${omitFields}>>`;
-        }
+          typeParams = `<Omit<${model.name}, ${omitFields}>${optionalFieldsType}>`;
         break;
       case 'update':
-        typeParams = `<Pick<${model.name}, "${idField.name}"> & Partial<Omit<${model.name}, ${omitFields}>>>`;
+        typeParams = `<Pick<${model.name}, "${idField.name}"> & Partial<Omit<${model.name}, ${omitFields}>>${optionalFieldsType}>`;
         break;
       case 'delete':
         typeParams = `<Pick<${model.name}, "${idField.name}">>`;
@@ -214,7 +212,7 @@ export abstract class OperationGeneratorBase<
         typeParams = `<void>`;
         break;
       case 'getFiltered':
-        typeParams = `<Partial<Omit<${model.name}, ${omitFields}>>>`;
+        typeParams = `<Partial<Omit<${model.name}, ${omitFields}>>${optionalFieldsType}>`;
         break;
     }
 
