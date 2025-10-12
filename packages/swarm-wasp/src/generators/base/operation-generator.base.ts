@@ -307,7 +307,7 @@ export abstract class OperationGeneratorBase<
     }
     const directory = TYPE_DIRECTORIES[operationType];
     const featureDir = getFeatureImportPath(featurePath);
-    
+
     // Use templateUtility to resolve the config template path
     const templatePath = this.templateUtility.resolveTemplatePath(
       'operation.eta',

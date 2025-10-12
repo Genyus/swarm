@@ -22,10 +22,16 @@ describe('RouteGenerator', () => {
 
   it('generate writes route file and updates config', async () => {
     fs.existsSync = vi.fn((p) => !p.includes('notfound'));
-    fs.readFileSync = vi.fn(
-      () =>
-        'import React from "react";\n\nexport const <%=componentName%> = () => {\n  return (\n    <div className="container mx-auto px-4 py-8">\n      <h1 className="text-2xl font-bold mb-4"><%=displayName%></h1>\n      {/* TODO: Add page content */}\n    </div>\n  );\n};'
-    );
+    fs.readFileSync = vi.fn((path) => {
+      if (typeof path === 'string' && path.endsWith('.wasp.ts')) {
+        return `import { App } from "@ingenyus/swarm-wasp";
+
+export default function configureFeature(app: App, feature: string): void {
+  app
+}`;
+      }
+      return 'import React from "react";\n\nexport const <%=componentName%> = () => {\n  return (\n    <div className="container mx-auto px-4 py-8">\n      <h1 className="text-2xl font-bold mb-4"><%=displayName%></h1>\n      {/* TODO: Add page content */}\n    </div>\n  );\n};';
+    });
     fs.writeFileSync = vi.fn();
 
     // Create generator after setting up mocks
@@ -60,8 +66,7 @@ describe('RouteGenerator', () => {
     // So we expect the config file to be written directly
     expect(fs.writeFileSync).toHaveBeenCalledWith(
       expect.stringContaining('foo.wasp.ts'),
-      expect.any(String),
-      'utf8'
+      expect.any(String)
     );
   });
 

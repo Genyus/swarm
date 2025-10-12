@@ -47,6 +47,13 @@ describe('QueryGenerator', () => {
   name  String?
 }`;
       }
+      if (typeof path === 'string' && path.endsWith('.wasp.ts')) {
+        return `import { App } from "@ingenyus/swarm-wasp";
+
+export default function configureFeature(app: App, feature: string): void {
+  app
+}`;
+      }
       return 'export const <%=operationName%> = async (args: any) => { return {}; }';
     });
     fs.writeFileSync = vi.fn();
@@ -60,10 +67,14 @@ describe('QueryGenerator', () => {
     (gen as any).templateUtility = {
       processTemplate: vi.fn((templatePath, replacements) => {
         // Config template
-        if (templatePath.includes('/config/') && templatePath.includes('operation.eta')) {
-          return `app.addQuery("${replacements.operationName}", {
-  handler: "${replacements.importPath}"
-});`;
+        if (
+          templatePath.includes('/config/') &&
+          templatePath.includes('operation.eta')
+        ) {
+          return `    .addQuery(feature, "${replacements.operationName}", {
+      entities: [],
+      auth: false,
+    })`;
         }
         // Operation template
         return `export const ${replacements.operationName || 'unknownOperation'} = async (args: any) => { return {}; }`;
@@ -91,8 +102,7 @@ describe('QueryGenerator', () => {
     // So we expect the config file to be written directly
     expect(fs.writeFileSync).toHaveBeenCalledWith(
       expect.stringContaining('foo.wasp.ts'),
-      expect.any(String),
-      'utf8'
+      expect.any(String)
     );
   });
 
@@ -113,6 +123,13 @@ describe('QueryGenerator', () => {
   name  String?
 }`;
       }
+      if (typeof path === 'string' && path.endsWith('.wasp.ts')) {
+        return `import { App } from "@ingenyus/swarm-wasp";
+
+export default function configureFeature(app: App, feature: string): void {
+  app
+}`;
+      }
       return 'export const <%=operationName%> = async (args: any) => { return {}; }';
     });
     fs.writeFileSync = vi.fn();
@@ -122,10 +139,14 @@ describe('QueryGenerator', () => {
     (gen as any).templateUtility = {
       processTemplate: vi.fn((templatePath, replacements) => {
         // Config template
-        if (templatePath.includes('/config/') && templatePath.includes('operation.eta')) {
-          return `app.addQuery("${replacements.operationName}", {
-  handler: "${replacements.importPath}"
-});`;
+        if (
+          templatePath.includes('/config/') &&
+          templatePath.includes('operation.eta')
+        ) {
+          return `    .addQuery(feature, "${replacements.operationName}", {
+      entities: [],
+      auth: false,
+    })`;
         }
         // Operation template
         return `export const ${replacements.operationName || 'unknownOperation'} = async (args: any) => { return {}; }`;
@@ -168,6 +189,13 @@ describe('QueryGenerator', () => {
   name  String?
 }`;
       }
+      if (typeof path === 'string' && path.endsWith('.wasp.ts')) {
+        return `import { App } from "@ingenyus/swarm-wasp";
+
+export default function configureFeature(app: App, feature: string): void {
+  app
+}`;
+      }
       return 'export const <%=operationName%> = async (args: any) => { return {}; }';
     });
     fs.writeFileSync = vi.fn();
@@ -177,10 +205,14 @@ describe('QueryGenerator', () => {
     (gen as any).templateUtility = {
       processTemplate: vi.fn((templatePath, replacements) => {
         // Config template
-        if (templatePath.includes('/config/') && templatePath.includes('operation.eta')) {
-          return `app.addQuery("${replacements.operationName}", {
-  handler: "${replacements.importPath}"
-});`;
+        if (
+          templatePath.includes('/config/') &&
+          templatePath.includes('operation.eta')
+        ) {
+          return `    .addQuery(feature, "${replacements.operationName}", {
+      entities: [],
+      auth: false,
+    })`;
         }
         // Operation template
         return `export const ${replacements.operationName || 'unknownOperation'} = async (args: any) => { return {}; }`;

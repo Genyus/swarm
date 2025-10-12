@@ -58,7 +58,16 @@ export default function configure(app: App, feature: string): void {
       return true; // Other files exist
     });
     fs.copyFileSync = vi.fn();
-    fs.readFileSync = vi.fn(() => 'template content');
+    fs.readFileSync = vi.fn((path) => {
+      if (typeof path === 'string' && path.endsWith('.wasp.ts')) {
+        return `import { App } from "@ingenyus/swarm-wasp";
+
+export default function configureFeature(app: App, feature: string): void {
+  app
+}`;
+      }
+      return 'template content';
+    });
     fs.writeFileSync = vi.fn();
 
     const result = gen.update(

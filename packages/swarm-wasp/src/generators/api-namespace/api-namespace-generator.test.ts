@@ -22,7 +22,16 @@ describe('ApiNamespaceGenerator', () => {
 
   it('generate writes middleware file and updates config', async () => {
     fs.existsSync = vi.fn((p) => !p.includes('notfound'));
-    fs.readFileSync = vi.fn(() => 'template');
+    fs.readFileSync = vi.fn((path) => {
+      if (typeof path === 'string' && path.endsWith('.wasp.ts')) {
+        return `import { App } from "@ingenyus/swarm-wasp";
+
+export default function configureFeature(app: App, feature: string): void {
+  app
+}`;
+      }
+      return 'template';
+    });
     fs.writeFileSync = vi.fn();
 
     // Mock the path methods to return predictable paths
@@ -73,8 +82,7 @@ describe('ApiNamespaceGenerator', () => {
     // So we expect the config file to be written directly
     expect(fs.writeFileSync).toHaveBeenCalledWith(
       expect.stringContaining('foo.wasp.ts'),
-      expect.any(String),
-      'utf8'
+      expect.any(String)
     );
   });
 

@@ -23,7 +23,16 @@ describe('ApiGenerator', () => {
   it('generate writes handler and updates config', async () => {
     // Mock existsSync to return true for all paths (including config files)
     fs.existsSync = vi.fn(() => true);
-    fs.readFileSync = vi.fn(() => 'template');
+    fs.readFileSync = vi.fn((path) => {
+      if (typeof path === 'string' && path.endsWith('.wasp.ts')) {
+        return `import { App } from "@ingenyus/swarm-wasp";
+
+export default function configureFeature(app: App, feature: string): void {
+  app
+}`;
+      }
+      return 'template';
+    });
     fs.writeFileSync = vi.fn();
 
     // Mock the template utility to return proper templates
@@ -62,8 +71,7 @@ describe('ApiGenerator', () => {
     // So we expect the config file to be written directly
     expect(fs.writeFileSync).toHaveBeenCalledWith(
       expect.stringContaining('foo.wasp.ts'),
-      expect.any(String),
-      'utf8'
+      expect.any(String)
     );
   });
 

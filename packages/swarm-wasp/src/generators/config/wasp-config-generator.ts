@@ -96,20 +96,306 @@ export class WaspConfigGenerator implements ConfigGenerator {
 
     const { methodName } = parsed;
 
-    // Check if there are existing definitions of this type
-    if (this.hasExistingDefinitions(content, methodName)) {
-      this.logger.warn(
-        `Found existing ${methodName} definition. Removing it before adding the new one.`
-      );
-      content = this.removeExistingDefinition(content, declaration);
+    // Remove existing definition before adding new one
+    content = this.removeExistingDefinition(content, declaration);
+
+    // Check if there are any existing definitions of this type after removal
+    const hasExistingDefinitions = this.hasExistingDefinitions(
+      content,
+      methodName
+    );
+
+    // Find the position to insert the new definition
+    const lines = content.split('\n');
+    const configureFunctionStart = lines.findIndex((line) =>
+      line.trim().startsWith('export default function')
+    );
+
+    if (configureFunctionStart === -1) {
+      handleFatalError('Could not find configure function in feature config');
     }
 
-    // Add the new definition
-    const updatedContent = this.addDefinitionToContent(content, declaration);
-    this.fileSystem.writeFileSync(configFilePath, updatedContent, 'utf8');
+    // Find the app line inside the configure function
+    const appLineIndex = lines.findIndex(
+      (line, index) => index > configureFunctionStart && line.trim() === 'app'
+    );
 
-    this.logger.success(`Updated feature config: ${configFilePath}`);
-    return updatedContent;
+    if (appLineIndex === -1) {
+      // No existing app chain, add it after the opening brace
+      const insertIndex = configureFunctionStart + 1;
+      const itemsToInsert = ['  app'];
+
+      // Always add comment for the first entry since it's the first item of its type
+      const comment = this.getMethodComment(methodName);
+      itemsToInsert.push(`    ${comment}`);
+
+      itemsToInsert.push(declaration.trimEnd());
+      lines.splice(insertIndex, 0, ...itemsToInsert);
+    } else {
+      // Find the correct insertion point based on ordering
+      const { insertIndex, addComment } = this.findGroupInsertionPoint(
+        lines,
+        methodName,
+        declaration,
+        hasExistingDefinitions
+      );
+
+      // Insert with proper spacing
+      const newLines = this.insertWithSpacing(
+        lines,
+        declaration,
+        insertIndex,
+        methodName,
+        addComment
+      );
+      this.fileSystem.writeFileSync(configFilePath, newLines.join('\n'));
+      return configFilePath;
+    }
+
+    this.fileSystem.writeFileSync(configFilePath, lines.join('\n'));
+
+    return configFilePath;
+  }
+
+  /**
+   * Determines the insertion index for a method name based on alphabetical ordering
+   * of existing groups in the configuration file.
+   * @param groups - Object containing existing method groups
+   * @param methodName - The method name to find insertion index for
+   * @returns The insertion index for the method name
+   */
+  private getInsertionIndexForMethod(
+    groups: Record<string, any[]>,
+    methodName: string
+  ): number {
+    const existingMethods = Object.keys(groups).filter(
+      (method) => groups[method].length > 0
+    );
+    const allMethods = [...existingMethods, methodName].sort();
+
+    return allMethods.indexOf(methodName);
+  }
+
+  /**
+   * Gets the comment text for a method type.
+   * @param methodName The method name (e.g., 'addApi')
+   * @returns The comment text for the method type
+   */
+  private getMethodComment(methodName: string): string {
+    const entityName = methodName.startsWith('add')
+      ? methodName.slice(3)
+      : methodName;
+
+    return `// ${entityName} definitions`;
+  }
+
+  /**
+   * Finds the correct insertion point for a new configuration item.
+   * @param lines - Array of file lines
+   * @param methodName - The method name (e.g., 'addApi')
+   * @param definition - The definition string to parse for item name
+   * @returns Object with insertion index and whether to add a comment
+   */
+  private findGroupInsertionPoint(
+    lines: string[],
+    methodName: string,
+    definition: string,
+    hasExistingDefinitionsOfType: boolean
+  ): { insertIndex: number; addComment: boolean } {
+    const appLineIndex = lines.findIndex((line) => line.trim() === 'app');
+
+    if (appLineIndex === -1) {
+      return { insertIndex: appLineIndex + 1, addComment: false }; // Insert after app line
+    }
+
+    // Find all existing method calls and their positions
+    const methodCalls: Array<{
+      lineIndex: number;
+      endLineIndex: number;
+      methodName: string;
+      itemName: string;
+    }> = [];
+
+    for (let i = appLineIndex + 1; i < lines.length; i++) {
+      const line = lines[i].trim();
+
+      if (line.startsWith('.') && line.includes('(')) {
+        // Look for the method call across multiple lines
+        let methodCallContent = line;
+        let j = i;
+        let closingParenCount = 0;
+        let foundClosingParen = false;
+
+        // Count opening and closing parentheses to find the complete method call
+        for (let k = 0; k < methodCallContent.length; k++) {
+          if (methodCallContent[k] === '(') closingParenCount++;
+          if (methodCallContent[k] === ')') closingParenCount--;
+          if (closingParenCount === 0 && methodCallContent[k] === ')') {
+            foundClosingParen = true;
+            break;
+          }
+        }
+
+        // If not found on this line, look at subsequent lines
+        while (!foundClosingParen && j < lines.length - 1) {
+          j++;
+          methodCallContent += ' ' + lines[j].trim();
+          for (let k = 0; k < lines[j].length; k++) {
+            if (lines[j][k] === '(') closingParenCount++;
+            if (lines[j][k] === ')') closingParenCount--;
+            if (closingParenCount === 0 && lines[j][k] === ')') {
+              foundClosingParen = true;
+              break;
+            }
+          }
+        }
+
+        const match = methodCallContent.match(
+          /\.(\w+)\([^,]+,\s*['"`]([^'"`]+)['"`]/
+        );
+        if (match) {
+          methodCalls.push({
+            lineIndex: i,
+            endLineIndex: j,
+            methodName: match[1],
+            itemName: match[2],
+          });
+        }
+      }
+    }
+
+    // Group method calls by type
+    const groups: Record<
+      string,
+      Array<{ lineIndex: number; endLineIndex: number; itemName: string }>
+    > = {};
+    methodCalls.forEach((call) => {
+      if (!groups[call.methodName]) {
+        groups[call.methodName] = [];
+      }
+      groups[call.methodName].push({
+        lineIndex: call.lineIndex,
+        endLineIndex: call.endLineIndex,
+        itemName: call.itemName,
+      });
+    });
+
+    // Find the target group
+    const targetGroup = groups[methodName] || [];
+
+    if (targetGroup.length === 0) {
+      // No items of this type exist, find position based on alphabetical ordering
+      const targetGroupIndex = this.getInsertionIndexForMethod(
+        groups,
+        methodName
+      );
+      const existingMethods = Object.keys(groups)
+        .filter((method) => groups[method].length > 0)
+        .sort();
+
+      // Look for the first group that comes after the target group alphabetically
+      for (let i = targetGroupIndex; i < existingMethods.length; i++) {
+        const groupMethod = existingMethods[i];
+        if (groups[groupMethod] && groups[groupMethod].length > 0) {
+          // Insert before the first item of the next group
+          const firstItem = groups[groupMethod][0];
+          let insertIndex = firstItem.lineIndex;
+
+          // Check if there's a comment line before the first item
+          for (let j = firstItem.lineIndex - 1; j > appLineIndex; j--) {
+            const line = lines[j].trim();
+            if (line.startsWith('//') && line.includes('definitions')) {
+              insertIndex = j; // Insert before the comment
+              break;
+            } else if (line.startsWith('.') || line === '') {
+              // Skip empty lines and method calls
+              continue;
+            } else {
+              // Stop at non-comment, non-empty, non-method lines
+              break;
+            }
+          }
+
+          // Only add comment if this is the first item of its type
+          return { insertIndex, addComment: !hasExistingDefinitionsOfType };
+        }
+      }
+
+      // If no later groups exist, look for the last item of the previous group
+      for (let i = targetGroupIndex - 1; i >= 0; i--) {
+        const groupMethod = existingMethods[i];
+
+        if (groups[groupMethod] && groups[groupMethod].length > 0) {
+          const lastItem = groups[groupMethod][groups[groupMethod].length - 1];
+
+          return {
+            insertIndex: lastItem.endLineIndex + 1,
+            addComment: !hasExistingDefinitionsOfType,
+          };
+        }
+      }
+
+      return {
+        insertIndex: appLineIndex + 1,
+        addComment: !hasExistingDefinitionsOfType,
+      }; // Insert after app line if no groups exist
+    }
+
+    // Parse the new item name
+    const parsed = parseHelperMethodDefinition(definition);
+
+    if (!parsed) {
+      return { insertIndex: appLineIndex + 1, addComment: false }; // Fallback if parsing fails
+    }
+
+    const { firstParam: itemName } = parsed;
+
+    // Find the correct insertion point by comparing with existing items
+    // We need to find where this item should be inserted alphabetically
+    for (let i = 0; i < targetGroup.length; i++) {
+      if (itemName.localeCompare(targetGroup[i].itemName) < 0) {
+        // Insert before this item
+        // If we're inserting at the beginning of the group, we need to add the comment
+        return { insertIndex: targetGroup[i].lineIndex, addComment: false };
+      }
+    }
+
+    // If we get here, the new item should be inserted after the last item
+    const lastItem = targetGroup[targetGroup.length - 1];
+
+    return { insertIndex: lastItem.endLineIndex + 1, addComment: false };
+  }
+
+  /**
+   * Inserts a definition with optional comment header.
+   * @param lines - Array of file lines
+   * @param declaration - The declaration to insert
+   * @param insertIndex - The index where to insert
+   * @param methodName - The method name for comment generation
+   * @param addComment - Whether to add a comment before the declaration
+   * @returns The modified lines array
+   */
+  private insertWithSpacing(
+    lines: string[],
+    declaration: string,
+    insertIndex: number,
+    methodName: string,
+    addComment: boolean = false
+  ): string[] {
+    const newLines = [...lines];
+
+    // Add comment if this is the first item of its type
+    if (addComment) {
+      const comment = this.getMethodComment(methodName);
+
+      newLines.splice(insertIndex, 0, `    ${comment}`);
+      insertIndex += 1; // Adjust for the added comment line
+    }
+
+    // Insert the declaration (trim any trailing newlines)
+    newLines.splice(insertIndex, 0, declaration.trimEnd());
+
+    return newLines;
   }
 
   /**
