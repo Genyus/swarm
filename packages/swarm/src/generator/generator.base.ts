@@ -121,7 +121,7 @@ export abstract class GeneratorBase<TArgs = any>
       return result;
     } catch (error: any) {
       this.logger.error(
-        `Failed to generate ${itemType}: ${error?.message || error}`
+        `Generating ${itemName} ${itemType.toLowerCase()} failed.`
       );
       throw error;
     }
@@ -131,6 +131,6 @@ export abstract class GeneratorBase<TArgs = any>
    * Logs completion message for a generator
    */
   protected logCompletion(itemType: string, itemName: string): void {
-    this.logger.success(`\n${itemType} ${itemName} processing complete.`);
+    this.logger.success(`Generating ${itemName} ${itemType.toLowerCase()} completed.`);
   }
 }

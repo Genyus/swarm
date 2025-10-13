@@ -50,7 +50,6 @@ export class CommandFactory {
       try {
         await commandRegistry.executeCommand(name, rawArgs);
       } catch (err: any) {
-        error(`Error executing '${name}' command`, err);
         process.exit(1);
       }
     });
@@ -118,7 +117,6 @@ export class CommandFactory {
       try {
         await commandRegistry.executeCommand(name, rawArgs);
       } catch (err: any) {
-        error(`Error executing '${name}' command`, err);
         process.exit(1);
       }
     });

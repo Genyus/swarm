@@ -67,8 +67,7 @@ export abstract class WaspGeneratorBase<TArgs> extends GeneratorBase<TArgs> {
     errorMessage?: string
   ): boolean {
     if (exists && !force) {
-      this.logger.error(itemDescription);
-      this.logger.error('Use --force to overwrite');
+      this.logger.error(`${itemDescription}. Use --force to overwrite`);
       throw new Error(errorMessage || itemDescription);
     }
     return exists;
