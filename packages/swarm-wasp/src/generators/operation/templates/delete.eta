@@ -1,9 +1,9 @@
 <%=imports%>
 
-export const <%=operationName%><%=typeAnnotation%> = async ({ <%=idField%> }, context) => {
+export const <%=operationName%><%=typeAnnotation%> = async ({ <%=idFieldParams%> }, context) => {
 <%=authCheck%>  try {
     const <%=modelNameLower%> = await context.entities.<%=modelName%>.findUnique({
-      where: { <%=idField%> },
+      where: { <%=whereClause%> },
     });
 
     if (!<%=modelNameLower%>) {
@@ -11,7 +11,7 @@ export const <%=operationName%><%=typeAnnotation%> = async ({ <%=idField%> }, co
     }
 
     await context.entities.<%=modelName%>.delete({
-      where: { <%=idField%> },
+      where: { <%=whereClause%> },
     });
   } catch (error) {
     console.error(`Failed to delete <%=modelNameLower%> ${<%=idField%>}:`, error);

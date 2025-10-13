@@ -149,7 +149,6 @@ export abstract class OperationGeneratorBase<
     operationName: string;
   }> {
     const model = await getEntityMetadata(modelName);
-    console.log('model', JSON.stringify(model, null, 2));
     const operationType = this.getOperationType(operation);
     const operationName = this.getOperationName(
       operation,
@@ -280,12 +279,23 @@ export abstract class OperationGeneratorBase<
       }
     }
 
+    const isCompositeKey = idFields.length > 1;
+    const compositeKeyName = isCompositeKey ? idFields.join('_') : '';
+    const idFieldParams = isCompositeKey ? idFields.join(', ') : idFields[0];
+    const whereClause = isCompositeKey
+      ? `${compositeKeyName}: { ${idFields.map((f) => `${f}`).join(', ')} }`
+      : idFields[0];
+
     const replacements = {
       operationName,
       modelName: model.name,
       authCheck,
       imports,
       idField: idFields[0],
+      idFieldParams,
+      whereClause,
+      isCompositeKey: String(isCompositeKey),
+      compositeKeyName,
       jsonTypeHandling,
       typeAnnotation,
       satisfiesType,

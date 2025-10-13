@@ -35,6 +35,28 @@ export async function getEntityMetadata(
       throw new Error(`Model ${modelName} not found in schema`);
     }
 
+    // Check for composite primary key (@@id)
+    const compositeIdAttr = (model.properties || []).find(
+      (item) =>
+        item.type === 'attribute' &&
+        item.kind === 'object' &&
+        item.name === 'id'
+    ) as Attribute | undefined;
+
+    let compositeIdFields: string[] = [];
+    if (compositeIdAttr?.args?.[0]) {
+      const arg = compositeIdAttr.args[0] as AttributeArgument;
+      if (
+        typeof arg.value === 'object' &&
+        arg.value !== null &&
+        'type' in arg.value &&
+        arg.value.type === 'array' &&
+        'args' in arg.value
+      ) {
+        compositeIdFields = arg.value.args as string[];
+      }
+    }
+
     // Filter out array fields and relation fields
     const fields = (model.properties || [])
       .filter(
@@ -51,7 +73,8 @@ export async function getEntityMetadata(
         const tsType = getPrismaToTsType(fieldType);
         const isRequired = !field.optional;
         const isId =
-          field.attributes?.some((attr) => attr.name === 'id') || false;
+          field.attributes?.some((attr) => attr.name === 'id') ||
+          compositeIdFields.includes(field.name);
         const isUnique =
           field.attributes?.some((attr) => attr.name === 'unique') || false;
         const hasDefaultValue =
@@ -87,22 +110,25 @@ export async function getEntityMetadata(
 
 /**
  * Gets the ID fields of a model.
+ * Supports both single primary keys (@id) and composite primary keys (@@id).
  * @param model - The model metadata
  * @returns Array of ID field names
  * @throws If no ID field is found
  */
 export function getIdFields(model: EntityMetadata): string[] {
-  const idField = model.fields.find((f) => f.isId);
+  const idFields = model.fields.filter((f) => f.isId).map((f) => f.name);
 
-  if (!idField) throw new Error(`No ID field found for model ${model.name}`);
+  if (idFields.length === 0) {
+    throw new Error(`No ID field found for model ${model.name}`);
+  }
 
-  return [idField.name];
+  return idFields;
 }
 
 /**
  * Gets fields that are required for create operations.
  * Returns fields that are required, don't have default values,
- * and are not generated or updatedAt fields.
+ * and are not ID, generated, or updatedAt fields.
  * @param model - The model metadata
  * @returns Array of required field names
  */
@@ -110,7 +136,10 @@ export function getRequiredFields(model: EntityMetadata): string[] {
   return model.fields
     .filter(
       (f) =>
-        f.isRequired && !f.hasDefaultValue && !f.isGenerated && !f.isUpdatedAt
+        f.isRequired &&
+        !f.hasDefaultValue &&
+        !f.isGenerated &&
+        !f.isUpdatedAt
     )
     .map((f) => f.name);
 }

@@ -42,13 +42,65 @@ describe('prisma utils', () => {
     ],
   };
 
+  const mockCompositeKeyModel: EntityMetadata = {
+    name: 'UserProject',
+    fields: [
+      {
+        name: 'userId',
+        type: 'Int',
+        tsType: 'number',
+        isRequired: true,
+        isId: true,
+        isUnique: false,
+        isGenerated: false,
+        isUpdatedAt: false,
+        hasDefaultValue: false,
+      },
+      {
+        name: 'projectId',
+        type: 'Int',
+        tsType: 'number',
+        isRequired: true,
+        isId: true,
+        isUnique: false,
+        isGenerated: false,
+        isUpdatedAt: false,
+        hasDefaultValue: false,
+      },
+      {
+        name: 'assignedAt',
+        type: 'DateTime',
+        tsType: 'Date',
+        isRequired: true,
+        isId: false,
+        isUnique: false,
+        isGenerated: false,
+        isUpdatedAt: false,
+        hasDefaultValue: false,
+      },
+    ],
+  };
+
   describe('field helper functions', () => {
     it('getIdFields returns array of id field names', () => {
       expect(prisma.getIdFields(mockModel)).toEqual(['id']);
     });
 
+    it('getIdFields supports composite primary keys', () => {
+      expect(prisma.getIdFields(mockCompositeKeyModel)).toEqual([
+        'userId',
+        'projectId',
+      ]);
+    });
+
     it('getRequiredFields returns required fields without defaults', () => {
       expect(prisma.getRequiredFields(mockModel)).toEqual(['name']);
+    });
+
+    it('getRequiredFields excludes composite key fields', () => {
+      expect(prisma.getRequiredFields(mockCompositeKeyModel)).toEqual([
+        'assignedAt',
+      ]);
     });
 
     it('getOptionalFields returns array of optional field names', () => {
@@ -62,6 +114,7 @@ describe('prisma utils', () => {
 
   describe('type generation helpers', () => {
     const allFields = ['id', 'name', 'profile'];
+    const allCompositeFields = ['userId', 'projectId', 'assignedAt'];
 
     describe('generatePickType', () => {
       it('returns empty string when fields array is empty', () => {
@@ -84,6 +137,16 @@ describe('prisma utils', () => {
         expect(prisma.generatePickType('User', ['id'], allFields)).toBe(
           'Pick<User, "id">'
         );
+      });
+
+      it('handles composite key fields', () => {
+        expect(
+          prisma.generatePickType(
+            'UserProject',
+            ['userId', 'projectId'],
+            allCompositeFields
+          )
+        ).toBe('Pick<UserProject, "userId" | "projectId">');
       });
     });
 

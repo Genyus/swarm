@@ -1,9 +1,9 @@
 <%=imports%>
 
-export const <%=operationName%><%=typeAnnotation%> = (async ({ <%=idField%> }, context) => {
+export const <%=operationName%><%=typeAnnotation%> = (async ({ <%=idFieldParams%> }, context) => {
 <%=authCheck%>  try {
     const <%=modelNameLower%> = await context.entities.<%=modelName%>.findUnique({
-      where: { <%=idField%> },
+      where: { <%=whereClause%> },
     });
 
     if (!<%=modelNameLower%>) {
