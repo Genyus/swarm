@@ -87,6 +87,9 @@ export class WaspConfigGenerator implements ConfigGenerator {
     }
 
     let content = this.fileSystem.readFileSync(configFilePath, 'utf8');
+
+    content = this.normaliseSemicolons(content);
+
     const parsed = parseHelperMethodDefinition(declaration);
 
     if (!parsed) {
@@ -156,11 +159,13 @@ export class WaspConfigGenerator implements ConfigGenerator {
         methodName,
         addComment
       );
-      this.fileSystem.writeFileSync(configFilePath, newLines.join('\n'));
+      const normalisedContent = this.normaliseSemicolons(newLines.join('\n'));
+      this.fileSystem.writeFileSync(configFilePath, normalisedContent);
       return configFilePath;
     }
 
-    this.fileSystem.writeFileSync(configFilePath, lines.join('\n'));
+    const normalisedContent = this.normaliseSemicolons(lines.join('\n'));
+    this.fileSystem.writeFileSync(configFilePath, normalisedContent);
 
     return configFilePath;
   }
@@ -533,6 +538,79 @@ export class WaspConfigGenerator implements ConfigGenerator {
 
     // Insert the definition before the last closing brace
     lines.splice(insertIndex + 1, 0, `  ${definition}`);
+
+    return lines.join('\n');
+  }
+
+  /**
+   * Normalises semicolons in the config file by removing them from method chain calls
+   * while preserving them in other contexts (imports, declarations, etc.).
+   * @param content - The file content to normalise
+   * @returns The normalised content
+   */
+  private normaliseSemicolons(content: string): string {
+    const lines = content.split('\n');
+    const configureFunctionStart = lines.findIndex((line) =>
+      line.trim().startsWith('export default function')
+    );
+
+    if (configureFunctionStart === -1) {
+      return content;
+    }
+
+    const appLineIndex = lines.findIndex(
+      (line, index) =>
+        index > configureFunctionStart && line.trim().startsWith('app')
+    );
+
+    if (appLineIndex === -1) {
+      return content;
+    }
+
+    let braceCount = 0;
+    let functionEndIndex = lines.length - 1;
+
+    for (let i = configureFunctionStart; i < lines.length; i++) {
+      const line = lines[i];
+
+      for (const char of line) {
+        if (char === '{') braceCount++;
+        if (char === '}') {
+          braceCount--;
+
+          if (braceCount === 0) {
+            functionEndIndex = i;
+
+            break;
+          }
+        }
+      }
+
+      if (braceCount === 0 && i > configureFunctionStart) {
+        break;
+      }
+    }
+
+    let lastMethodCallIndex = -1;
+    for (let i = appLineIndex + 1; i < functionEndIndex; i++) {
+      const line = lines[i];
+      const trimmed = line.trim();
+
+      if (
+        (trimmed.endsWith(')') || trimmed.endsWith(');')) &&
+        !trimmed.startsWith('//')
+      ) {
+        lines[i] = line.replace(/;\s*$/, '');
+        lastMethodCallIndex = i;
+      }
+    }
+
+    if (
+      lastMethodCallIndex !== -1 &&
+      !lines[lastMethodCallIndex].trim().endsWith(';')
+    ) {
+      lines[lastMethodCallIndex] = lines[lastMethodCallIndex] + ';';
+    }
 
     return lines.join('\n');
   }
