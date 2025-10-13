@@ -244,9 +244,9 @@ vi.mock('@ingenyus/swarm', async () => {
         },
       ],
     }),
-    getIdField: vi.fn().mockReturnValue({ name: 'id', tsType: 'string' }),
-    getOmitFields: vi.fn().mockReturnValue('"id" | "createdAt" | "isArchived"'),
-    getOptionalFields: vi.fn().mockReturnValue({ isArchived: 'boolean' }),
+    getIdFields: vi.fn().mockReturnValue(['id']),
+    getRequiredFields: vi.fn().mockReturnValue(['title']),
+    getOptionalFields: vi.fn().mockReturnValue(['content']),
     getJsonFields: vi.fn().mockReturnValue(['settings']),
     needsPrismaImport: vi.fn().mockReturnValue(true),
     generateJsonTypeHandling: vi
@@ -254,6 +254,33 @@ vi.mock('@ingenyus/swarm', async () => {
       .mockReturnValue(
         ',\n        settings: (data.settings as Prisma.JsonValue) || Prisma.JsonNull'
       ),
+    generatePickType: vi
+      .fn()
+      .mockImplementation((modelName: string, fields: string[]) =>
+        fields.length
+          ? `Pick<${modelName}, ${fields.map((f) => `"${f}"`).join(' | ')}>`
+          : ''
+      ),
+    generateOmitType: vi
+      .fn()
+      .mockImplementation((modelName: string, fields: string[]) =>
+        fields.length
+          ? `Omit<${modelName}, ${fields.map((f) => `"${f}"`).join(' | ')}>`
+          : modelName
+      ),
+    generatePartialType: vi
+      .fn()
+      .mockImplementation((typeString: string) =>
+        typeString ? `Partial<${typeString}>` : ''
+      ),
+    generateIntersectionType: vi
+      .fn()
+      .mockImplementation((type1: string, type2: string) => {
+        if (!type1 && !type2) return '';
+        if (!type1) return type2;
+        if (!type2) return type1;
+        return `${type1} & ${type2}`;
+      }),
   };
 });
 
@@ -512,9 +539,9 @@ export const createPrismaMock = () => ({
       },
     ],
   }),
-  getIdField: vi.fn().mockReturnValue({ name: 'id', tsType: 'string' }),
-  getOmitFields: vi.fn().mockReturnValue('"id" | "createdAt" | "isArchived"'),
-  getOptionalFields: vi.fn().mockReturnValue({ isArchived: 'boolean' }),
+  getIdFields: vi.fn().mockReturnValue(['id']),
+  getRequiredFields: vi.fn().mockReturnValue(['title']),
+  getOptionalFields: vi.fn().mockReturnValue(['content']),
   getJsonFields: vi.fn().mockReturnValue(['settings']),
   needsPrismaImport: vi.fn().mockReturnValue(true),
   generateJsonTypeHandling: vi
@@ -522,6 +549,33 @@ export const createPrismaMock = () => ({
     .mockReturnValue(
       ',\n        settings: (data.settings as Prisma.JsonValue) || Prisma.JsonNull'
     ),
+  generatePickType: vi
+    .fn()
+    .mockImplementation((modelName: string, fields: string[]) =>
+      fields.length
+        ? `Pick<${modelName}, ${fields.map((f) => `"${f}"`).join(' | ')}>`
+        : ''
+    ),
+  generateOmitType: vi
+    .fn()
+    .mockImplementation((modelName: string, fields: string[]) =>
+      fields.length
+        ? `Omit<${modelName}, ${fields.map((f) => `"${f}"`).join(' | ')}>`
+        : modelName
+    ),
+  generatePartialType: vi
+    .fn()
+    .mockImplementation((typeString: string) =>
+      typeString ? `Partial<${typeString}>` : ''
+    ),
+  generateIntersectionType: vi
+    .fn()
+    .mockImplementation((type1: string, type2: string) => {
+      if (!type1 && !type2) return '';
+      if (!type1) return type2;
+      if (!type2) return type1;
+      return `${type1} & ${type2}`;
+    }),
 });
 
 export function createMockLogger(): Logger {

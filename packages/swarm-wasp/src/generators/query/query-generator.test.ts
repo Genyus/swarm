@@ -10,12 +10,16 @@ import { QueryGenerator } from './query-generator';
 // Mock Prisma utilities instead of file system
 vi.mock('../../common/prisma', () => ({
   getEntityMetadata: vi.fn(),
-  getIdField: vi.fn(),
-  getOmitFields: vi.fn(),
+  getIdFields: vi.fn(),
+  getRequiredFields: vi.fn(),
   getOptionalFields: vi.fn(),
   getJsonFields: vi.fn(),
   needsPrismaImport: vi.fn(),
   generateJsonTypeHandling: vi.fn(),
+  generatePickType: vi.fn(),
+  generateOmitType: vi.fn(),
+  generatePartialType: vi.fn(),
+  generateIntersectionType: vi.fn(),
 }));
 
 describe('QueryGenerator', () => {
@@ -27,12 +31,16 @@ describe('QueryGenerator', () => {
   beforeEach(async () => {
     const {
       getEntityMetadata,
-      getIdField,
-      getOmitFields,
+      getIdFields,
+      getRequiredFields,
       getOptionalFields,
       getJsonFields,
       needsPrismaImport,
       generateJsonTypeHandling,
+      generatePickType,
+      generateOmitType,
+      generatePartialType,
+      generateIntersectionType,
     } = await import('../../common/prisma');
 
     (getEntityMetadata as any).mockResolvedValue({
@@ -50,12 +58,35 @@ describe('QueryGenerator', () => {
         { name: 'name', type: 'String', tsType: 'string', isRequired: false },
       ],
     });
-    (getIdField as any).mockReturnValue({ name: 'id', tsType: 'number' });
-    (getOmitFields as any).mockReturnValue('"id"');
-    (getOptionalFields as any).mockReturnValue({});
+    (getIdFields as any).mockReturnValue(['id']);
+    (getRequiredFields as any).mockReturnValue(['email']);
+    (getOptionalFields as any).mockReturnValue(['name']);
     (getJsonFields as any).mockReturnValue([]);
     (needsPrismaImport as any).mockReturnValue(false);
     (generateJsonTypeHandling as any).mockReturnValue('');
+    (generatePickType as any).mockImplementation(
+      (modelName: string, fields: string[]) =>
+        fields.length
+          ? `Pick<${modelName}, ${fields.map((f) => `"${f}"`).join(' | ')}>`
+          : ''
+    );
+    (generateOmitType as any).mockImplementation(
+      (modelName: string, fields: string[]) =>
+        fields.length
+          ? `Omit<${modelName}, ${fields.map((f) => `"${f}"`).join(' | ')}>`
+          : modelName
+    );
+    (generatePartialType as any).mockImplementation((typeString: string) =>
+      typeString ? `Partial<${typeString}>` : ''
+    );
+    (generateIntersectionType as any).mockImplementation(
+      (type1: string, type2: string) => {
+        if (!type1 && !type2) return '';
+        if (!type1) return type2;
+        if (!type2) return type1;
+        return `${type1} & ${type2}`;
+      }
+    );
 
     fs = createMockFS();
     logger = createMockLogger();

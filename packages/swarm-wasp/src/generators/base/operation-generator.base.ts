@@ -6,13 +6,17 @@ import {
 } from '@ingenyus/swarm';
 import {
   copyDirectory,
+  generateIntersectionType,
   generateJsonTypeHandling,
+  generateOmitType,
+  generatePartialType,
+  generatePickType,
   getEntityMetadata,
   getFeatureImportPath,
-  getIdField,
+  getIdFields,
   getJsonFields,
-  getOmitFields,
   getOptionalFields,
+  getRequiredFields,
   needsPrismaImport,
 } from '../../common';
 import {
@@ -186,8 +190,9 @@ export abstract class OperationGeneratorBase<
   ): string {
     const operationType = this.getOperationType(operation);
     const templatePath = this.getOperationTemplatePath(`${operation}.eta`);
-    const idField = getIdField(model);
-    const omitFields = getOmitFields(model);
+    const allFieldNames = model.fields.map((f) => f.name);
+    const idFields = getIdFields(model);
+    const requiredFields = getRequiredFields(model);
     const optionalFields = getOptionalFields(model);
     const jsonFields = getJsonFields(model);
     const pluralModelName = getPlural(model.name);
@@ -197,33 +202,45 @@ export abstract class OperationGeneratorBase<
     const imports = isCrudOverride
       ? ''
       : this.generateImports(model, model.name, operation);
-    const optionalFieldsType =
-      Object.keys(optionalFields).length === 0
-        ? ''
-        : ` & {${Object.entries(optionalFields)
-            .map(([name, type]) => `${name}?: ${type}`)
-            .join('; ')} }`;
     const jsonTypeHandling = generateJsonTypeHandling(jsonFields);
     let typeParams = '';
 
     switch (operation) {
-      case 'create':
-        typeParams = `<Omit<${model.name}, ${omitFields}>${optionalFieldsType}>`;
+      case 'create': {
+        const pickRequired = generatePickType(
+          model.name,
+          requiredFields,
+          allFieldNames
+        );
+        const partialOptional = generatePartialType(
+          generatePickType(model.name, optionalFields, allFieldNames)
+        );
+
+        typeParams = `<${generateIntersectionType(pickRequired, partialOptional)}>`;
+
         break;
-      case 'update':
-        typeParams = `<Pick<${model.name}, "${idField.name}"> & Partial<Omit<${model.name}, ${omitFields}>>${optionalFieldsType}>`;
+      }
+      case 'update': {
+        const pickId = generatePickType(model.name, idFields, allFieldNames);
+        const omitId = generateOmitType(model.name, idFields, allFieldNames);
+        const partialRest = generatePartialType(omitId);
+
+        typeParams = `<${generateIntersectionType(pickId, partialRest)}>`;
+
         break;
+      }
       case 'delete':
-        typeParams = `<Pick<${model.name}, "${idField.name}">>`;
-        break;
       case 'get':
-        typeParams = `<Pick<${model.name}, "${idField.name}">>`;
+        typeParams = `<${generatePickType(model.name, idFields, allFieldNames)}>`;
+
         break;
       case 'getAll':
         typeParams = `<void>`;
+
         break;
       case 'getFiltered':
-        typeParams = `<Partial<Omit<${model.name}, ${omitFields}>>${optionalFieldsType}>`;
+        typeParams = `<${generatePartialType(model.name)}>`;
+
         break;
     }
 
@@ -268,7 +285,7 @@ export abstract class OperationGeneratorBase<
       modelName: model.name,
       authCheck,
       imports,
-      idField: idField.name,
+      idField: idFields[0],
       jsonTypeHandling,
       typeAnnotation,
       satisfiesType,

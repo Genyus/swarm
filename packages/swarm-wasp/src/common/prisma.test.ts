@@ -42,20 +42,113 @@ describe('prisma utils', () => {
     ],
   };
 
-  it('getIdField returns the id field', () => {
-    expect(prisma.getIdField(mockModel)).toEqual({
-      name: 'id',
-      tsType: 'number',
+  describe('field helper functions', () => {
+    it('getIdFields returns array of id field names', () => {
+      expect(prisma.getIdFields(mockModel)).toEqual(['id']);
+    });
+
+    it('getRequiredFields returns required fields without defaults', () => {
+      expect(prisma.getRequiredFields(mockModel)).toEqual(['name']);
+    });
+
+    it('getOptionalFields returns array of optional field names', () => {
+      expect(prisma.getOptionalFields(mockModel)).toEqual(['profile']);
+    });
+
+    it('getJsonFields returns json fields', () => {
+      expect(prisma.getJsonFields(mockModel)).toEqual(['profile']);
     });
   });
 
-  it('getOmitFields returns correct omit fields', () => {
-    expect(prisma.getOmitFields(mockModel)).toContain('id');
-  });
+  describe('type generation helpers', () => {
+    const allFields = ['id', 'name', 'profile'];
 
-  it('getJsonFields returns json fields', () => {
-    expect(prisma.getJsonFields(mockModel)).toEqual(['profile']);
-  });
+    describe('generatePickType', () => {
+      it('returns empty string when fields array is empty', () => {
+        expect(prisma.generatePickType('User', [], allFields)).toBe('');
+      });
 
-  // Add more tests for other prisma utilities as needed
+      it('returns model name when all fields are picked', () => {
+        expect(prisma.generatePickType('User', allFields, allFields)).toBe(
+          'User'
+        );
+      });
+
+      it('returns Pick type for subset of fields', () => {
+        expect(prisma.generatePickType('User', ['id', 'name'], allFields)).toBe(
+          'Pick<User, "id" | "name">'
+        );
+      });
+
+      it('handles single field', () => {
+        expect(prisma.generatePickType('User', ['id'], allFields)).toBe(
+          'Pick<User, "id">'
+        );
+      });
+    });
+
+    describe('generateOmitType', () => {
+      it('returns model name when fields array is empty', () => {
+        expect(prisma.generateOmitType('User', [], allFields)).toBe('User');
+      });
+
+      it('returns empty string when all fields are omitted', () => {
+        expect(prisma.generateOmitType('User', allFields, allFields)).toBe('');
+      });
+
+      it('returns Omit type for subset of fields', () => {
+        expect(prisma.generateOmitType('User', ['id'], allFields)).toBe(
+          'Omit<User, "id">'
+        );
+      });
+
+      it('handles multiple fields', () => {
+        expect(
+          prisma.generateOmitType('User', ['id', 'profile'], allFields)
+        ).toBe('Omit<User, "id" | "profile">');
+      });
+    });
+
+    describe('generatePartialType', () => {
+      it('returns empty string for empty input', () => {
+        expect(prisma.generatePartialType('')).toBe('');
+      });
+
+      it('wraps type in Partial', () => {
+        expect(prisma.generatePartialType('User')).toBe('Partial<User>');
+      });
+
+      it('wraps complex type in Partial', () => {
+        expect(prisma.generatePartialType('Pick<User, "id">')).toBe(
+          'Partial<Pick<User, "id">>'
+        );
+      });
+    });
+
+    describe('generateIntersectionType', () => {
+      it('returns empty string when both types are empty', () => {
+        expect(prisma.generateIntersectionType('', '')).toBe('');
+      });
+
+      it('returns type1 when type2 is empty', () => {
+        expect(prisma.generateIntersectionType('User', '')).toBe('User');
+      });
+
+      it('returns type2 when type1 is empty', () => {
+        expect(prisma.generateIntersectionType('', 'Profile')).toBe('Profile');
+      });
+
+      it('returns intersection when both types are present', () => {
+        expect(prisma.generateIntersectionType('User', 'Profile')).toBe(
+          'User & Profile'
+        );
+      });
+
+      it('handles complex types', () => {
+        expect(
+          prisma.generateIntersectionType('Pick<User, "id">', 'Partial<User>')
+        ).toBe('Pick<User, "id"> & Partial<User>');
+      });
+    });
+  });
 });

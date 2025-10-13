@@ -86,39 +86,33 @@ export async function getEntityMetadata(
 }
 
 /**
- * Gets the ID field of a model.
+ * Gets the ID fields of a model.
  * @param model - The model metadata
- * @returns The ID field metadata
+ * @returns Array of ID field names
  * @throws If no ID field is found
  */
-export function getIdField(model: EntityMetadata): {
-  name: string;
-  tsType: string;
-} {
+export function getIdFields(model: EntityMetadata): string[] {
   const idField = model.fields.find((f) => f.isId);
 
   if (!idField) throw new Error(`No ID field found for model ${model.name}`);
 
-  return { name: idField.name, tsType: idField.tsType };
+  return [idField.name];
 }
 
 /**
- * Gets the fields to omit from create/update operations.
+ * Gets fields that are required for create operations.
+ * Returns fields that are required, don't have default values,
+ * and are not generated or updatedAt fields.
  * @param model - The model metadata
- * @returns The fields to omit as a union type
+ * @returns Array of required field names
  */
-export function getOmitFields(model: EntityMetadata): string {
+export function getRequiredFields(model: EntityMetadata): string[] {
   return model.fields
     .filter(
       (f) =>
-        f.isId ||
-        f.isGenerated ||
-        f.isUpdatedAt ||
-        f.hasDefaultValue ||
-        !f.isRequired
+        f.isRequired && !f.hasDefaultValue && !f.isGenerated && !f.isUpdatedAt
     )
-    .map((f) => `"${f.name}"`)
-    .join(' | ');
+    .map((f) => f.name);
 }
 
 /**
@@ -126,26 +120,19 @@ export function getOmitFields(model: EntityMetadata): string {
  * These are fields with default values that are not DateTime.
  * Excludes ID fields, generated fields, and updatedAt fields.
  * @param model - The model metadata
- * @returns Object mapping field names to their TypeScript types
+ * @returns Array of optional field names
  */
-export function getOptionalFields(
-  model: EntityMetadata
-): Record<string, string> {
-  const optionalFields: Record<string, string> = {};
-
-  model.fields.forEach((field) => {
-    if (
-      ((field.hasDefaultValue && field.type !== 'DateTime') ||
-        !field.isRequired) &&
-      !field.isId &&
-      !field.isGenerated &&
-      !field.isUpdatedAt
-    ) {
-      optionalFields[field.name] = field.tsType;
-    }
-  });
-
-  return optionalFields;
+export function getOptionalFields(model: EntityMetadata): string[] {
+  return model.fields
+    .filter(
+      (field) =>
+        ((field.hasDefaultValue && field.type !== 'DateTime') ||
+          !field.isRequired) &&
+        !field.isId &&
+        !field.isGenerated &&
+        !field.isUpdatedAt
+    )
+    .map((field) => field.name);
 }
 
 /**
@@ -180,6 +167,75 @@ export function generateJsonTypeHandling(jsonFields: string[]): string {
  */
 export function needsPrismaImport(model: EntityMetadata): boolean {
   return model.fields.some((f) => f.type === 'Json' || f.type === 'Decimal');
+}
+
+/**
+ * Generates a Pick type string for TypeScript.
+ * @param modelName - The model name
+ * @param fields - Array of field names to pick
+ * @param allFields - Array of all field names in the model
+ * @returns The Pick type string or simplified type
+ */
+export function generatePickType(
+  modelName: string,
+  fields: string[],
+  allFields: string[]
+): string {
+  if (fields.length === 0) return '';
+
+  if (fields.length === allFields.length) return modelName;
+
+  const fieldUnion = fields.map((f) => `"${f}"`).join(' | ');
+
+  return `Pick<${modelName}, ${fieldUnion}>`;
+}
+
+/**
+ * Generates an Omit type string for TypeScript.
+ * @param modelName - The model name
+ * @param fields - Array of field names to omit
+ * @param allFields - Array of all field names in the model
+ * @returns The Omit type string or simplified type
+ */
+export function generateOmitType(
+  modelName: string,
+  fields: string[],
+  allFields: string[]
+): string {
+  if (fields.length === 0) return modelName;
+
+  if (fields.length === allFields.length) return '';
+
+  const fieldUnion = fields.map((f) => `"${f}"`).join(' | ');
+
+  return `Omit<${modelName}, ${fieldUnion}>`;
+}
+
+/**
+ * Generates a Partial type string for TypeScript.
+ * @param typeString - The type string to wrap in Partial
+ * @returns The Partial type string or empty string
+ */
+export function generatePartialType(typeString: string): string {
+  if (!typeString) return '';
+
+  return `Partial<${typeString}>`;
+}
+
+/**
+ * Generates an intersection type string for TypeScript.
+ * @param type1 - First type string
+ * @param type2 - Second type string
+ * @returns The intersection type string or simplified type
+ */
+export function generateIntersectionType(type1: string, type2: string): string {
+  if (!type1 && !type2) return '';
+
+  if (!type1) return type2;
+
+  if (!type2) return type1;
+
+  return `${type1} & ${type2}`;
 }
 
 /**
