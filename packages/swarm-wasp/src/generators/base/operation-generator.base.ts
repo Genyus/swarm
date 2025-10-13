@@ -44,8 +44,13 @@ export abstract class OperationGeneratorBase<
    */
   getOperationName(
     operation: ActionOperation | QueryOperation,
-    modelName: string
+    modelName: string,
+    customName?: string
   ): string {
+    if (customName) {
+      return customName;
+    }
+
     switch (operation) {
       case OPERATIONS.GETALL:
         return `getAll${getPlural(modelName)}`;
@@ -131,7 +136,8 @@ export abstract class OperationGeneratorBase<
     auth = false,
     entities = [modelName],
     isCrudOverride = false,
-    crudName: string | null = null
+    crudName: string | null = null,
+    customName?: string
   ): Promise<{
     operationCode: string;
     configEntry: OperationConfigEntry;
@@ -141,7 +147,11 @@ export abstract class OperationGeneratorBase<
     const model = await getEntityMetadata(modelName);
     console.log('model', JSON.stringify(model, null, 2));
     const operationType = this.getOperationType(operation);
-    const operationName = this.getOperationName(operation, modelName);
+    const operationName = this.getOperationName(
+      operation,
+      modelName,
+      customName
+    );
     const operationCode = this.generateOperationCode(
       model,
       operation,

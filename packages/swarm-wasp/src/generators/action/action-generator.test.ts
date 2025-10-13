@@ -7,29 +7,15 @@ import {
 } from '../../../tests/utils';
 import { ActionGenerator } from './action-generator';
 
-// Mock the fs module at the module level - Store schema per test
-const schemaHolder = {
-  schema: `model User {
-  id    Int     @id @default(autoincrement())
-  email String  @unique
-  name  String?
-}`,
-};
-
-const mockReadFileSync = vi.fn((path: string) => {
-  // Return schema only for schema.prisma paths
-  if (typeof path === 'string' && path.includes('schema.prisma')) {
-    return schemaHolder.schema;
-  }
-  // Return empty for other files
-  return '';
-});
-
-vi.mock('node:fs', () => ({
-  default: {
-    readFileSync: mockReadFileSync,
-  },
-  readFileSync: mockReadFileSync,
+// Mock Prisma utilities instead of file system
+vi.mock('../../common/prisma', () => ({
+  getEntityMetadata: vi.fn(),
+  getIdField: vi.fn(),
+  getOmitFields: vi.fn(),
+  getOptionalFields: vi.fn(),
+  getJsonFields: vi.fn(),
+  needsPrismaImport: vi.fn(),
+  generateJsonTypeHandling: vi.fn(),
 }));
 
 describe('ActionGenerator', () => {
@@ -38,12 +24,39 @@ describe('ActionGenerator', () => {
   let featureGen: SwarmGenerator<{ path: string }>;
   let gen: ActionGenerator;
 
-  beforeEach(() => {
-    schemaHolder.schema = `model User {
-  id    Int     @id @default(autoincrement())
-  email String  @unique
-  name  String?
-}`;
+  beforeEach(async () => {
+    const {
+      getEntityMetadata,
+      getIdField,
+      getOmitFields,
+      getOptionalFields,
+      getJsonFields,
+      needsPrismaImport,
+      generateJsonTypeHandling,
+    } = await import('../../common/prisma');
+
+    (getEntityMetadata as any).mockResolvedValue({
+      name: 'User',
+      fields: [
+        {
+          name: 'id',
+          type: 'Int',
+          tsType: 'number',
+          isId: true,
+          isRequired: true,
+          hasDefaultValue: true,
+        },
+        { name: 'email', type: 'String', tsType: 'string', isRequired: true },
+        { name: 'name', type: 'String', tsType: 'string', isRequired: false },
+      ],
+    });
+    (getIdField as any).mockReturnValue({ name: 'id', tsType: 'number' });
+    (getOmitFields as any).mockReturnValue('"id"');
+    (getOptionalFields as any).mockReturnValue({});
+    (getJsonFields as any).mockReturnValue([]);
+    (needsPrismaImport as any).mockReturnValue(false);
+    (generateJsonTypeHandling as any).mockReturnValue('');
+
     fs = createMockFS();
     logger = createMockLogger();
     featureGen = createMockFeatureGen();
@@ -258,10 +271,21 @@ export default function configureFeature(app: App, feature: string): void {
   });
 
   it('automatically includes dataType in entities array when not specified', async () => {
-    schemaHolder.schema = `model Task {
-  id    Int     @id @default(autoincrement())
-  name  String
-}`;
+    const { getEntityMetadata } = await import('../../common/prisma');
+    (getEntityMetadata as any).mockResolvedValue({
+      name: 'Task',
+      fields: [
+        {
+          name: 'id',
+          type: 'Int',
+          tsType: 'number',
+          isId: true,
+          isRequired: true,
+          hasDefaultValue: true,
+        },
+        { name: 'name', type: 'String', tsType: 'string', isRequired: true },
+      ],
+    });
 
     fs.existsSync = vi.fn((p) => {
       if (typeof p === 'string' && p.endsWith('.wasp.ts')) return true;
@@ -326,10 +350,21 @@ export default function configureFeature(app: App, feature: string): void {
   });
 
   it('prevents duplicate dataType in entities array', async () => {
-    schemaHolder.schema = `model Task {
-  id    Int     @id @default(autoincrement())
-  name  String
-}`;
+    const { getEntityMetadata } = await import('../../common/prisma');
+    (getEntityMetadata as any).mockResolvedValue({
+      name: 'Task',
+      fields: [
+        {
+          name: 'id',
+          type: 'Int',
+          tsType: 'number',
+          isId: true,
+          isRequired: true,
+          hasDefaultValue: true,
+        },
+        { name: 'name', type: 'String', tsType: 'string', isRequired: true },
+      ],
+    });
 
     fs.existsSync = vi.fn((p) => {
       if (typeof p === 'string' && p.endsWith('.wasp.ts')) return true;
@@ -351,7 +386,7 @@ export default function configureFeature(app: App, feature: string): void {
     });
     fs.writeFileSync = vi.fn();
 
-    gen = new ActionGenerator(logger, fs, featureGen);
+    const testGen = new ActionGenerator(logger, fs, featureGen);
 
     const mockProcessTemplate = vi.fn((templatePath, replacements) => {
       if (
@@ -366,7 +401,7 @@ export default function configureFeature(app: App, feature: string): void {
       return `export const ${replacements.operationName || 'unknownOperation'} = async (args: any) => { return {}; }`;
     });
 
-    (gen as any).templateUtility = {
+    (testGen as any).templateUtility = {
       processTemplate: mockProcessTemplate,
       resolveTemplatePath: vi.fn(
         (templateName, _generatorName, _currentFileUrl) => {
@@ -378,7 +413,7 @@ export default function configureFeature(app: App, feature: string): void {
       ),
     };
 
-    await gen.generate({
+    await testGen.generate({
       feature: 'tasks',
       dataType: 'Task',
       operation: 'create',
@@ -395,10 +430,21 @@ export default function configureFeature(app: App, feature: string): void {
   });
 
   it('places dataType first in entities array with other entities', async () => {
-    schemaHolder.schema = `model Task {
-  id    Int     @id @default(autoincrement())
-  name  String
-}`;
+    const { getEntityMetadata } = await import('../../common/prisma');
+    (getEntityMetadata as any).mockResolvedValue({
+      name: 'Task',
+      fields: [
+        {
+          name: 'id',
+          type: 'Int',
+          tsType: 'number',
+          isId: true,
+          isRequired: true,
+          hasDefaultValue: true,
+        },
+        { name: 'name', type: 'String', tsType: 'string', isRequired: true },
+      ],
+    });
 
     fs.existsSync = vi.fn((p) => {
       if (typeof p === 'string' && p.endsWith('.wasp.ts')) return true;
@@ -420,7 +466,7 @@ export default function configureFeature(app: App, feature: string): void {
     });
     fs.writeFileSync = vi.fn();
 
-    gen = new ActionGenerator(logger, fs, featureGen);
+    const testGen = new ActionGenerator(logger, fs, featureGen);
 
     const mockProcessTemplate = vi.fn((templatePath, replacements) => {
       if (
@@ -435,7 +481,7 @@ export default function configureFeature(app: App, feature: string): void {
       return `export const ${replacements.operationName || 'unknownOperation'} = async (args: any) => { return {}; }`;
     });
 
-    (gen as any).templateUtility = {
+    (testGen as any).templateUtility = {
       processTemplate: mockProcessTemplate,
       resolveTemplatePath: vi.fn(
         (templateName, _generatorName, _currentFileUrl) => {
@@ -447,7 +493,7 @@ export default function configureFeature(app: App, feature: string): void {
       ),
     };
 
-    await gen.generate({
+    await testGen.generate({
       feature: 'tasks',
       dataType: 'Task',
       operation: 'create',

@@ -18,8 +18,8 @@ const actionSchema = extend(
     })
     .transform(getTypedValueTransformer(validActions)),
   {
-    description: 'The type of action to generate',
-    friendlyName: 'Action Type',
+    description: 'The action operation to generate',
+    friendlyName: 'Action Operation',
     shortName: 'o',
     examples: validActions,
     helpText: 'Available actions: create, update, delete',
@@ -38,6 +38,7 @@ export const schema = z.object({
   feature: commonSchemas.feature,
   operation: actionSchema,
   dataType: dataTypeSchema,
+  name: extend(commonSchemas.name.optional(), commonSchemas.name._metadata),
   entities: commonSchemas.entities,
   force: commonSchemas.force,
   auth: commonSchemas.auth,

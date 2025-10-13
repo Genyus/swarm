@@ -13,8 +13,10 @@ export class QueryGenerator extends OperationGeneratorBase<
   description = 'Generate queries (data fetching) for Wasp applications';
   schema = schema;
 
-  async generate(flags: QueryFlags): Promise<void> {
-    const { dataType, feature } = flags;
+  async generate(
+    flags: Omit<QueryFlags, 'name'> & { name?: string }
+  ): Promise<void> {
+    const { dataType, feature, name } = flags;
     const operation = flags.operation;
     const operationType = 'query';
     const entities = flags.entities
@@ -35,7 +37,10 @@ export class QueryGenerator extends OperationGeneratorBase<
         dataType,
         operation,
         flags.auth,
-        entities
+        entities,
+        false,
+        null,
+        name
       );
 
     return this.handleGeneratorError(

@@ -57,7 +57,7 @@ export type OperationFlags = Pick<
  */
 export type ActionFlags = Pick<
   CommonGeneratorFlags,
-  'feature' | 'entities' | 'force' | 'auth' | 'dataType'
+  'feature' | 'entities' | 'force' | 'auth' | 'dataType' | 'name'
 > & {
   operation: ActionOperation;
 };
@@ -67,7 +67,7 @@ export type ActionFlags = Pick<
  */
 export type QueryFlags = Pick<
   CommonGeneratorFlags,
-  'feature' | 'entities' | 'force' | 'auth' | 'dataType'
+  'feature' | 'entities' | 'force' | 'auth' | 'dataType' | 'name'
 > & {
   operation: QueryOperation;
 };

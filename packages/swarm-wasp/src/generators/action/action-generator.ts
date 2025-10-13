@@ -13,8 +13,10 @@ export class ActionGenerator extends OperationGeneratorBase<
   description = 'Generate actions (mutations) for Wasp applications';
   schema = schema;
 
-  async generate(flags: ActionFlags): Promise<void> {
-    const { dataType, feature } = flags;
+  async generate(
+    flags: Omit<ActionFlags, 'name'> & { name?: string }
+  ): Promise<void> {
+    const { dataType, feature, name } = flags;
     const operation = flags.operation;
     const operationType = 'action';
     const entities = flags.entities
@@ -35,7 +37,10 @@ export class ActionGenerator extends OperationGeneratorBase<
         dataType,
         operation,
         flags.auth,
-        entities
+        entities,
+        false,
+        null,
+        name
       );
 
     return this.handleGeneratorError(

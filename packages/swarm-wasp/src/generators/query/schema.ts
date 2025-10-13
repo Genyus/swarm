@@ -18,8 +18,8 @@ const querySchema = extend(
     })
     .transform(getTypedValueTransformer(validQueries)),
   {
-    description: 'The type of query to generate',
-    friendlyName: 'Query Type',
+    description: 'The query operation to generate',
+    friendlyName: 'Query Operation',
     shortName: 'o',
     examples: validQueries,
     helpText: 'Available queries: get, getAll, getFiltered',
@@ -38,6 +38,7 @@ export const schema = z.object({
   feature: commonSchemas.feature,
   operation: querySchema,
   dataType: dataTypeSchema,
+  name: extend(commonSchemas.name.optional(), commonSchemas.name._metadata),
   entities: commonSchemas.entities,
   force: commonSchemas.force,
   auth: commonSchemas.auth,

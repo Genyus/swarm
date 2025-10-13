@@ -145,7 +145,7 @@ interface ConfigToFlagsMap {
   QUERY: OperationFlags;
   ACTION: OperationFlags;
   CRUD: CrudFlags;
-  API_NAMESPACE: ApiNamespaceFlags; // Assuming same as Api
+  API_NAMESPACE: ApiNamespaceFlags;
 }
 
 /**
