@@ -121,7 +121,7 @@ export abstract class GeneratorBase<TArgs = any>
       return result;
     } catch (error: any) {
       this.logger.error(
-        `Failed to generate ${itemType}: ${error?.stack || error}`
+        `Failed to generate ${itemType}: ${error?.message || error}`
       );
       throw error;
     }
