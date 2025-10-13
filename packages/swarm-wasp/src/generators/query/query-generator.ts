@@ -26,6 +26,10 @@ export class QueryGenerator extends OperationGeneratorBase<
             .filter(Boolean)
       : [];
 
+    if (dataType && !entities.includes(dataType)) {
+      entities.unshift(dataType);
+    }
+
     const { operationCode, operationName } =
       await this.generateOperationComponents(
         dataType,

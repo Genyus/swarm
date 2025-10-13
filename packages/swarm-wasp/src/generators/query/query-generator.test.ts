@@ -7,15 +7,29 @@ import {
 } from '../../../tests/utils';
 import { QueryGenerator } from './query-generator';
 
-// Mock the fs module at the module level
-vi.mock('node:fs', () => ({
-  readFileSync: vi.fn(
-    () => `model User {
+// Mock the fs module at the module level - Store schema per test
+const schemaHolder = {
+  schema: `model User {
   id    Int     @id @default(autoincrement())
   email String  @unique
   name  String?
-}`
-  ),
+}`,
+};
+
+const mockReadFileSync = vi.fn((path: string) => {
+  // Return schema only for schema.prisma paths
+  if (typeof path === 'string' && path.includes('schema.prisma')) {
+    return schemaHolder.schema;
+  }
+  // Return empty for other files
+  return '';
+});
+
+vi.mock('node:fs', () => ({
+  default: {
+    readFileSync: mockReadFileSync,
+  },
+  readFileSync: mockReadFileSync,
 }));
 
 describe('QueryGenerator', () => {
@@ -25,6 +39,11 @@ describe('QueryGenerator', () => {
   let gen: QueryGenerator;
 
   beforeEach(() => {
+    schemaHolder.schema = `model User {
+  id    Int     @id @default(autoincrement())
+  email String  @unique
+  name  String?
+}`;
     fs = createMockFS();
     logger = createMockLogger();
     featureGen = createMockFeatureGen();
@@ -236,5 +255,211 @@ export default function configureFeature(app: App, feature: string): void {
     });
 
     expect(fs.writeFileSync).toHaveBeenCalled();
+  });
+
+  it('automatically includes dataType in entities array when not specified', async () => {
+    schemaHolder.schema = `model Task {
+  id    Int     @id @default(autoincrement())
+  name  String
+}`;
+
+    fs.existsSync = vi.fn((p) => {
+      if (typeof p === 'string' && p.endsWith('.wasp.ts')) return true;
+      if (typeof p === 'string' && p.endsWith('.ts')) return false;
+      if (typeof p === 'string' && p.includes('queries')) return false;
+      if (typeof p === 'string' && p.includes('schema.prisma')) return true;
+      return true;
+    });
+    fs.mkdirSync = vi.fn();
+    fs.readFileSync = vi.fn((path) => {
+      if (typeof path === 'string' && path.endsWith('.wasp.ts')) {
+        return `import { App } from "@ingenyus/swarm-wasp";
+
+export default function configureFeature(app: App, feature: string): void {
+  app
+}`;
+      }
+      return 'export const <%=operationName%> = async (args: any) => { return {}; }';
+    });
+    fs.writeFileSync = vi.fn();
+
+    gen = new QueryGenerator(logger, fs, featureGen);
+
+    const mockProcessTemplate = vi.fn((templatePath, replacements) => {
+      if (
+        templatePath.includes('/config/') &&
+        templatePath.includes('operation.eta')
+      ) {
+        return `    .addQuery(feature, "${replacements.operationName}", {
+      entities: [${replacements.entities}],
+      auth: false,
+    })`;
+      }
+      return `export const ${replacements.operationName || 'unknownOperation'} = async (args: any) => { return {}; }`;
+    });
+
+    (gen as any).templateUtility = {
+      processTemplate: mockProcessTemplate,
+      resolveTemplatePath: vi.fn(
+        (templateName, _generatorName, _currentFileUrl) => {
+          if (templateName === 'operation.eta') {
+            return `/mock/templates/config/operation.eta`;
+          }
+          return `/mock/templates/query/templates/get.eta`;
+        }
+      ),
+    };
+
+    await gen.generate({
+      feature: 'tasks',
+      dataType: 'Task',
+      operation: 'get',
+      force: true,
+    });
+
+    expect(mockProcessTemplate).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.objectContaining({
+        entities: '"Task"',
+      })
+    );
+  });
+
+  it('prevents duplicate dataType in entities array', async () => {
+    schemaHolder.schema = `model Task {
+  id    Int     @id @default(autoincrement())
+  name  String
+}`;
+
+    fs.existsSync = vi.fn((p) => {
+      if (typeof p === 'string' && p.endsWith('.wasp.ts')) return true;
+      if (typeof p === 'string' && p.endsWith('.ts')) return false;
+      if (typeof p === 'string' && p.includes('queries')) return false;
+      if (typeof p === 'string' && p.includes('schema.prisma')) return true;
+      return true;
+    });
+    fs.mkdirSync = vi.fn();
+    fs.readFileSync = vi.fn((path) => {
+      if (typeof path === 'string' && path.endsWith('.wasp.ts')) {
+        return `import { App } from "@ingenyus/swarm-wasp";
+
+export default function configureFeature(app: App, feature: string): void {
+  app
+}`;
+      }
+      return 'export const <%=operationName%> = async (args: any) => { return {}; }';
+    });
+    fs.writeFileSync = vi.fn();
+
+    gen = new QueryGenerator(logger, fs, featureGen);
+
+    const mockProcessTemplate = vi.fn((templatePath, replacements) => {
+      if (
+        templatePath.includes('/config/') &&
+        templatePath.includes('operation.eta')
+      ) {
+        return `    .addQuery(feature, "${replacements.operationName}", {
+      entities: [${replacements.entities}],
+      auth: false,
+    })`;
+      }
+      return `export const ${replacements.operationName || 'unknownOperation'} = async (args: any) => { return {}; }`;
+    });
+
+    (gen as any).templateUtility = {
+      processTemplate: mockProcessTemplate,
+      resolveTemplatePath: vi.fn(
+        (templateName, _generatorName, _currentFileUrl) => {
+          if (templateName === 'operation.eta') {
+            return `/mock/templates/config/operation.eta`;
+          }
+          return `/mock/templates/query/templates/get.eta`;
+        }
+      ),
+    };
+
+    await gen.generate({
+      feature: 'tasks',
+      dataType: 'Task',
+      operation: 'get',
+      entities: 'Task',
+      force: true,
+    });
+
+    expect(mockProcessTemplate).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.objectContaining({
+        entities: '"Task"',
+      })
+    );
+  });
+
+  it('places dataType first in entities array with other entities', async () => {
+    schemaHolder.schema = `model Task {
+  id    Int     @id @default(autoincrement())
+  name  String
+}`;
+
+    fs.existsSync = vi.fn((p) => {
+      if (typeof p === 'string' && p.endsWith('.wasp.ts')) return true;
+      if (typeof p === 'string' && p.endsWith('.ts')) return false;
+      if (typeof p === 'string' && p.includes('queries')) return false;
+      if (typeof p === 'string' && p.includes('schema.prisma')) return true;
+      return true;
+    });
+    fs.mkdirSync = vi.fn();
+    fs.readFileSync = vi.fn((path) => {
+      if (typeof path === 'string' && path.endsWith('.wasp.ts')) {
+        return `import { App } from "@ingenyus/swarm-wasp";
+
+export default function configureFeature(app: App, feature: string): void {
+  app
+}`;
+      }
+      return 'export const <%=operationName%> = async (args: any) => { return {}; }';
+    });
+    fs.writeFileSync = vi.fn();
+
+    gen = new QueryGenerator(logger, fs, featureGen);
+
+    const mockProcessTemplate = vi.fn((templatePath, replacements) => {
+      if (
+        templatePath.includes('/config/') &&
+        templatePath.includes('operation.eta')
+      ) {
+        return `    .addQuery(feature, "${replacements.operationName}", {
+      entities: [${replacements.entities}],
+      auth: false,
+    })`;
+      }
+      return `export const ${replacements.operationName || 'unknownOperation'} = async (args: any) => { return {}; }`;
+    });
+
+    (gen as any).templateUtility = {
+      processTemplate: mockProcessTemplate,
+      resolveTemplatePath: vi.fn(
+        (templateName, _generatorName, _currentFileUrl) => {
+          if (templateName === 'operation.eta') {
+            return `/mock/templates/config/operation.eta`;
+          }
+          return `/mock/templates/query/templates/get.eta`;
+        }
+      ),
+    };
+
+    await gen.generate({
+      feature: 'tasks',
+      dataType: 'Task',
+      operation: 'get',
+      entities: 'User,Product',
+      force: true,
+    });
+
+    expect(mockProcessTemplate).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.objectContaining({
+        entities: '"Task", "User", "Product"',
+      })
+    );
   });
 });

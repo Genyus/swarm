@@ -139,6 +139,7 @@ export abstract class OperationGeneratorBase<
     operationName: string;
   }> {
     const model = await getEntityMetadata(modelName);
+    console.log('model', JSON.stringify(model, null, 2));
     const operationType = this.getOperationType(operation);
     const operationName = this.getOperationName(operation, modelName);
     const operationCode = this.generateOperationCode(
@@ -197,7 +198,7 @@ export abstract class OperationGeneratorBase<
 
     switch (operation) {
       case 'create':
-          typeParams = `<Omit<${model.name}, ${omitFields}>${optionalFieldsType}>`;
+        typeParams = `<Omit<${model.name}, ${omitFields}>${optionalFieldsType}>`;
         break;
       case 'update':
         typeParams = `<Pick<${model.name}, "${idField.name}"> & Partial<Omit<${model.name}, ${omitFields}>>${optionalFieldsType}>`;
