@@ -52,6 +52,45 @@ describe('prisma utils', () => {
         isRequired: true,
         isId: true,
         isUnique: false,
+        isGenerated: true,
+        isUpdatedAt: false,
+        hasDefaultValue: false,
+      },
+      {
+        name: 'projectId',
+        type: 'Int',
+        tsType: 'number',
+        isRequired: true,
+        isId: true,
+        isUnique: false,
+        isGenerated: true,
+        isUpdatedAt: false,
+        hasDefaultValue: false,
+      },
+      {
+        name: 'assignedAt',
+        type: 'DateTime',
+        tsType: 'Date',
+        isRequired: true,
+        isId: false,
+        isUnique: false,
+        isGenerated: false,
+        isUpdatedAt: false,
+        hasDefaultValue: false,
+      },
+    ],
+  };
+
+  const mockCompositeExplicitKeyModel: EntityMetadata = {
+    name: 'UserProject',
+    fields: [
+      {
+        name: 'userId',
+        type: 'Int',
+        tsType: 'number',
+        isRequired: true,
+        isId: true,
+        isUnique: false,
         isGenerated: false,
         isUpdatedAt: false,
         hasDefaultValue: false,
@@ -97,8 +136,16 @@ describe('prisma utils', () => {
       expect(prisma.getRequiredFields(mockModel)).toEqual(['name']);
     });
 
-    it('getRequiredFields excludes composite key fields', () => {
+    it('getRequiredFields excludes generated composite key fields', () => {
       expect(prisma.getRequiredFields(mockCompositeKeyModel)).toEqual([
+        'assignedAt',
+      ]);
+    });
+
+    it('getRequiredFields includes explicit composite key fields', () => {
+      expect(prisma.getRequiredFields(mockCompositeExplicitKeyModel)).toEqual([
+        'userId',
+        'projectId',
         'assignedAt',
       ]);
     });

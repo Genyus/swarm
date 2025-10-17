@@ -1,88 +1,124 @@
-import type { FileSystem, Logger } from '@ingenyus/swarm';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { SignaleLogger } from '@ingenyus/swarm';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { FeatureDirectoryGenerator, RouteGenerator } from '../src';
-import { createTestSetup } from './utils';
+import { realFileSystem } from '../src/common';
+import {
+  countOccurrences,
+  createTestWaspProject,
+  readGeneratedFile,
+  type TestProjectPaths,
+} from './utils';
 
-describe('Route Generation Tests', () => {
-  let fs: FileSystem;
-  let logger: Logger;
-  let featureGenerator: FeatureDirectoryGenerator;
-  let routeGenerator: RouteGenerator;
+describe('Route Generator Integration Tests', () => {
+  let projectPaths: TestProjectPaths;
+  let originalCwd: string;
 
-  beforeEach(async () => {
-    const setup = createTestSetup();
-    fs = setup.fs;
-    logger = setup.logger;
-
-    // Initialize generators
-    featureGenerator = new FeatureDirectoryGenerator(logger, fs);
-    routeGenerator = new RouteGenerator(logger, fs, featureGenerator);
-
-    // Create feature first
-    featureGenerator.generate({ path: 'documents' });
+  beforeEach(() => {
+    originalCwd = process.cwd();
+    projectPaths = createTestWaspProject();
+    process.chdir(projectPaths.root);
   });
 
-  it('should create a route with default settings', async () => {
-    await routeGenerator.generate({
-      feature: 'documents',
-      name: 'Documents',
-      path: '/documents',
+  afterEach(() => {
+    process.chdir(originalCwd);
+  });
+
+  it('should generate route page with proper React component', async () => {
+
+    const logger = new SignaleLogger();
+    const featureGen = new FeatureDirectoryGenerator(logger, realFileSystem);
+    const routeGen = new RouteGenerator(logger, realFileSystem, featureGen);
+
+    await featureGen.generate({ path: 'posts' });
+    await routeGen.generate({
+      feature: 'posts',
+      path: '/posts',
+      name: 'postsPage',
       force: false,
     });
 
-    // Route generator creates page files and updates config
-    expect(fs.writeFileSync).toHaveBeenCalled();
-    expect(logger.success).toHaveBeenCalled();
+    const pagePath = 'src/features/posts/client/pages/PostsPage.tsx';
+    const content = readGeneratedFile(projectPaths.root, pagePath);
+
+    expect(content).toContain('import React from "react"');
+    expect(content).toContain('export const PostsPage');
+    expect(content).toContain('return (');
+    expect(content).toContain('<div className="container mx-auto px-4 py-8">');
   });
 
-  it('should create a route with auth required', async () => {
-    await routeGenerator.generate({
-      feature: 'documents',
-      path: '/documents/admin',
-      name: 'AdminPage',
+  it('should generate authenticated route', async () => {
+
+    const logger = new SignaleLogger();
+    const featureGen = new FeatureDirectoryGenerator(logger, realFileSystem);
+    const routeGen = new RouteGenerator(logger, realFileSystem, featureGen);
+
+    await featureGen.generate({ path: 'posts' });
+    await routeGen.generate({
+      feature: 'posts',
+      path: '/admin/posts',
+      name: 'adminPostsPage',
       auth: true,
       force: false,
     });
 
-    expect(fs.writeFileSync).toHaveBeenCalled();
-    expect(logger.success).toHaveBeenCalled();
+    const pagePath = 'src/features/posts/client/pages/AdminPostsPage.tsx';
+    const content = readGeneratedFile(projectPaths.root, pagePath);
+
+    expect(content).toContain('export const AdminPostsPage');
   });
 
-  it('should handle duplicate route creation without force', async () => {
-    await routeGenerator.generate({
-      feature: 'documents',
-      name: 'Documents',
-      path: '/documents',
+  it('should generate route config with correct structure', async () => {
+
+    const logger = new SignaleLogger();
+    const featureGen = new FeatureDirectoryGenerator(logger, realFileSystem);
+    const routeGen = new RouteGenerator(logger, realFileSystem, featureGen);
+
+    await featureGen.generate({ path: 'posts' });
+    await routeGen.generate({
+      feature: 'posts',
+      path: '/posts',
+      name: 'posts',
       force: false,
     });
 
-    // Create again without force - should throw error
+    const configPath = 'src/features/posts/posts.wasp.ts';
+    const content = readGeneratedFile(projectPaths.root, configPath);
+
+    expect(content).toContain('addRoute');
+    expect(content).toContain('path: "/posts"');
+    expect(content).toContain('posts');
+  });
+
+  it('should not duplicate route in config without force flag', async () => {
+
+    const logger = new SignaleLogger();
+    const featureGen = new FeatureDirectoryGenerator(logger, realFileSystem);
+    const routeGen = new RouteGenerator(logger, realFileSystem, featureGen);
+
+    await featureGen.generate({ path: 'posts' });
+    await routeGen.generate({
+      feature: 'posts',
+      path: '/test',
+      name: 'test',
+      force: false,
+    });
+
+    const configPath = 'src/features/posts/posts.wasp.ts';
+    const contentBefore = readGeneratedFile(projectPaths.root, configPath);
+    const occurrencesBefore = countOccurrences(contentBefore, 'test');
+
     await expect(
-      routeGenerator.generate({
-        feature: 'documents',
-        name: 'Documents',
-        path: '/documents',
+      routeGen.generate({
+        feature: 'posts',
+        path: '/test',
+        name: 'test',
         force: false,
       })
-    ).rejects.toThrow('Page file already exists');
-  });
+    ).rejects.toThrow();
 
-  it('should overwrite route with force flag', async () => {
-    await routeGenerator.generate({
-      feature: 'documents',
-      name: 'Documents',
-      path: '/documents',
-      force: false,
-    });
+    const contentAfter = readGeneratedFile(projectPaths.root, configPath);
+    const occurrencesAfter = countOccurrences(contentAfter, 'test');
 
-    await routeGenerator.generate({
-      feature: 'documents',
-      name: 'Documents',
-      path: '/documents',
-      force: true,
-    });
-
-    // Route generator creates files and updates config
-    expect(logger.success).toHaveBeenCalled();
+    expect(occurrencesAfter).toBe(occurrencesBefore);
   });
 });

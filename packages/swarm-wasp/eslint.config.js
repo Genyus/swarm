@@ -44,6 +44,13 @@ export default [
     },
   },
   {
-    ignores: ['dist/', 'node_modules/', '*.js', 'src/templates/', 'tests/*.d.ts', 'tests/*.d.ts.map', 'tests/mcp/output/**/*'],
+    ignores: [
+      'dist/',
+      'node_modules/',
+      '*.js',
+      'src/templates/',
+      'tests/*.d.ts',
+      'tests/*.d.ts.map',
+    ],
   },
 ];

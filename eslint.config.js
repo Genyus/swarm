@@ -67,7 +67,7 @@ export default [
       'packages/*/dist/',
       'packages/*/node_modules/',
       'packages/*/coverage/',
-      'packages/*/tests/output/',
+      'packages/*/tests/out/',
     ],
   },
 ];

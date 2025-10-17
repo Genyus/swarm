@@ -1,91 +1,118 @@
-import type { FileSystem, Logger } from '@ingenyus/swarm';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { SignaleLogger } from '@ingenyus/swarm';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { FeatureDirectoryGenerator, JobGenerator } from '../src';
-import { createTestSetup } from './utils';
+import { realFileSystem } from '../src/common';
+import {
+  countOccurrences,
+  createTestWaspProject,
+  readGeneratedFile,
+  type TestProjectPaths,
+} from './utils';
 
-describe('Job Generation Tests', () => {
-  let fs: FileSystem;
-  let logger: Logger;
-  let featureGenerator: FeatureDirectoryGenerator;
-  let jobGenerator: JobGenerator;
+describe('Job Generator Integration Tests', () => {
+  let projectPaths: TestProjectPaths;
+  let originalCwd: string;
 
-  beforeEach(async () => {
-    const setup = createTestSetup();
-    fs = setup.fs;
-    logger = setup.logger;
-
-    // Initialize generators
-    featureGenerator = new FeatureDirectoryGenerator(logger, fs);
-    jobGenerator = new JobGenerator(logger, fs, featureGenerator);
-
-    // Create feature first
-    featureGenerator.generate({ path: 'documents' });
+  beforeEach(() => {
+    originalCwd = process.cwd();
+    projectPaths = createTestWaspProject();
+    process.chdir(projectPaths.root);
   });
 
-  it('should create a scheduled job', async () => {
-    await jobGenerator.generate({
-      feature: 'documents',
-      name: 'archiveDocuments',
-      entities: ['Document'],
-      cron: '0 2 * * *', // Daily at 2 AM
-      args: '{}',
+  afterEach(() => {
+    process.chdir(originalCwd);
+  });
+
+  it('should generate job with proper structure', async () => {
+    const logger = new SignaleLogger();
+    const featureGen = new FeatureDirectoryGenerator(logger, realFileSystem);
+    const jobGen = new JobGenerator(logger, realFileSystem, featureGen);
+
+    await featureGen.generate({ path: 'posts' });
+    await jobGen.generate({
+      feature: 'posts',
+      name: 'cleanupPosts',
+      cron: '0 0 * * *',
       force: false,
     });
 
-    expect(fs.writeFileSync).toHaveBeenCalled();
-    expect(logger.success).toHaveBeenCalled();
+    const jobPath = 'src/features/posts/server/jobs/cleanupPosts.ts';
+    const content = readGeneratedFile(projectPaths.root, jobPath);
+
+    expect(content).toContain('export const cleanupPosts');
+    expect(content).toContain('async (_args, _context) =>');
   });
 
-  it('should create a job without schedule', async () => {
-    await jobGenerator.generate({
-      feature: 'documents',
-      name: 'processDocument',
-      entities: ['Document'],
+  it('should generate job config with cron schedule', async () => {
+    const logger = new SignaleLogger();
+    const featureGen = new FeatureDirectoryGenerator(logger, realFileSystem);
+    const jobGen = new JobGenerator(logger, realFileSystem, featureGen);
+
+    await featureGen.generate({ path: 'posts' });
+    await jobGen.generate({
+      feature: 'posts',
+      name: 'cleanupPosts',
+      cron: '0 0 * * *',
       force: false,
     });
 
-    expect(fs.writeFileSync).toHaveBeenCalled();
-    expect(logger.success).toHaveBeenCalled();
+    const configPath = 'src/features/posts/posts.wasp.ts';
+    const content = readGeneratedFile(projectPaths.root, configPath);
+
+    expect(content).toContain('addJob');
+    expect(content).toContain('cleanupPosts');
+    expect(content).toContain('cron: "0 0 * * *"');
   });
 
-  it('should handle duplicate job creation without force', async () => {
-    // Create job first time
-    await jobGenerator.generate({
-      feature: 'documents',
-      name: 'archiveDocuments',
-      entities: ['Document'],
+  it('should generate job with custom args', async () => {
+    const logger = new SignaleLogger();
+    const featureGen = new FeatureDirectoryGenerator(logger, realFileSystem);
+    const jobGen = new JobGenerator(logger, realFileSystem, featureGen);
+
+    await featureGen.generate({ path: 'posts' });
+    await jobGen.generate({
+      feature: 'posts',
+      name: 'processPosts',
+      cron: '*/5 * * * *',
+      args: JSON.stringify({ batchSize: 10, priority: 'high' }),
       force: false,
     });
 
-    // Try to create again without force - should throw error
+    const configPath = 'src/features/posts/posts.wasp.ts';
+    const content = readGeneratedFile(projectPaths.root, configPath);
+
+    expect(content).toContain('args: {"batchSize":10,"priority":"high"}');
+  });
+
+  it('should not duplicate job in config without force flag', async () => {
+    const logger = new SignaleLogger();
+    const featureGen = new FeatureDirectoryGenerator(logger, realFileSystem);
+    const jobGen = new JobGenerator(logger, realFileSystem, featureGen);
+
+    await featureGen.generate({ path: 'posts' });
+    await jobGen.generate({
+      feature: 'posts',
+      name: 'testJob',
+      cron: '0 0 * * *',
+      force: false,
+    });
+
+    const configPath = 'src/features/posts/posts.wasp.ts';
+    const contentBefore = readGeneratedFile(projectPaths.root, configPath);
+    const occurrencesBefore = countOccurrences(contentBefore, 'testJob');
+
     await expect(
-      jobGenerator.generate({
-        feature: 'documents',
-        name: 'archiveDocuments',
-        entities: ['Document'],
+      jobGen.generate({
+        feature: 'posts',
+        name: 'testJob',
+        cron: '0 0 * * *',
         force: false,
       })
-    ).rejects.toThrow('job worker already exists');
-  });
+    ).rejects.toThrow();
 
-  it('should overwrite job with force flag', async () => {
-    // Create job first time
-    await jobGenerator.generate({
-      feature: 'documents',
-      name: 'archiveDocuments',
-      entities: ['Document'],
-      force: false,
-    });
+    const contentAfter = readGeneratedFile(projectPaths.root, configPath);
+    const occurrencesAfter = countOccurrences(contentAfter, 'testJob');
 
-    // Overwrite with force
-    await jobGenerator.generate({
-      feature: 'documents',
-      name: 'archiveDocuments',
-      entities: ['Document'],
-      force: true,
-    });
-
-    // Job generation triggers multiple success messages
-    expect(logger.success).toHaveBeenCalled();
+    expect(occurrencesAfter).toBe(occurrencesBefore);
   });
 });

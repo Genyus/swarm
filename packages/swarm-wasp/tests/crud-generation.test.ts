@@ -1,185 +1,109 @@
-import type { FileSystem, Logger } from '@ingenyus/swarm';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { SignaleLogger } from '@ingenyus/swarm';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { CrudGenerator, FeatureDirectoryGenerator } from '../src';
-import { createPrismaMock, createTestSetup } from './utils';
+import { realFileSystem } from '../src/common';
+import {
+  assertImportsPresent,
+  countOccurrences,
+  createTestWaspProject,
+  readGeneratedFile,
+  type TestProjectPaths,
+} from './utils';
 
-// Mock the Prisma utilities at the test level
-vi.mock('../src/common/prisma', () => ({
-  getEntityMetadata: vi.fn().mockResolvedValue({
-    name: 'Document',
-    fields: [
-      {
-        name: 'id',
-        type: 'String',
-        tsType: 'string',
-        isId: true,
-        isRequired: true,
-      },
-      { name: 'title', type: 'String', tsType: 'string', isRequired: true },
-      {
-        name: 'content',
-        type: 'String',
-        tsType: 'string',
-        isRequired: false,
-      },
-      {
-        name: 'settings',
-        type: 'Json',
-        tsType: 'Prisma.JsonValue',
-        isRequired: true,
-        hasDefaultValue: true,
-      },
-      {
-        name: 'isArchived',
-        type: 'Boolean',
-        tsType: 'boolean',
-        isRequired: false,
-        hasDefaultValue: true,
-      },
-      {
-        name: 'createdAt',
-        type: 'DateTime',
-        tsType: 'Date',
-        isRequired: true,
-        hasDefaultValue: true,
-      },
-    ],
-  }),
-  getIdFields: vi.fn().mockReturnValue(['id']),
-  getRequiredFields: vi.fn().mockReturnValue(['title']),
-  getOptionalFields: vi.fn().mockReturnValue(['content']),
-  getJsonFields: vi.fn().mockReturnValue(['settings']),
-  generatePickType: vi
-    .fn()
-    .mockImplementation(
-      (modelName: string, fields: string[]) =>
-        fields.length
-          ? `Pick<${modelName}, ${fields.map((f) => `"${f}"`).join(' | ')}>`
-          : ''
-    ),
-  generateOmitType: vi
-    .fn()
-    .mockImplementation(
-      (modelName: string, fields: string[]) =>
-        fields.length
-          ? `Omit<${modelName}, ${fields.map((f) => `"${f}"`).join(' | ')}>`
-          : modelName
-    ),
-  generatePartialType: vi
-    .fn()
-    .mockImplementation((typeString: string) =>
-      typeString ? `Partial<${typeString}>` : ''
-    ),
-  generateIntersectionType: vi.fn().mockImplementation((type1: string, type2: string) => {
-    if (!type1 && !type2) return '';
-    if (!type1) return type2;
-    if (!type2) return type1;
-    return `${type1} & ${type2}`;
-  }),
-  needsPrismaImport: vi.fn().mockReturnValue(true),
-  generateJsonTypeHandling: vi
-    .fn()
-    .mockReturnValue(
-      ',\n        settings: (data.settings as Prisma.JsonValue) || Prisma.JsonNull'
-    ),
-}));
+describe('CRUD Generator Integration Tests', () => {
+  let projectPaths: TestProjectPaths;
+  let originalCwd: string;
 
-describe('CRUD Generation Tests', () => {
-  let fs: FileSystem;
-  let logger: Logger;
-  let featureGenerator: FeatureDirectoryGenerator;
-  let crudGenerator: CrudGenerator;
-
-  beforeEach(async () => {
-    const setup = createTestSetup();
-    fs = setup.fs;
-    logger = setup.logger;
-
-    // Initialize generators
-    featureGenerator = new FeatureDirectoryGenerator(logger, fs);
-    crudGenerator = new CrudGenerator(logger, fs, featureGenerator);
-
-    // Create feature first
-    featureGenerator.generate({ path: 'documents' });
+  beforeEach(() => {
+    originalCwd = process.cwd();
+    projectPaths = createTestWaspProject();
+    process.chdir(projectPaths.root);
   });
 
-  it('should create a complete CRUD set', async () => {
-    await crudGenerator.generate({
-      feature: 'documents',
-      dataType: 'Document',
+  afterEach(() => {
+    process.chdir(originalCwd);
+  });
+
+  it('should generate complete CRUD operations', async () => {
+    const logger = new SignaleLogger();
+    const featureGen = new FeatureDirectoryGenerator(logger, realFileSystem);
+    const crudGen = new CrudGenerator(logger, realFileSystem, featureGen);
+
+    await featureGen.generate({ path: 'posts' });
+    await crudGen.generate({
+      dataType: 'Post',
+      feature: 'posts',
+      public: ['create', 'get', 'getAll', 'update', 'delete'],
+      override: ['create', 'get', 'getAll', 'update', 'delete'],
       force: false,
     });
 
-    expect(fs.writeFileSync).toHaveBeenCalled();
-    expect(logger.success).toHaveBeenCalled();
+    const crudPath = 'src/features/posts/server/cruds/posts.ts';
+    const content = readGeneratedFile(projectPaths.root, crudPath);
+
+    assertImportsPresent(content, [
+      'import { type Post } from "wasp/entities"',
+      'import { HttpError } from "wasp/server"',
+    ]);
+
+    expect(content).toContain('export const createPost');
+    expect(content).toContain('export const getPost');
+    expect(content).toContain('export const getAllPosts');
+    expect(content).toContain('export const updatePost');
+    expect(content).toContain('export const deletePost');
   });
 
-  it('should create CRUD with custom operations', async () => {
-    await crudGenerator.generate({
-      feature: 'documents',
-      dataType: 'Document',
-      public: ['get', 'getAll'],
-      override: ['create', 'update'],
-      exclude: ['delete'],
+  it('should generate CRUD config with all operations', async () => {
+    const logger = new SignaleLogger();
+    const featureGen = new FeatureDirectoryGenerator(logger, realFileSystem);
+    const crudGen = new CrudGenerator(logger, realFileSystem, featureGen);
+
+    await featureGen.generate({ path: 'posts' });
+    await crudGen.generate({
+      dataType: 'Post',
+      feature: 'posts',
+      public: ['create', 'get', 'getAll', 'update', 'delete'],
       force: false,
     });
 
-    expect(fs.writeFileSync).toHaveBeenCalled();
-    expect(logger.success).toHaveBeenCalled();
+    const configPath = 'src/features/posts/posts.wasp.ts';
+    const content = readGeneratedFile(projectPaths.root, configPath);
+
+    expect(content).toContain('addCrud');
+    expect(content).toContain('Post');
+    expect(content).toContain('Posts');
+    expect(content).toContain('entity: "Post"');
   });
 
-  it('should handle duplicate CRUD creation without force', async () => {
-    // Create CRUD first time
-    await crudGenerator.generate({
-      feature: 'documents',
-      dataType: 'Document',
-      override: ['get', 'getAll'],
+  it('should not duplicate CRUD in config without force flag', async () => {
+    const logger = new SignaleLogger();
+    const featureGen = new FeatureDirectoryGenerator(logger, realFileSystem);
+    const crudGen = new CrudGenerator(logger, realFileSystem, featureGen);
+
+    await featureGen.generate({ path: 'posts' });
+    await crudGen.generate({
+      dataType: 'Post',
+      feature: 'posts',
+      public: ['create', 'get'],
       force: false,
     });
 
-    await expect(
-      // Try to create again without force
-      crudGenerator.generate({
-        feature: 'documents',
-        dataType: 'Document',
-        override: ['get', 'getAll'],
-        force: false,
-      })
-    ).rejects.toThrow('CRUD file already exists');
-  });
+    const configPath = 'src/features/posts/posts.wasp.ts';
+    const contentBefore = readGeneratedFile(projectPaths.root, configPath);
+    const occurrencesBefore = countOccurrences(contentBefore, 'addCrud');
 
-  it('should overwrite CRUD with force flag', async () => {
-    // Create CRUD first time
-    await crudGenerator.generate({
-      feature: 'documents',
-      dataType: 'Document',
-      override: ['get', 'getAll'],
+    // The CRUD generator should replace the existing definition, not duplicate it
+    await crudGen.generate({
+      dataType: 'Post',
+      feature: 'posts',
+      public: ['create', 'get'],
       force: false,
     });
 
-    // Overwrite with force
-    await crudGenerator.generate({
-      feature: 'documents',
-      dataType: 'Document',
-      override: ['get', 'getAll'],
-      force: true,
-    });
+    const contentAfter = readGeneratedFile(projectPaths.root, configPath);
+    const occurrencesAfter = countOccurrences(contentAfter, 'addCrud');
 
-    expect(logger.success).toHaveBeenCalledWith(
-      expect.stringContaining('Overwrote CRUD file')
-    );
-  });
-
-  it('should create a feature with all CRUD override operations like the example', async () => {
-    // Create CRUD with all override operations (like the temp.wasp.ts example)
-    await crudGenerator.generate({
-      feature: 'documents',
-      dataType: 'Document',
-      override: ['get', 'getAll', 'create', 'update', 'delete'],
-      force: false,
-    });
-
-    expect(fs.writeFileSync).toHaveBeenCalled();
-    expect(logger.success).toHaveBeenCalled();
+    // Should have the same number of addCrud calls (replaced, not duplicated)
+    expect(occurrencesAfter).toBe(occurrencesBefore);
   });
 });

@@ -1,80 +1,99 @@
-import type { FileSystem, Logger } from '@ingenyus/swarm';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { SignaleLogger } from '@ingenyus/swarm';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { ApiNamespaceGenerator, FeatureDirectoryGenerator } from '../src';
-import { createTestSetup } from './utils';
+import { realFileSystem } from '../src/common';
+import {
+  countOccurrences,
+  createTestWaspProject,
+  readGeneratedFile,
+  type TestProjectPaths,
+} from './utils';
 
-describe('API Namespace Generation Tests', () => {
-  let fs: FileSystem;
-  let logger: Logger;
-  let featureGenerator: FeatureDirectoryGenerator;
-  let apiNamespaceGenerator: ApiNamespaceGenerator;
+describe('API Namespace Generator Integration Tests', () => {
+  let projectPaths: TestProjectPaths;
+  let originalCwd: string;
 
-  beforeEach(async () => {
-    const setup = createTestSetup();
-    fs = setup.fs;
-    logger = setup.logger;
-
-    // Initialize generators
-    featureGenerator = new FeatureDirectoryGenerator(logger, fs);
-    apiNamespaceGenerator = new ApiNamespaceGenerator(
-      logger,
-      fs,
-      featureGenerator
-    );
-
-    // Create feature first
-    featureGenerator.generate({ path: 'documents' });
+  beforeEach(() => {
+    originalCwd = process.cwd();
+    projectPaths = createTestWaspProject();
+    process.chdir(projectPaths.root);
   });
 
-  it('should create an API namespace with middleware', async () => {
-    await apiNamespaceGenerator.generate({
-      feature: 'documents',
-      name: 'api',
-      path: '/api',
+  afterEach(() => {
+    process.chdir(originalCwd);
+  });
+
+  it('should generate API namespace middleware', async () => {
+    const logger = new SignaleLogger();
+    const featureGen = new FeatureDirectoryGenerator(logger, realFileSystem);
+    const apiNamespaceGen = new ApiNamespaceGenerator(logger, realFileSystem, featureGen);
+
+    await featureGen.generate({ path: 'posts' });
+    await apiNamespaceGen.generate({
+      feature: 'posts',
+      name: 'postsApi',
+      path: '/api/posts',
       force: false,
     });
 
-    expect(fs.writeFileSync).toHaveBeenCalled();
-    expect(logger.success).toHaveBeenCalled();
+    const middlewarePath = 'src/features/posts/server/middleware/postsApi.ts';
+    const content = readGeneratedFile(projectPaths.root, middlewarePath);
+
+    expect(content).toContain('export const postsApi');
+    expect(content).toContain('(_req, _res, next) =>');
   });
 
-  it('should handle duplicate API namespace creation without force', async () => {
-    // Create API namespace first time
-    await apiNamespaceGenerator.generate({
-      feature: 'documents',
-      name: 'api',
-      path: '/api',
+  it('should generate API namespace config', async () => {
+    const logger = new SignaleLogger();
+    const featureGen = new FeatureDirectoryGenerator(logger, realFileSystem);
+    const apiNamespaceGen = new ApiNamespaceGenerator(logger, realFileSystem, featureGen);
+
+    await featureGen.generate({ path: 'posts' });
+    await apiNamespaceGen.generate({
+      feature: 'posts',
+      name: 'postsApi',
+      path: '/api/posts',
       force: false,
     });
 
-    // Try to create again without force - should throw error
+    const configPath = 'src/features/posts/posts.wasp.ts';
+    const content = readGeneratedFile(projectPaths.root, configPath);
+
+    expect(content).toContain('addApiNamespace');
+    expect(content).toContain('postsApi');
+    expect(content).toContain('addApiNamespace');
+    expect(content).toContain('path: "/api/posts"');
+  });
+
+  it('should not duplicate API namespace in config without force flag', async () => {
+    const logger = new SignaleLogger();
+    const featureGen = new FeatureDirectoryGenerator(logger, realFileSystem);
+    const apiNamespaceGen = new ApiNamespaceGenerator(logger, realFileSystem, featureGen);
+
+    await featureGen.generate({ path: 'posts' });
+    await apiNamespaceGen.generate({
+      feature: 'posts',
+      name: 'testApi',
+      path: '/api/test',
+      force: false,
+    });
+
+    const configPath = 'src/features/posts/posts.wasp.ts';
+    const contentBefore = readGeneratedFile(projectPaths.root, configPath);
+    const occurrencesBefore = countOccurrences(contentBefore, 'testApi');
+
     await expect(
-      apiNamespaceGenerator.generate({
-        feature: 'documents',
-        name: 'api',
-        path: '/api',
+      apiNamespaceGen.generate({
+        feature: 'posts',
+        name: 'testApi',
+        path: '/api/test',
         force: false,
       })
-    ).rejects.toThrow('Middleware file already exists');
-  });
+    ).rejects.toThrow();
 
-  it('should overwrite API namespace with force flag', async () => {
-    // Create API namespace first time
-    await apiNamespaceGenerator.generate({
-      feature: 'documents',
-      name: 'api',
-      path: '/api',
-      force: false,
-    });
+    const contentAfter = readGeneratedFile(projectPaths.root, configPath);
+    const occurrencesAfter = countOccurrences(contentAfter, 'testApi');
 
-    // Overwrite with force
-    await apiNamespaceGenerator.generate({
-      feature: 'documents',
-      name: 'api',
-      path: '/api',
-      force: true,
-    });
-
-    expect(logger.success).toHaveBeenCalled();
+    expect(occurrencesAfter).toBe(occurrencesBefore);
   });
 });

@@ -128,7 +128,7 @@ export function getIdFields(model: EntityMetadata): string[] {
 /**
  * Gets fields that are required for create operations.
  * Returns fields that are required, don't have default values,
- * and are not ID, generated, or updatedAt fields.
+ * and aren't generated or updatedAt fields.
  * @param model - The model metadata
  * @returns Array of required field names
  */
@@ -136,10 +136,7 @@ export function getRequiredFields(model: EntityMetadata): string[] {
   return model.fields
     .filter(
       (f) =>
-        f.isRequired &&
-        !f.hasDefaultValue &&
-        !f.isGenerated &&
-        !f.isUpdatedAt
+        f.isRequired && !f.hasDefaultValue && !f.isGenerated && !f.isUpdatedAt
     )
     .map((f) => f.name);
 }
