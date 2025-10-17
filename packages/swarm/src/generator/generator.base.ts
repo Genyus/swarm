@@ -131,6 +131,8 @@ export abstract class GeneratorBase<TArgs = any>
    * Logs completion message for a generator
    */
   protected logCompletion(itemType: string, itemName: string): void {
-    this.logger.success(`Generating ${itemName} ${itemType.toLowerCase()} completed.`);
+    this.logger.success(
+      `Generating ${itemName} ${itemType.toLowerCase()} completed.`
+    );
   }
 }
