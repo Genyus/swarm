@@ -25,7 +25,7 @@ export class ApiGenerator extends EntityGeneratorBase<typeof CONFIG_TYPES.API> {
       const fileName = `${apiName}.ts`;
       const targetFile = `${apiTargetDirectory}/${fileName}`;
 
-      this.generateApiFile(targetFile, apiName, flags);
+      await this.generateApiFile(targetFile, apiName, flags);
 
       if (flags.customMiddleware) {
         const { targetDirectory: middlewareTargetDirectory } =
@@ -39,7 +39,7 @@ export class ApiGenerator extends EntityGeneratorBase<typeof CONFIG_TYPES.API> {
         );
       }
 
-      this.updateConfigFile(
+      await this.updateConfigFile(
         flags.feature,
         apiName,
         fileName,
@@ -50,14 +50,14 @@ export class ApiGenerator extends EntityGeneratorBase<typeof CONFIG_TYPES.API> {
     });
   }
 
-  private generateApiFile(
+  private async generateApiFile(
     targetFile: string,
     apiName: string,
     { method, auth = false, force = false }: any
   ) {
     const replacements = this.buildTemplateData(apiName, method, auth);
 
-    this.renderTemplateToFile(
+    await this.renderTemplateToFile(
       'api.eta',
       replacements,
       targetFile,
@@ -66,7 +66,7 @@ export class ApiGenerator extends EntityGeneratorBase<typeof CONFIG_TYPES.API> {
     );
   }
 
-  private updateConfigFile(
+  private async updateConfigFile(
     featurePath: string,
     apiName: string,
     apiFile: string,
@@ -76,7 +76,7 @@ export class ApiGenerator extends EntityGeneratorBase<typeof CONFIG_TYPES.API> {
   ) {
     const { force = false, entities, method, route, auth } = flags;
     const importPath = this.path.join(importDirectory, apiFile);
-    const definition = this.getConfigDefinition(
+    const definition = await this.getConfigDefinition(
       apiName,
       featurePath,
       Array.isArray(entities) ? entities : entities ? [entities] : [],
@@ -98,7 +98,7 @@ export class ApiGenerator extends EntityGeneratorBase<typeof CONFIG_TYPES.API> {
     );
   }
 
-  private getConfigDefinition(
+  private async getConfigDefinition(
     apiName: string,
     featurePath: string,
     entities: string[],
@@ -108,9 +108,9 @@ export class ApiGenerator extends EntityGeneratorBase<typeof CONFIG_TYPES.API> {
     auth = false,
     importPath: string,
     customMiddleware = false
-  ): string {
+  ): Promise<string> {
     const featureDir = getFeatureImportPath(featurePath);
-    const configTemplatePath = this.getTemplatePath('config/api.eta');
+    const configTemplatePath = await this.getTemplatePath('config/api.eta');
 
     return this.templateUtility.processTemplate(configTemplatePath, {
       apiName,

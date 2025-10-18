@@ -26,12 +26,12 @@ export class RouteGenerator extends EntityGeneratorBase<
       const { targetDirectory } = this.ensureTargetDirectory(feature, 'page');
       const targetFile = `${targetDirectory}/${fileName}`;
 
-      this.generatePageFile(targetFile, componentName, flags);
+      await this.generatePageFile(targetFile, componentName, flags);
       this.updateConfigFile(feature, routeName, routePath, flags, configPath);
     });
   }
 
-  private generatePageFile(
+  private async generatePageFile(
     targetFile: string,
     componentName: string,
     flags: RouteFlags
@@ -42,7 +42,7 @@ export class RouteGenerator extends EntityGeneratorBase<
       displayName: formatDisplayName(componentName),
     };
 
-    this.renderTemplateToFile(
+    await this.renderTemplateToFile(
       'page.eta',
       replacements,
       targetFile,
@@ -84,7 +84,7 @@ export class RouteGenerator extends EntityGeneratorBase<
     featurePath: string,
     auth = false
   ): string {
-    const templatePath = this.getTemplatePath('config/route.eta');
+    const templatePath = this.getDefaultTemplatePath('config/route.eta');
 
     return this.templateUtility.processTemplate(templatePath, {
       featureName: featurePath.split('/').pop() || featurePath,

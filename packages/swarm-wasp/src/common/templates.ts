@@ -33,13 +33,13 @@ export class TemplateUtility {
 
   /**
    * Helper method to resolve template paths for concrete generators
-   * @param templateName - The name of the template file
+   * @param relativePath - The relative path to the template file
    * @param generatorName - The name of the generator (e.g., 'api', 'job')
    * @param currentFileUrl - The import.meta.url from the concrete generator class
    * @returns The full path to the template file
    */
   public resolveTemplatePath(
-    templateName: string,
+    relativePath: string,
     generatorName: string,
     currentFileUrl: string
   ): string {
@@ -66,7 +66,7 @@ export class TemplateUtility {
       'generators',
       generatorDirName,
       'templates',
-      templateName
+      relativePath
     );
   }
 }

@@ -7,6 +7,7 @@ import {
   RouteFlags,
 } from '../generators/args.types.js';
 
+export const PLUGIN_NAME = 'wasp' as const;
 /**
  * List of valid operation types.
  */

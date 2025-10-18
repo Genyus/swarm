@@ -7,6 +7,9 @@
 // Export all utilities
 export * from './common/index';
 
+// Export configuration
+export * from './config/index';
+
 // Export all types
 export * from './types/index';
 

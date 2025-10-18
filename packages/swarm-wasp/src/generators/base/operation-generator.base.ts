@@ -155,7 +155,7 @@ export abstract class OperationGeneratorBase<
       modelName,
       customName
     );
-    const operationCode = this.generateOperationCode(
+    const operationCode = await this.generateOperationCode(
       model,
       operation,
       auth,
@@ -180,13 +180,13 @@ export abstract class OperationGeneratorBase<
   /**
    * Generates the code for an operation.
    */
-  generateOperationCode(
+  async generateOperationCode(
     model: EntityMetadata,
     operation: ActionOperation | QueryOperation,
     auth = false,
     isCrudOverride = false,
     crudName: string | null = null
-  ): string {
+  ): Promise<string> {
     const operationType = this.getOperationType(operation);
     const templatePath = this.getOperationTemplatePath(`${operation}.eta`);
     const allFieldNames = model.fields.map((f) => f.name);

@@ -28,7 +28,7 @@ export abstract class EntityGeneratorBase<
 > extends WaspGeneratorBase<TArgs> {
   protected abstract entityType: TArgs;
 
-  protected getTemplatePath(templateName: string): string {
+  protected getDefaultTemplatePath(templateName: string): string {
     return this.templateUtility.resolveTemplatePath(
       templateName,
       this.name,
@@ -198,17 +198,17 @@ export abstract class EntityGeneratorBase<
   /**
    * Generate middleware file for API or API namespace
    */
-  protected generateMiddlewareFile(
+  protected async generateMiddlewareFile(
     targetFile: string,
     name: string,
     force: boolean
-  ): void {
+  ): Promise<void> {
     const replacements = {
       name,
       middlewareType: toCamelCase(this.entityType || ''),
     };
 
-    this.renderTemplateToFile(
+    await this.renderTemplateToFile(
       'middleware.eta',
       replacements,
       targetFile,

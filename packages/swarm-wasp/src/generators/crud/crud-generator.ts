@@ -29,18 +29,21 @@ export class CrudGenerator extends OperationGeneratorBase<
     return this.handleGeneratorError(this.entityType, crudName, async () => {
       const configPath = this.validateFeatureConfig(feature);
 
-      if (flags.override && flags.override.length > 0) {
-        const { targetDirectory } = this.ensureTargetDirectory(
-          feature,
-          this.entityType.toLowerCase()
-        );
-        const targetFile = `${targetDirectory}/${crudName}.ts`;
+      const { targetDirectory } = this.ensureTargetDirectory(
+        feature,
+        this.entityType.toLowerCase()
+      );
+      const targetFile = `${targetDirectory}/${crudName}.ts`;
+
+      // Only generate the file if it doesn't exist or if force is true
+      const fileExists = this.fileSystem.existsSync(targetFile);
+      if (!fileExists || flags.force) {
         const operations = await this.getOperationsCode(
           dataType,
           crudName,
           flags
         );
-        this.generateCrudFile(
+        await this.generateCrudFile(
           targetFile,
           crudName,
           dataType,
@@ -49,11 +52,17 @@ export class CrudGenerator extends OperationGeneratorBase<
         );
       }
 
-      this.updateConfigFile(feature, crudName, dataType, flags, configPath);
+      await this.updateConfigFile(
+        feature,
+        crudName,
+        dataType,
+        flags,
+        configPath
+      );
     });
   }
 
-  private generateCrudFile(
+  private async generateCrudFile(
     targetFile: string,
     crudName: string,
     dataType: string,
@@ -69,7 +78,7 @@ import { type ${toPascalCase(crudName)} } from "wasp/server/crud";`;
       operations,
     };
 
-    this.renderTemplateToFile(
+    await this.renderTemplateToFile(
       'crud.eta',
       replacements,
       targetFile,
@@ -78,7 +87,7 @@ import { type ${toPascalCase(crudName)} } from "wasp/server/crud";`;
     );
   }
 
-  private updateConfigFile(
+  private async updateConfigFile(
     feature: string,
     crudName: string,
     dataType: string,
@@ -86,7 +95,7 @@ import { type ${toPascalCase(crudName)} } from "wasp/server/crud";`;
     configPath: string
   ) {
     const operations = this.buildOperations(flags);
-    const definition = this.getDefinition(crudName, dataType, operations);
+    const definition = await this.getDefinition(crudName, dataType, operations);
 
     this.updateConfigWithCheck(
       configPath,
@@ -162,7 +171,11 @@ import { type ${toPascalCase(crudName)} } from "wasp/server/crud";`;
    * Generates a CRUD definition for the feature configuration.
    */
   getDefinition(crudName: string, dataType: string, operations: any): string {
-    const templatePath = this.getTemplatePath('config/crud.eta');
+    const templatePath = this.templateUtility.resolveTemplatePath(
+      'config/crud.eta',
+      'crud',
+      import.meta.url
+    );
     const operationsStr = JSON.stringify(operations, null, 2)
       .replace(/"([^"]+)":/g, '$1:')
       .slice(1, -1) // Remove outer braces

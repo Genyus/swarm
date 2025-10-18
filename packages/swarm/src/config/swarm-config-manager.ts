@@ -1,11 +1,13 @@
-import { lilconfig } from 'lilconfig';
+import { AsyncSearcher, LilconfigResult, lilconfig } from 'lilconfig';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
+import { DEFAULT_TEMPLATE_DIR } from '../common/template-resolver';
 
 /**
  * Swarm configuration interface
  */
-interface SwarmConfig {
+export interface SwarmConfig {
+  templateDirectory?: string;
   plugins: {
     [packageName: string]: {
       plugin?: string; // Specific plugin name within the package
@@ -27,7 +29,7 @@ interface SwarmConfig {
 export class SwarmConfigManager {
   private config: SwarmConfig | null = null;
   private configPath: string | null = null;
-  private lilconfig: any;
+  private lilconfig: AsyncSearcher;
 
   constructor(private searchPlaces: string[] = ['swarm.config.json']) {
     this.lilconfig = lilconfig('swarm', {
@@ -105,37 +107,11 @@ export class SwarmConfigManager {
         searchDir = process.cwd();
       }
 
-      if (configPath && path.isAbsolute(configPath)) {
-        const result = await this.lilconfig.load(configPath);
-
-        if (!result) {
-          throw new Error(`Configuration file not found: ${configPath}`);
-        }
-
-        this.config = result.config;
-        this.configPath = result.filepath;
-
-        return this.config!;
-      }
-
-      if (configPath) {
-        const fullPath = path.join(searchDir, configPath);
-        const result = await this.lilconfig.load(fullPath);
-
-        if (!result) {
-          throw new Error(`Configuration file not found: ${fullPath}`);
-        }
-
-        this.config = result.config;
-        this.configPath = result.filepath;
-
-        return this.config!;
-      }
-
-      let result = null;
+      let result: LilconfigResult | null = null;
 
       for (const searchPlace of this.searchPlaces) {
         const fullPath = path.join(searchDir, searchPlace);
+
         try {
           result = await this.lilconfig.load(fullPath);
 
@@ -153,6 +129,10 @@ export class SwarmConfigManager {
 
       this.config = result.config;
       this.configPath = result.filepath;
+
+      if (this.config && !this.config.templateDirectory) {
+        this.config.templateDirectory = DEFAULT_TEMPLATE_DIR;
+      }
 
       return this.config!;
     } catch (error) {

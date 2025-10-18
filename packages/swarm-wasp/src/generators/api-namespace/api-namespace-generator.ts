@@ -30,12 +30,12 @@ export class ApiNamespaceGenerator extends EntityGeneratorBase<
         );
         const targetFile = `${targetDirectory}/${namespaceName}.ts`;
 
-        this.generateMiddlewareFile(
+        await this.generateMiddlewareFile(
           targetFile,
           namespaceName,
           flags.force || false
         );
-        this.updateConfigFile(
+        await this.updateConfigFile(
           feature,
           namespaceName,
           importDirectory,
@@ -47,7 +47,7 @@ export class ApiNamespaceGenerator extends EntityGeneratorBase<
     );
   }
 
-  private updateConfigFile(
+  private async updateConfigFile(
     feature: string,
     namespaceName: string,
     importDirectory: string,
@@ -57,7 +57,11 @@ export class ApiNamespaceGenerator extends EntityGeneratorBase<
   ) {
     const { force = false } = flags;
     const importPath = path.join(importDirectory, namespaceName);
-    const definition = this.getDefinition(namespaceName, importPath, apiPath);
+    const definition = await this.getDefinition(
+      namespaceName,
+      importPath,
+      apiPath
+    );
 
     this.updateConfigWithCheck(
       configFilePath,
@@ -72,12 +76,16 @@ export class ApiNamespaceGenerator extends EntityGeneratorBase<
   /**
    * Generates an apiNamespace definition for the feature configuration.
    */
-  getDefinition(
+  async getDefinition(
     namespaceName: string,
     middlewareImportPath: string,
     pathValue: string
-  ): string {
-    const templatePath = this.getTemplatePath('config/api-namespace.eta');
+  ): Promise<string> {
+    const templatePath = this.templateUtility.resolveTemplatePath(
+      'config/api-namespace.eta',
+      'api-namespace',
+      import.meta.url
+    );
 
     return this.templateUtility.processTemplate(templatePath, {
       namespaceName,

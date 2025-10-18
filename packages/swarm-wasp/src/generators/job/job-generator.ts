@@ -23,12 +23,12 @@ export class JobGenerator extends EntityGeneratorBase<typeof CONFIG_TYPES.JOB> {
       );
       const targetFile = `${targetDirectory}/${jobName}.ts`;
 
-      this.generateJobFile(targetFile, jobName, flags);
+      await this.generateJobFile(targetFile, jobName, flags);
       this.updateConfigFile(flags.feature, jobName, flags, configPath);
     });
   }
 
-  private generateJobFile(
+  private async generateJobFile(
     targetFile: string,
     jobName: string,
     flags: JobFlags
@@ -51,7 +51,7 @@ export class JobGenerator extends EntityGeneratorBase<typeof CONFIG_TYPES.JOB> {
       jobName,
     };
 
-    this.renderTemplateToFile(
+    await this.renderTemplateToFile(
       'job.eta',
       replacements,
       targetFile,
@@ -99,7 +99,7 @@ export class JobGenerator extends EntityGeneratorBase<typeof CONFIG_TYPES.JOB> {
     cron: string,
     args: string
   ): string {
-    const templatePath = this.getTemplatePath('config/job.eta');
+    const templatePath = this.getDefaultTemplatePath('config/job.eta');
 
     return this.templateUtility.processTemplate(templatePath, {
       jobName,

@@ -7,6 +7,25 @@ import {
 } from '../../../tests/utils';
 import { ApiGenerator } from './api-generator';
 
+// Mock SwarmConfigManager
+vi.mock('@ingenyus/swarm', async () => {
+  const actual = await vi.importActual('@ingenyus/swarm');
+  return {
+    ...actual,
+    SwarmConfigManager: vi.fn().mockImplementation(() => ({
+      loadConfig: vi.fn().mockResolvedValue({
+        templateDirectory: '.swarm/templates',
+        plugins: {
+          wasp: {
+            enabled: true,
+            plugin: 'wasp',
+          },
+        },
+      }),
+    })),
+  };
+});
+
 describe('ApiGenerator', () => {
   let fs: FileSystem;
   let logger: Logger;
@@ -75,7 +94,7 @@ export default function configureFeature(app: App, feature: string): void {
     );
   });
 
-  it('getConfigDefinition returns processed template', () => {
+  it('getConfigDefinition returns processed template', async () => {
     // Mock the template utility
     (gen as any).templateUtility = {
       processTemplate: vi.fn(() => 'app.addApi("testApi", { method: "GET" });'),
@@ -84,7 +103,12 @@ export default function configureFeature(app: App, feature: string): void {
       ),
     };
 
-    const result = (gen as any).getConfigDefinition(
+    // Mock the getTemplatePathWithOverride method
+    (gen as any).getTemplatePathWithOverride = vi.fn(() =>
+      Promise.resolve('/mock/templates/config/api.eta')
+    );
+
+    const result = await (gen as any).getConfigDefinition(
       'testApi',
       'test',
       ['User'],

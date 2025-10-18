@@ -86,7 +86,7 @@ export default function configureFeature(app: App, feature: string): void {
     );
   });
 
-  it('getDefinition returns processed template', () => {
+  it('getDefinition returns processed template', async () => {
     // Mock the template utility
     (gen as any).templateUtility = {
       processTemplate: vi.fn(
@@ -98,7 +98,12 @@ export default function configureFeature(app: App, feature: string): void {
       ),
     };
 
-    const result = gen.getDefinition(
+    // Mock the getTemplatePathWithOverride method
+    (gen as any).getTemplatePathWithOverride = vi.fn(() =>
+      Promise.resolve('/mock/templates/config/api-namespace.eta')
+    );
+
+    const result = await gen.getDefinition(
       'testNamespace',
       'features/test/server/middleware/testMiddleware',
       '/api/test'

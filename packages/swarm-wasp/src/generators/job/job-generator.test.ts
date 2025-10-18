@@ -7,6 +7,25 @@ import {
 } from '../../../tests/utils';
 import { JobGenerator } from './job-generator';
 
+// Mock SwarmConfigManager
+vi.mock('@ingenyus/swarm', async () => {
+  const actual = await vi.importActual('@ingenyus/swarm');
+  return {
+    ...actual,
+    SwarmConfigManager: vi.fn().mockImplementation(() => ({
+      loadConfig: vi.fn().mockResolvedValue({
+        templateDirectory: '.swarm/templates',
+        plugins: {
+          wasp: {
+            enabled: true,
+            plugin: 'wasp',
+          },
+        },
+      }),
+    })),
+  };
+});
+
 describe('JobGenerator', () => {
   let fs: FileSystem;
   let logger: Logger;

@@ -5,6 +5,7 @@ export {
   HTTP_METHODS,
   OPERATION_TYPES,
   OPERATIONS,
+  PLUGIN_NAME,
   QUERY_OPERATIONS,
   TYPE_DIRECTORIES,
 } from './constants';

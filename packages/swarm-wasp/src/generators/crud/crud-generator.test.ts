@@ -47,7 +47,7 @@ describe('CrudGenerator', () => {
     expect(operations).toHaveProperty('delete', {});
   });
 
-  it('getDefinition returns processed template', () => {
+  it('getDefinition returns processed template', async () => {
     // Mock the template utility
     (gen as any).templateUtility = {
       processTemplate: vi.fn(
@@ -58,7 +58,12 @@ describe('CrudGenerator', () => {
       ),
     };
 
-    const result = gen.getDefinition('testCrud', 'User', {
+    // Mock the getTemplatePath method to return a resolved promise
+    (gen as any).getTemplatePath = vi.fn(() =>
+      Promise.resolve('/mock/templates/config/crud.eta')
+    );
+
+    const result = await gen.getDefinition('testCrud', 'User', {
       get: {},
       getAll: {},
       create: {},

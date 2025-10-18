@@ -30,7 +30,7 @@ export class FeatureDirectoryGenerator extends WaspGeneratorBase<SchemaArgs> {
     this.schema = schema;
   }
 
-  protected getTemplatePath(templateName: string): string {
+  protected getDefaultTemplatePath(templateName: string): string {
     return this.templateUtility.resolveTemplatePath(
       templateName,
       this.name,

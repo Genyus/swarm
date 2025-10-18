@@ -10,10 +10,11 @@ import {
   RouteGenerator,
 } from '.';
 import { getPluginVersion } from './common';
+import { PLUGIN_NAME } from './types';
 
 export function createWaspPlugin(): SwarmPluginInterface {
   return {
-    name: 'wasp',
+    name: PLUGIN_NAME,
     version: getPluginVersion(),
     description: 'Wasp Plugin for Swarm',
     swarmVersion: '0.1.0',
