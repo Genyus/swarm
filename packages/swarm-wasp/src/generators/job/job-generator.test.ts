@@ -1,4 +1,5 @@
 import type { FileSystem, Logger, SwarmGenerator } from '@ingenyus/swarm';
+import { DEFAULT_CUSTOM_TEMPLATES_DIR } from '@ingenyus/swarm';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   createMockFeatureGen,
@@ -14,7 +15,7 @@ vi.mock('@ingenyus/swarm', async () => {
     ...actual,
     SwarmConfigManager: vi.fn().mockImplementation(() => ({
       loadConfig: vi.fn().mockResolvedValue({
-        templateDirectory: '.swarm/templates',
+        templateDirectory: DEFAULT_CUSTOM_TEMPLATES_DIR,
         plugins: {
           wasp: {
             enabled: true,

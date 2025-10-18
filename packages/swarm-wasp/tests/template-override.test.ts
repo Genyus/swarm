@@ -1,4 +1,4 @@
-import { SignaleLogger } from '@ingenyus/swarm';
+import { DEFAULT_CONFIG_FILE, DEFAULT_CUSTOM_TEMPLATES_DIR, SignaleLogger } from '@ingenyus/swarm';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
@@ -25,7 +25,7 @@ describe('Template Override Integration Tests', () => {
   });
 
   it('should use custom template when it exists', async () => {
-    const customTemplateDir = '.swarm/templates';
+    const customTemplateDir = DEFAULT_CUSTOM_TEMPLATES_DIR;
     const customApiTemplatePath = path.join(
       projectPaths.root,
       customTemplateDir,
@@ -78,7 +78,7 @@ export const <%=apiName%>: <%=apiType%> = async (req, res, context) => {
     };
 
     fs.writeFileSync(
-      path.join(projectPaths.root, 'swarm.config.json'),
+      path.join(projectPaths.root, DEFAULT_CONFIG_FILE),
       JSON.stringify(swarmConfig, null, 2)
     );
 
@@ -117,7 +117,7 @@ export const <%=apiName%>: <%=apiType%> = async (req, res, context) => {
 
   it('should fall back to built-in template when custom does not exist', async () => {
     const swarmConfig = {
-      templateDirectory: '.swarm/templates',
+      templateDirectory: DEFAULT_CUSTOM_TEMPLATES_DIR,
       plugins: {
         wasp: {
           enabled: true,
@@ -127,7 +127,7 @@ export const <%=apiName%>: <%=apiType%> = async (req, res, context) => {
     };
 
     fs.writeFileSync(
-      path.join(projectPaths.root, 'swarm.config.json'),
+      path.join(projectPaths.root, DEFAULT_CONFIG_FILE),
       JSON.stringify(swarmConfig, null, 2)
     );
 
@@ -165,7 +165,7 @@ export const <%=apiName%>: <%=apiType%> = async (req, res, context) => {
   });
 
   it('should handle nested template paths correctly', async () => {
-    const customTemplateDir = '.swarm/templates';
+    const customTemplateDir = DEFAULT_CUSTOM_TEMPLATES_DIR;
     const customConfigTemplatePath = path.join(
       projectPaths.root,
       customTemplateDir,
@@ -202,7 +202,7 @@ export const <%=apiName%>: <%=apiType%> = async (req, res, context) => {
     };
 
     fs.writeFileSync(
-      path.join(projectPaths.root, 'swarm.config.json'),
+      path.join(projectPaths.root, DEFAULT_CONFIG_FILE),
       JSON.stringify(swarmConfig, null, 2)
     );
 
@@ -231,7 +231,7 @@ export const <%=apiName%>: <%=apiType%> = async (req, res, context) => {
   });
 
   it('should validate custom template syntax and throw error for invalid templates', async () => {
-    const customTemplateDir = '.swarm/templates';
+    const customTemplateDir = DEFAULT_CUSTOM_TEMPLATES_DIR;
     const customApiTemplatePath = path.join(
       projectPaths.root,
       customTemplateDir,
@@ -262,7 +262,7 @@ export const <%=apiName%>: <%=apiType%> = async (req, res, context) => {
     };
 
     fs.writeFileSync(
-      path.join(projectPaths.root, 'swarm.config.json'),
+      path.join(projectPaths.root, DEFAULT_CONFIG_FILE),
       JSON.stringify(swarmConfig, null, 2)
     );
 
@@ -285,7 +285,7 @@ export const <%=apiName%>: <%=apiType%> = async (req, res, context) => {
   });
 
   it('should use default template directory when not specified in config', async () => {
-    const defaultTemplateDir = '.swarm/templates';
+    const defaultTemplateDir = DEFAULT_CUSTOM_TEMPLATES_DIR;
     const customApiTemplatePath = path.join(
       projectPaths.root,
       defaultTemplateDir,
@@ -313,7 +313,7 @@ export const <%=apiName%>: <%=apiType%> = async (req, res, context) => {
     };
 
     fs.writeFileSync(
-      path.join(projectPaths.root, 'swarm.config.json'),
+      path.join(projectPaths.root, DEFAULT_CONFIG_FILE),
       JSON.stringify(swarmConfig, null, 2)
     );
 

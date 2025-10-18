@@ -1,3 +1,4 @@
+import { DEFAULT_CONFIG_FILE } from '@ingenyus/swarm';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -105,7 +106,7 @@ model Comment {
     }
   }, null, 2));
 
-  const swarmConfig = path.join(root, 'swarm.config.json');
+  const swarmConfig = path.join(root, DEFAULT_CONFIG_FILE);
   fs.writeFileSync(swarmConfig, JSON.stringify({
     plugins: {
       '@ingenyus/swarm-wasp': {

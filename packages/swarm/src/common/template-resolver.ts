@@ -1,7 +1,6 @@
 import path from 'path';
 import { FileSystem } from '../types';
-
-export const DEFAULT_TEMPLATE_DIR = '.swarm/templates';
+import { DEFAULT_CUSTOM_TEMPLATES_DIR } from './constants';
 
 export class TemplateResolver {
   constructor(private fileSystem: FileSystem) {}
@@ -22,7 +21,7 @@ export class TemplateResolver {
     builtInTemplatePath: string,
     customTemplateDir?: string
   ): { path: string; isCustom: boolean } {
-    const templateDir = customTemplateDir || DEFAULT_TEMPLATE_DIR;
+    const templateDir = customTemplateDir || DEFAULT_CUSTOM_TEMPLATES_DIR;
     const customPath = path.join(
       process.cwd(),
       templateDir,

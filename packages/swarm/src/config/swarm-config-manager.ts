@@ -1,7 +1,7 @@
 import { AsyncSearcher, LilconfigResult, lilconfig } from 'lilconfig';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { DEFAULT_TEMPLATE_DIR } from '../common/template-resolver';
+import { DEFAULT_CONFIG_FILE, DEFAULT_CUSTOM_TEMPLATES_DIR } from '../common';
 
 /**
  * Swarm configuration interface
@@ -24,6 +24,14 @@ export interface SwarmConfig {
 }
 
 /**
+ * Default configuration when no config file is found
+ */
+const DEFAULT_CONFIG: SwarmConfig = {
+  templateDirectory: DEFAULT_CUSTOM_TEMPLATES_DIR,
+  plugins: {},
+};
+
+/**
  * Manages Swarm configuration loading and access
  */
 export class SwarmConfigManager {
@@ -31,7 +39,7 @@ export class SwarmConfigManager {
   private configPath: string | null = null;
   private lilconfig: AsyncSearcher;
 
-  constructor(private searchPlaces: string[] = ['swarm.config.json']) {
+  constructor(private searchPlaces: string[] = [DEFAULT_CONFIG_FILE]) {
     this.lilconfig = lilconfig('swarm', {
       searchPlaces: this.searchPlaces,
     });
@@ -49,7 +57,7 @@ export class SwarmConfigManager {
     while (currentDir !== rootDir) {
       const packageJsonPath = path.join(currentDir, 'package.json');
       const nodeModulesPath = path.join(currentDir, 'node_modules');
-      const swarmConfigPath = path.join(currentDir, 'swarm.config.json');
+      const swarmConfigPath = path.join(currentDir, DEFAULT_CONFIG_FILE);
 
       if (fs.existsSync(swarmConfigPath)) {
         return currentDir;
@@ -122,16 +130,31 @@ export class SwarmConfigManager {
       }
 
       if (!result) {
-        throw new Error(
-          `No configuration file found in ${searchDir}. Searched for: ${this.searchPlaces.join(', ')}`
+        // Use default configuration when no config file is found
+        console.warn(
+          `⚠️  No configuration file found in ${searchDir}. Searched for: ${this.searchPlaces.join(', ')}`
         );
+        console.warn('Using default configuration. No plugins are enabled.');
+
+        this.config = { ...DEFAULT_CONFIG };
+        this.configPath = null;
+        return this.config;
       }
 
       this.config = result.config;
       this.configPath = result.filepath;
 
       if (this.config && !this.config.templateDirectory) {
-        this.config.templateDirectory = DEFAULT_TEMPLATE_DIR;
+        this.config.templateDirectory = DEFAULT_CUSTOM_TEMPLATES_DIR;
+      }
+
+      // Check if no plugins are defined and warn the user
+      if (
+        this.config &&
+        (!this.config.plugins || Object.keys(this.config.plugins).length === 0)
+      ) {
+        console.warn('⚠️  No plugins are defined in the configuration file.');
+        console.warn('Swarm will not have any generators available.');
       }
 
       return this.config!;

@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { DEFAULT_CUSTOM_TEMPLATES_DIR } from '../src/common/constants';
 import { TemplateResolver } from '../src/common/template-resolver';
 import { FileSystem } from '../src/types';
 
@@ -27,7 +28,7 @@ describe('TemplateResolver', () => {
       const generatorName = 'api';
       const templateName = 'api.eta';
       const builtInPath = '/built-in/path/api.eta';
-      const customTemplateDir = '.swarm/templates';
+      const customTemplateDir = DEFAULT_CUSTOM_TEMPLATES_DIR;
 
       // Mock custom template exists
       mockFileSystem.existsSync = vi.fn().mockReturnValue(true);
@@ -42,9 +43,9 @@ describe('TemplateResolver', () => {
       );
 
       expect(result.isCustom).toBe(true);
-      expect(result.path).toContain('.swarm/templates/wasp/api/api.eta');
+      expect(result.path).toContain(`${DEFAULT_CUSTOM_TEMPLATES_DIR}/wasp/api/api.eta`);
       expect(mockFileSystem.existsSync).toHaveBeenCalledWith(
-        expect.stringContaining('.swarm/templates/wasp/api/api.eta')
+        expect.stringContaining(`${DEFAULT_CUSTOM_TEMPLATES_DIR}/wasp/api/api.eta`)
       );
     });
 
@@ -53,7 +54,7 @@ describe('TemplateResolver', () => {
       const generatorName = 'api';
       const templateName = 'api.eta';
       const builtInPath = '/built-in/path/api.eta';
-      const customTemplateDir = '.swarm/templates';
+      const customTemplateDir = DEFAULT_CUSTOM_TEMPLATES_DIR;
 
       // Mock custom template does not exist
       mockFileSystem.existsSync = vi.fn().mockReturnValue(false);
@@ -88,7 +89,7 @@ describe('TemplateResolver', () => {
       );
 
       expect(result.isCustom).toBe(true);
-      expect(result.path).toContain('.swarm/templates/wasp/api/api.eta');
+      expect(result.path).toContain(`${DEFAULT_CUSTOM_TEMPLATES_DIR}/wasp/api/api.eta`);
     });
 
     it('should handle nested template paths correctly', () => {
@@ -96,7 +97,7 @@ describe('TemplateResolver', () => {
       const generatorName = 'api';
       const templateName = 'config/api.eta';
       const builtInPath = '/built-in/path/config/api.eta';
-      const customTemplateDir = '.swarm/templates';
+      const customTemplateDir = DEFAULT_CUSTOM_TEMPLATES_DIR;
 
       // Mock custom template exists
       mockFileSystem.existsSync = vi.fn().mockReturnValue(true);
@@ -111,7 +112,7 @@ describe('TemplateResolver', () => {
       );
 
       expect(result.isCustom).toBe(true);
-      expect(result.path).toContain('.swarm/templates/wasp/api/config/api.eta');
+      expect(result.path).toContain(`${DEFAULT_CUSTOM_TEMPLATES_DIR}/wasp/api/config/api.eta`);
     });
   });
 
