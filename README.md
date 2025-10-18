@@ -7,7 +7,7 @@ Wasp is a full-stack web framework that lets you develop web apps in React, Node
 ## Packages
 
 ### Core Package
-- [`@ingenyus/swarm-core`](./packages/swarm-core) - Core shared logic including generators, templates, utilities, and types
+- [`@ingenyus/swarm`](./packages/swarm) - Core shared logic including generators, templates, utilities, and types
 
 ### CLI Package
 - [`@ingenyus/swarm-cli`](./packages/swarm-cli) - A CLI tool for rapidly generating features, APIs, jobs, CRUD operations, and more
@@ -31,10 +31,10 @@ npx @ingenyus/swarm crud users --datatype User
 ### Programmatic Usage
 ```bash
 # Install core package
-npm install @ingenyus/swarm-core
+npm install @ingenyus/swarm
 
 # Use in your code
-import { ApiGenerator, FeatureGenerator } from '@ingenyus/swarm-core';
+import { ApiGenerator, FeatureGenerator } from '@ingenyus/swarm';
 ```
 
 ### AI Agent Integration
@@ -85,7 +85,7 @@ cd packages/swarm-cli
 pnpm dev
 
 # Run tests for a specific package
-cd packages/swarm-core
+cd packages/swarm
 pnpm test
 
 # Build a specific package
@@ -98,7 +98,7 @@ pnpm build
 ```
 swarm/
 ├── packages/
-│   ├── swarm-core/          # Core shared logic
+│   ├── swarm/               # Core shared logic
 │   │   ├── src/
 │   │   │   ├── generators/  # Code generators
 │   │   │   ├── utils/       # Shared utilities
@@ -129,7 +129,7 @@ We use [changesets](https://github.com/changesets/changesets) with automatic gen
 2. Commit using conventional commit format:
    ```bash
    git commit -m "feat: add new feature"
-   git commit -m "fix(core): resolve issue in swarm-core"
+   git commit -m "fix(core): resolve issue in swarm"
    git commit -m "feat(cli): add new command"
    git commit -m "feat!: breaking change"
    ```

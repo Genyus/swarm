@@ -1,0 +1,16 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": ".",
+    "composite": true,
+    "incremental": true,
+    "tsBuildInfoFile": "./dist/.tsbuildinfo",
+    "noEmit": false,
+    "paths": {
+      "wasp-config": ["./src/wasp-config/stubs"]
+    }
+  },
+  "include": ["src/**/*", "tests/**/*"],
+  "exclude": ["src/templates/**/*", "tests/out/**/*", "dist", "node_modules"]
+}

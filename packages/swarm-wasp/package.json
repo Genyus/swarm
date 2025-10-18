@@ -1,0 +1,92 @@
+{
+  "name": "@ingenyus/swarm-wasp",
+  "type": "module",
+  "version": "0.1.0",
+  "description": "Wasp-specific plugins for Swarm - Feature generators, commands, MCP tools, and enhanced Wasp configuration for Wasp development",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "pnpm dlx rimraf dist && tsup && tsc --project tsconfig.dts.json && pnpm copy-templates && pnpm pack",
+    "build:watch": "tsc --watch",
+    "copy-templates": "for dir in src/generators/*/templates; do if [ -d \"$dir\" ]; then generator=$(basename $(dirname $dir)); mkdir -p dist/generators/$generator/templates; cp -r $dir/* dist/generators/$generator/templates/; fi; done",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "lint": "eslint src --ext .ts",
+    "lint:fix": "eslint src --ext .ts --fix",
+    "format": "prettier --write src",
+    "format:check": "prettier --check src",
+    "typecheck": "tsc --project tsconfig.typecheck.json",
+    "validate": "pnpm run build && pnpm run typecheck && pnpm run lint:fix && pnpm run format && pnpm test"
+  },
+  "keywords": [
+    "wasp",
+    "codegen",
+    "generators",
+    "plugins",
+    "templates",
+    "configuration",
+    "typescript",
+    "fullstack",
+    "react",
+    "nodejs",
+    "prisma",
+    "boilerplate",
+    "swarm"
+  ],
+  "author": "Gary McPherson",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/genyus/swarm.git",
+    "directory": "packages/swarm-wasp"
+  },
+  "homepage": "https://github.com/genyus/swarm/tree/main/packages/swarm-wasp#readme",
+  "bugs": {
+    "url": "https://github.com/genyus/swarm/issues"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "@ingenyus/swarm": "workspace:*",
+    "@mrleebo/prisma-ast": "^0.13.0",
+    "@vitest/coverage-v8": "^3.2.3",
+    "eta": "^4.0.1",
+    "zod": "^4.1.11"
+  },
+  "peerDependencies": {
+    "wasp-config": "*"
+  },
+  "peerDependenciesMeta": {
+    "wasp-config": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@types/node": "^24.3.0",
+    "glob": "^11.0.3",
+    "tsup": "^8.5.0",
+    "typescript": "^5.9.2",
+    "vitest": "^3.1.4",
+    "wasp-config": "link:src/wasp-config/stubs"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "swarm": {
+    "plugins": {
+      "wasp": {
+        "entry": "./dist/index.js",
+        "name": "wasp",
+        "description": "Wasp Plugin for Swarm",
+        "version": "0.1.0"
+      }
+    }
+  }
+}

@@ -1,0 +1,5 @@
+<%=imports%>
+export const <%=jobName%>: <%=jobType%><never, void> = async (_args, _context) => {
+  // TODO: Implement job logic
+  console.log("Job executed");
+}

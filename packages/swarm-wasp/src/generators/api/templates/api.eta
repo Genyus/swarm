@@ -1,0 +1,6 @@
+<%=imports%>
+
+export const <%=apiName%>: <%=apiType%> = async (req, res, context) => {
+<%=authCheck%><%=methodCheck%>  // TODO: Implement your API logic here
+  res.json({ message: "OK" });
+};

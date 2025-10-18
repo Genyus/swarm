@@ -1,0 +1,11 @@
+    .addApi(feature, "<%=apiName%>", {
+      method: "<%=method%>",
+      route: "<%=route%>",
+<%- if (entities.length > 0) { %>
+      entities: [<%=entities%>],
+<%- } %>
+      auth: <%=auth%>,
+<%- if (customMiddleware) { %>
+      customMiddleware: true,
+<%- } %>
+    })

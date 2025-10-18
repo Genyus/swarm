@@ -1,5 +1,4 @@
 {
-  "name": "@ingenyus/swarm",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -8,13 +7,18 @@
     "build": "pnpm -r run build",
     "test": "pnpm -r run test",
     "lint": "pnpm -r run lint",
+    "lint:fix": "pnpm -r run lint:fix",
     "format": "pnpm -r run format",
+    "format:check": "pnpm -r run format:check",
     "typecheck": "pnpm -r run typecheck",
     "changeset": "changeset",
     "changeset:autogenerate": "node .changeset/changeset-autogenerate.js",
     "changeset:autogenerate-batch": "node .changeset/changeset-autogenerate-batch.js",
     "version-packages": "changeset version",
-    "release": "pnpm build && changeset publish"
+    "release": "pnpm build && changeset publish",
+    "validate": "pnpm -r run validate && pnpm knip",
+    "knip": "knip",
+    "knip:fix": "knip --fix"
   },
   "keywords": [
     "monorepo",
@@ -36,8 +40,18 @@
     "pnpm": ">=10.0.0"
   },
   "devDependencies": {
+    "@changesets/changelog-github": "^0.5.0",
     "@changesets/cli": "^2.29.4",
-    "@changesets/changelog-github": "^0.5.0"
+    "@eslint/js": "^9.34.0",
+    "@types/node": "^24.3.0",
+    "@typescript-eslint/eslint-plugin": "^8.41.0",
+    "@typescript-eslint/parser": "^8.41.0",
+    "eslint": "^9.34.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.2.1",
+    "knip": "^5.64.3",
+    "prettier": "^3.6.2",
+    "typescript": "^5.9.2"
   },
-  "packageManager": "pnpm@10.12.1"
+  "packageManager": "pnpm@10.17.1"
 }

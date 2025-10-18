@@ -12,11 +12,11 @@ function getValidScopes() {
     const packageDirs = fs.readdirSync(packagesDir, { withFileTypes: true })
       .filter(dirent => dirent.isDirectory())
       .map(dirent => dirent.name);
-    
+
     return packageDirs;
   } catch (error) {
     console.warn('Warning: Could not read packages directory, falling back to default scopes');
-    return ['swarm-cli'];
+    return ['swarm', 'swarm-wasp'];
   }
 }
 
@@ -27,26 +27,23 @@ function getValidScopes() {
  */
 function mapScopeToPackage(scope) {
   const validScopes = getValidScopes();
-  
   // Direct match (e.g., "swarm-cli" -> "swarm-cli")
   if (validScopes.includes(scope)) {
     return scope;
   }
-  
   // Try with "swarm-" prefix (e.g., "cli" -> "swarm-cli")
   const withPrefix = `swarm-${scope}`;
   if (validScopes.includes(withPrefix)) {
     return withPrefix;
   }
-  
   return null;
 }
 
 // Export for use in help messages
-export const validScopes = getValidScopes();
+const validScopes = getValidScopes();
 
 // Define regex patterns for conventional commits
-export const commitPatterns = {
+const commitPatterns = {
   major: /^BREAKING CHANGE(?:\(([^)]+)\))?: (.+)/,
   majorAlt: /^(\w+)(?:\(([^)]+)\))?!: (.+)/, // feat!: or fix!: syntax
   minor: /^feat(?:\(([^)]+)\))?: (.+)/,
@@ -64,8 +61,8 @@ export function parseCommitMessage(message) {
   let changeType = null;
   let description = null;
 
-  // Get the first package directory as default (usually swarm-cli)
-  const defaultPackage = getValidScopes()[0] || 'swarm-cli';
+  // Get the first package directory as default (usually swarm)
+  const defaultPackage = getValidScopes()[0] || 'swarm';
 
   // Check for breaking changes first
   if (commitPatterns.major.test(message)) {
@@ -136,7 +133,6 @@ export function createChangesetFile(packageName, changeType, description, filena
   const fileFriendlyPackage = packageNameToFileFriendly(packageName);
   const filename = `${filenamePrefix}-changeset-${fileFriendlyPackage}.md`;
   const filepath = path.join('.changeset', filename);
-  
   const changesetContent = `---
 "${packageName}": ${changeType}
 ---
@@ -164,7 +160,6 @@ export function getCommitsSinceLastRelease() {
   try {
     // Try to get the last release tag
     const lastTag = execSync('git describe --tags --abbrev=0 2>/dev/null || echo ""').toString().trim();
-    
     let commitRange;
     if (lastTag) {
       commitRange = `${lastTag}..HEAD`;
@@ -173,14 +168,13 @@ export function getCommitsSinceLastRelease() {
       commitRange = 'HEAD';
       console.log('📋 Processing all commits (no previous release found)');
     }
-    
+
     const commits = execSync(`git log ${commitRange} --format="%H|%s" --reverse`).toString().trim();
-    
+
     if (!commits) {
       console.log('ℹ️  No new commits to process');
       return [];
     }
-    
     return commits.split('\n').map(line => {
       const [hash, message] = line.split('|');
       return { hash, message };
@@ -198,13 +192,13 @@ export function getCommitsSinceLastRelease() {
  */
 export function consolidateChanges(commits) {
   const packageChanges = {};
-  
+
   commits.forEach(({ hash, message }) => {
     const { packageName, changeType, description } = parseCommitMessage(message);
-    
+
     if (packageName && changeType && description) {
       const fullPackageName = `@ingenyus/${packageName}`;
-      
+
       if (!packageChanges[fullPackageName]) {
         packageChanges[fullPackageName] = {
           changeType: changeType,
@@ -212,20 +206,19 @@ export function consolidateChanges(commits) {
           commits: []
         };
       }
-      
+
       // Upgrade change type if necessary (patch < minor < major)
       const currentType = packageChanges[fullPackageName].changeType;
       const typeHierarchy = { patch: 1, minor: 2, major: 3 };
-      
+
       if (typeHierarchy[changeType] > typeHierarchy[currentType]) {
         packageChanges[fullPackageName].changeType = changeType;
       }
-      
+
       packageChanges[fullPackageName].descriptions.push(description);
       packageChanges[fullPackageName].commits.push({ hash: hash.substring(0, 7), message });
     }
   });
-  
   return packageChanges;
 }
 
@@ -258,4 +251,4 @@ export function printValidPatterns() {
   console.log('   - feat(cli): add new command');
   console.log('   - fix(swarm-cli): resolve parsing issue');
   console.log('   - feat: add feature (defaults to first package)');
-} 
+}
