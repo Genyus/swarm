@@ -15,7 +15,7 @@ import {
 import { WaspGeneratorBase } from '../base/wasp-generator.base';
 import { schema, SchemaArgs } from './schema';
 
-export class FeatureDirectoryGenerator extends WaspGeneratorBase<SchemaArgs> {
+export class FeatureGenerator extends WaspGeneratorBase<SchemaArgs> {
   name: string;
   description: string;
   schema: ExtendedSchema;
@@ -25,7 +25,7 @@ export class FeatureDirectoryGenerator extends WaspGeneratorBase<SchemaArgs> {
     public fileSystem: FileSystem = realFileSystem
   ) {
     super(fileSystem, logger);
-    this.name = 'feature-directory';
+    this.name = 'feature';
     this.description = 'Generate feature directory structure';
     this.schema = schema;
   }

@@ -22,14 +22,14 @@ export class WaspConfigGenerator implements ConfigGenerator {
 
   /**
    * Gets the template path for feature config templates.
-   * Feature config templates are located in the feature-directory generator's templates directory.
+   * Feature config templates are located in the feature generator's templates directory.
    * @param templateName - The name of the template file (e.g., 'feature.wasp.eta')
    * @returns The full path to the template file
    */
   private getTemplatePath(templateName: string): string {
     return this.templateUtility.resolveTemplatePath(
       templateName,
-      'feature-directory',
+      'feature',
       import.meta.url
     );
   }

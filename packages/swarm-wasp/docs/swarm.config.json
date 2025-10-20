@@ -13,7 +13,7 @@
         "crud": {
           "enabled": true
         },
-        "feature-directory": {
+        "feature": {
           "enabled": true
         },
         "job": {

@@ -1,6 +1,6 @@
 import { SignaleLogger } from '@ingenyus/swarm';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { FeatureDirectoryGenerator, QueryGenerator } from '../src';
+import { FeatureGenerator, QueryGenerator } from '../src';
 import { realFileSystem } from '../src/common';
 import {
   assertImportsPresent,
@@ -25,9 +25,8 @@ describe('Query Generator Integration Tests', () => {
   });
 
   it('should generate get query with proper types and imports', async () => {
-
     const logger = new SignaleLogger();
-    const featureGen = new FeatureDirectoryGenerator(logger, realFileSystem);
+    const featureGen = new FeatureGenerator(logger, realFileSystem);
     const queryGen = new QueryGenerator(logger, realFileSystem, featureGen);
 
     await featureGen.generate({ path: 'posts' });
@@ -52,9 +51,8 @@ describe('Query Generator Integration Tests', () => {
   });
 
   it('should generate getAll query with proper filtering', async () => {
-
     const logger = new SignaleLogger();
-    const featureGen = new FeatureDirectoryGenerator(logger, realFileSystem);
+    const featureGen = new FeatureGenerator(logger, realFileSystem);
     const queryGen = new QueryGenerator(logger, realFileSystem, featureGen);
 
     await featureGen.generate({ path: 'posts' });
@@ -74,9 +72,8 @@ describe('Query Generator Integration Tests', () => {
   });
 
   it('should not duplicate query in config without force flag', async () => {
-
     const logger = new SignaleLogger();
-    const featureGen = new FeatureDirectoryGenerator(logger, realFileSystem);
+    const featureGen = new FeatureGenerator(logger, realFileSystem);
     const queryGen = new QueryGenerator(logger, realFileSystem, featureGen);
 
     await featureGen.generate({ path: 'posts' });

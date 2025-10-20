@@ -1,6 +1,6 @@
 import { SignaleLogger } from '@ingenyus/swarm';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { CrudGenerator, FeatureDirectoryGenerator } from '../src';
+import { CrudGenerator, FeatureGenerator } from '../src';
 import { realFileSystem } from '../src/common';
 import {
   assertImportsPresent,
@@ -26,7 +26,7 @@ describe('CRUD Generator Integration Tests', () => {
 
   it('should generate complete CRUD operations', async () => {
     const logger = new SignaleLogger();
-    const featureGen = new FeatureDirectoryGenerator(logger, realFileSystem);
+    const featureGen = new FeatureGenerator(logger, realFileSystem);
     const crudGen = new CrudGenerator(logger, realFileSystem, featureGen);
 
     await featureGen.generate({ path: 'posts' });
@@ -55,7 +55,7 @@ describe('CRUD Generator Integration Tests', () => {
 
   it('should generate CRUD config with all operations', async () => {
     const logger = new SignaleLogger();
-    const featureGen = new FeatureDirectoryGenerator(logger, realFileSystem);
+    const featureGen = new FeatureGenerator(logger, realFileSystem);
     const crudGen = new CrudGenerator(logger, realFileSystem, featureGen);
 
     await featureGen.generate({ path: 'posts' });
@@ -77,7 +77,7 @@ describe('CRUD Generator Integration Tests', () => {
 
   it('should not duplicate CRUD in config without force flag', async () => {
     const logger = new SignaleLogger();
-    const featureGen = new FeatureDirectoryGenerator(logger, realFileSystem);
+    const featureGen = new FeatureGenerator(logger, realFileSystem);
     const crudGen = new CrudGenerator(logger, realFileSystem, featureGen);
 
     await featureGen.generate({ path: 'posts' });

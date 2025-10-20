@@ -1,8 +1,12 @@
-import { DEFAULT_CONFIG_FILE, DEFAULT_CUSTOM_TEMPLATES_DIR, SignaleLogger } from '@ingenyus/swarm';
+import {
+  DEFAULT_CONFIG_FILE,
+  DEFAULT_CUSTOM_TEMPLATES_DIR,
+  SignaleLogger,
+} from '@ingenyus/swarm';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { ApiGenerator, FeatureDirectoryGenerator } from '../src';
+import { ApiGenerator, FeatureGenerator } from '../src';
 import { realFileSystem } from '../src/common';
 import {
   createTestWaspProject,
@@ -44,15 +48,20 @@ describe('Template Override Integration Tests', () => {
 
     fs.mkdirSync(path.dirname(customApiTemplatePath), { recursive: true });
     fs.mkdirSync(path.dirname(customConfigTemplatePath), { recursive: true });
-    fs.writeFileSync(customApiTemplatePath, `// CUSTOM API TEMPLATE
+    fs.writeFileSync(
+      customApiTemplatePath,
+      `// CUSTOM API TEMPLATE
 <%=imports%>
 
 export const <%=apiName%>: <%=apiType%> = async (req, res, context) => {
 <%=authCheck%><%=methodCheck%>  // Custom implementation
   res.json({ message: 'Custom API: <%=apiName%>' });
 };
-`);
-    fs.writeFileSync(customConfigTemplatePath, `    .addApi(feature, "<%=apiName%>", {
+`
+    );
+    fs.writeFileSync(
+      customConfigTemplatePath,
+      `    .addApi(feature, "<%=apiName%>", {
       method: "<%=method%>",
       route: "<%=route%>",
 <%- if (entities) { %>
@@ -65,16 +74,17 @@ export const <%=apiName%>: <%=apiType%> = async (req, res, context) => {
       // Custom config template feature
       customFeature: true,
     })
-`);
+`
+    );
 
     const swarmConfig = {
       templateDirectory: customTemplateDir,
       plugins: {
         wasp: {
           enabled: true,
-          plugin: 'wasp'
-        }
-      }
+          plugin: 'wasp',
+        },
+      },
     };
 
     fs.writeFileSync(
@@ -83,7 +93,7 @@ export const <%=apiName%>: <%=apiType%> = async (req, res, context) => {
     );
 
     const logger = new SignaleLogger();
-    const featureGen = new FeatureDirectoryGenerator(logger, realFileSystem);
+    const featureGen = new FeatureGenerator(logger, realFileSystem);
     const apiGen = new ApiGenerator(logger, realFileSystem, featureGen);
 
     await featureGen.generate({ path: 'posts' });
@@ -121,9 +131,9 @@ export const <%=apiName%>: <%=apiType%> = async (req, res, context) => {
       plugins: {
         wasp: {
           enabled: true,
-          plugin: 'wasp'
-        }
-      }
+          plugin: 'wasp',
+        },
+      },
     };
 
     fs.writeFileSync(
@@ -132,7 +142,7 @@ export const <%=apiName%>: <%=apiType%> = async (req, res, context) => {
     );
 
     const logger = new SignaleLogger();
-    const featureGen = new FeatureDirectoryGenerator(logger, realFileSystem);
+    const featureGen = new FeatureGenerator(logger, realFileSystem);
     const apiGen = new ApiGenerator(logger, realFileSystem, featureGen);
 
     await featureGen.generate({ path: 'posts' });
@@ -176,7 +186,9 @@ export const <%=apiName%>: <%=apiType%> = async (req, res, context) => {
     );
 
     fs.mkdirSync(path.dirname(customConfigTemplatePath), { recursive: true });
-    fs.writeFileSync(customConfigTemplatePath, `    .addApi(feature, "<%=apiName%>", {
+    fs.writeFileSync(
+      customConfigTemplatePath,
+      `    .addApi(feature, "<%=apiName%>", {
       method: "<%=method%>",
       route: "<%=route%>",
 <%- if (entities) { %>
@@ -189,16 +201,17 @@ export const <%=apiName%>: <%=apiType%> = async (req, res, context) => {
       // Custom nested template feature
       customFeature: true,
     })
-`);
+`
+    );
 
     const swarmConfig = {
       templateDirectory: customTemplateDir,
       plugins: {
         wasp: {
           enabled: true,
-          plugin: 'wasp'
-        }
-      }
+          plugin: 'wasp',
+        },
+      },
     };
 
     fs.writeFileSync(
@@ -207,7 +220,7 @@ export const <%=apiName%>: <%=apiType%> = async (req, res, context) => {
     );
 
     const logger = new SignaleLogger();
-    const featureGen = new FeatureDirectoryGenerator(logger, realFileSystem);
+    const featureGen = new FeatureGenerator(logger, realFileSystem);
     const apiGen = new ApiGenerator(logger, realFileSystem, featureGen);
 
     await featureGen.generate({ path: 'posts' });
@@ -241,7 +254,9 @@ export const <%=apiName%>: <%=apiType%> = async (req, res, context) => {
     );
 
     fs.mkdirSync(path.dirname(customApiTemplatePath), { recursive: true });
-    fs.writeFileSync(customApiTemplatePath, `// INVALID TEMPLATE
+    fs.writeFileSync(
+      customApiTemplatePath,
+      `// INVALID TEMPLATE
 <%=imports%>
 
 export const <%=apiName%>: <%=apiType%> = async (req, res, context) => {
@@ -249,16 +264,17 @@ export const <%=apiName%>: <%=apiType%> = async (req, res, context) => {
     // Missing closing tag
   res.json({ message: 'Invalid template' });
 };
-`);
+`
+    );
 
     const swarmConfig = {
       templateDirectory: customTemplateDir,
       plugins: {
         wasp: {
           enabled: true,
-          plugin: 'wasp'
-        }
-      }
+          plugin: 'wasp',
+        },
+      },
     };
 
     fs.writeFileSync(
@@ -267,7 +283,7 @@ export const <%=apiName%>: <%=apiType%> = async (req, res, context) => {
     );
 
     const logger = new SignaleLogger();
-    const featureGen = new FeatureDirectoryGenerator(logger, realFileSystem);
+    const featureGen = new FeatureGenerator(logger, realFileSystem);
     const apiGen = new ApiGenerator(logger, realFileSystem, featureGen);
 
     await featureGen.generate({ path: 'posts' });
@@ -295,21 +311,24 @@ export const <%=apiName%>: <%=apiType%> = async (req, res, context) => {
     );
 
     fs.mkdirSync(path.dirname(customApiTemplatePath), { recursive: true });
-    fs.writeFileSync(customApiTemplatePath, `// DEFAULT LOCATION TEMPLATE
+    fs.writeFileSync(
+      customApiTemplatePath,
+      `// DEFAULT LOCATION TEMPLATE
 <%=imports%>
 
 export const <%=apiName%>: <%=apiType%> = async (req, res, context) => {
 <%=authCheck%><%=methodCheck%>  res.json({ message: 'Default location template: <%=apiName%>' });
 };
-`);
+`
+    );
 
     const swarmConfig = {
       plugins: {
         wasp: {
           enabled: true,
-          plugin: 'wasp'
-        }
-      }
+          plugin: 'wasp',
+        },
+      },
     };
 
     fs.writeFileSync(
@@ -318,7 +337,7 @@ export const <%=apiName%>: <%=apiType%> = async (req, res, context) => {
     );
 
     const logger = new SignaleLogger();
-    const featureGen = new FeatureDirectoryGenerator(logger, realFileSystem);
+    const featureGen = new FeatureGenerator(logger, realFileSystem);
     const apiGen = new ApiGenerator(logger, realFileSystem, featureGen);
 
     await featureGen.generate({ path: 'posts' });
