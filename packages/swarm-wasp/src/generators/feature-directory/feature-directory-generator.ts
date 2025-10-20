@@ -44,7 +44,6 @@ export class FeatureDirectoryGenerator extends WaspGeneratorBase<SchemaArgs> {
    */
   async generate(flags: SchemaArgs): Promise<void> {
     const { path: featurePath } = flags;
-    console.log('generate feature directory:', featurePath);
     const segments = validateFeaturePath(featurePath);
     const normalisedPath = normaliseFeaturePath(featurePath);
     const sourceRoot = path.join(findWaspRoot(this.fileSystem), 'src');

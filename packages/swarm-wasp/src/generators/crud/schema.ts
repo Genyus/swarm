@@ -39,8 +39,6 @@ export const schema = z.object({
   force: commonSchemas.force,
 });
 
-type SchemaArgs = z.infer<typeof schema>;
-
 function getCrudOperationsArray() {
   return z
     .string()

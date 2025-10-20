@@ -8,5 +8,3 @@ export const schema = z.object({
   auth: commonSchemas.auth,
   force: commonSchemas.force,
 });
-
-type SchemaArgs = z.infer<typeof schema>;
