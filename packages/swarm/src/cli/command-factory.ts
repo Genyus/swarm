@@ -1,6 +1,6 @@
 import { Command } from 'commander';
 import { z, ZodType } from 'zod';
-import { error, ExtendedSchema } from '../common';
+import { error, ExtendedSchema, toKebabCase } from '../common';
 import { FieldMetadata } from '../contracts';
 import { createCommandBuilder } from './command-builder';
 import { CommandInfo, commandRegistry } from './command-registry';
@@ -137,6 +137,7 @@ export class CommandFactory {
     const typeName = isRequired
       ? fieldSchema.type
       : fieldSchema.def?.innerType?.type;
+    const argName = toKebabCase(fieldName);
     const shortName = metadata?.shortName;
     let optionString = '';
     let description = metadata?.description || `${fieldName} field`;
@@ -146,18 +147,18 @@ export class CommandFactory {
     }
 
     if (shortName) {
-      optionString = `-${shortName}, --${fieldName}`;
+      optionString = `-${shortName}, --${argName}`;
     } else {
-      optionString = `--${fieldName}`;
+      optionString = `--${argName}`;
     }
 
     if (typeName === 'boolean') {
       cmd.option(optionString, description);
     } else if (isRequired) {
-      optionString += ` <${fieldName}>`;
+      optionString += ` <${argName}>`;
       cmd.requiredOption(optionString, description);
     } else {
-      optionString += ` [${fieldName}]`;
+      optionString += ` [${argName}]`;
       cmd.option(optionString, description);
     }
   }
