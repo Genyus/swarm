@@ -271,3 +271,38 @@ export function parseHelperMethodDefinition(definition: string): {
     firstParam: secondParamMatch[1],
   };
 }
+
+/**
+ * Converts a project name to a friendly display name
+ * @param name - Project name in any format
+ * @returns Friendly capitalized name with spaces
+ */
+export function toFriendlyName(name: string): string {
+  const pascal = toPascalCase(name);
+  return pascal.replace(/([A-Z])/g, ' $1').trim();
+}
+
+/**
+ * Validates a project name
+ * @param name - Project name to validate
+ * @returns Validation result with error message if invalid
+ */
+export function validateProjectName(name: string): {
+  valid: boolean;
+  error?: string;
+} {
+  if (name.length === 0) {
+    return { valid: false, error: 'Project name cannot be empty' };
+  }
+  if (!/^[a-z0-9-_]+$/i.test(name)) {
+    return {
+      valid: false,
+      error:
+        'Project name can only contain letters, numbers, hyphens, and underscores',
+    };
+  }
+  if (name.length > 214) {
+    return { valid: false, error: 'Project name cannot exceed 214 characters' };
+  }
+  return { valid: true };
+}

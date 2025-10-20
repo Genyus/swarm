@@ -1,4 +1,6 @@
 import type { Dirent, ObjectEncodingOptions, Stats } from 'node:fs';
+import fs from 'node:fs';
+
 /**
  * Interface for file system operations
  * @interface FileSystem
@@ -86,3 +88,16 @@ export interface FileSystem {
    */
   statSync(path: string): Stats;
 }
+
+/**
+ * Real file system implementation using Node.js fs module
+ */
+export const realFileSystem: FileSystem = {
+  readFileSync: fs.readFileSync,
+  writeFileSync: fs.writeFileSync,
+  existsSync: fs.existsSync,
+  copyFileSync: fs.copyFileSync,
+  mkdirSync: fs.mkdirSync,
+  readdirSync: fs.readdirSync,
+  statSync: fs.statSync,
+};

@@ -1,0 +1,1 @@
+export { AppGenerator } from './app';
