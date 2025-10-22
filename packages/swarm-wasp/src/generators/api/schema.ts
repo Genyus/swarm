@@ -31,7 +31,10 @@ export const schema = z.object({
   entities: commonSchemas.entities,
   auth: commonSchemas.auth,
   force: commonSchemas.force,
-  customMiddleware: z.boolean().optional(),
+  customMiddleware: extend(z.boolean().optional(), {
+    description: 'Enable custom middleware for this API endpoint',
+    friendlyName: 'Custom Middleware',
+    shortName: 'c',
+    helpText: 'Will generate custom middleware file',
+  }),
 });
-
-type SchemaArgs = z.infer<typeof schema>;

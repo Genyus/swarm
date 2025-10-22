@@ -26,22 +26,12 @@ const querySchema = extend(
   }
 );
 
-const dataTypeSchema = extend(z.string().min(1, 'Data type is required'), {
-  description: 'The data type/model name for this query',
-  friendlyName: 'Data Type',
-  shortName: 'd',
-  examples: ['User', 'Product', 'Task'],
-  helpText: 'The Wasp entity or model name this query will work with',
-});
-
 export const schema = z.object({
   feature: commonSchemas.feature,
   operation: querySchema,
-  dataType: dataTypeSchema,
+  dataType: commonSchemas.dataType,
   name: extend(commonSchemas.name.optional(), commonSchemas.name._metadata),
   entities: commonSchemas.entities,
   force: commonSchemas.force,
   auth: commonSchemas.auth,
 });
-
-type SchemaArgs = z.infer<typeof schema>;

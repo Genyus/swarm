@@ -1,6 +1,6 @@
 import { SignaleLogger } from '@ingenyus/swarm';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { ActionGenerator, FeatureDirectoryGenerator } from '../src';
+import { ActionGenerator, FeatureGenerator } from '../src';
 import { realFileSystem } from '../src/common';
 import {
   assertImportsPresent,
@@ -26,7 +26,7 @@ describe('Action Generator Integration Tests', () => {
 
   it('should generate create action with proper types and imports', async () => {
     const logger = new SignaleLogger();
-    const featureGen = new FeatureDirectoryGenerator(logger, realFileSystem);
+    const featureGen = new FeatureGenerator(logger, realFileSystem);
     const actionGen = new ActionGenerator(logger, realFileSystem, featureGen);
 
     await featureGen.generate({ path: 'posts' });
@@ -53,9 +53,8 @@ describe('Action Generator Integration Tests', () => {
   });
 
   it('should not duplicate action in config without force flag', async () => {
-
     const logger = new SignaleLogger();
-    const featureGen = new FeatureDirectoryGenerator(logger, realFileSystem);
+    const featureGen = new FeatureGenerator(logger, realFileSystem);
     const actionGen = new ActionGenerator(logger, realFileSystem, featureGen);
 
     await featureGen.generate({ path: 'posts' });
@@ -89,7 +88,7 @@ describe('Action Generator Integration Tests', () => {
 
   it('should replace action definition with force flag', async () => {
     const logger = new SignaleLogger();
-    const featureGen = new FeatureDirectoryGenerator(logger, realFileSystem);
+    const featureGen = new FeatureGenerator(logger, realFileSystem);
     const actionGen = new ActionGenerator(logger, realFileSystem, featureGen);
 
     await featureGen.generate({ path: 'posts' });

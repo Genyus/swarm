@@ -1,6 +1,6 @@
 import { SignaleLogger } from '@ingenyus/swarm';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { ApiGenerator, FeatureDirectoryGenerator } from '../src';
+import { ApiGenerator, FeatureGenerator } from '../src';
 import { realFileSystem } from '../src/common';
 import {
   assertImportsPresent,
@@ -25,9 +25,8 @@ describe('API Generator Integration Tests', () => {
   });
 
   it('should generate API endpoint with proper structure', async () => {
-
     const logger = new SignaleLogger();
-    const featureGen = new FeatureDirectoryGenerator(logger, realFileSystem);
+    const featureGen = new FeatureGenerator(logger, realFileSystem);
     const apiGen = new ApiGenerator(logger, realFileSystem, featureGen);
 
     await featureGen.generate({ path: 'posts' });
@@ -44,18 +43,16 @@ describe('API Generator Integration Tests', () => {
     const apiPath = 'src/features/posts/server/apis/searchPosts.ts';
     const content = readGeneratedFile(projectPaths.root, apiPath);
 
-    assertImportsPresent(content, [
-      'import { HttpError } from "wasp/server"',
-    ]);
+    assertImportsPresent(content, ['import { HttpError } from "wasp/server"']);
 
     expect(content).toContain('export const searchPosts');
-    expect(content).toContain('req.method !== \'GET\'');
+    expect(content).toContain("req.method !== 'GET'");
     expect(content).toContain('HttpError');
   });
 
   it('should generate authenticated API endpoint', async () => {
     const logger = new SignaleLogger();
-    const featureGen = new FeatureDirectoryGenerator(logger, realFileSystem);
+    const featureGen = new FeatureGenerator(logger, realFileSystem);
     const apiGen = new ApiGenerator(logger, realFileSystem, featureGen);
 
     await featureGen.generate({ path: 'posts' });
@@ -74,12 +71,12 @@ describe('API Generator Integration Tests', () => {
 
     expect(content).toContain('export const createPost');
     expect(content).toContain('context.user');
-    expect(content).toContain('req.method !== \'POST\'');
+    expect(content).toContain("req.method !== 'POST'");
   });
 
   it('should generate API config with correct structure', async () => {
     const logger = new SignaleLogger();
-    const featureGen = new FeatureDirectoryGenerator(logger, realFileSystem);
+    const featureGen = new FeatureGenerator(logger, realFileSystem);
     const apiGen = new ApiGenerator(logger, realFileSystem, featureGen);
 
     await featureGen.generate({ path: 'posts' });
@@ -104,7 +101,7 @@ describe('API Generator Integration Tests', () => {
 
   it('should not duplicate API in config without force flag', async () => {
     const logger = new SignaleLogger();
-    const featureGen = new FeatureDirectoryGenerator(logger, realFileSystem);
+    const featureGen = new FeatureGenerator(logger, realFileSystem);
     const apiGen = new ApiGenerator(logger, realFileSystem, featureGen);
 
     await featureGen.generate({ path: 'posts' });

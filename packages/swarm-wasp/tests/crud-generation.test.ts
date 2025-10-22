@@ -1,6 +1,7 @@
 import { SignaleLogger } from '@ingenyus/swarm';
+import path from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { CrudGenerator, FeatureDirectoryGenerator } from '../src';
+import { CrudGenerator, FeatureGenerator } from '../src';
 import { realFileSystem } from '../src/common';
 import {
   assertImportsPresent,
@@ -26,7 +27,7 @@ describe('CRUD Generator Integration Tests', () => {
 
   it('should generate complete CRUD operations', async () => {
     const logger = new SignaleLogger();
-    const featureGen = new FeatureDirectoryGenerator(logger, realFileSystem);
+    const featureGen = new FeatureGenerator(logger, realFileSystem);
     const crudGen = new CrudGenerator(logger, realFileSystem, featureGen);
 
     await featureGen.generate({ path: 'posts' });
@@ -42,20 +43,34 @@ describe('CRUD Generator Integration Tests', () => {
     const content = readGeneratedFile(projectPaths.root, crudPath);
 
     assertImportsPresent(content, [
+      'import { Prisma } from "@prisma/client"',
       'import { type Post } from "wasp/entities"',
       'import { HttpError } from "wasp/server"',
+      'import { type Posts } from "wasp/server/crud"',
     ]);
 
-    expect(content).toContain('export const createPost');
-    expect(content).toContain('export const getPost');
-    expect(content).toContain('export const getAllPosts');
-    expect(content).toContain('export const updatePost');
-    expect(content).toContain('export const deletePost');
+    expect(content).toContain(
+      'export const createPost: Posts.CreateAction<Pick<Post, "title" | "authorId"> & Partial<Pick<Post, "content" | "published" | "metadata">>> = async (data, context) => {'
+    );
+    expect(content).toContain(
+      'export const deletePost: Posts.DeleteAction<Pick<Post, "id">> = async ({ id }, context) => {'
+    );
+    expect(content).toContain(
+      'export const getAllPosts = (async (_args, context) => {'
+    );
+    expect(content).toContain('}) satisfies Posts.GetAllQuery<void>;');
+    expect(content).toContain(
+      'export const getPost = (async ({ id }, context) => {'
+    );
+    expect(content).toContain('}) satisfies Posts.GetQuery<Pick<Post, "id">>;');
+    expect(content).toContain(
+      'export const updatePost: Posts.UpdateAction<Pick<Post, "id"> & Partial<Omit<Post, "id">>> = async ({ id, ...data }, context) => {'
+    );
   });
 
   it('should generate CRUD config with all operations', async () => {
     const logger = new SignaleLogger();
-    const featureGen = new FeatureDirectoryGenerator(logger, realFileSystem);
+    const featureGen = new FeatureGenerator(logger, realFileSystem);
     const crudGen = new CrudGenerator(logger, realFileSystem, featureGen);
 
     await featureGen.generate({ path: 'posts' });
@@ -68,7 +83,12 @@ describe('CRUD Generator Integration Tests', () => {
 
     const configPath = 'src/features/posts/posts.wasp.ts';
     const content = readGeneratedFile(projectPaths.root, configPath);
+    const crudPath = path.join(
+      projectPaths.root,
+      'src/features/posts/server/cruds/posts.ts'
+    );
 
+    expect(realFileSystem.existsSync(crudPath)).toBe(false);
     expect(content).toContain('addCrud');
     expect(content).toContain('Post');
     expect(content).toContain('Posts');
@@ -77,7 +97,7 @@ describe('CRUD Generator Integration Tests', () => {
 
   it('should not duplicate CRUD in config without force flag', async () => {
     const logger = new SignaleLogger();
-    const featureGen = new FeatureDirectoryGenerator(logger, realFileSystem);
+    const featureGen = new FeatureGenerator(logger, realFileSystem);
     const crudGen = new CrudGenerator(logger, realFileSystem, featureGen);
 
     await featureGen.generate({ path: 'posts' });
@@ -102,7 +122,12 @@ describe('CRUD Generator Integration Tests', () => {
 
     const contentAfter = readGeneratedFile(projectPaths.root, configPath);
     const occurrencesAfter = countOccurrences(contentAfter, 'addCrud');
+    const crudPath = path.join(
+      projectPaths.root,
+      'src/features/posts/server/cruds/posts.ts'
+    );
 
+    expect(realFileSystem.existsSync(crudPath)).toBe(false);
     // Should have the same number of addCrud calls (replaced, not duplicated)
     expect(occurrencesAfter).toBe(occurrencesBefore);
   });

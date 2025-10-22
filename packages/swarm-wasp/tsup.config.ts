@@ -4,10 +4,12 @@ import { defineConfig } from 'tsup';
 export default defineConfig({
   entry: [
     'src/index.ts',
-    ...glob.sync('src/plugins/**/*.ts', { ignore: 'src/plugins/**/*.test.ts' }),
-    ...glob.sync('src/base-classes/*.ts', { ignore: 'src/base-classes/*.test.ts' }),
+    ...glob.sync('src/generators/**/*.ts', {
+      ignore: 'src/generators/**/*.test.ts',
+    }),
+    ...glob.sync('src/common/**/*.ts', { ignore: 'src/common/**/*.test.ts' }),
     ...glob.sync('src/types/*.ts'),
-    ...glob.sync('src/utils/*.ts', { ignore: 'src/utils/*.test.ts' }),
+    ...glob.sync('src/wasp-config/**/*.ts'),
   ],
   format: ['esm'],
   dts: false,

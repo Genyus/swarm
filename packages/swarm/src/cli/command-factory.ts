@@ -1,20 +1,8 @@
 import { Command } from 'commander';
 import { z, ZodType } from 'zod';
-import { error, ExtendedSchema } from '../common';
-import { FieldMetadata } from '../contracts';
+import { ExtendedSchema, SchemaManager, toKebabCase } from '../common';
 import { createCommandBuilder } from './command-builder';
 import { CommandInfo, commandRegistry } from './command-registry';
-
-/**
- * Configuration for creating a command with the registry
- */
-interface CommandConfig<TArgs = any> {
-  name: string;
-  description: string;
-  schema: ZodType<TArgs>;
-  handler: (args: TArgs) => Promise<void>;
-  additionalOptions?: (cmd: Command) => Command;
-}
 
 /**
  * Configuration for creating a command with CommandBuilder
@@ -93,7 +81,12 @@ export class CommandFactory {
     handler: (args: TArgs) => Promise<void>
   ): Command {
     // Register the command with the registry
-    commandRegistry.registerCommand(name, description, schema as any, handler);
+    commandRegistry.registerCommand(
+      name,
+      description,
+      schema as ZodType<TArgs>,
+      handler
+    );
 
     // Use the command builder to create a proper sub-command
     const builder = createCommandBuilder(new Command(), name);
@@ -102,11 +95,11 @@ export class CommandFactory {
     cmd.description(description);
 
     // Extract schema shape and add options
-    const shape = (schema as any)._def?.shape;
+    const shape = SchemaManager.getShape(schema);
 
     if (shape) {
       Object.keys(shape).forEach((fieldName) => {
-        const fieldSchema = shape[fieldName];
+        const fieldSchema = shape[fieldName] as ZodType;
 
         this.addOptionFromField(cmd, fieldName, fieldSchema);
       });
@@ -130,13 +123,12 @@ export class CommandFactory {
   private static addOptionFromField(
     cmd: Command,
     fieldName: string,
-    fieldSchema: any
+    fieldSchema: ZodType
   ): void {
-    const metadata = fieldSchema._metadata as FieldMetadata | undefined;
-    const isRequired = !fieldSchema.type?.includes('optional');
-    const typeName = isRequired
-      ? fieldSchema.type
-      : fieldSchema.def?.innerType?.type;
+    const metadata = SchemaManager.getFieldMetadata(fieldSchema);
+    const isRequired = SchemaManager.isFieldRequired(fieldSchema);
+    const typeName = SchemaManager.getFieldTypeName(fieldSchema);
+    const argName = toKebabCase(fieldName);
     const shortName = metadata?.shortName;
     let optionString = '';
     let description = metadata?.description || `${fieldName} field`;
@@ -146,18 +138,18 @@ export class CommandFactory {
     }
 
     if (shortName) {
-      optionString = `-${shortName}, --${fieldName}`;
+      optionString = `-${shortName}, --${argName}`;
     } else {
-      optionString = `--${fieldName}`;
+      optionString = `--${argName}`;
     }
 
     if (typeName === 'boolean') {
       cmd.option(optionString, description);
     } else if (isRequired) {
-      optionString += ` <${fieldName}>`;
+      optionString += ` <${argName}>`;
       cmd.requiredOption(optionString, description);
     } else {
-      optionString += ` [${fieldName}]`;
+      optionString += ` [${argName}]`;
       cmd.option(optionString, description);
     }
   }

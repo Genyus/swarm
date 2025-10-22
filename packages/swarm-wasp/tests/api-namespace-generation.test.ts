@@ -1,6 +1,6 @@
 import { SignaleLogger } from '@ingenyus/swarm';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { ApiNamespaceGenerator, FeatureDirectoryGenerator } from '../src';
+import { ApiNamespaceGenerator, FeatureGenerator } from '../src';
 import { realFileSystem } from '../src/common';
 import {
   countOccurrences,
@@ -25,8 +25,12 @@ describe('API Namespace Generator Integration Tests', () => {
 
   it('should generate API namespace middleware', async () => {
     const logger = new SignaleLogger();
-    const featureGen = new FeatureDirectoryGenerator(logger, realFileSystem);
-    const apiNamespaceGen = new ApiNamespaceGenerator(logger, realFileSystem, featureGen);
+    const featureGen = new FeatureGenerator(logger, realFileSystem);
+    const apiNamespaceGen = new ApiNamespaceGenerator(
+      logger,
+      realFileSystem,
+      featureGen
+    );
 
     await featureGen.generate({ path: 'posts' });
     await apiNamespaceGen.generate({
@@ -45,8 +49,12 @@ describe('API Namespace Generator Integration Tests', () => {
 
   it('should generate API namespace config', async () => {
     const logger = new SignaleLogger();
-    const featureGen = new FeatureDirectoryGenerator(logger, realFileSystem);
-    const apiNamespaceGen = new ApiNamespaceGenerator(logger, realFileSystem, featureGen);
+    const featureGen = new FeatureGenerator(logger, realFileSystem);
+    const apiNamespaceGen = new ApiNamespaceGenerator(
+      logger,
+      realFileSystem,
+      featureGen
+    );
 
     await featureGen.generate({ path: 'posts' });
     await apiNamespaceGen.generate({
@@ -67,8 +75,12 @@ describe('API Namespace Generator Integration Tests', () => {
 
   it('should not duplicate API namespace in config without force flag', async () => {
     const logger = new SignaleLogger();
-    const featureGen = new FeatureDirectoryGenerator(logger, realFileSystem);
-    const apiNamespaceGen = new ApiNamespaceGenerator(logger, realFileSystem, featureGen);
+    const featureGen = new FeatureGenerator(logger, realFileSystem);
+    const apiNamespaceGen = new ApiNamespaceGenerator(
+      logger,
+      realFileSystem,
+      featureGen
+    );
 
     await featureGen.generate({ path: 'posts' });
     await apiNamespaceGen.generate({

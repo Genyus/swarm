@@ -2,6 +2,7 @@
   "ignore": [".github/changeset-version.js"],
   "ignoreDependencies": [
     "@commander-js/extra-typings",
+    "changeset-conventional-commits",
     "wasp-config"
   ]
 }

@@ -216,3 +216,57 @@ describe('strings utils', () => {
     });
   });
 });
+
+describe('toFriendlyName', () => {
+  it('should convert kebab-case to friendly name', () => {
+    expect(strings.toFriendlyName('my-awesome-app')).toBe('My Awesome App');
+  });
+
+  it('should convert camelCase to friendly name', () => {
+    expect(strings.toFriendlyName('myAwesomeApp')).toBe('My Awesome App');
+  });
+
+  it('should convert snake_case to friendly name', () => {
+    expect(strings.toFriendlyName('my_awesome_app')).toBe('My Awesome App');
+  });
+
+  it('should handle single words', () => {
+    expect(strings.toFriendlyName('myapp')).toBe('Myapp');
+  });
+
+  it('should handle mixed cases', () => {
+    expect(strings.toFriendlyName('myAwesome-App')).toBe('My Awesome App');
+  });
+});
+
+describe('validateProjectName', () => {
+  it('should accept valid project names', () => {
+    expect(strings.validateProjectName('my-app').valid).toBe(true);
+    expect(strings.validateProjectName('my_app').valid).toBe(true);
+    expect(strings.validateProjectName('myApp').valid).toBe(true);
+    expect(strings.validateProjectName('my-app-123').valid).toBe(true);
+  });
+
+  it('should reject empty project name', () => {
+    expect(strings.validateProjectName('').valid).toBe(false);
+    expect(strings.validateProjectName('').error).toBe(
+      'Project name cannot be empty'
+    );
+  });
+
+  it('should reject invalid characters', () => {
+    expect(strings.validateProjectName('my app!').valid).toBe(false);
+    expect(strings.validateProjectName('my app!').error).toBe(
+      'Project name can only contain letters, numbers, hyphens, and underscores'
+    );
+    expect(strings.validateProjectName('my.app').valid).toBe(false);
+  });
+
+  it('should reject too long project name', () => {
+    const longName = 'a'.repeat(215);
+    expect(strings.validateProjectName(longName).valid).toBe(false);
+    expect(strings.validateProjectName(longName).error).toBe(
+      'Project name cannot exceed 214 characters'
+    );
+  });
+});

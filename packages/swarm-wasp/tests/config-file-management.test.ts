@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import {
   ActionGenerator,
   ApiGenerator,
-  FeatureDirectoryGenerator,
+  FeatureGenerator,
   JobGenerator,
   QueryGenerator,
   RouteGenerator,
@@ -20,14 +20,14 @@ describe('Configuration File Management Tests', () => {
   let projectPaths: TestProjectPaths;
   let originalCwd: string;
   let logger: SignaleLogger;
-  let featureGen: FeatureDirectoryGenerator;
+  let featureGen: FeatureGenerator;
 
   beforeEach(() => {
     originalCwd = process.cwd();
     projectPaths = createTestWaspProject();
     process.chdir(projectPaths.root);
     logger = new SignaleLogger();
-    featureGen = new FeatureDirectoryGenerator(logger, realFileSystem);
+    featureGen = new FeatureGenerator(logger, realFileSystem);
   });
 
   afterEach(() => {
@@ -35,7 +35,6 @@ describe('Configuration File Management Tests', () => {
   });
 
   it('should maintain correct group ordering with multiple definition types', async () => {
-
     await featureGen.generate({ path: 'posts' });
 
     const actionGen = new ActionGenerator(logger, realFileSystem, featureGen);

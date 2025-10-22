@@ -16,8 +16,8 @@ import {
   realFileSystem,
 } from '../../common';
 import { ConfigType, GetFlagsType, TYPE_DIRECTORIES } from '../../types';
-import { FeatureDirectoryGenerator } from '../feature-directory/feature-directory-generator';
-import { SchemaArgs as FeatureSchemaArgs } from '../feature-directory/schema';
+import { FeatureGenerator } from '../feature/feature-generator';
+import { SchemaArgs as FeatureSchemaArgs } from '../feature/schema';
 import { WaspGeneratorBase } from './wasp-generator.base';
 
 /**
@@ -39,7 +39,7 @@ export abstract class EntityGeneratorBase<
   constructor(
     public logger: Logger = new SignaleLogger(),
     public fileSystem: FileSystem = realFileSystem,
-    protected featureDirectoryGenerator: SwarmGenerator<FeatureSchemaArgs> = new FeatureDirectoryGenerator(
+    protected featureDirectoryGenerator: SwarmGenerator<FeatureSchemaArgs> = new FeatureGenerator(
       logger,
       fileSystem
     )

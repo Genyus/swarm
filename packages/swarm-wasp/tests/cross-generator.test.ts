@@ -4,7 +4,7 @@ import {
   ActionGenerator,
   ApiGenerator,
   CrudGenerator,
-  FeatureDirectoryGenerator,
+  FeatureGenerator,
   JobGenerator,
   QueryGenerator,
   RouteGenerator,
@@ -21,14 +21,14 @@ describe('Cross-Generator Integration Tests', () => {
   let projectPaths: TestProjectPaths;
   let originalCwd: string;
   let logger: SignaleLogger;
-  let featureGen: FeatureDirectoryGenerator;
+  let featureGen: FeatureGenerator;
 
   beforeEach(() => {
     originalCwd = process.cwd();
     projectPaths = createTestWaspProject();
     process.chdir(projectPaths.root);
     logger = new SignaleLogger();
-    featureGen = new FeatureDirectoryGenerator(logger, realFileSystem);
+    featureGen = new FeatureGenerator(logger, realFileSystem);
   });
 
   afterEach(() => {
@@ -36,7 +36,6 @@ describe('Cross-Generator Integration Tests', () => {
   });
 
   it('should generate compatible CRUD and custom operations', async () => {
-
     await featureGen.generate({ path: 'posts' });
 
     const crudGen = new CrudGenerator(logger, realFileSystem, featureGen);
@@ -80,7 +79,6 @@ describe('Cross-Generator Integration Tests', () => {
   });
 
   it('should generate complete feature with all generator types', async () => {
-
     await featureGen.generate({ path: 'posts' });
 
     const actionGen = new ActionGenerator(logger, realFileSystem, featureGen);
@@ -147,7 +145,6 @@ describe('Cross-Generator Integration Tests', () => {
   });
 
   it('should handle multiple features with different generators', async () => {
-
     await featureGen.generate({ path: 'posts' });
     await featureGen.generate({ path: 'users' });
 

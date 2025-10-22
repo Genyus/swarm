@@ -1,227 +1,107 @@
 # @ingenyus/swarm
 
-A powerful TypeScript library providing core generators, templates, utilities, and types for **Wasp full-stack framework** development. Built with type safety, modularity, and extensibility in mind.
+An extensible code generation framework for JavaScript and TypeScript projects. Built with extensibility in mind, Swarm uses a plugin architecture that allows developers to create generators for different types of content, whilst starter repositories define the structure and scaffolding for various project types.
 
-Wasp is a full-stack web framework that lets you develop web apps in React, Node.js, and Prisma with minimal boilerplate. This core library provides the foundational building blocks for generating all the necessary files, configurations, and boilerplate code that follows Wasp's conventions and best practices.
+Swarm provides both CLI commands and AI agent integration via MCP (Model Context Protocol) to create customised boilerplate code and scaffold new projects.
 
 ## Table of Contents
 
 - [Installation](#installation)
 - [Quick Start](#quick-start)
-- [Generators](#generators)
-- [Templates](#templates)
+- [How It Works](#how-it-works)
+- [CLI Commands](#cli-commands)
+- [MCP Integration](#mcp-integration)
+- [Known Plugins](#known-plugins)
+- [Known Starter Repositories](#known-starter-repositories)
 - [Development](#development)
-- [Testing](#testing)
 - [Contributing](#contributing)
 - [License](#license)
 
 ## Installation
 
+Swarm is designed to be used primarily as a CLI tool. You can run it directly without installation:
+
+```bash
+npx @ingenyus/swarm create my-project
+```
+
+For plugin development, you can install Swarm as a library:
+
 ```bash
 npm install @ingenyus/swarm
-# or
-yarn add @ingenyus/swarm
-# or
-pnpm add @ingenyus/swarm
 ```
+
+See our [plugin development documentation](https://github.com/genyus/swarm/tree/main/docs) for detailed guidance on creating custom generators.
 
 ## Quick Start
 
-```typescript
-import { 
-  ApiGenerator, 
-  FeatureGenerator, 
-  CrudGenerator,
-  FileSystem,
-  Logger 
-} from '@ingenyus/swarm';
+Create a new project from a starter template:
 
-// Initialize generators
-const apiGen = new ApiGenerator();
-const featureGen = new FeatureGenerator();
-const crudGen = new CrudGenerator();
-
-// Use utilities
-const fs = new FileSystem();
-const logger = new Logger();
-
-// Generate a feature
-await featureGen.generate('users', { force: false });
-
-// Generate API endpoints
-await apiGen.generate('users', {
-  name: 'getUsers',
-  method: 'GET',
-  route: '/api/users',
-  auth: true,
-  force: false
-});
-
-// Generate CRUD operations
-await crudGen.generate('users', {
-  dataType: 'User',
-  public: ['get', 'getAll'],
-  force: false
-});
+```bash
+# Create a new project from a starter template
+npx @ingenyus/swarm create my-app --template user/custom-starter
 ```
 
-## Generators
+This will clone the template repository into the project directory and replace project-specific placeholders.
 
-#### `ApiGenerator`
-Creates API endpoints with handlers and configurations.
+## How It Works
 
-```typescript
-import { ApiGenerator, ApiFlags } from '@ingenyus/swarm';
+Swarm operates through a flexible plugin architecture:
 
-const generator = new ApiGenerator();
-const flags: ApiFlags = {
-  name: 'getUserProfile',
-  method: 'GET',
-  route: '/api/users/profile',
-  entities: ['User'],
-  auth: true,
-  force: false
-};
+- **Plugins** define generators for different types of content (APIs, components, configurations, etc.)
+- **Generators** create specific files and boilerplate code within the host project
+- **Starter repositories** define project scaffolding and initial structure
+- **Configuration files** enable or disable specific plugins and generators for a project
 
-await generator.generate('users', flags);
+Swarm commands are built dynamically from the available plugins and their generators, allowing you to create boilerplate code tailored to each project. The `create` command scaffolds entire projects from starter templates, whilst individual generators add specific functionality to existing projects.
+
+## CLI Commands
+
+### `create`
+
+Creates a new project from a template Git repository.
+
+```bash
+npx @ingenyus/swarm create <project-name> [options]
 ```
 
-#### `FeatureGenerator`
-Creates complete feature structures with directories and configurations.
+**Arguments:**
+- `<project-name>` - Name for your project (used for directory and package name)
 
-```typescript
-import { FeatureGenerator, CommonGeneratorFlags } from '@ingenyus/swarm';
+**Options:**
+- `-t, --template <template>` - GitHub repository path or Git URL to use as the project template
+- `-d, --target-dir [target-dir]` - Target directory (defaults to project name)
 
-const generator = new FeatureGenerator();
-const flags: CommonGeneratorFlags = {
-  force: false
-};
+**Examples:**
 
-await generator.generate('blog/posts', flags);
+```bash
+# Create with a custom template
+npx @ingenyus/swarm create my-app --template user/custom-starter
+
+# Create in a specific directory
+npx @ingenyus/swarm create my-app --template genyus/swarm-wasp-starter --target-dir ./projects/my-app
 ```
 
-#### `CrudGenerator`
-Generates complete CRUD operations for data types.
+## MCP Integration
 
-```typescript
-import { CrudGenerator, CrudFlags } from '@ingenyus/swarm';
+Swarm includes an MCP (Model Context Protocol) server that allows AI tools to interact with generators directly. This enables AI assistants like Cursor, Claude Code, or VS Code Copilot to generate boilerplate code and scaffold projects on your behalf.
 
-const generator = new CrudGenerator();
-const flags: CrudFlags = {
-  dataType: 'Post',
-  public: ['get', 'getAll', 'create'],
-  override: ['update'],
-  exclude: ['delete'],
-  force: false
-};
+**Connecting AI Tools:**
+- Configure your AI tool to connect to Swarm's MCP server
+- The server exposes generators as tools that AI agents can use
+- AI tools can then generate code, create files, and scaffold projects automatically
 
-await generator.generate('blog', flags);
-```
+For detailed MCP setup instructions, see our [MCP integration guide](https://github.com/genyus/swarm/tree/main/docs/mcp).
 
-#### `JobGenerator`
-Creates background job workers with scheduling.
+## Known Plugins
 
-```typescript
-import { JobGenerator, JobFlags } from '@ingenyus/swarm';
+### `@ingenyus/swarm-wasp`
+Generators for the Wasp full-stack framework, including API endpoints, CRUD operations, routes, background jobs, and more. [View on GitHub](https://github.com/genyus/swarm/tree/main/packages/swarm-wasp)
 
-const generator = new JobGenerator();
-const flags: JobFlags = {
-  name: 'sendWelcomeEmail',
-  entities: ['User'],
-  schedule: '0 9 * * *',
-  scheduleArgs: '{}',
-  force: false
-};
+## Known Starter Repositories
 
-await generator.generate('users', flags);
-```
-
-#### `OperationGenerator`
-Creates individual query or action operations.
-
-```typescript
-import { OperationGenerator, OperationFlags } from '@ingenyus/swarm';
-
-const generator = new OperationGenerator();
-const flags: OperationFlags = {
-  operation: 'get',
-  dataType: 'User',
-  entities: ['User', 'Profile'],
-  auth: true,
-  force: false
-};
-
-await generator.generate('users', flags);
-```
-
-#### `RouteGenerator`
-Generates route definitions and page components.
-
-```typescript
-import { RouteGenerator, RouteFlags } from '@ingenyus/swarm';
-
-const generator = new RouteGenerator();
-const flags: RouteFlags = {
-  name: 'UserProfile',
-  path: '/users/profile',
-  auth: true,
-  force: false
-};
-
-await generator.generate('users', flags);
-```
-
-#### `ApiNamespaceGenerator`
-Creates API namespaces with middleware.
-
-```typescript
-import { ApiNamespaceGenerator, ApiNamespaceFlags } from '@ingenyus/swarm';
-
-const generator = new ApiNamespaceGenerator();
-const flags: ApiNamespaceFlags = {
-  name: 'api',
-  path: '/api',
-  force: false
-};
-
-await generator.generate('users', flags);
-```
-
-## Templates
-
-The library includes a comprehensive template system for generating Wasp-compatible code:
-
-### Configuration Templates
-- `feature.wasp.ts` - Main feature configuration
-- `api.ts` - API endpoint configuration  
-- `route.ts` - Route definition configuration
-- `job.ts` - Background job configuration
-- `crud.ts` - CRUD operation configuration
-- `operation.ts` - Individual operation configuration
-- `apiNamespace.ts` - API namespace configuration
-
-### File Templates
-
-#### Server Templates
-- `api.ts` - API endpoint template
-- `job.ts` - Background job worker template
-- `middleware.ts` - API namespace middleware template
-- `queries/get.ts` - Get query template
-- `queries/getAll.ts` - Get all query template
-- `actions/create.ts` - Create action template
-- `actions/update.ts` - Update action template
-- `actions/delete.ts` - Delete action template
-
-#### Client Templates
-- `page.tsx` - React page component template
-- `component.tsx` - React component template
-- `hook.ts` - Custom React hook template
-- `layout.tsx` - Layout component template
-
-#### Feature Templates
-- Directory structure templates for top-level and sub-features
-
-All templates support variable substitution using `{{variable}}` syntax and are processed with entity metadata for type-safe generation.
+### `genyus/swarm-wasp-starter`
+A minimal Wasp starter template with Swarm integration, shadcn/ui components, and Tailwind CSS. Perfect for building full-stack applications with modern tooling. [View on GitHub](https://github.com/genyus/swarm-wasp-starter)
 
 ## Development
 
@@ -229,15 +109,12 @@ All templates support variable substitution using `{{variable}}` syntax and are 
 
 - Node.js 18+
 - TypeScript 5+
-- Wasp 0.15+ with [TypeScript configuration](https://wasp.sh/docs/general/wasp-ts-config) enabled
-
-> **Note**: This library generates Wasp-specific code and configurations. All operations must be executed within a Wasp project for the generated code to function properly. Learn more about Wasp at [wasp.sh](https://wasp.sh).
 
 ### Setup
 
 ```bash
 # Clone and install dependencies
-git clone <repository-url>
+git clone https://github.com/genyus/swarm.git
 cd swarm
 pnpm install
 
@@ -256,64 +133,32 @@ pnpm build:watch
 ```
 src/
 ├── generators/           # Core generation logic
-│   ├── api.ts            # API generator
-│   ├── feature.ts        # Feature generator
-│   ├── crud.ts           # CRUD generator
-│   ├── job.ts            # Job generator
-│   ├── operation.ts      # Operation generator
-│   ├── route.ts          # Route generator
-│   └── apinamespace.ts   # API namespace generator
-├── utils/                # Shared utilities
-│   ├── prisma.ts         # Prisma schema utilities
-│   ├── templates.ts      # Template processing
-│   ├── filesystem.ts     # File system operations
+│   └── app/              # App generator for project scaffolding
+├── cli/                  # Command-line interface
+├── mcp/                  # MCP server for AI tool integration
+├── plugin/               # Plugin system
+├── common/                # Shared utilities
 │   ├── strings.ts        # String manipulation
 │   ├── logger.ts         # Logging utilities
 │   └── errors.ts         # Error handling
 ├── types/                # TypeScript type definitions
-│   ├── constants.ts      # Shared constants
-│   ├── interfaces.ts     # Interface definitions
-│   ├── filesystem.ts     # File system types
-│   ├── generator.ts      # Generator types
-│   ├── logger.ts         # Logger types
-│   └── prisma.ts         # Prisma types
-└── templates/            # Generation templates
-    ├── config/           # Configuration templates
-    ├── files/            # File templates
-    └── feature/          # Feature structure templates
+└── contracts/            # Plugin and generator interfaces
 ```
 
-## Testing
+The core architecture consists of:
 
-The library includes comprehensive test coverage:
-
-```bash
-# Run all tests
-pnpm test
-
-# Run specific test files
-pnpm test src/generators/api.test.ts
-pnpm test src/utils/filesystem.test.ts
-
-# Run tests in watch mode
-pnpm test -- --watch
-
-# Run tests with coverage
-pnpm test -- --coverage
-```
-
-### Test Structure
-
-- **Unit Tests**: Located alongside source files (e.g., `src/utils/filesystem.test.ts`)
-- **Integration Tests**: Located in `tests/` directory
-- **Comprehensive coverage** of all generators, utilities, and core functionality
+- **Generator System** - Base classes and interfaces for creating custom generators
+- **Plugin Framework** - System for loading and managing generator plugins
+- **CLI Interface** - Command-line tools for direct interaction
+- **MCP Server** - Protocol server for AI tool integration
+- **Template System** - Flexible templating for code generation
 
 ## Contributing
 
 1. Fork the repository
 2. Create a feature branch: `git checkout -b feature/my-new-feature`
 3. Make your changes and add tests
-4. Ensure all tests pass: `pnpm test`
+4. Ensure all validation checks pass: `pnpm validate`
 5. Commit your changes: `git commit -am 'Add some feature'`
 6. Push to the branch: `git push origin feature/my-new-feature`
 7. Submit a pull request
@@ -323,13 +168,9 @@ pnpm test -- --coverage
 - Follow TypeScript best practices
 - Add tests for new functionality
 - Update documentation for new features
-- Use semantic commit messages
+- Use Conventional Commits commit messages
 - Ensure all existing tests continue to pass
 
 ## License
 
 MIT License - see the [LICENSE](LICENSE) file for details.
-
----
-
-**Built with ❤️ for Wasp framework developers**
