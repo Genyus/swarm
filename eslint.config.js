@@ -2,7 +2,6 @@ import js from '@eslint/js';
 import typescript from '@typescript-eslint/eslint-plugin';
 import typescriptParser from '@typescript-eslint/parser';
 import prettierConfig from 'eslint-config-prettier';
-import prettier from 'eslint-plugin-prettier';
 
 export default [
   js.configs.recommended,
@@ -38,12 +37,10 @@ export default [
     },
     plugins: {
       '@typescript-eslint': typescript,
-      prettier: prettier,
     },
     rules: {
       ...typescript.configs.recommended.rules,
       ...prettierConfig.rules,
-      'prettier/prettier': 'error',
       // Disable base no-unused-vars in favor of @typescript-eslint/no-unused-vars
       'no-unused-vars': 'off',
       '@typescript-eslint/no-unused-vars': [
