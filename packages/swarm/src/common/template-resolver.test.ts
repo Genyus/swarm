@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { DEFAULT_CUSTOM_TEMPLATES_DIR } from '../src/common/constants';
-import { TemplateResolver } from '../src/common/template-resolver';
-import { FileSystem } from '../src/types';
+import { FileSystem } from '../types';
+import { DEFAULT_CUSTOM_TEMPLATES_DIR } from './constants';
+import { TemplateResolver } from './template-resolver';
 
 // Mock file system
 const mockFileSystem: FileSystem = {
@@ -32,7 +32,9 @@ describe('TemplateResolver', () => {
 
       // Mock custom template exists
       mockFileSystem.existsSync = vi.fn().mockReturnValue(true);
-      mockFileSystem.readFileSync = vi.fn().mockReturnValue('<% console.log("test"); %>');
+      mockFileSystem.readFileSync = vi
+        .fn()
+        .mockReturnValue('<% console.log("test"); %>');
 
       const result = resolver.resolveTemplatePath(
         pluginName,
@@ -43,9 +45,13 @@ describe('TemplateResolver', () => {
       );
 
       expect(result.isCustom).toBe(true);
-      expect(result.path).toContain(`${DEFAULT_CUSTOM_TEMPLATES_DIR}/wasp/api/api.eta`);
+      expect(result.path).toContain(
+        `${DEFAULT_CUSTOM_TEMPLATES_DIR}/wasp/api/api.eta`
+      );
       expect(mockFileSystem.existsSync).toHaveBeenCalledWith(
-        expect.stringContaining(`${DEFAULT_CUSTOM_TEMPLATES_DIR}/wasp/api/api.eta`)
+        expect.stringContaining(
+          `${DEFAULT_CUSTOM_TEMPLATES_DIR}/wasp/api/api.eta`
+        )
       );
     });
 
@@ -79,7 +85,9 @@ describe('TemplateResolver', () => {
 
       // Mock custom template exists
       mockFileSystem.existsSync = vi.fn().mockReturnValue(true);
-      mockFileSystem.readFileSync = vi.fn().mockReturnValue('<% console.log("test"); %>');
+      mockFileSystem.readFileSync = vi
+        .fn()
+        .mockReturnValue('<% console.log("test"); %>');
 
       const result = resolver.resolveTemplatePath(
         pluginName,
@@ -89,7 +97,9 @@ describe('TemplateResolver', () => {
       );
 
       expect(result.isCustom).toBe(true);
-      expect(result.path).toContain(`${DEFAULT_CUSTOM_TEMPLATES_DIR}/wasp/api/api.eta`);
+      expect(result.path).toContain(
+        `${DEFAULT_CUSTOM_TEMPLATES_DIR}/wasp/api/api.eta`
+      );
     });
 
     it('should handle nested template paths correctly', () => {
@@ -101,7 +111,9 @@ describe('TemplateResolver', () => {
 
       // Mock custom template exists
       mockFileSystem.existsSync = vi.fn().mockReturnValue(true);
-      mockFileSystem.readFileSync = vi.fn().mockReturnValue('<% console.log("test"); %>');
+      mockFileSystem.readFileSync = vi
+        .fn()
+        .mockReturnValue('<% console.log("test"); %>');
 
       const result = resolver.resolveTemplatePath(
         pluginName,
@@ -112,7 +124,9 @@ describe('TemplateResolver', () => {
       );
 
       expect(result.isCustom).toBe(true);
-      expect(result.path).toContain(`${DEFAULT_CUSTOM_TEMPLATES_DIR}/wasp/api/config/api.eta`);
+      expect(result.path).toContain(
+        `${DEFAULT_CUSTOM_TEMPLATES_DIR}/wasp/api/config/api.eta`
+      );
     });
   });
 

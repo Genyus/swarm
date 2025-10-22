@@ -1,8 +1,8 @@
 import path from 'node:path';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { toFriendlyName, validateProjectName } from '../src/common/strings';
-import { AppGenerator } from '../src/generators';
-import { FileSystem, Logger } from '../src/types';
+import { toFriendlyName, validateProjectName } from '../../common';
+import { FileSystem, Logger } from '../../types';
+import { AppGenerator } from './app-generator';
 
 // Mock degit module
 vi.mock('degit', () => {
