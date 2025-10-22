@@ -78,6 +78,9 @@ importers:
       glob:
         specifier: ^11.0.3
         version: 11.0.3
+      rimraf:
+        specifier: ^6.0.1
+        version: 6.0.1
       tsup:
         specifier: ^8.5.0
         version: 8.5.0(jiti@2.6.1)(postcss@8.5.5)(tsx@4.20.6)(typescript@5.9.2)
@@ -112,6 +115,9 @@ importers:
       glob:
         specifier: ^11.0.3
         version: 11.0.3
+      rimraf:
+        specifier: ^6.0.1
+        version: 6.0.1
       tsup:
         specifier: ^8.5.0
         version: 8.5.0(jiti@2.6.1)(postcss@8.5.5)(tsx@4.20.6)(typescript@5.9.2)
@@ -1942,6 +1948,11 @@ packages:
   reusify@1.1.0:
     resolution: {integrity: sha512-g6QUff04oZpHs0eG5p83rFLhHeV00ug/Yf9nZM6fLeUrPguBTkTQOdpAWWspMh55TZfVQDPaN3NQJfbVRAxdIw==}
     engines: {iojs: '>=1.0.0', node: '>=0.10.0'}
+
+  rimraf@6.0.1:
+    resolution: {integrity: sha512-9dkvaxAsk/xNXSJzMgFqqMCuFgt2+KsOFek3TMLfo8NCPfWpBmqwyNn5Y+NX56QUYfCtsyhF3ayiboEoUmJk/A==}
+    engines: {node: 20 || >=22}
+    hasBin: true
 
   rollup@4.43.0:
     resolution: {integrity: sha512-wdN2Kd3Twh8MAEOEJZsuxuLKCsBEo4PVNLK6tQWAn10VhsVewQLzcucMgLolRlhFybGxfclbPeEYBaP6RvUFGg==}
@@ -4183,6 +4194,11 @@ snapshots:
     optional: true
 
   reusify@1.1.0: {}
+
+  rimraf@6.0.1:
+    dependencies:
+      glob: 11.0.3
+      package-json-from-dist: 1.0.1
 
   rollup@4.43.0:
     dependencies:

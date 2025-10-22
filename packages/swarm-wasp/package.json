@@ -11,7 +11,7 @@
     "LICENSE"
   ],
   "scripts": {
-    "build": "pnpm dlx rimraf dist && tsup && tsc --project tsconfig.dts.json && pnpm copy-templates && pnpm pack",
+    "build": "rimraf dist && tsup && tsc --project tsconfig.dts.json && pnpm copy-templates && pnpm pack",
     "build:watch": "tsc --watch",
     "copy-templates": "for dir in src/generators/*/templates; do if [ -d \"$dir\" ]; then generator=$(basename $(dirname $dir)); mkdir -p dist/generators/$generator/templates; cp -r $dir/* dist/generators/$generator/templates/; fi; done",
     "test": "vitest run",
@@ -71,6 +71,7 @@
   "devDependencies": {
     "@types/node": "^24.3.0",
     "glob": "^11.0.3",
+    "rimraf": "^6.0.1",
     "tsup": "^8.5.0",
     "typescript": "^5.9.2",
     "vitest": "^3.1.4",
