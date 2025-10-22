@@ -1,6 +1,7 @@
+import { ZodType } from 'zod';
+import { ExtendedSchema, SchemaManager } from '../../../common';
 import { FieldMetadata } from '../../../contracts/field-metadata';
 import { SwarmGenerator } from '../../../contracts/generator';
-import { ExtendedSchema } from '../../../common/schema';
 
 /**
  * MCP Tool definition interface
@@ -32,7 +33,7 @@ export class ToolFactory {
    */
   static createToolDefinition(generator: SwarmGenerator): MCPToolDefinition {
     const schema = generator.schema as ExtendedSchema;
-    const shape = (schema as any)._def?.shape;
+    const shape = SchemaManager.getShape(schema);
 
     if (!shape) {
       throw new Error(`Invalid schema for generator '${generator.name}'`);
@@ -42,9 +43,9 @@ export class ToolFactory {
     const required: string[] = [];
 
     Object.keys(shape).forEach((fieldName) => {
-      const fieldSchema = shape[fieldName];
-      const metadata = fieldSchema._metadata as FieldMetadata | undefined;
-      const isRequired = !fieldSchema._def?.typeName?.includes('Optional');
+      const fieldSchema = shape[fieldName] as ZodType;
+      const metadata = SchemaManager.getFieldMetadata(fieldSchema);
+      const isRequired = SchemaManager.isFieldRequired(fieldSchema);
 
       if (isRequired) {
         required.push(fieldName);
@@ -116,57 +117,75 @@ export class ToolFactory {
    * @returns JSON Schema property definition
    */
   private static convertZodToJSONSchema(
-    fieldSchema: any,
+    fieldSchema: ZodType,
     metadata?: FieldMetadata
-  ): any {
-    const typeName = fieldSchema._def?.typeName;
+  ): Record<string, any> {
+    const typeName = SchemaManager.getFieldTypeName(fieldSchema);
     const description = metadata?.description || '';
 
     // Map Zod types to JSON Schema types
     switch (typeName) {
-      case 'ZodString':
+      case 'string':
         return {
           type: 'string',
           description,
           ...(metadata?.examples && { examples: metadata.examples }),
         };
 
-      case 'ZodNumber':
+      case 'number':
         return {
           type: 'number',
           description,
         };
 
-      case 'ZodBoolean':
+      case 'boolean':
         return {
           type: 'boolean',
           description,
         };
 
-      case 'ZodArray': {
-        const elementSchema = fieldSchema._def?.type;
+      case 'array': {
+        const elementSchema = SchemaManager.getArrayElement(fieldSchema);
+
         return {
           type: 'array',
-          items: this.convertZodToJSONSchema(elementSchema),
+          items: elementSchema
+            ? this.convertZodToJSONSchema(elementSchema)
+            : { type: 'string' },
           description,
         };
       }
 
-      case 'ZodEnum':
+      case 'enum': {
+        const values = SchemaManager.getEnumValues(fieldSchema);
+
         return {
           type: 'string',
-          enum: fieldSchema._def?.values,
+          enum: values || [],
           description,
         };
+      }
 
-      case 'ZodOptional':
-        return this.convertZodToJSONSchema(fieldSchema._def?.innerType);
+      case 'optional': {
+        const innerType = SchemaManager.getOptionalInnerType(fieldSchema);
 
-      case 'ZodDefault':
-        return {
-          ...this.convertZodToJSONSchema(fieldSchema._def?.innerType),
-          default: fieldSchema._def?.defaultValue(),
-        };
+        return innerType
+          ? this.convertZodToJSONSchema(innerType)
+          : { type: 'string', description };
+      }
+
+      case 'default': {
+        const defaultInfo = SchemaManager.getDefaultInnerType(fieldSchema);
+
+        if (defaultInfo) {
+          return {
+            ...this.convertZodToJSONSchema(defaultInfo.innerType),
+            default: defaultInfo.defaultValue,
+          };
+        }
+
+        return { type: 'string', description };
+      }
 
       default:
         return {
