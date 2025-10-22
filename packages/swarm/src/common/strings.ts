@@ -26,9 +26,14 @@ export function formatDisplayName(componentName: string): string {
  * @returns The pluralized word
  */
 export function getPlural(name: string): string {
+  if (!name) {
+    return name;
+  }
+
   if (name.endsWith('y')) {
     return `${name.slice(0, -1)}ies`;
   }
+
   if (
     name.endsWith('s') ||
     name.endsWith('sh') ||
@@ -38,6 +43,7 @@ export function getPlural(name: string): string {
   ) {
     return `${name}es`;
   }
+
   return `${name}s`;
 }
 

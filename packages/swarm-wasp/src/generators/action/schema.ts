@@ -26,18 +26,10 @@ const actionSchema = extend(
   }
 );
 
-const dataTypeSchema = extend(z.string().min(1, 'Data type is required'), {
-  description: 'The data type/model name for this action',
-  friendlyName: 'Data Type',
-  shortName: 'd',
-  examples: ['User', 'Product', 'Task'],
-  helpText: 'The Wasp entity or model name this action will work with',
-});
-
 export const schema = z.object({
   feature: commonSchemas.feature,
   operation: actionSchema,
-  dataType: dataTypeSchema,
+  dataType: commonSchemas.dataType,
   name: extend(commonSchemas.name.optional(), commonSchemas.name._metadata),
   entities: commonSchemas.entities,
   force: commonSchemas.force,

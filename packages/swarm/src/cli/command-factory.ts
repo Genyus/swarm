@@ -1,6 +1,6 @@
 import { Command } from 'commander';
-import { z, ZodType } from 'zod';
-import { error, ExtendedSchema, toKebabCase } from '../common';
+import { z, ZodObject, ZodType } from 'zod';
+import { ExtendedSchema, toKebabCase } from '../common';
 import { FieldMetadata } from '../contracts';
 import { createCommandBuilder } from './command-builder';
 import { CommandInfo, commandRegistry } from './command-registry';
@@ -93,7 +93,12 @@ export class CommandFactory {
     handler: (args: TArgs) => Promise<void>
   ): Command {
     // Register the command with the registry
-    commandRegistry.registerCommand(name, description, schema as any, handler);
+    commandRegistry.registerCommand(
+      name,
+      description,
+      schema as ZodType<TArgs>,
+      handler
+    );
 
     // Use the command builder to create a proper sub-command
     const builder = createCommandBuilder(new Command(), name);
@@ -102,7 +107,7 @@ export class CommandFactory {
     cmd.description(description);
 
     // Extract schema shape and add options
-    const shape = (schema as any)._def?.shape;
+    const shape = (schema as ZodObject).shape;
 
     if (shape) {
       Object.keys(shape).forEach((fieldName) => {
@@ -133,7 +138,7 @@ export class CommandFactory {
     fieldSchema: any
   ): void {
     const metadata = fieldSchema._metadata as FieldMetadata | undefined;
-    const isRequired = !fieldSchema.type?.includes('optional');
+    const isRequired = fieldSchema.type !== 'optional';
     const typeName = isRequired
       ? fieldSchema.type
       : fieldSchema.def?.innerType?.type;

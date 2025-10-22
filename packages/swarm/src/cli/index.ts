@@ -3,9 +3,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'url';
 import { SignaleLogger } from '../common/signale-logger';
-import { AppGenerator } from '../generators/app';
+import { AppGenerator } from '../generators';
 import { realFileSystem } from '../types/filesystem';
-import { CommandFactory } from './command-factory';
 import { CommandManager } from './command-manager';
 
 /**
@@ -48,7 +47,9 @@ export async function main(): Promise<void> {
         .action(async (name: string, options: any) => {
           try {
             if (!options.template) {
-              console.error('❌ Error: Template is required. Use --template to specify a GitHub repository.');
+              console.error(
+                '❌ Error: Template is required. Use --template to specify a GitHub repository.'
+              );
               process.exit(1);
             }
             await appGen.generate({

@@ -6,9 +6,9 @@ import {
   toPascalCase,
   validateProjectName,
 } from '../../common/strings';
-import { GeneratorBase } from '../../generator/generator.base';
 import { FileSystem, realFileSystem } from '../../types/filesystem';
 import { Logger, SignaleLogger } from '../../types/logger';
+import { GeneratorBase } from '../generator.base';
 import { PlaceholderReplacer } from './placeholder-replacer';
 import { schema, SchemaArgs } from './schema';
 

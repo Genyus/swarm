@@ -50,6 +50,13 @@ export const commonSchemas = {
     shortName: 'a',
     helpText: 'Will generate authentication checks',
   }),
+  dataType: extend(z.string().min(1, 'Data type is required'), {
+    description: 'The data type/model name for this operation',
+    friendlyName: 'Data Type',
+    shortName: 'd',
+    examples: ['User', 'Product', 'Task'],
+    helpText: 'The Wasp entity or model name this operation will interact with',
+  }),
 } satisfies Record<string, z.ZodTypeAny>;
 
 /**

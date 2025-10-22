@@ -1,6 +1,14 @@
 import { getPlural, toCamelCase, toPascalCase } from '@ingenyus/swarm';
+import { getEntityMetadata, needsPrismaImport } from '../../common';
 import { CrudFlags } from '../../generators/args.types';
-import { CONFIG_TYPES, CrudOperation } from '../../types';
+import {
+  ActionOperation,
+  CONFIG_TYPES,
+  CrudOperation,
+  EntityMetadata,
+  OPERATIONS,
+  QueryOperation,
+} from '../../types';
 import { OperationGeneratorBase } from '../base';
 import { schema } from './schema';
 
@@ -25,30 +33,29 @@ export class CrudGenerator extends OperationGeneratorBase<
   async generate(flags: CrudFlags): Promise<void> {
     const { dataType, feature } = flags;
     const crudName = toCamelCase(getPlural(dataType));
+    const crudType = toPascalCase(crudName);
 
     return this.handleGeneratorError(this.entityType, crudName, async () => {
       const configPath = this.validateFeatureConfig(feature);
-
       const { targetDirectory } = this.ensureTargetDirectory(
         feature,
         this.entityType.toLowerCase()
       );
-      const targetFile = `${targetDirectory}/${crudName}.ts`;
 
-      // Only generate the file if it doesn't exist or if force is true
-      const fileExists = this.fileSystem.existsSync(targetFile);
-      if (!fileExists || flags.force) {
+      if ((flags.override?.length ?? 0) > 0) {
+        const targetFile = `${targetDirectory}/${crudName}.ts`;
         const operations = await this.getOperationsCode(
           dataType,
           crudName,
           flags
         );
+
         await this.generateCrudFile(
           targetFile,
-          crudName,
           dataType,
           operations,
-          flags.force || false
+          crudType,
+          flags
         );
       }
 
@@ -64,14 +71,19 @@ export class CrudGenerator extends OperationGeneratorBase<
 
   private async generateCrudFile(
     targetFile: string,
-    crudName: string,
     dataType: string,
     operations: string,
-    force: boolean
+    crudName: string,
+    flags: CrudFlags
   ) {
-    const imports = `import { type ${toPascalCase(dataType)} } from "wasp/entities";
-import { HttpError } from "wasp/server";
-import { type ${toPascalCase(crudName)} } from "wasp/server/crud";`;
+    const { override = [], force = false } = flags;
+    const model = await getEntityMetadata(dataType);
+    const imports = this.generateCrudImports(
+      model,
+      dataType,
+      crudName,
+      override
+    );
 
     const replacements = {
       imports,
@@ -87,6 +99,31 @@ import { type ${toPascalCase(crudName)} } from "wasp/server/crud";`;
     );
   }
 
+  /**
+   * Generates import statements for an operation.
+   */
+  private generateCrudImports(
+    model: EntityMetadata,
+    modelName: string,
+    crudName: string,
+    operations: CrudOperation[]
+  ): string {
+    const imports: string[] = [];
+
+    if (operations.some((operation) => operation !== 'getAll')) {
+      if (needsPrismaImport(model)) {
+        imports.push('import { Prisma } from "@prisma/client";');
+      }
+
+      imports.push(`import { type ${modelName} } from "wasp/entities";`);
+    }
+
+    imports.push('import { HttpError } from "wasp/server";');
+    imports.push(`import { type ${crudName} } from "wasp/server/crud";`);
+
+    return imports.join('\n');
+  }
+
   private async updateConfigFile(
     feature: string,
     crudName: string,
@@ -95,7 +132,7 @@ import { type ${toPascalCase(crudName)} } from "wasp/server/crud";`;
     configPath: string
   ) {
     const operations = this.buildOperations(flags);
-    const definition = await this.getDefinition(crudName, dataType, operations);
+    const definition = this.getDefinition(crudName, dataType, operations);
 
     this.updateConfigWithCheck(
       configPath,

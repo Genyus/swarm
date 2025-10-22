@@ -15,25 +15,26 @@ const excludeOperations = getCrudOperationsArray();
 export const schema = z.object({
   feature: commonSchemas.feature,
   name: commonSchemas.name,
+  dataType: commonSchemas.dataType,
   public: extend(publicOperations, {
     description: 'Public CRUD operations (accessible without authentication)',
     friendlyName: 'Public Operations',
     shortName: 'b',
-    examples: ['get,getAll', 'create,update'],
+    examples: ["'get,getAll'"],
     helpText: 'Operations that can be accessed without authentication',
   }),
   override: extend(overrideOperations, {
     description: 'Override existing CRUD operations',
     friendlyName: 'Override Operations',
     shortName: 'o',
-    examples: ['create,update'],
+    examples: ["'create,update'"],
     helpText: 'Operations to override if they already exist',
   }),
   exclude: extend(excludeOperations, {
     description: 'Exclude specific CRUD operations from generation',
     friendlyName: 'Exclude Operations',
     shortName: 'x',
-    examples: ['delete', 'update,delete'],
+    examples: ["'delete'"],
     helpText: 'Operations to exclude from generation',
   }),
   force: commonSchemas.force,
@@ -42,9 +43,9 @@ export const schema = z.object({
 function getCrudOperationsArray() {
   return z
     .string()
-    .optional()
     .refine(getTypedArrayValidator(validCrudOperations), {
       message: `Must be one or more of: ${validCrudOperations.join(', ')}`,
     })
-    .transform(getTypedArrayTransformer(validCrudOperations));
+    .transform(getTypedArrayTransformer(validCrudOperations))
+    .optional();
 }

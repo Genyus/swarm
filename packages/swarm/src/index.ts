@@ -26,7 +26,7 @@ export * from './mcp/index';
 export * from './plugin/index';
 
 // Export generator base classes
-export * from './generator/index';
+export * from './generators/index';
 
 // Export templates (will be available at runtime)
 export const TEMPLATES_DIR = './templates';
