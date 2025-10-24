@@ -1,2 +1,2 @@
-export * from './schema';
 export * from './schema-manager';
+export * from './types';

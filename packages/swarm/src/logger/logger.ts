@@ -9,6 +9,3 @@ export interface Logger {
 
   error(message: string, context?: Record<string, unknown>): void;
 }
-
-// Re-export SignaleLogger from common
-export { SignaleLogger } from './signale-logger';

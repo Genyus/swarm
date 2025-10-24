@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { z, ZodType } from 'zod';
 import { SchemaManager } from '.';
-import { extend } from './schema';
+import { extend } from './types';
 
 describe('SchemaManager', () => {
   describe('getShape', () => {
