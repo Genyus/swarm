@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { extend } from '../../common/schema';
+import { extend } from '../../schema';
 
 export const schema = z.object({
   name: extend(z.string().min(1, 'Project name is required'), {

@@ -10,7 +10,7 @@ import {
   ListToolsRequestSchema,
 } from '@modelcontextprotocol/sdk/types.js';
 import { randomUUID } from 'crypto';
-import { configureLogger, LogFormat, logger, LogLevel } from '../../common';
+import { configureLogger, LogFormat, logger, LogLevel } from '../../logger';
 import { configManager } from './common/config.js';
 import { createErrorContext, ErrorFactory } from './common/errors.js';
 import { getDynamicTools, getToolDefinitions } from './tools/index.js';

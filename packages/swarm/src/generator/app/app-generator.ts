@@ -1,13 +1,13 @@
 import degit from 'degit';
 import path from 'node:path';
+import { FileSystem, realFileSystem } from '../../common/filesystem';
 import {
   toFriendlyName,
   toKebabCase,
   toPascalCase,
   validateProjectName,
 } from '../../common/strings';
-import { FileSystem, realFileSystem } from '../../types/filesystem';
-import { Logger, SignaleLogger } from '../../types/logger';
+import { Logger, SignaleLogger } from '../../logger/logger';
 import { GeneratorBase } from '../generator.base';
 import { schema, SchemaArgs } from './schema';
 

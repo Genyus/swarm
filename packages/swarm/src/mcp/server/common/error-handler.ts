@@ -1,4 +1,4 @@
-import { logger } from '../../../common';
+import { logger } from '../../../logger';
 import { MCPProtocolError } from '../types/mcp.js';
 import { createErrorContext, normalizeToMCPError } from './errors.js';
 

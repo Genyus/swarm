@@ -2,8 +2,8 @@ import { existsSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { z } from 'zod';
-import { configureLogger, LogFormat, logger, LogLevel } from '../../../common';
-import { createErrorContext, ErrorFactory } from './errors.js';
+import { configureLogger, LogFormat, logger, LogLevel } from '../../../logger';
+import { createErrorContext, ErrorFactory } from './errors';
 
 const ENV_PREFIX = 'SWARM_MCP_';
 

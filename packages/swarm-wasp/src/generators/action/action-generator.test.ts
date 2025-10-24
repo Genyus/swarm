@@ -1,10 +1,11 @@
-import type { FileSystem, Logger, SwarmGenerator } from '@ingenyus/swarm';
+import type { FileSystem, Logger, PluginGenerator } from '@ingenyus/swarm';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   createMockFeatureGen,
   createMockFS,
   createMockLogger,
 } from '../../../tests/utils';
+import { FeatureArgs } from '../feature/schema';
 import { ActionGenerator } from './action-generator';
 
 // Mock Prisma utilities instead of file system
@@ -25,7 +26,7 @@ vi.mock('../../common/prisma', () => ({
 describe('ActionGenerator', () => {
   let fs: FileSystem;
   let logger: Logger;
-  let featureGen: SwarmGenerator<{ target: string }>;
+  let featureGen: PluginGenerator<FeatureArgs>;
   let gen: ActionGenerator;
 
   beforeEach(async () => {

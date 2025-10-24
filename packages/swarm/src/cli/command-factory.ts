@@ -1,6 +1,7 @@
 import { Command } from 'commander';
 import { z, ZodType } from 'zod';
-import { ExtendedSchema, SchemaManager, toKebabCase } from '../common';
+import { toKebabCase } from '../common';
+import { ExtendedSchema, SchemaManager } from '../schema';
 import { createCommandBuilder } from './command-builder';
 import { CommandInfo, commandRegistry } from './command-registry';
 

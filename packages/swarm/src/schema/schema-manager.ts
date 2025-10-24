@@ -1,6 +1,5 @@
 import { ZodObject, ZodRawShape, ZodType } from 'zod';
-import { FieldMetadata } from '../contracts';
-import { ExtendedSchema } from './schema';
+import { ExtendedSchema, FieldMetadata } from './schema';
 
 interface ZodArrayDef {
   type: 'array';

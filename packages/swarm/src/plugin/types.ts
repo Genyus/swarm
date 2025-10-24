@@ -1,5 +1,5 @@
 import { ZodType } from 'zod';
-import { GeneratorArgs, SwarmGenerator } from './generator';
+import { GeneratorArgs, PluginGenerator } from '../generator/types';
 
 /**
  * Core plugin interface for Swarm plugins
@@ -17,7 +17,7 @@ export interface SwarmPlugin {
   license?: string;
 
   /** Collection of generators provided by this plugin */
-  generators: SwarmGenerator<GeneratorArgs>[];
+  generators: PluginGenerator<GeneratorArgs>[];
 
   /** Required Swarm version for compatibility */
   swarmVersion: string;
@@ -27,13 +27,17 @@ export interface SwarmPlugin {
 }
 
 /**
- * Plugin dependency information
+ * Plugin manifest interface for package.json
  */
-export interface PluginDependency {
-  /** Dependency name */
-  name: string;
-  /** Required version */
-  version: string;
-  /** Whether this dependency is optional */
-  optional?: boolean;
+export interface SwarmPluginManifest {
+  swarm?: {
+    plugins: {
+      [pluginName: string]: {
+        entry: string;
+        name: string;
+        description?: string;
+        version?: string;
+      };
+    };
+  };
 }

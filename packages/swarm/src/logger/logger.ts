@@ -11,4 +11,4 @@ export interface Logger {
 }
 
 // Re-export SignaleLogger from common
-export { SignaleLogger } from '../common/signale-logger';
+export { SignaleLogger } from './signale-logger';

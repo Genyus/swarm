@@ -1,18 +1,18 @@
 import { Command } from 'commander';
-import { GeneratorArgs, SwarmGenerator } from '../contracts';
-import { GeneratorInterfaceManager } from '../plugin';
+import { GeneratorArgs, PluginGenerator } from '../generator';
+import { PluginInterfaceManager } from '../plugin';
 import { CommandFactory } from './command-factory';
 
 /**
  * Manages CLI commands created from generators
  * Provides a unified interface for command registration and management
  */
-export class CommandManager extends GeneratorInterfaceManager<Command> {
+export class CommandManager extends PluginInterfaceManager<Command> {
   /**
    * Create a Commander.js command from a generator
    */
   protected async createInterfaceFromGenerator(
-    generator: SwarmGenerator<GeneratorArgs>
+    generator: PluginGenerator<GeneratorArgs>
   ): Promise<Command> {
     return CommandFactory.createCommandFromSchema(
       generator.name,

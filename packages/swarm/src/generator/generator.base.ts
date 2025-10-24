@@ -1,14 +1,14 @@
 import path from 'node:path';
-import { ExtendedSchema } from '../common';
-import { SwarmGenerator, ValidationResult } from '../contracts';
-import { FileSystem } from '../types/filesystem';
-import { Logger } from '../types/logger';
+import { FileSystem } from '../common';
+import { Logger } from '../logger/logger';
+import { ExtendedSchema, ValidationResult } from '../schema';
+import { PluginGenerator } from './types';
 
 /**
  * Abstract base class for all generators
  */
 export abstract class GeneratorBase<TArgs = any>
-  implements SwarmGenerator<TArgs>
+  implements PluginGenerator<TArgs>
 {
   abstract name: string;
   abstract description: string;

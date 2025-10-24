@@ -1,4 +1,4 @@
-import type { FileSystem, Logger, SwarmGenerator } from '@ingenyus/swarm';
+import type { FileSystem, Logger, PluginGenerator } from '@ingenyus/swarm';
 import { DEFAULT_CUSTOM_TEMPLATES_DIR } from '@ingenyus/swarm';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
@@ -31,7 +31,7 @@ vi.mock('@ingenyus/swarm', async () => {
 describe('JobGenerator', () => {
   let fs: FileSystem;
   let logger: Logger;
-  let featureGen: SwarmGenerator<FeatureArgs>;
+  let featureGen: PluginGenerator<FeatureArgs>;
   let gen: JobGenerator;
 
   beforeEach(() => {

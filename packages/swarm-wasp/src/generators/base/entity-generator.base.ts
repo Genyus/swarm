@@ -2,8 +2,8 @@ import {
   FileSystem,
   hasHelperMethodCall,
   Logger,
+  PluginGenerator,
   logger as singletonLogger,
-  SwarmGenerator,
   toCamelCase,
   toKebabCase,
   validateFeaturePath,
@@ -39,7 +39,7 @@ export abstract class EntityGeneratorBase<
   constructor(
     public logger: Logger = singletonLogger,
     public fileSystem: FileSystem = realFileSystem,
-    protected featureDirectoryGenerator: SwarmGenerator<FeatureArgs> = new FeatureGenerator(
+    protected featureDirectoryGenerator: PluginGenerator<FeatureArgs> = new FeatureGenerator(
       logger,
       fileSystem
     )

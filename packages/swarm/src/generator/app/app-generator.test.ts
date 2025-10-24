@@ -1,7 +1,7 @@
 import path from 'node:path';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { toFriendlyName, validateProjectName } from '../../common';
-import { FileSystem, Logger } from '../../types';
+import { FileSystem, toFriendlyName, validateProjectName } from '../../common';
+import { Logger } from '../../logger';
 import { AppGenerator } from './app-generator';
 
 // Mock degit module

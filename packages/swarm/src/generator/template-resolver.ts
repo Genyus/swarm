@@ -1,6 +1,5 @@
-import path from 'path';
-import { FileSystem } from '../types';
-import { DEFAULT_CUSTOM_TEMPLATES_DIR } from './constants';
+import path from 'node:path';
+import { DEFAULT_CUSTOM_TEMPLATES_DIR, FileSystem } from '../common';
 
 export class TemplateResolver {
   constructor(private fileSystem: FileSystem) {}

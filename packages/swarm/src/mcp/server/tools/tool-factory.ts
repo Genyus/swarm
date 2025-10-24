@@ -1,7 +1,6 @@
 import { ZodType } from 'zod';
-import { ExtendedSchema, SchemaManager } from '../../../common';
-import { FieldMetadata } from '../../../contracts/field-metadata';
-import { GeneratorArgs, SwarmGenerator } from '../../../contracts/generator';
+import { GeneratorArgs, PluginGenerator } from '../../../generator';
+import { ExtendedSchema, FieldMetadata, SchemaManager } from '../../../schema';
 
 /**
  * MCP Tool definition interface
@@ -22,7 +21,7 @@ export interface MCPToolDefinition {
 export type MCPToolHandler = (args: any) => Promise<any>;
 
 /**
- * Factory for creating MCP tools from SwarmGenerator schemas.
+ * Factory for creating MCP tools from PluginGenerator schemas.
  * This mirrors the CommandFactory pattern but for MCP tools.
  */
 export class ToolFactory {
@@ -32,7 +31,7 @@ export class ToolFactory {
    * @returns MCP tool definition
    */
   static createToolDefinition(
-    generator: SwarmGenerator<GeneratorArgs>
+    generator: PluginGenerator<GeneratorArgs>
   ): MCPToolDefinition {
     const schema = generator.schema as ExtendedSchema;
     const shape = SchemaManager.getShape(schema);
@@ -76,7 +75,7 @@ export class ToolFactory {
    * @returns MCP tool handler function
    */
   static createToolHandler(
-    generator: SwarmGenerator<GeneratorArgs>
+    generator: PluginGenerator<GeneratorArgs>
   ): MCPToolHandler {
     return async (args: any) => {
       try {
@@ -104,7 +103,7 @@ export class ToolFactory {
    * @param generator The generator to create a tool for
    * @returns Object containing both definition and handler
    */
-  static createTool(generator: SwarmGenerator<GeneratorArgs>): {
+  static createTool(generator: PluginGenerator<GeneratorArgs>): {
     definition: MCPToolDefinition;
     handler: MCPToolHandler;
   } {

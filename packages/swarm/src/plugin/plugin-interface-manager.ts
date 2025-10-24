@@ -1,11 +1,11 @@
-import { GeneratorArgs, SwarmGenerator } from '../contracts';
+import { GeneratorArgs, PluginGenerator } from '../generator';
 import { PluginManager } from './plugin-manager';
 
 /**
  * Base interface for managing generator-to-interface conversion
  * Provides common patterns for CLI commands and MCP tools
  */
-export abstract class GeneratorInterfaceManager<TInterface> {
+export abstract class PluginInterfaceManager<TInterface> {
   protected initialized = false;
   protected pluginManager: PluginManager;
   protected interfaces: Record<string, TInterface> = {};
@@ -87,7 +87,7 @@ export abstract class GeneratorInterfaceManager<TInterface> {
    * Must be implemented by concrete classes
    */
   protected abstract createInterfaceFromGenerator(
-    generator: SwarmGenerator<GeneratorArgs>
+    generator: PluginGenerator<GeneratorArgs>
   ): Promise<TInterface>;
 
   /**

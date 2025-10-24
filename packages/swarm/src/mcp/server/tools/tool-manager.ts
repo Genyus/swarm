@@ -1,5 +1,5 @@
-import { GeneratorArgs, SwarmGenerator } from '../../../contracts/generator';
-import { GeneratorInterfaceManager } from '../../../plugin/generator-interface-manager';
+import { GeneratorArgs, PluginGenerator } from '../../../generator';
+import { PluginInterfaceManager } from '../../../plugin';
 import { MCPToolDefinition, MCPToolHandler, ToolFactory } from './tool-factory';
 
 /**
@@ -14,12 +14,12 @@ interface MCPTool {
  * Manages MCP tools created from generators
  * Provides a unified interface for tool registration and management
  */
-export class ToolManager extends GeneratorInterfaceManager<MCPTool> {
+export class ToolManager extends PluginInterfaceManager<MCPTool> {
   /**
    * Create an MCP tool from a generator
    */
   protected async createInterfaceFromGenerator(
-    generator: SwarmGenerator<GeneratorArgs>
+    generator: PluginGenerator<GeneratorArgs>
   ): Promise<MCPTool> {
     return ToolFactory.createTool(generator);
   }

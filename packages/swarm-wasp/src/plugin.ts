@@ -1,8 +1,4 @@
-import {
-  GeneratorArgs,
-  SwarmGenerator,
-  SwarmPluginInterface,
-} from '@ingenyus/swarm';
+import { GeneratorArgs, PluginGenerator, SwarmPlugin } from '@ingenyus/swarm';
 import {
   ActionGenerator,
   ApiGenerator,
@@ -16,7 +12,7 @@ import {
 import { getPluginVersion } from './common';
 import { PLUGIN_NAME } from './types';
 
-export function createWaspPlugin(): SwarmPluginInterface {
+export function createWaspPlugin(): SwarmPlugin {
   return {
     name: PLUGIN_NAME,
     version: getPluginVersion(),
@@ -31,14 +27,14 @@ export function createWaspPlugin(): SwarmPluginInterface {
       new JobGenerator(),
       new QueryGenerator(),
       new RouteGenerator(),
-    ].map((generator) => generator as SwarmGenerator<GeneratorArgs>),
+    ].map((generator) => generator as PluginGenerator<GeneratorArgs>),
   };
 }
 
 // Lazy-load the plugin to avoid circular dependency issues
-let _apiPlugin: SwarmPluginInterface | null = null;
+let _apiPlugin: SwarmPlugin | null = null;
 
-function getWaspPlugin(): SwarmPluginInterface {
+function getWaspPlugin(): SwarmPlugin {
   if (!_apiPlugin) {
     _apiPlugin = createWaspPlugin();
   }
