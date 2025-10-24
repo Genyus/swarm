@@ -1,4 +1,4 @@
-import { SwarmGenerator } from '../contracts';
+import { GeneratorArgs, SwarmGenerator } from '../contracts';
 import { PluginManager } from './plugin-manager';
 
 /**
@@ -87,7 +87,7 @@ export abstract class GeneratorInterfaceManager<TInterface> {
    * Must be implemented by concrete classes
    */
   protected abstract createInterfaceFromGenerator(
-    generator: SwarmGenerator
+    generator: SwarmGenerator<GeneratorArgs>
   ): Promise<TInterface>;
 
   /**

@@ -10,7 +10,7 @@ import { CrudGenerator } from './crud-generator';
 describe('CrudGenerator', () => {
   let fs: FileSystem;
   let logger: Logger;
-  let featureGen: SwarmGenerator<{ path: string }>;
+  let featureGen: SwarmGenerator<{ target: string }>;
   let gen: CrudGenerator;
 
   beforeEach(() => {

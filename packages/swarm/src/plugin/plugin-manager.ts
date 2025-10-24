@@ -1,5 +1,5 @@
 import { SwarmConfigManager } from '../config/swarm-config-manager';
-import { SwarmGenerator, SwarmPlugin } from '../contracts';
+import { GeneratorArgs, SwarmGenerator, SwarmPlugin } from '../contracts';
 import { PluginRegistry } from './plugin-registry';
 
 /**
@@ -37,7 +37,7 @@ export class PluginManager {
    * @param name Generator name
    * @returns Generator or undefined if not found
    */
-  getGenerator(name: string): SwarmGenerator | undefined {
+  getGenerator(name: string): SwarmGenerator<GeneratorArgs> | undefined {
     return this.registry.getGenerator(name);
   }
 
@@ -45,7 +45,7 @@ export class PluginManager {
    * Get all available generators
    * @returns Array of all generators
    */
-  getAllGenerators(): SwarmGenerator[] {
+  getAllGenerators(): SwarmGenerator<GeneratorArgs>[] {
     return this.registry.getAllGenerators();
   }
 
@@ -86,7 +86,7 @@ export class PluginManager {
    * Get all enabled generators from all enabled plugins
    * @returns Array of enabled generators
    */
-  getEnabledGenerators(): SwarmGenerator[] {
+  getEnabledGenerators(): SwarmGenerator<GeneratorArgs>[] {
     return this.registry.getEnabledGenerators();
   }
 }

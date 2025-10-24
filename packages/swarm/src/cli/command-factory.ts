@@ -81,7 +81,7 @@ export class CommandFactory {
     handler: (args: TArgs) => Promise<void>
   ): Command {
     // Register the command with the registry
-    commandRegistry.registerCommand(
+    commandRegistry.registerCommand<TArgs>(
       name,
       description,
       schema as ZodType<TArgs>,
@@ -127,6 +127,7 @@ export class CommandFactory {
   ): void {
     const metadata = SchemaManager.getFieldMetadata(fieldSchema);
     const isRequired = SchemaManager.isFieldRequired(fieldSchema);
+    const isArray = this.isArrayType(fieldSchema);
     const typeName = SchemaManager.getFieldTypeName(fieldSchema);
     const argName = toKebabCase(fieldName);
     const shortName = metadata?.shortName;
@@ -145,6 +146,14 @@ export class CommandFactory {
 
     if (typeName === 'boolean') {
       cmd.option(optionString, description);
+    } else if (isArray) {
+      if (isRequired) {
+        optionString += ` <${argName}...>`;
+        cmd.requiredOption(optionString, description);
+      } else {
+        optionString += ` [${argName}...]`;
+        cmd.option(optionString, description);
+      }
     } else if (isRequired) {
       optionString += ` <${argName}>`;
       cmd.requiredOption(optionString, description);
@@ -152,5 +161,14 @@ export class CommandFactory {
       optionString += ` [${argName}]`;
       cmd.option(optionString, description);
     }
+  }
+
+  /**
+   * Check if a Zod schema represents an array type
+   */
+  private static isArrayType(schema: ZodType): boolean {
+    return (
+      (SchemaManager.getInnerType(schema) ?? schema)._zod.def.type === 'array'
+    );
   }
 }

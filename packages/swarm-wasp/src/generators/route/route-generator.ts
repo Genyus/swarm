@@ -1,11 +1,11 @@
 import { formatDisplayName, toCamelCase, toPascalCase } from '@ingenyus/swarm';
 import { getRouteNameFromPath } from '../../common';
-import { RouteFlags } from '../../generators/args.types';
 import { CONFIG_TYPES } from '../../types';
 import { EntityGeneratorBase } from '../base';
-import { schema } from './schema';
+import { RouteArgs, schema } from './schema';
 
 export class RouteGenerator extends EntityGeneratorBase<
+  RouteArgs,
   typeof CONFIG_TYPES.ROUTE
 > {
   protected get entityType() {
@@ -15,8 +15,8 @@ export class RouteGenerator extends EntityGeneratorBase<
   description = 'Generate route handlers for Wasp applications';
   schema = schema;
 
-  async generate(flags: RouteFlags): Promise<void> {
-    const { path: routePath, name, feature } = flags;
+  async generate(args: RouteArgs): Promise<void> {
+    const { path: routePath, name, feature } = args;
     const routeName = toCamelCase(name || getRouteNameFromPath(routePath));
     const componentName = toPascalCase(routeName);
     const fileName = `${componentName}.tsx`;
@@ -26,15 +26,15 @@ export class RouteGenerator extends EntityGeneratorBase<
       const { targetDirectory } = this.ensureTargetDirectory(feature, 'page');
       const targetFile = `${targetDirectory}/${fileName}`;
 
-      await this.generatePageFile(targetFile, componentName, flags);
-      this.updateConfigFile(feature, routeName, routePath, flags, configPath);
+      await this.generatePageFile(targetFile, componentName, args);
+      this.updateConfigFile(feature, routeName, routePath, args, configPath);
     });
   }
 
   private async generatePageFile(
     targetFile: string,
     componentName: string,
-    flags: RouteFlags
+    args: RouteArgs
   ) {
     const templatePath = 'files/client/page.eta';
     const replacements = {
@@ -47,7 +47,7 @@ export class RouteGenerator extends EntityGeneratorBase<
       replacements,
       targetFile,
       'Page file',
-      flags.force || false
+      args.force || false
     );
   }
 
@@ -55,14 +55,14 @@ export class RouteGenerator extends EntityGeneratorBase<
     featurePath: string,
     routeName: string,
     routePath: string,
-    flags: RouteFlags,
+    args: RouteArgs,
     configPath: string
   ) {
     const definition = this.getDefinition(
       routeName,
       routePath,
       featurePath,
-      flags.auth
+      args.auth
     );
 
     this.updateConfigWithCheck(
@@ -71,7 +71,7 @@ export class RouteGenerator extends EntityGeneratorBase<
       routeName,
       definition,
       featurePath,
-      flags.force || false
+      args.force || false
     );
   }
 

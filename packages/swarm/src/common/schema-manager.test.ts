@@ -183,7 +183,7 @@ describe('SchemaManager', () => {
   describe('getOptionalInnerType', () => {
     it('should return inner type for optional schemas', () => {
       const optionalSchema = z.string().optional();
-      const innerType = SchemaManager.getOptionalInnerType(optionalSchema);
+      const innerType = SchemaManager.getInnerType(optionalSchema);
 
       expect(innerType).toBeDefined();
       expect(innerType?._zod.def.type).toBe('string');
@@ -191,7 +191,7 @@ describe('SchemaManager', () => {
 
     it('should return undefined for non-optional schemas', () => {
       const stringSchema = z.string();
-      const innerType = SchemaManager.getOptionalInnerType(stringSchema);
+      const innerType = SchemaManager.getInnerType(stringSchema);
 
       expect(innerType).toBeUndefined();
     });

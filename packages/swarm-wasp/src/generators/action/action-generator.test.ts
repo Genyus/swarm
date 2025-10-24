@@ -25,7 +25,7 @@ vi.mock('../../common/prisma', () => ({
 describe('ActionGenerator', () => {
   let fs: FileSystem;
   let logger: Logger;
-  let featureGen: SwarmGenerator<{ path: string }>;
+  let featureGen: SwarmGenerator<{ target: string }>;
   let gen: ActionGenerator;
 
   beforeEach(async () => {
@@ -156,7 +156,7 @@ export default function configureFeature(app: App, feature: string): void {
       feature: 'foo',
       dataType: 'User',
       operation: 'create',
-      entities: 'User',
+      entities: ['User'],
       force: true,
     });
 
@@ -228,7 +228,7 @@ export default function configureFeature(app: App, feature: string): void {
       feature: 'bar',
       dataType: 'User',
       operation: 'update',
-      entities: 'User',
+      entities: ['User'],
       force: true,
     });
 
@@ -294,7 +294,7 @@ export default function configureFeature(app: App, feature: string): void {
       feature: 'baz',
       dataType: 'User',
       operation: 'delete',
-      entities: 'User',
+      entities: ['User'],
       force: true,
     });
 
@@ -346,7 +346,7 @@ export default function configureFeature(app: App, feature: string): void {
         templatePath.includes('operation.eta')
       ) {
         return `    .addAction(feature, "${replacements.operationName}", {
-      entities: [${replacements.entities}],
+      entities: ${replacements.entities},
       auth: false,
     })`;
       }
@@ -425,7 +425,7 @@ export default function configureFeature(app: App, feature: string): void {
         templatePath.includes('operation.eta')
       ) {
         return `    .addAction(feature, "${replacements.operationName}", {
-      entities: [${replacements.entities}],
+      entities: ${replacements.entities},
       auth: false,
     })`;
       }
@@ -448,7 +448,7 @@ export default function configureFeature(app: App, feature: string): void {
       feature: 'tasks',
       dataType: 'Task',
       operation: 'create',
-      entities: 'Task',
+      entities: ['Task'],
       force: true,
     });
 
@@ -505,7 +505,7 @@ export default function configureFeature(app: App, feature: string): void {
         templatePath.includes('operation.eta')
       ) {
         return `    .addAction(feature, "${replacements.operationName}", {
-      entities: [${replacements.entities}],
+      entities: ${replacements.entities},
       auth: false,
     })`;
       }
@@ -528,7 +528,7 @@ export default function configureFeature(app: App, feature: string): void {
       feature: 'tasks',
       dataType: 'Task',
       operation: 'create',
-      entities: 'User,Product',
+      entities: ['User', 'Product'],
       force: true,
     });
 

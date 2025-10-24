@@ -2,7 +2,7 @@ import {
   FileSystem,
   hasHelperMethodCall,
   Logger,
-  SignaleLogger,
+  logger as singletonLogger,
   SwarmGenerator,
   toCamelCase,
   toKebabCase,
@@ -15,18 +15,18 @@ import {
   normaliseFeaturePath,
   realFileSystem,
 } from '../../common';
-import { ConfigType, GetFlagsType, TYPE_DIRECTORIES } from '../../types';
+import { ConfigType, TYPE_DIRECTORIES } from '../../types';
 import { FeatureGenerator } from '../feature/feature-generator';
-import { SchemaArgs as FeatureSchemaArgs } from '../feature/schema';
-import { WaspGeneratorBase } from './wasp-generator.base';
-
+import { FeatureArgs } from '../feature/schema';
+import { WaspGeneratorArgs, WaspGeneratorBase } from './wasp-generator.base';
 /**
  * Abstract base class for all entity generators
  */
 export abstract class EntityGeneratorBase<
-  TArgs extends ConfigType,
+  TArgs extends WaspGeneratorArgs,
+  TConfig extends ConfigType,
 > extends WaspGeneratorBase<TArgs> {
-  protected abstract entityType: TArgs;
+  protected abstract entityType: TConfig;
 
   protected getDefaultTemplatePath(templateName: string): string {
     return this.templateUtility.resolveTemplatePath(
@@ -37,9 +37,9 @@ export abstract class EntityGeneratorBase<
   }
 
   constructor(
-    public logger: Logger = new SignaleLogger(),
+    public logger: Logger = singletonLogger,
     public fileSystem: FileSystem = realFileSystem,
-    protected featureDirectoryGenerator: SwarmGenerator<FeatureSchemaArgs> = new FeatureGenerator(
+    protected featureDirectoryGenerator: SwarmGenerator<FeatureArgs> = new FeatureGenerator(
       logger,
       fileSystem
     )
@@ -53,7 +53,7 @@ export abstract class EntityGeneratorBase<
     return toKebabCase(this.entityType.toString());
   }
 
-  public abstract generate(flags: GetFlagsType<TArgs>): Promise<void> | void;
+  public abstract generate(flags: TArgs): Promise<void> | void;
 
   /**
    * Validates that the feature config file exists in the target or ancestor directories

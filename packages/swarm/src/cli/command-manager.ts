@@ -1,5 +1,5 @@
 import { Command } from 'commander';
-import { SwarmGenerator } from '../contracts';
+import { GeneratorArgs, SwarmGenerator } from '../contracts';
 import { GeneratorInterfaceManager } from '../plugin';
 import { CommandFactory } from './command-factory';
 
@@ -12,7 +12,7 @@ export class CommandManager extends GeneratorInterfaceManager<Command> {
    * Create a Commander.js command from a generator
    */
   protected async createInterfaceFromGenerator(
-    generator: SwarmGenerator
+    generator: SwarmGenerator<GeneratorArgs>
   ): Promise<Command> {
     return CommandFactory.createCommandFromSchema(
       generator.name,

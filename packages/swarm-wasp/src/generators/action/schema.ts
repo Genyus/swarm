@@ -1,22 +1,19 @@
-import { extend } from '@ingenyus/swarm';
+import { extend, SchemaManager } from '@ingenyus/swarm';
 import { z } from 'zod';
-import {
-  commonSchemas,
-  getTypedValueTransformer,
-  getTypedValueValidator,
-} from '../../common';
+import { commonSchemas } from '../../common';
 import { ACTION_OPERATIONS } from '../../types';
 
 const validActions = Object.values(ACTION_OPERATIONS);
-
 const actionSchema = extend(
   z
     .string()
     .min(1, 'Action type is required')
-    .refine(getTypedValueValidator(validActions), {
-      message: `Invalid action. Must be one of: ${validActions.join(', ')}`,
-    })
-    .transform(getTypedValueTransformer(validActions)),
+    .transform((val) => SchemaManager.findEnumValue(ACTION_OPERATIONS, val))
+    .pipe(
+      z.enum(ACTION_OPERATIONS, {
+        message: `Invalid action. Must be one of: ${validActions.join(', ')}`,
+      })
+    ),
   {
     description: 'The action operation to generate',
     friendlyName: 'Action Operation',
@@ -36,4 +33,4 @@ export const schema = z.object({
   auth: commonSchemas.auth,
 });
 
-type SchemaArgs = z.infer<typeof schema>;
+export type ActionArgs = z.infer<typeof schema>;

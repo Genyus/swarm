@@ -1,4 +1,8 @@
-import { SwarmPluginInterface } from '@ingenyus/swarm';
+import {
+  GeneratorArgs,
+  SwarmGenerator,
+  SwarmPluginInterface,
+} from '@ingenyus/swarm';
 import {
   ActionGenerator,
   ApiGenerator,
@@ -27,7 +31,7 @@ export function createWaspPlugin(): SwarmPluginInterface {
       new JobGenerator(),
       new QueryGenerator(),
       new RouteGenerator(),
-    ],
+    ].map((generator) => generator as SwarmGenerator<GeneratorArgs>),
   };
 }
 

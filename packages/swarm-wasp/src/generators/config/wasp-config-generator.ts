@@ -3,7 +3,7 @@ import {
   handleFatalError,
   Logger,
   parseHelperMethodDefinition,
-  SignaleLogger,
+  logger as singletonLogger,
 } from '@ingenyus/swarm';
 import path from 'node:path';
 import { getFeatureDir, realFileSystem, TemplateUtility } from '../../common';
@@ -14,7 +14,7 @@ export class WaspConfigGenerator implements ConfigGenerator {
   protected templateUtility: TemplateUtility;
 
   constructor(
-    protected logger: Logger = new SignaleLogger(),
+    protected logger: Logger = singletonLogger,
     protected fileSystem: FileSystem = realFileSystem
   ) {
     this.templateUtility = new TemplateUtility(fileSystem);

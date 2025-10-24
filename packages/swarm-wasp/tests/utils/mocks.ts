@@ -1,5 +1,6 @@
 import type { FileSystem, Logger, SwarmGenerator } from '@ingenyus/swarm';
 import { vi } from 'vitest';
+import { FeatureArgs } from '../../src/generators/feature/schema';
 
 export function createMockLogger() {
   return {
@@ -23,6 +24,6 @@ export function createMockFS(): FileSystem {
   } as FileSystem;
 }
 
-export function createMockFeatureGen(): SwarmGenerator<{ path: string }> {
-  return vi.fn() as unknown as SwarmGenerator<{ path: string }>;
+export function createMockFeatureGen(): SwarmGenerator<FeatureArgs> {
+  return vi.fn() as unknown as SwarmGenerator<FeatureArgs>;
 }

@@ -6,6 +6,7 @@ import {
   createMockFS,
   createMockLogger,
 } from '../../../tests/utils';
+import { FeatureArgs } from '../feature/schema';
 import { ApiGenerator } from './api-generator';
 
 // Mock SwarmConfigManager
@@ -30,7 +31,7 @@ vi.mock('@ingenyus/swarm', async () => {
 describe('ApiGenerator', () => {
   let fs: FileSystem;
   let logger: Logger;
-  let featureGen: SwarmGenerator<{ path: string }>;
+  let featureGen: SwarmGenerator<FeatureArgs>;
   let gen: ApiGenerator;
 
   beforeEach(() => {
@@ -79,7 +80,7 @@ export default function configureFeature(app: App, feature: string): void {
       feature: 'foo',
       name: 'api',
       method: 'GET',
-      route: '/api',
+      path: '/api',
       force: true,
       entities: ['User'],
       auth: true,

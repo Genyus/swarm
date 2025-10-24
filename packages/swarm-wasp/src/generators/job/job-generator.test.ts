@@ -6,6 +6,7 @@ import {
   createMockFS,
   createMockLogger,
 } from '../../../tests/utils';
+import { FeatureArgs } from '../feature/schema';
 import { JobGenerator } from './job-generator';
 
 // Mock SwarmConfigManager
@@ -30,7 +31,7 @@ vi.mock('@ingenyus/swarm', async () => {
 describe('JobGenerator', () => {
   let fs: FileSystem;
   let logger: Logger;
-  let featureGen: SwarmGenerator<{ path: string }>;
+  let featureGen: SwarmGenerator<FeatureArgs>;
   let gen: JobGenerator;
 
   beforeEach(() => {

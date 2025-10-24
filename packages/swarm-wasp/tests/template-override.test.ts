@@ -96,12 +96,12 @@ export const <%=apiName%>: <%=apiType%> = async (req, res, context) => {
     const featureGen = new FeatureGenerator(logger, realFileSystem);
     const apiGen = new ApiGenerator(logger, realFileSystem, featureGen);
 
-    await featureGen.generate({ path: 'posts' });
+    await featureGen.generate({ target: 'posts' });
     await apiGen.generate({
       feature: 'posts',
       name: 'customApi',
       method: 'GET',
-      route: '/api/posts/custom',
+      path: '/api/posts/custom',
       entities: ['Post'],
       auth: false,
       force: true,
@@ -145,12 +145,12 @@ export const <%=apiName%>: <%=apiType%> = async (req, res, context) => {
     const featureGen = new FeatureGenerator(logger, realFileSystem);
     const apiGen = new ApiGenerator(logger, realFileSystem, featureGen);
 
-    await featureGen.generate({ path: 'posts' });
+    await featureGen.generate({ target: 'posts' });
     await apiGen.generate({
       feature: 'posts',
       name: 'builtInApi',
       method: 'POST',
-      route: '/api/posts',
+      path: '/api/posts',
       entities: ['Post'],
       auth: true,
       force: true,
@@ -223,12 +223,12 @@ export const <%=apiName%>: <%=apiType%> = async (req, res, context) => {
     const featureGen = new FeatureGenerator(logger, realFileSystem);
     const apiGen = new ApiGenerator(logger, realFileSystem, featureGen);
 
-    await featureGen.generate({ path: 'posts' });
+    await featureGen.generate({ target: 'posts' });
     await apiGen.generate({
       feature: 'posts',
       name: 'nestedApi',
       method: 'PUT',
-      route: '/api/posts/nested',
+      path: '/api/posts/nested',
       entities: ['Post'],
       auth: false,
       force: true,
@@ -286,13 +286,13 @@ export const <%=apiName%>: <%=apiType%> = async (req, res, context) => {
     const featureGen = new FeatureGenerator(logger, realFileSystem);
     const apiGen = new ApiGenerator(logger, realFileSystem, featureGen);
 
-    await featureGen.generate({ path: 'posts' });
+    await featureGen.generate({ target: 'posts' });
     await expect(
       apiGen.generate({
         feature: 'posts',
         name: 'invalidApi',
         method: 'GET',
-        route: '/api/posts/invalid',
+        path: '/api/posts/invalid',
         entities: ['Post'],
         auth: false,
         force: true,
@@ -340,12 +340,12 @@ export const <%=apiName%>: <%=apiType%> = async (req, res, context) => {
     const featureGen = new FeatureGenerator(logger, realFileSystem);
     const apiGen = new ApiGenerator(logger, realFileSystem, featureGen);
 
-    await featureGen.generate({ path: 'posts' });
+    await featureGen.generate({ target: 'posts' });
     await apiGen.generate({
       feature: 'posts',
       name: 'defaultApi',
       method: 'DELETE',
-      route: '/api/posts/default',
+      path: '/api/posts/default',
       entities: ['Post'],
       auth: false,
       force: true,

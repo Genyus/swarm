@@ -1,5 +1,5 @@
 import { ZodType } from 'zod';
-import { SwarmGenerator } from './generator';
+import { GeneratorArgs, SwarmGenerator } from './generator';
 
 /**
  * Core plugin interface for Swarm plugins
@@ -17,7 +17,7 @@ export interface SwarmPlugin {
   license?: string;
 
   /** Collection of generators provided by this plugin */
-  generators: SwarmGenerator[];
+  generators: SwarmGenerator<GeneratorArgs>[];
 
   /** Required Swarm version for compatibility */
   swarmVersion: string;

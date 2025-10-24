@@ -1,8 +1,4 @@
 {
-  "ignore": [".github/changeset-version.js"],
-  "ignoreDependencies": [
-    "@commander-js/extra-typings",
-    "changeset-conventional-commits",
-    "wasp-config"
-  ]
+  "ignore": [".github/changeset-version.js", "apps/swarm-wasp-starter/**/*"],
+  "ignoreDependencies": ["@commander-js/extra-typings", "wasp-config"]
 }

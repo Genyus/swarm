@@ -1,17 +1,20 @@
+import z from 'zod';
 import { ExtendedSchema } from '../common';
 
+export type GeneratorArgs = z.infer<ExtendedSchema>;
 /**
  * Core generator interface
  */
-export interface Generator<TArgs = any> {
+export interface Generator<TArgs extends GeneratorArgs> {
   /** Generate code based on parameters */
-  generate: (params: TArgs) => Promise<void> | void;
+  generate: (args: TArgs) => Promise<void> | void;
 }
 
 /**
  * Core generator interface
  */
-export interface SwarmGenerator<TArgs = any> extends Generator<TArgs> {
+export interface SwarmGenerator<TArgs extends GeneratorArgs>
+  extends Generator<TArgs> {
   /** Unique generator name */
   name: string;
   /** Human-readable description */

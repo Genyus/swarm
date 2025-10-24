@@ -71,9 +71,7 @@ export class SchemaManager {
     }
 
     // For optional fields, get the inner type
-    const innerType = this.getOptionalInnerType(fieldSchema);
-
-    return innerType?._zod.def.type || fieldSchema._zod.def.type;
+    return (this.getInnerType(fieldSchema) ?? fieldSchema)._zod.def.type;
   }
 
   /**
@@ -107,7 +105,7 @@ export class SchemaManager {
    * @param fieldSchema The Zod schema for the field
    * @returns The inner type or undefined if not optional
    */
-  static getOptionalInnerType(fieldSchema: ZodType): ZodType | undefined {
+  static getInnerType(fieldSchema: ZodType): ZodType | undefined {
     if (fieldSchema._zod.def.type === 'optional') {
       const optionalDef = fieldSchema._zod.def as ZodOptionalDef;
 
@@ -137,5 +135,22 @@ export class SchemaManager {
       };
     }
     return undefined;
+  }
+
+  /**
+   * Get a case-insensitive enum value from a record of enum values.
+   * @param enumValues The record of enum values
+   * @param value The value to get
+   * @returns The case-insensitive enum value or the original value if not found
+   */
+  static findEnumValue(
+    enumValues: Record<string, string>,
+    value: string
+  ): string {
+    const mapped = (
+      enumValues as Record<string, (typeof enumValues)[keyof typeof enumValues]>
+    )[value.toUpperCase()];
+
+    return mapped || value;
   }
 }

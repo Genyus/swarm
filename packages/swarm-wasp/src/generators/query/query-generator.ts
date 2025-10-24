@@ -1,9 +1,9 @@
-import { QueryFlags } from '../../generators/args.types';
 import { CONFIG_TYPES } from '../../types';
 import { OperationGeneratorBase } from '../base';
-import { schema } from './schema';
+import { QueryArgs, schema } from './schema';
 
 export class QueryGenerator extends OperationGeneratorBase<
+  QueryArgs,
   typeof CONFIG_TYPES.QUERY
 > {
   protected get entityType() {
@@ -13,20 +13,11 @@ export class QueryGenerator extends OperationGeneratorBase<
   description = 'Generate queries (data fetching) for Wasp applications';
   schema = schema;
 
-  async generate(
-    flags: Omit<QueryFlags, 'name'> & { name?: string }
-  ): Promise<void> {
-    const { dataType, feature, name } = flags;
-    const operation = flags.operation;
+  async generate(args: QueryArgs): Promise<void> {
+    const { dataType, feature, name } = args;
+    const operation = args.operation;
     const operationType = 'query';
-    const entities = flags.entities
-      ? Array.isArray(flags.entities)
-        ? flags.entities
-        : flags.entities
-            .split(',')
-            .map((e: string) => e.trim())
-            .filter(Boolean)
-      : [];
+    const entities = args.entities ?? [];
 
     if (dataType && !entities.includes(dataType)) {
       entities.unshift(dataType);
@@ -36,7 +27,7 @@ export class QueryGenerator extends OperationGeneratorBase<
       await this.generateOperationComponents(
         dataType,
         operation,
-        flags.auth,
+        args.auth,
         entities,
         false,
         null,
@@ -56,7 +47,7 @@ export class QueryGenerator extends OperationGeneratorBase<
           operationsDir,
           operationName,
           operationCode,
-          flags.force || false
+          args.force || false
         );
 
         // Generate config definition and update
@@ -66,7 +57,7 @@ export class QueryGenerator extends OperationGeneratorBase<
           entities,
           'query',
           importPath,
-          flags.auth
+          args.auth
         );
 
         this.updateConfigWithCheck(
@@ -75,7 +66,7 @@ export class QueryGenerator extends OperationGeneratorBase<
           operationName,
           definition,
           feature,
-          flags.force || false
+          args.force || false
         );
       }
     );

@@ -32,7 +32,7 @@ describe('API Namespace Generator Integration Tests', () => {
       featureGen
     );
 
-    await featureGen.generate({ path: 'posts' });
+    await featureGen.generate({ target: 'posts' });
     await apiNamespaceGen.generate({
       feature: 'posts',
       name: 'postsApi',
@@ -56,7 +56,7 @@ describe('API Namespace Generator Integration Tests', () => {
       featureGen
     );
 
-    await featureGen.generate({ path: 'posts' });
+    await featureGen.generate({ target: 'posts' });
     await apiNamespaceGen.generate({
       feature: 'posts',
       name: 'postsApi',
@@ -82,7 +82,7 @@ describe('API Namespace Generator Integration Tests', () => {
       featureGen
     );
 
-    await featureGen.generate({ path: 'posts' });
+    await featureGen.generate({ target: 'posts' });
     await apiNamespaceGen.generate({
       feature: 'posts',
       name: 'testApi',

@@ -1,8 +1,8 @@
 export {
   ACTION_OPERATIONS,
+  API_HTTP_METHODS,
   CONFIG_TYPES,
   CRUD_OPERATIONS,
-  HTTP_METHODS,
   OPERATION_TYPES,
   OPERATIONS,
   PLUGIN_NAME,
@@ -11,10 +11,9 @@ export {
 } from './constants';
 export type {
   ActionOperation,
+  ApiHttpMethod,
   ConfigType,
   CrudOperation,
-  GetFlagsType,
-  HttpMethod,
   OperationType,
   QueryOperation,
 } from './constants';

@@ -28,7 +28,7 @@ describe('Route Generator Integration Tests', () => {
     const featureGen = new FeatureGenerator(logger, realFileSystem);
     const routeGen = new RouteGenerator(logger, realFileSystem, featureGen);
 
-    await featureGen.generate({ path: 'posts' });
+    await featureGen.generate({ target: 'posts' });
     await routeGen.generate({
       feature: 'posts',
       path: '/posts',
@@ -50,7 +50,7 @@ describe('Route Generator Integration Tests', () => {
     const featureGen = new FeatureGenerator(logger, realFileSystem);
     const routeGen = new RouteGenerator(logger, realFileSystem, featureGen);
 
-    await featureGen.generate({ path: 'posts' });
+    await featureGen.generate({ target: 'posts' });
     await routeGen.generate({
       feature: 'posts',
       path: '/admin/posts',
@@ -70,7 +70,7 @@ describe('Route Generator Integration Tests', () => {
     const featureGen = new FeatureGenerator(logger, realFileSystem);
     const routeGen = new RouteGenerator(logger, realFileSystem, featureGen);
 
-    await featureGen.generate({ path: 'posts' });
+    await featureGen.generate({ target: 'posts' });
     await routeGen.generate({
       feature: 'posts',
       path: '/posts',
@@ -91,7 +91,7 @@ describe('Route Generator Integration Tests', () => {
     const featureGen = new FeatureGenerator(logger, realFileSystem);
     const routeGen = new RouteGenerator(logger, realFileSystem, featureGen);
 
-    await featureGen.generate({ path: 'posts' });
+    await featureGen.generate({ target: 'posts' });
     await routeGen.generate({
       feature: 'posts',
       path: '/test',

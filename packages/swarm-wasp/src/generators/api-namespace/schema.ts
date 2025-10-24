@@ -7,3 +7,5 @@ export const schema = z.object({
   path: commonSchemas.path,
   force: commonSchemas.force,
 });
+
+export type ApiNamespaceArgs = z.infer<typeof schema>;

@@ -1,4 +1,4 @@
-import { SwarmGenerator } from '../../../contracts/generator';
+import { GeneratorArgs, SwarmGenerator } from '../../../contracts/generator';
 import { GeneratorInterfaceManager } from '../../../plugin/generator-interface-manager';
 import { MCPToolDefinition, MCPToolHandler, ToolFactory } from './tool-factory';
 
@@ -19,7 +19,7 @@ export class ToolManager extends GeneratorInterfaceManager<MCPTool> {
    * Create an MCP tool from a generator
    */
   protected async createInterfaceFromGenerator(
-    generator: SwarmGenerator
+    generator: SwarmGenerator<GeneratorArgs>
   ): Promise<MCPTool> {
     return ToolFactory.createTool(generator);
   }

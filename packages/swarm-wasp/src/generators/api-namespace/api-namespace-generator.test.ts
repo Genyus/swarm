@@ -5,12 +5,13 @@ import {
   createMockFS,
   createMockLogger,
 } from '../../../tests/utils';
+import { FeatureArgs } from '../feature/schema';
 import { ApiNamespaceGenerator } from './api-namespace-generator';
 
 describe('ApiNamespaceGenerator', () => {
   let fs: FileSystem;
   let logger: Logger;
-  let featureGen: SwarmGenerator<{ path: string }>;
+  let featureGen: SwarmGenerator<FeatureArgs>;
   let gen: ApiNamespaceGenerator;
 
   beforeEach(() => {

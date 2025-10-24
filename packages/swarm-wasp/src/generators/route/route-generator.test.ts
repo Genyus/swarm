@@ -6,6 +6,7 @@ import {
   createMockFS,
   createMockLogger,
 } from '../../../tests/utils';
+import { FeatureArgs } from '../feature/schema';
 import { RouteGenerator } from './route-generator';
 
 // Mock SwarmConfigManager
@@ -30,7 +31,7 @@ vi.mock('@ingenyus/swarm', async () => {
 describe('RouteGenerator', () => {
   let fs: FileSystem;
   let logger: Logger;
-  let featureGen: SwarmGenerator<{ path: string }>;
+  let featureGen: SwarmGenerator<FeatureArgs>;
   let gen: RouteGenerator;
 
   beforeEach(() => {

@@ -1,7 +1,7 @@
 import { ZodType } from 'zod';
 import { ExtendedSchema, SchemaManager } from '../../../common';
 import { FieldMetadata } from '../../../contracts/field-metadata';
-import { SwarmGenerator } from '../../../contracts/generator';
+import { GeneratorArgs, SwarmGenerator } from '../../../contracts/generator';
 
 /**
  * MCP Tool definition interface
@@ -31,7 +31,9 @@ export class ToolFactory {
    * @param generator The generator to create a tool for
    * @returns MCP tool definition
    */
-  static createToolDefinition(generator: SwarmGenerator): MCPToolDefinition {
+  static createToolDefinition(
+    generator: SwarmGenerator<GeneratorArgs>
+  ): MCPToolDefinition {
     const schema = generator.schema as ExtendedSchema;
     const shape = SchemaManager.getShape(schema);
 
@@ -73,11 +75,13 @@ export class ToolFactory {
    * @param generator The generator to create a handler for
    * @returns MCP tool handler function
    */
-  static createToolHandler(generator: SwarmGenerator): MCPToolHandler {
+  static createToolHandler(
+    generator: SwarmGenerator<GeneratorArgs>
+  ): MCPToolHandler {
     return async (args: any) => {
       try {
         // Validate arguments using the generator's schema
-        const validatedArgs = generator.schema.parse(args);
+        const validatedArgs = generator.schema.parse(args) as GeneratorArgs;
 
         // Call the generator's generate method
         await generator.generate(validatedArgs);
@@ -100,7 +104,7 @@ export class ToolFactory {
    * @param generator The generator to create a tool for
    * @returns Object containing both definition and handler
    */
-  static createTool(generator: SwarmGenerator): {
+  static createTool(generator: SwarmGenerator<GeneratorArgs>): {
     definition: MCPToolDefinition;
     handler: MCPToolHandler;
   } {
@@ -167,7 +171,7 @@ export class ToolFactory {
       }
 
       case 'optional': {
-        const innerType = SchemaManager.getOptionalInnerType(fieldSchema);
+        const innerType = SchemaManager.getInnerType(fieldSchema);
 
         return innerType
           ? this.convertZodToJSONSchema(innerType)

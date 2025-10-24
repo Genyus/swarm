@@ -1,23 +1,21 @@
 import { extend } from '@ingenyus/swarm';
 import { z } from 'zod';
-import {
-  commonSchemas,
-  getTypedValueTransformer,
-  getTypedValueValidator,
-} from '../../common';
-import { HTTP_METHODS } from '../../types';
+import { commonSchemas } from '../../common';
+import { API_HTTP_METHODS } from '../../types';
 
-const validHttpMethods = Object.values(HTTP_METHODS);
+const validHttpMethods = Object.values(API_HTTP_METHODS);
 
 export const schema = z.object({
   method: extend(
     z
       .string()
       .min(1, 'HTTP method is required')
-      .refine(getTypedValueValidator(validHttpMethods), {
-        message: `Invalid HTTP method. Must be one of: ${validHttpMethods.join(', ')}`,
-      })
-      .transform(getTypedValueTransformer(validHttpMethods)),
+      .transform((val) => val.toUpperCase())
+      .pipe(
+        z.enum(API_HTTP_METHODS, {
+          message: `Invalid HTTP method. Must be one of: ${API_HTTP_METHODS.join(', ')}`,
+        })
+      ),
     {
       description: 'The HTTP method used for this API endpoint',
       friendlyName: 'HTTP Method',
@@ -38,3 +36,5 @@ export const schema = z.object({
     helpText: 'Will generate custom middleware file',
   }),
 });
+
+export type ApiArgs = z.infer<typeof schema>;

@@ -3,7 +3,7 @@ import {
   FileSystem,
   handleFatalError,
   Logger,
-  SignaleLogger,
+  logger as singletonLogger,
   validateFeaturePath,
 } from '@ingenyus/swarm';
 import path from 'node:path';
@@ -13,15 +13,15 @@ import {
   realFileSystem,
 } from '../../common';
 import { WaspGeneratorBase } from '../base/wasp-generator.base';
-import { schema, SchemaArgs } from './schema';
+import { FeatureArgs, schema } from './schema';
 
-export class FeatureGenerator extends WaspGeneratorBase<SchemaArgs> {
+export class FeatureGenerator extends WaspGeneratorBase<FeatureArgs> {
   name: string;
   description: string;
   schema: ExtendedSchema;
 
   constructor(
-    public logger: Logger = new SignaleLogger(),
+    public logger: Logger = singletonLogger,
     public fileSystem: FileSystem = realFileSystem
   ) {
     super(fileSystem, logger);
@@ -40,12 +40,12 @@ export class FeatureGenerator extends WaspGeneratorBase<SchemaArgs> {
 
   /**
    * Generate feature directory structure (main entry point)
-   * @param featurePath - The path to the feature
+   * @param target - The target directory to create the feature in
    */
-  async generate(flags: SchemaArgs): Promise<void> {
-    const { path: featurePath } = flags;
-    const segments = validateFeaturePath(featurePath);
-    const normalisedPath = normaliseFeaturePath(featurePath);
+  async generate(args: FeatureArgs): Promise<void> {
+    const { target } = args;
+    const segments = validateFeaturePath(target);
+    const normalisedPath = normaliseFeaturePath(target);
     const sourceRoot = path.join(findWaspRoot(this.fileSystem), 'src');
 
     if (segments.length > 1) {

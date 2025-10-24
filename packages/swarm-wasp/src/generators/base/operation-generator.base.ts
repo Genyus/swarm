@@ -29,8 +29,17 @@ import {
   QueryOperation,
   TYPE_DIRECTORIES,
 } from '../../types';
-import { OperationConfigEntry } from '../args.types';
 import { EntityGeneratorBase } from './entity-generator.base';
+import { WaspGeneratorArgs } from './wasp-generator.base';
+
+/**
+ * Represents a configuration entry for an operation.
+ */
+interface OperationConfigEntry {
+  operationName: string;
+  entities: string[];
+  authRequired: boolean;
+}
 
 /**
  * Abstract base class for generators that need to generate operation files.
@@ -38,11 +47,12 @@ import { EntityGeneratorBase } from './entity-generator.base';
  * both OperationGenerator and CrudGenerator.
  */
 export abstract class OperationGeneratorBase<
-  TArgs extends
+  TArgs extends WaspGeneratorArgs,
+  TConfig extends
     | typeof CONFIG_TYPES.ACTION
     | typeof CONFIG_TYPES.QUERY
     | typeof CONFIG_TYPES.CRUD,
-> extends EntityGeneratorBase<TArgs> {
+> extends EntityGeneratorBase<TArgs, TConfig> {
   /**
    * Gets the operation name based on operation type and model name.
    */
