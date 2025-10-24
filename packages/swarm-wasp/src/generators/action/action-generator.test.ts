@@ -8,20 +8,49 @@ import {
 import { FeatureArgs } from '../feature/schema';
 import { ActionGenerator } from './action-generator';
 
-// Mock Prisma utilities instead of file system
-vi.mock('../../common/prisma', () => ({
-  getEntityMetadata: vi.fn(),
-  getIdFields: vi.fn(),
-  getRequiredFields: vi.fn(),
-  getOptionalFields: vi.fn(),
-  getJsonFields: vi.fn(),
-  needsPrismaImport: vi.fn(),
-  generateJsonTypeHandling: vi.fn(),
-  generatePickType: vi.fn(),
-  generateOmitType: vi.fn(),
-  generatePartialType: vi.fn(),
-  generateIntersectionType: vi.fn(),
-}));
+vi.mock('../../common', async () => {
+  const actual = await vi.importActual('../../common');
+  return {
+    ...actual,
+    getEntityMetadata: vi.fn(),
+    getIdFields: vi.fn(),
+    getRequiredFields: vi.fn(),
+    getOptionalFields: vi.fn(),
+    getJsonFields: vi.fn(),
+    needsPrismaImport: vi.fn(),
+    generateJsonTypeHandling: vi.fn(),
+    generatePickType: vi.fn(),
+    generateOmitType: vi.fn(),
+    generatePartialType: vi.fn(),
+    generateIntersectionType: vi.fn(),
+    normaliseFeaturePath: vi.fn((path) => path),
+    getFeatureDir: vi.fn((fs, path) => `/test-project/src/features/${path}`),
+    getFeatureImportPath: vi.fn((path) => path),
+    ensureDirectoryExists: vi.fn(),
+    TemplateUtility: vi.fn().mockImplementation(() => ({
+      processTemplate: vi.fn(),
+      resolveTemplatePath: vi.fn(),
+    })),
+  };
+});
+
+vi.mock('../../common/prisma', async () => {
+  const actual = await vi.importActual('../../common/prisma');
+  return {
+    ...actual,
+    getEntityMetadata: vi.fn(),
+    getIdFields: vi.fn(),
+    getRequiredFields: vi.fn(),
+    getOptionalFields: vi.fn(),
+    getJsonFields: vi.fn(),
+    needsPrismaImport: vi.fn(),
+    generateJsonTypeHandling: vi.fn(),
+    generatePickType: vi.fn(),
+    generateOmitType: vi.fn(),
+    generatePartialType: vi.fn(),
+    generateIntersectionType: vi.fn(),
+  };
+});
 
 describe('ActionGenerator', () => {
   let fs: FileSystem;
@@ -42,7 +71,7 @@ describe('ActionGenerator', () => {
       generateOmitType,
       generatePartialType,
       generateIntersectionType,
-    } = await import('../../common/prisma');
+    } = await import('../../common');
 
     (getEntityMetadata as any).mockResolvedValue({
       name: 'User',
@@ -382,7 +411,7 @@ export default function configureFeature(app: App, feature: string): void {
   });
 
   it('prevents duplicate dataType in entities array', async () => {
-    const { getEntityMetadata } = await import('../../common/prisma');
+    const { getEntityMetadata } = await import('../../common');
     (getEntityMetadata as any).mockResolvedValue({
       name: 'Task',
       fields: [
@@ -462,7 +491,7 @@ export default function configureFeature(app: App, feature: string): void {
   });
 
   it('places dataType first in entities array with other entities', async () => {
-    const { getEntityMetadata } = await import('../../common/prisma');
+    const { getEntityMetadata } = await import('../../common');
     (getEntityMetadata as any).mockResolvedValue({
       name: 'Task',
       fields: [
