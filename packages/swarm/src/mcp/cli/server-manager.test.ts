@@ -1,13 +1,13 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ServerManager } from './server-manager.js';
 
-// Mock the SwarmMCPServer
-vi.mock('../server/index.js', () => ({
-  SwarmMCPServer: vi.fn(),
+// Mock the MCPManager
+vi.mock('../server/mcp-manager', () => ({
+  MCPManager: vi.fn(),
 }));
 
 // Mock logger
-vi.mock('../server/utils/index.js', async (importOriginal) => ({
+vi.mock('../server/utils', async (importOriginal) => ({
   ...(await importOriginal()),
   logger: {
     info: vi.fn(),
@@ -21,14 +21,14 @@ vi.mock('../server/utils/index.js', async (importOriginal) => ({
 describe('ServerManager', () => {
   let serverManager: ServerManager;
   let mockServer: any;
-  let MockedSwarmMCPServer: any;
+  let MockedMCPManager: any;
 
   beforeEach(async () => {
     vi.clearAllMocks();
 
     // Get the mocked SwarmMCPServer
-    const { SwarmMCPServer } = await import('../server/index.js');
-    MockedSwarmMCPServer = SwarmMCPServer as any;
+    const { MCPManager } = await import('../server');
+    MockedMCPManager = MCPManager as any;
 
     // Create the mock server instance with proper method setup
     mockServer = {
@@ -38,7 +38,7 @@ describe('ServerManager', () => {
     };
 
     // Set up the mock constructor to return our mock server
-    MockedSwarmMCPServer.mockImplementation(() => mockServer);
+    MockedMCPManager.mockImplementation(() => mockServer);
 
     serverManager = new ServerManager();
   });
@@ -51,7 +51,7 @@ describe('ServerManager', () => {
     it('should create a new server manager instance', () => {
       expect(serverManager).toBeInstanceOf(ServerManager);
       // SwarmMCPServer is not called during construction, only when start() is called
-      expect(MockedSwarmMCPServer).not.toHaveBeenCalled();
+      expect(MockedMCPManager).not.toHaveBeenCalled();
     });
 
     it('should initialize with server not running', () => {

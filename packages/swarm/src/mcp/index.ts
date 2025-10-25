@@ -11,13 +11,13 @@ export * from './server/index';
 export * from './cli/index';
 
 // Import the server class
-import { SwarmMCPServer } from './server/index';
+import { MCPManager } from './server/index';
 
 /**
  * Start the MCP server
  */
 export async function startMCPServer(): Promise<void> {
-  const server = new SwarmMCPServer({
+  const server = new MCPManager({
     name: 'swarm-mcp',
     version: '0.1.0',
     tools: [],

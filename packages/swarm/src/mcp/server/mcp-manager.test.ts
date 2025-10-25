@@ -1,9 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { SwarmMCPServer } from './index.js';
+import { MCPManager } from './index.js';
 import type { ServerConfig } from './types/mcp.js';
 
-describe('SwarmMCPServer', () => {
-  let server: SwarmMCPServer;
+describe('MCPManager', () => {
+  let server: MCPManager;
   let config: ServerConfig;
 
   beforeEach(() => {
@@ -31,7 +31,7 @@ describe('SwarmMCPServer', () => {
 
   describe('Constructor', () => {
     it('should create a server instance with valid config', () => {
-      server = new SwarmMCPServer(config);
+      server = new MCPManager(config);
       expect(server).toBeDefined();
       expect(server.getInfo().name).toBe('test-swarm-mcp');
       expect(server.getInfo().version).toBe('0.1.0');
@@ -41,7 +41,7 @@ describe('SwarmMCPServer', () => {
       const configWithoutInstructions = { ...config };
       delete configWithoutInstructions.instructions;
 
-      server = new SwarmMCPServer(configWithoutInstructions);
+      server = new MCPManager(configWithoutInstructions);
       const info = server.getInfo();
       // Instructions may be undefined if not provided, which is acceptable
       expect(
@@ -52,14 +52,14 @@ describe('SwarmMCPServer', () => {
 
   describe('Server State', () => {
     it('should start with isRunning false', () => {
-      server = new SwarmMCPServer(config);
+      server = new MCPManager(config);
       const status = server.getStatus();
       expect(status.isRunning).toBe(false);
       expect(status.sessionId).toBeUndefined();
     });
 
     it('should provide server information', () => {
-      server = new SwarmMCPServer(config);
+      server = new MCPManager(config);
       const info = server.getInfo();
 
       expect(info.name).toBe(config.name);
@@ -71,14 +71,14 @@ describe('SwarmMCPServer', () => {
 
   describe('Transport Creation', () => {
     it('should handle stdio transport configuration', () => {
-      server = new SwarmMCPServer(config);
+      server = new MCPManager(config);
       expect(() => server.getInfo()).not.toThrow();
     });
   });
 
   describe('Lifecycle Management', () => {
     it('should prevent starting server twice', async () => {
-      server = new SwarmMCPServer(config);
+      server = new MCPManager(config);
 
       // Note: We can't actually start the server in tests without a real MCP client
       // But we can test that attempting to start twice throws an error
@@ -101,7 +101,7 @@ describe('SwarmMCPServer', () => {
     });
 
     it('should handle stop gracefully when not running', async () => {
-      server = new SwarmMCPServer(config);
+      server = new MCPManager(config);
 
       // Should not throw when stopping a server that's not running
       await expect(server.stop()).resolves.not.toThrow();

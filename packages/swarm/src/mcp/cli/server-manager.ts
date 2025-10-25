@@ -1,14 +1,11 @@
 import { logger } from '../../logger';
-import {
-  ErrorFactory,
-  configManager,
-  createErrorContext,
-} from '../server/common';
-import { SwarmMCPServer } from '../server/index.js';
+import { ErrorFactory, createErrorContext } from '../server';
+import { configManager } from '../server/configuration-manager.js';
+import { MCPManager } from '../server/index.js';
 import type { ServerConfig } from '../server/types/index.js';
 
 export class ServerManager {
-  private server: SwarmMCPServer | null = null;
+  private server: MCPManager | null = null;
   private isRunning = false;
   private pid: number | null = null;
 
@@ -35,7 +32,7 @@ export class ServerManager {
         instructions: 'Swarm MCP Server for Wasp application code generation',
       };
 
-      this.server = new SwarmMCPServer(config);
+      this.server = new MCPManager(config);
 
       await this.server.loadConfiguration();
       await this.server.start();

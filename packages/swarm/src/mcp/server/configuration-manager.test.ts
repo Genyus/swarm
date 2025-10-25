@@ -8,7 +8,7 @@ import {
   vi,
   type MockedFunction,
 } from 'vitest';
-import { ConfigurationManager } from './config.js';
+import { ConfigurationManager } from './configuration-manager';
 
 // Mock fs/promises
 vi.mock('node:fs/promises', () => ({

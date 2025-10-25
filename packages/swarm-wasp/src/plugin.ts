@@ -32,14 +32,14 @@ export function createWaspPlugin(): SwarmPlugin {
 }
 
 // Lazy-load the plugin to avoid circular dependency issues
-let _apiPlugin: SwarmPlugin | null = null;
+let plugin: SwarmPlugin | null = null;
 
 function getWaspPlugin(): SwarmPlugin {
-  if (!_apiPlugin) {
-    _apiPlugin = createWaspPlugin();
+  if (!plugin) {
+    plugin = createWaspPlugin();
   }
 
-  return _apiPlugin;
+  return plugin;
 }
 
 // Export for plugin resolver system

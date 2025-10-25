@@ -1,11 +1,12 @@
 import { ZodType } from 'zod';
-import { GeneratorArgs, PluginGenerator } from '../../../generator';
-import { ExtendedSchema, FieldMetadata, SchemaManager } from '../../../schema';
+import { GeneratorArgs, PluginGenerator } from '../../generator';
+import { PluginInterfaceManager } from '../../plugin';
+import { ExtendedSchema, FieldMetadata, SchemaManager } from '../../schema';
 
 /**
  * MCP Tool definition interface
  */
-export interface MCPToolDefinition {
+interface MCPToolDefinition {
   name: string;
   description: string;
   inputSchema: {
@@ -18,19 +19,34 @@ export interface MCPToolDefinition {
 /**
  * MCP Tool handler function type
  */
-export type MCPToolHandler = (args: any) => Promise<any>;
+type MCPToolHandler = (args: any) => Promise<any>;
 
 /**
- * Factory for creating MCP tools from PluginGenerator schemas.
- * This mirrors the CommandFactory pattern but for MCP tools.
+ * MCP Tool interface combining definition and handler
  */
-export class ToolFactory {
+interface MCPTool {
+  definition: MCPToolDefinition;
+  handler: MCPToolHandler;
+}
+
+/**
+ * Manages MCP tools created from generators
+ * Provides a unified interface for tool registration and management
+ */
+export class ToolManager extends PluginInterfaceManager<MCPTool> {
+  /**
+   * Create an MCP tool from a generator
+   */
+  protected async createInterfaceFromGenerator(
+    generator: PluginGenerator<GeneratorArgs>
+  ): Promise<MCPTool> {
+    return this.createTool(generator);
+  }
+
   /**
    * Create an MCP tool definition from a generator's schema
-   * @param generator The generator to create a tool for
-   * @returns MCP tool definition
    */
-  static createToolDefinition(
+  private createToolDefinition(
     generator: PluginGenerator<GeneratorArgs>
   ): MCPToolDefinition {
     const schema = generator.schema as ExtendedSchema;
@@ -71,18 +87,13 @@ export class ToolFactory {
 
   /**
    * Create an MCP tool handler from a generator
-   * @param generator The generator to create a handler for
-   * @returns MCP tool handler function
    */
-  static createToolHandler(
+  private createToolHandler(
     generator: PluginGenerator<GeneratorArgs>
   ): MCPToolHandler {
     return async (args: any) => {
       try {
-        // Validate arguments using the generator's schema
         const validatedArgs = generator.schema.parse(args) as GeneratorArgs;
-
-        // Call the generator's generate method
         await generator.generate(validatedArgs);
 
         return {
@@ -100,13 +111,8 @@ export class ToolFactory {
 
   /**
    * Create both tool definition and handler for a generator
-   * @param generator The generator to create a tool for
-   * @returns Object containing both definition and handler
    */
-  static createTool(generator: PluginGenerator<GeneratorArgs>): {
-    definition: MCPToolDefinition;
-    handler: MCPToolHandler;
-  } {
+  private createTool(generator: PluginGenerator<GeneratorArgs>): MCPTool {
     return {
       definition: this.createToolDefinition(generator),
       handler: this.createToolHandler(generator),
@@ -115,18 +121,14 @@ export class ToolFactory {
 
   /**
    * Convert a Zod schema to JSON Schema format
-   * @param fieldSchema The Zod schema field
-   * @param metadata Optional field metadata
-   * @returns JSON Schema property definition
    */
-  private static convertZodToJSONSchema(
+  private convertZodToJSONSchema(
     fieldSchema: ZodType,
     metadata?: FieldMetadata
   ): Record<string, any> {
     const typeName = SchemaManager.getFieldTypeName(fieldSchema);
     const description = metadata?.description || '';
 
-    // Map Zod types to JSON Schema types
     switch (typeName) {
       case 'string':
         return {
@@ -196,5 +198,55 @@ export class ToolFactory {
           description,
         };
     }
+  }
+
+  /**
+   * Get tool definitions for MCP server registration
+   */
+  getToolDefinitions(): Record<string, MCPToolDefinition> {
+    if (!this.isInitialized()) {
+      throw new Error('ToolManager not initialized. Call initialize() first.');
+    }
+
+    const tools = this.getInterfaces();
+    const definitions: Record<string, MCPToolDefinition> = {};
+
+    for (const [name, tool] of Object.entries(tools)) {
+      definitions[name] = tool.definition;
+    }
+
+    return definitions;
+  }
+
+  /**
+   * Get tool handlers for MCP server execution
+   */
+  getToolHandlers(): Record<string, MCPToolHandler> {
+    if (!this.isInitialized()) {
+      throw new Error('ToolManager not initialized. Call initialize() first.');
+    }
+
+    const tools = this.getInterfaces();
+    const handlers: Record<string, MCPToolHandler> = {};
+
+    for (const [name, tool] of Object.entries(tools)) {
+      handlers[name] = tool.handler;
+    }
+
+    return handlers;
+  }
+
+  /**
+   * Get all available tools as a single object for MCP server
+   * This is a convenience method that combines definitions and handlers
+   */
+  async getTools(
+    configPath?: string
+  ): Promise<Record<string, (args: any) => Promise<any>>> {
+    if (!this.isInitialized()) {
+      await this.initialize(configPath);
+    }
+
+    return this.getToolHandlers();
   }
 }
