@@ -1,16 +1,8 @@
 import { getPlural, toCamelCase, toPascalCase } from '@ingenyus/swarm';
 import { getEntityMetadata, needsPrismaImport } from '../../common';
-import { CrudFlags } from '../../generators/args.types';
-import {
-  ActionOperation,
-  CONFIG_TYPES,
-  CrudOperation,
-  EntityMetadata,
-  OPERATIONS,
-  QueryOperation,
-} from '../../types';
+import { CONFIG_TYPES, CrudOperation, EntityMetadata } from '../../types';
 import { OperationGeneratorBase } from '../base';
-import { schema } from './schema';
+import { CrudArgs, schema } from './schema';
 
 const CRUD_OPERATIONS_LIST: readonly CrudOperation[] = [
   'get',
@@ -21,6 +13,7 @@ const CRUD_OPERATIONS_LIST: readonly CrudOperation[] = [
 ] as const;
 
 export class CrudGenerator extends OperationGeneratorBase<
+  CrudArgs,
   typeof CONFIG_TYPES.CRUD
 > {
   protected get entityType() {
@@ -30,8 +23,8 @@ export class CrudGenerator extends OperationGeneratorBase<
   description = 'Generate CRUD operations for Wasp applications';
   schema = schema;
 
-  async generate(flags: CrudFlags): Promise<void> {
-    const { dataType, feature } = flags;
+  async generate(args: CrudArgs): Promise<void> {
+    const { dataType, feature } = args;
     const crudName = toCamelCase(getPlural(dataType));
     const crudType = toPascalCase(crudName);
 
@@ -42,12 +35,12 @@ export class CrudGenerator extends OperationGeneratorBase<
         this.entityType.toLowerCase()
       );
 
-      if ((flags.override?.length ?? 0) > 0) {
+      if ((args.override?.length ?? 0) > 0) {
         const targetFile = `${targetDirectory}/${crudName}.ts`;
         const operations = await this.getOperationsCode(
           dataType,
           crudName,
-          flags
+          args
         );
 
         await this.generateCrudFile(
@@ -55,7 +48,7 @@ export class CrudGenerator extends OperationGeneratorBase<
           dataType,
           operations,
           crudType,
-          flags
+          args
         );
       }
 
@@ -63,7 +56,7 @@ export class CrudGenerator extends OperationGeneratorBase<
         feature,
         crudName,
         dataType,
-        flags,
+        args,
         configPath
       );
     });
@@ -74,9 +67,9 @@ export class CrudGenerator extends OperationGeneratorBase<
     dataType: string,
     operations: string,
     crudName: string,
-    flags: CrudFlags
+    args: CrudArgs
   ) {
-    const { override = [], force = false } = flags;
+    const { override = [], force = false } = args;
     const model = await getEntityMetadata(dataType);
     const imports = this.generateCrudImports(
       model,
@@ -128,10 +121,10 @@ export class CrudGenerator extends OperationGeneratorBase<
     feature: string,
     crudName: string,
     dataType: string,
-    flags: CrudFlags,
+    args: CrudArgs,
     configPath: string
   ) {
-    const operations = this.buildOperations(flags);
+    const operations = this.buildOperations(args);
     const definition = this.getDefinition(crudName, dataType, operations);
 
     this.updateConfigWithCheck(
@@ -140,16 +133,16 @@ export class CrudGenerator extends OperationGeneratorBase<
       crudName,
       definition,
       feature,
-      flags.force || false
+      args.force || false
     );
   }
 
-  private buildOperations(flags: CrudFlags): Record<string, unknown> {
+  private buildOperations(args: CrudArgs): Record<string, unknown> {
     const {
       public: publicOps = [],
       override: overrideOps = [],
       exclude: excludeOps = [],
-    } = flags;
+    } = args;
 
     return CRUD_OPERATIONS_LIST.reduce(
       (acc, operation) => {
@@ -181,19 +174,21 @@ export class CrudGenerator extends OperationGeneratorBase<
   private async getOperationsCode(
     dataType: string,
     crudName: string,
-    flags: CrudFlags
+    args: CrudArgs
   ): Promise<string> {
-    if (!flags.override || flags.override.length === 0) {
+    const { override = [], public: publicOps = [] } = args;
+
+    if (override.length === 0) {
       return '';
     }
 
     const operationCodes: string[] = [];
 
-    for (const operation of flags.override) {
+    for (const operation of override) {
       const { operationCode } = await this.generateOperationComponents(
         dataType,
         operation,
-        flags.auth || false,
+        !publicOps.includes(operation),
         [dataType],
         true,
         toPascalCase(crudName)

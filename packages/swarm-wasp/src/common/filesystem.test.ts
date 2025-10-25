@@ -1,4 +1,4 @@
-import type { FileSystem } from '@ingenyus/swarm/src/types/filesystem';
+import type { FileSystem } from '@ingenyus/swarm/src/common';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createMockFS } from '../../tests/utils';
 import * as filesystem from './filesystem';

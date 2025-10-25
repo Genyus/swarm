@@ -1,4 +1,4 @@
-import type { FileSystem, Logger, SwarmGenerator } from '@ingenyus/swarm';
+import type { FileSystem, Logger, PluginGenerator } from '@ingenyus/swarm';
 import { DEFAULT_CUSTOM_TEMPLATES_DIR } from '@ingenyus/swarm';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
@@ -6,6 +6,7 @@ import {
   createMockFS,
   createMockLogger,
 } from '../../../tests/utils';
+import { FeatureArgs } from '../feature/schema';
 import { RouteGenerator } from './route-generator';
 
 // Mock SwarmConfigManager
@@ -30,7 +31,7 @@ vi.mock('@ingenyus/swarm', async () => {
 describe('RouteGenerator', () => {
   let fs: FileSystem;
   let logger: Logger;
-  let featureGen: SwarmGenerator<{ path: string }>;
+  let featureGen: PluginGenerator<FeatureArgs>;
   let gen: RouteGenerator;
 
   beforeEach(() => {

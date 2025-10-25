@@ -1,9 +1,9 @@
-import { SwarmPlugin, SwarmPluginManifest } from '../contracts';
+import { SwarmPlugin, SwarmPluginManifest } from './types';
 
 /**
  * Interface for resolving plugins from different sources
  */
-export interface PluginResolver {
+interface PluginResolver {
   /**
    * Resolve a plugin by its identifier
    * @param pluginId The plugin identifier (e.g., '@ingenyus/swarm-wasp/wasp', './local-plugin')
@@ -268,7 +268,6 @@ export class LocalPluginResolver implements PluginResolver {
   }
 
   private validatePlugin(plugin: any): SwarmPlugin | null {
-    console.log('name:', plugin ? JSON.stringify(plugin, null, 2) : 'null');
     if (
       plugin &&
       typeof plugin === 'object' &&

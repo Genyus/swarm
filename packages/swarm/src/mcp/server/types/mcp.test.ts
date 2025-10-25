@@ -1,18 +1,17 @@
 import { describe, expect, it } from 'vitest';
+import { MCPErrorCode, MCPProtocolError } from '../errors';
 import {
   isErrorResponse,
   isNotification,
   isRequest,
   isResponse,
-  MCPErrorCode,
   MCPNotification,
   MCPNotificationSchema,
-  MCPProtocolError,
   MCPRequest,
   MCPRequestSchema,
   MCPResponse,
   MCPResponseSchema,
-} from './mcp.js';
+} from './mcp.test-utils.js';
 
 describe('MCP Protocol Types', () => {
   describe('Type Guards', () => {

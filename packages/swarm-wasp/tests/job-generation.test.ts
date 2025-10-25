@@ -28,7 +28,7 @@ describe('Job Generator Integration Tests', () => {
     const featureGen = new FeatureGenerator(logger, realFileSystem);
     const jobGen = new JobGenerator(logger, realFileSystem, featureGen);
 
-    await featureGen.generate({ path: 'posts' });
+    await featureGen.generate({ target: 'posts' });
     await jobGen.generate({
       feature: 'posts',
       name: 'cleanupPosts',
@@ -48,7 +48,7 @@ describe('Job Generator Integration Tests', () => {
     const featureGen = new FeatureGenerator(logger, realFileSystem);
     const jobGen = new JobGenerator(logger, realFileSystem, featureGen);
 
-    await featureGen.generate({ path: 'posts' });
+    await featureGen.generate({ target: 'posts' });
     await jobGen.generate({
       feature: 'posts',
       name: 'cleanupPosts',
@@ -69,7 +69,7 @@ describe('Job Generator Integration Tests', () => {
     const featureGen = new FeatureGenerator(logger, realFileSystem);
     const jobGen = new JobGenerator(logger, realFileSystem, featureGen);
 
-    await featureGen.generate({ path: 'posts' });
+    await featureGen.generate({ target: 'posts' });
     await jobGen.generate({
       feature: 'posts',
       name: 'processPosts',
@@ -89,7 +89,7 @@ describe('Job Generator Integration Tests', () => {
     const featureGen = new FeatureGenerator(logger, realFileSystem);
     const jobGen = new JobGenerator(logger, realFileSystem, featureGen);
 
-    await featureGen.generate({ path: 'posts' });
+    await featureGen.generate({ target: 'posts' });
     await jobGen.generate({
       feature: 'posts',
       name: 'testJob',

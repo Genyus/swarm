@@ -1,1 +1,2 @@
-export { GeneratorInterfaceManager } from './generator-interface-manager';
+export { PluginInterfaceManager } from './plugin-interface-manager';
+export * from './types';

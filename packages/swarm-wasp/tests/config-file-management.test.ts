@@ -35,7 +35,7 @@ describe('Configuration File Management Tests', () => {
   });
 
   it('should maintain correct group ordering with multiple definition types', async () => {
-    await featureGen.generate({ path: 'posts' });
+    await featureGen.generate({ target: 'posts' });
 
     const actionGen = new ActionGenerator(logger, realFileSystem, featureGen);
     const queryGen = new QueryGenerator(logger, realFileSystem, featureGen);
@@ -61,7 +61,7 @@ describe('Configuration File Management Tests', () => {
       feature: 'posts',
       name: 'postsApi',
       method: 'GET',
-      route: '/api/posts',
+      path: '/api/posts',
       entities: ['Post'],
       force: false,
     });
@@ -92,7 +92,7 @@ describe('Configuration File Management Tests', () => {
   });
 
   it('should include group headers for each definition type', async () => {
-    await featureGen.generate({ path: 'posts' });
+    await featureGen.generate({ target: 'posts' });
 
     const actionGen = new ActionGenerator(logger, realFileSystem, featureGen);
     const queryGen = new QueryGenerator(logger, realFileSystem, featureGen);
@@ -119,7 +119,7 @@ describe('Configuration File Management Tests', () => {
   });
 
   it('should always end config file with terminating semicolon', async () => {
-    await featureGen.generate({ path: 'posts' });
+    await featureGen.generate({ target: 'posts' });
 
     const actionGen = new ActionGenerator(logger, realFileSystem, featureGen);
 
@@ -138,7 +138,7 @@ describe('Configuration File Management Tests', () => {
   });
 
   it('should preserve proper structure after multiple additions', async () => {
-    await featureGen.generate({ path: 'posts' });
+    await featureGen.generate({ target: 'posts' });
 
     const actionGen = new ActionGenerator(logger, realFileSystem, featureGen);
 
@@ -174,7 +174,7 @@ describe('Configuration File Management Tests', () => {
   });
 
   it('should sort definitions alphabetically within groups', async () => {
-    await featureGen.generate({ path: 'posts' });
+    await featureGen.generate({ target: 'posts' });
 
     const actionGen = new ActionGenerator(logger, realFileSystem, featureGen);
 

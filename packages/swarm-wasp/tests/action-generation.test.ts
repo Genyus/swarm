@@ -29,7 +29,7 @@ describe('Action Generator Integration Tests', () => {
     const featureGen = new FeatureGenerator(logger, realFileSystem);
     const actionGen = new ActionGenerator(logger, realFileSystem, featureGen);
 
-    await featureGen.generate({ path: 'posts' });
+    await featureGen.generate({ target: 'posts' });
     await actionGen.generate({
       dataType: 'Post',
       operation: 'create',
@@ -57,7 +57,7 @@ describe('Action Generator Integration Tests', () => {
     const featureGen = new FeatureGenerator(logger, realFileSystem);
     const actionGen = new ActionGenerator(logger, realFileSystem, featureGen);
 
-    await featureGen.generate({ path: 'posts' });
+    await featureGen.generate({ target: 'posts' });
     await actionGen.generate({
       dataType: 'Post',
       operation: 'create',
@@ -91,7 +91,7 @@ describe('Action Generator Integration Tests', () => {
     const featureGen = new FeatureGenerator(logger, realFileSystem);
     const actionGen = new ActionGenerator(logger, realFileSystem, featureGen);
 
-    await featureGen.generate({ path: 'posts' });
+    await featureGen.generate({ target: 'posts' });
 
     await actionGen.generate({
       dataType: 'Post',

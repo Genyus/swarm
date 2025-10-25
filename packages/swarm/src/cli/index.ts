@@ -2,9 +2,9 @@ import { Command } from 'commander';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'url';
-import { SignaleLogger } from '../common/signale-logger';
-import { AppGenerator } from '../generators';
-import { realFileSystem } from '../types/filesystem';
+import { realFileSystem } from '../common/filesystem';
+import { AppGenerator } from '../generator';
+import { SignaleLogger } from '../logger/signale-logger';
 import { CommandManager } from './command-manager';
 
 /**

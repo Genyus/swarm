@@ -1,10 +1,6 @@
-import { extend } from '@ingenyus/swarm';
+import { extend, SchemaManager } from '@ingenyus/swarm';
 import { z } from 'zod';
-import {
-  commonSchemas,
-  getTypedValueTransformer,
-  getTypedValueValidator,
-} from '../../common';
+import { commonSchemas } from '../../common';
 import { QUERY_OPERATIONS } from '../../types';
 
 const validQueries = Object.values(QUERY_OPERATIONS);
@@ -13,10 +9,12 @@ const querySchema = extend(
   z
     .string()
     .min(1, 'Query type is required')
-    .refine(getTypedValueValidator(validQueries), {
-      message: `Invalid query. Must be one of: ${validQueries.join(', ')}`,
-    })
-    .transform(getTypedValueTransformer(validQueries)),
+    .transform((val) => SchemaManager.findEnumValue(QUERY_OPERATIONS, val))
+    .pipe(
+      z.enum(QUERY_OPERATIONS, {
+        message: `Invalid query. Must be one of: ${validQueries.join(', ')}`,
+      })
+    ),
   {
     description: 'The query operation to generate',
     friendlyName: 'Query Operation',
@@ -35,3 +33,5 @@ export const schema = z.object({
   force: commonSchemas.force,
   auth: commonSchemas.auth,
 });
+
+export type QueryArgs = z.infer<typeof schema>;

@@ -1,9 +1,9 @@
-import { ActionFlags } from '../../generators/args.types';
 import { CONFIG_TYPES } from '../../types';
 import { OperationGeneratorBase } from '../base';
-import { schema } from './schema';
+import { ActionArgs, schema } from './schema';
 
 export class ActionGenerator extends OperationGeneratorBase<
+  ActionArgs,
   typeof CONFIG_TYPES.ACTION
 > {
   protected get entityType() {
@@ -13,20 +13,11 @@ export class ActionGenerator extends OperationGeneratorBase<
   description = 'Generate actions (mutations) for Wasp applications';
   schema = schema;
 
-  async generate(
-    flags: Omit<ActionFlags, 'name'> & { name?: string }
-  ): Promise<void> {
-    const { dataType, feature, name } = flags;
-    const operation = flags.operation;
+  async generate(args: ActionArgs): Promise<void> {
+    const { dataType, feature, name } = args;
+    const operation = args.operation;
     const operationType = 'action';
-    const entities = flags.entities
-      ? Array.isArray(flags.entities)
-        ? flags.entities
-        : flags.entities
-            .split(',')
-            .map((e: string) => e.trim())
-            .filter(Boolean)
-      : [];
+    const entities = args.entities ?? [];
 
     if (dataType && !entities.includes(dataType)) {
       entities.unshift(dataType);
@@ -36,7 +27,7 @@ export class ActionGenerator extends OperationGeneratorBase<
       await this.generateOperationComponents(
         dataType,
         operation,
-        flags.auth,
+        args.auth,
         entities,
         false,
         null,
@@ -56,7 +47,7 @@ export class ActionGenerator extends OperationGeneratorBase<
           operationsDir,
           operationName,
           operationCode,
-          flags.force || false
+          args.force || false
         );
 
         // Generate config definition and update
@@ -66,7 +57,7 @@ export class ActionGenerator extends OperationGeneratorBase<
           entities,
           'action',
           importPath,
-          flags.auth
+          args.auth
         );
 
         this.updateConfigWithCheck(
@@ -75,7 +66,7 @@ export class ActionGenerator extends OperationGeneratorBase<
           operationName,
           definition,
           feature,
-          flags.force || false
+          args.force || false
         );
       }
     );

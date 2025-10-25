@@ -30,10 +30,11 @@ describe('CRUD Generator Integration Tests', () => {
     const featureGen = new FeatureGenerator(logger, realFileSystem);
     const crudGen = new CrudGenerator(logger, realFileSystem, featureGen);
 
-    await featureGen.generate({ path: 'posts' });
+    await featureGen.generate({ target: 'posts' });
     await crudGen.generate({
       dataType: 'Post',
       feature: 'posts',
+      name: 'posts',
       public: ['create', 'get', 'getAll', 'update', 'delete'],
       override: ['create', 'get', 'getAll', 'update', 'delete'],
       force: false,
@@ -73,10 +74,11 @@ describe('CRUD Generator Integration Tests', () => {
     const featureGen = new FeatureGenerator(logger, realFileSystem);
     const crudGen = new CrudGenerator(logger, realFileSystem, featureGen);
 
-    await featureGen.generate({ path: 'posts' });
+    await featureGen.generate({ target: 'posts' });
     await crudGen.generate({
       dataType: 'Post',
       feature: 'posts',
+      name: 'posts',
       public: ['create', 'get', 'getAll', 'update', 'delete'],
       force: false,
     });
@@ -100,10 +102,11 @@ describe('CRUD Generator Integration Tests', () => {
     const featureGen = new FeatureGenerator(logger, realFileSystem);
     const crudGen = new CrudGenerator(logger, realFileSystem, featureGen);
 
-    await featureGen.generate({ path: 'posts' });
+    await featureGen.generate({ target: 'posts' });
     await crudGen.generate({
       dataType: 'Post',
       feature: 'posts',
+      name: 'posts',
       public: ['create', 'get'],
       force: false,
     });
@@ -116,6 +119,7 @@ describe('CRUD Generator Integration Tests', () => {
     await crudGen.generate({
       dataType: 'Post',
       feature: 'posts',
+      name: 'posts',
       public: ['create', 'get'],
       force: false,
     });

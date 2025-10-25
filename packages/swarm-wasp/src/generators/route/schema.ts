@@ -8,3 +8,5 @@ export const schema = z.object({
   auth: commonSchemas.auth,
   force: commonSchemas.force,
 });
+
+export type RouteArgs = z.infer<typeof schema>;

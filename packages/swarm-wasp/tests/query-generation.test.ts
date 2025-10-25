@@ -29,7 +29,7 @@ describe('Query Generator Integration Tests', () => {
     const featureGen = new FeatureGenerator(logger, realFileSystem);
     const queryGen = new QueryGenerator(logger, realFileSystem, featureGen);
 
-    await featureGen.generate({ path: 'posts' });
+    await featureGen.generate({ target: 'posts' });
     await queryGen.generate({
       dataType: 'Post',
       operation: 'get',
@@ -55,7 +55,7 @@ describe('Query Generator Integration Tests', () => {
     const featureGen = new FeatureGenerator(logger, realFileSystem);
     const queryGen = new QueryGenerator(logger, realFileSystem, featureGen);
 
-    await featureGen.generate({ path: 'posts' });
+    await featureGen.generate({ target: 'posts' });
     await queryGen.generate({
       dataType: 'Post',
       operation: 'getAll',
@@ -76,7 +76,7 @@ describe('Query Generator Integration Tests', () => {
     const featureGen = new FeatureGenerator(logger, realFileSystem);
     const queryGen = new QueryGenerator(logger, realFileSystem, featureGen);
 
-    await featureGen.generate({ path: 'posts' });
+    await featureGen.generate({ target: 'posts' });
     await queryGen.generate({
       dataType: 'Post',
       operation: 'get',
