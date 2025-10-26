@@ -1,4 +1,5 @@
 import { GeneratorArgs, PluginGenerator, SwarmPlugin } from '@ingenyus/swarm';
+import { getPluginVersion } from '../common';
 import {
   ActionGenerator,
   ApiGenerator,
@@ -8,16 +9,14 @@ import {
   JobGenerator,
   QueryGenerator,
   RouteGenerator,
-} from '.';
-import { getPluginVersion } from './common';
-import { PLUGIN_NAME } from './types';
+} from '../generators';
+import { PLUGIN_NAME } from '../types';
 
-export function createWaspPlugin(): SwarmPlugin {
+function createWaspPlugin(): SwarmPlugin {
   return {
     name: PLUGIN_NAME,
     version: getPluginVersion(),
     description: 'Wasp Plugin for Swarm',
-    swarmVersion: '0.1.0',
     generators: [
       new ActionGenerator(),
       new ApiGenerator(),
@@ -42,5 +41,4 @@ function getWaspPlugin(): SwarmPlugin {
   return plugin;
 }
 
-// Export for plugin resolver system
 export const wasp = getWaspPlugin;

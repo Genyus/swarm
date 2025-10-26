@@ -19,9 +19,6 @@ export interface SwarmPlugin {
   /** Collection of generators provided by this plugin */
   generators: PluginGenerator<GeneratorArgs>[];
 
-  /** Required Swarm version for compatibility */
-  swarmVersion: string;
-
   /** Plugin configuration schema */
   configSchema?: ZodType;
 }
