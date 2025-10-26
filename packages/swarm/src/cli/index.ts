@@ -2,7 +2,7 @@ import { Command } from 'commander';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'url';
-import { realFileSystem } from '../common/filesystem';
+import { DEFAULT_CONFIG_FILE, realFileSystem } from '../common';
 import { AppGenerator } from '../generator';
 import { SignaleLogger } from '../logger/signale-logger';
 import { CommandManager } from './command-manager';
@@ -22,7 +22,7 @@ export async function main(): Promise<void> {
     .version(version);
 
   // Check if we're in a project context
-  const hasConfig = fs.existsSync('swarm.config.json');
+  const hasConfig = fs.existsSync(DEFAULT_CONFIG_FILE);
   const hasPackageJson = fs.existsSync('package.json');
   const isInProject = hasConfig || hasPackageJson;
 
