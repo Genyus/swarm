@@ -98,13 +98,39 @@ export class CommandManager extends PluginInterfaceManager<Command> {
   ): void {
     const metadata = SchemaManager.getFieldMetadata(fieldSchema);
     const isRequired = SchemaManager.isFieldRequired(fieldSchema);
-    const optionName = toKebabCase(fieldName);
-    const optionFlag = `--${optionName}${isRequired ? '' : ' [value]'}`;
+    const isArray = this.isArrayType(fieldSchema);
+    const typeName = SchemaManager.getFieldTypeName(fieldSchema);
+    const argName = toKebabCase(fieldName);
+    const shortName = metadata?.shortName;
+    let optionString = '';
+    let description = metadata?.description || `${fieldName} field`;
 
-    cmd.option(optionFlag, metadata?.description || fieldName);
+    if (metadata?.examples && metadata.examples.length > 0) {
+      description = `${description} (examples: ${metadata.examples.join(', ')})`;
+    }
 
-    if (fieldSchema instanceof z.ZodBoolean) {
-      cmd.option(`--no-${optionName}`, `Disable ${fieldName}`);
+    if (shortName) {
+      optionString = `-${shortName}, --${argName}`;
+    } else {
+      optionString = `--${argName}`;
+    }
+
+    if (typeName === 'boolean') {
+      cmd.option(optionString, description);
+    } else if (isArray) {
+      if (isRequired) {
+        optionString += ` <${argName}...>`;
+        cmd.requiredOption(optionString, description);
+      } else {
+        optionString += ` [${argName}...]`;
+        cmd.option(optionString, description);
+      }
+    } else if (isRequired) {
+      optionString += ` <${argName}>`;
+      cmd.requiredOption(optionString, description);
+    } else {
+      optionString += ` [${argName}]`;
+      cmd.option(optionString, description);
     }
   }
 
@@ -134,5 +160,14 @@ export class CommandManager extends PluginInterfaceManager<Command> {
       name,
       description: command.description() || `Generate ${name}`,
     }));
+  }
+
+  /**
+   * Check if a Zod schema represents an array type
+   */
+  private isArrayType(schema: ZodType): boolean {
+    return (
+      (SchemaManager.getInnerType(schema) ?? schema)._zod.def.type === 'array'
+    );
   }
 }
