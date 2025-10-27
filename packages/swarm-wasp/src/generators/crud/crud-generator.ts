@@ -1,8 +1,8 @@
-import { getPlural, toCamelCase, toPascalCase } from '@ingenyus/swarm';
+import { getPlural, Out, toCamelCase, toPascalCase } from '@ingenyus/swarm';
 import { getEntityMetadata, needsPrismaImport } from '../../common';
 import { CONFIG_TYPES, CrudOperation, EntityMetadata } from '../../types';
 import { OperationGeneratorBase } from '../base';
-import { CrudArgs, schema } from './schema';
+import { schema } from './schema';
 
 const CRUD_OPERATIONS_LIST: readonly CrudOperation[] = [
   'get',
@@ -13,26 +13,26 @@ const CRUD_OPERATIONS_LIST: readonly CrudOperation[] = [
 ] as const;
 
 export class CrudGenerator extends OperationGeneratorBase<
-  CrudArgs,
+  typeof schema,
   typeof CONFIG_TYPES.CRUD
 > {
-  protected get entityType() {
+  protected get componentType() {
     return CONFIG_TYPES.CRUD;
   }
 
   description = 'Generate CRUD operations for Wasp applications';
   schema = schema;
 
-  async generate(args: CrudArgs): Promise<void> {
+  async generate(args: Out<typeof schema>): Promise<void> {
     const { dataType, feature } = args;
     const crudName = toCamelCase(getPlural(dataType));
     const crudType = toPascalCase(crudName);
 
-    return this.handleGeneratorError(this.entityType, crudName, async () => {
+    return this.handleGeneratorError(this.componentType, crudName, async () => {
       const configPath = this.validateFeatureConfig(feature);
       const { targetDirectory } = this.ensureTargetDirectory(
         feature,
-        this.entityType.toLowerCase()
+        this.componentType.toLowerCase()
       );
 
       if ((args.override?.length ?? 0) > 0) {
@@ -67,7 +67,7 @@ export class CrudGenerator extends OperationGeneratorBase<
     dataType: string,
     operations: string,
     crudName: string,
-    args: CrudArgs
+    args: Out<typeof schema>
   ) {
     const { override = [], force = false } = args;
     const model = await getEntityMetadata(dataType);
@@ -121,7 +121,7 @@ export class CrudGenerator extends OperationGeneratorBase<
     feature: string,
     crudName: string,
     dataType: string,
-    args: CrudArgs,
+    args: Out<typeof schema>,
     configPath: string
   ) {
     const operations = this.buildOperations(args);
@@ -137,7 +137,7 @@ export class CrudGenerator extends OperationGeneratorBase<
     );
   }
 
-  private buildOperations(args: CrudArgs): Record<string, unknown> {
+  private buildOperations(args: Out<typeof schema>): Record<string, unknown> {
     const {
       public: publicOps = [],
       override: overrideOps = [],
@@ -174,7 +174,7 @@ export class CrudGenerator extends OperationGeneratorBase<
   private async getOperationsCode(
     dataType: string,
     crudName: string,
-    args: CrudArgs
+    args: Out<typeof schema>
   ): Promise<string> {
     const { override = [], public: publicOps = [] } = args;
 

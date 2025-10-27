@@ -1,22 +1,23 @@
-import type { FileSystem, Logger, PluginGenerator } from '@ingenyus/swarm';
+import type { FileSystem, Generator, Logger } from '@ingenyus/swarm';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   createMockFeatureGen,
   createMockFS,
   createMockLogger,
 } from '../../../tests/utils';
+import { schema as featureSchema } from '../feature/schema';
 import { CrudGenerator } from './crud-generator';
 
 describe('CrudGenerator', () => {
   let fs: FileSystem;
   let logger: Logger;
-  let featureGen: PluginGenerator<{ target: string }>;
+  let featureGen: Generator<typeof featureSchema>;
   let gen: CrudGenerator;
 
   beforeEach(() => {
     fs = createMockFS();
     logger = createMockLogger();
-    featureGen = createMockFeatureGen();
+    featureGen = createMockFeatureGen(featureSchema);
     gen = new CrudGenerator(logger, fs, featureGen);
   });
 

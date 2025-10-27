@@ -1,11 +1,11 @@
-import type { FileSystem, Logger, PluginGenerator } from '@ingenyus/swarm';
+import type { FileSystem, Generator, Logger } from '@ingenyus/swarm';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   createMockFeatureGen,
   createMockFS,
   createMockLogger,
 } from '../../../tests/utils';
-import { FeatureArgs } from '../feature/schema';
+import { schema as featureSchema } from '../feature/schema';
 import { ActionGenerator } from './action-generator';
 
 vi.mock('../../common', async () => {
@@ -55,7 +55,7 @@ vi.mock('../../common/prisma', async () => {
 describe('ActionGenerator', () => {
   let fs: FileSystem;
   let logger: Logger;
-  let featureGen: PluginGenerator<FeatureArgs>;
+  let featureGen: Generator<typeof featureSchema>;
   let gen: ActionGenerator;
 
   beforeEach(async () => {
@@ -120,7 +120,7 @@ describe('ActionGenerator', () => {
 
     fs = createMockFS();
     logger = createMockLogger();
-    featureGen = createMockFeatureGen();
+    featureGen = createMockFeatureGen(featureSchema);
     gen = new ActionGenerator(logger, fs, featureGen);
   });
 

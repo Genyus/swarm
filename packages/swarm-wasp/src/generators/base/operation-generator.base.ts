@@ -1,5 +1,6 @@
 import {
   capitalise,
+  ExtendedSchema,
   getPlural,
   handleFatalError,
   toPascalCase,
@@ -29,8 +30,7 @@ import {
   QueryOperation,
   TYPE_DIRECTORIES,
 } from '../../types';
-import { EntityGeneratorBase } from './entity-generator.base';
-import { WaspGeneratorArgs } from './wasp-generator.base';
+import { ComponentGeneratorBase } from './component-generator.base';
 
 /**
  * Represents a configuration entry for an operation.
@@ -47,12 +47,12 @@ interface OperationConfigEntry {
  * both OperationGenerator and CrudGenerator.
  */
 export abstract class OperationGeneratorBase<
-  TArgs extends WaspGeneratorArgs,
+  S extends ExtendedSchema,
   TConfig extends
     | typeof CONFIG_TYPES.ACTION
     | typeof CONFIG_TYPES.QUERY
     | typeof CONFIG_TYPES.CRUD,
-> extends EntityGeneratorBase<TArgs, TConfig> {
+> extends ComponentGeneratorBase<S, TConfig> {
   /**
    * Gets the operation name based on operation type and model name.
    */

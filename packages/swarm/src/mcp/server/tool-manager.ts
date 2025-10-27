@@ -1,5 +1,5 @@
 import { ZodType } from 'zod';
-import { GeneratorArgs, PluginGenerator } from '../../generator';
+import { Generator } from '../../generator';
 import { PluginInterfaceManager } from '../../plugin';
 import { ExtendedSchema, FieldMetadata, SchemaManager } from '../../schema';
 
@@ -38,7 +38,7 @@ export class ToolManager extends PluginInterfaceManager<MCPTool> {
    * Create an MCP tool from a generator
    */
   protected async createInterfaceFromGenerator(
-    generator: PluginGenerator<GeneratorArgs>
+    generator: Generator
   ): Promise<MCPTool> {
     return this.createTool(generator);
   }
@@ -46,9 +46,7 @@ export class ToolManager extends PluginInterfaceManager<MCPTool> {
   /**
    * Create an MCP tool definition from a generator's schema
    */
-  private createToolDefinition(
-    generator: PluginGenerator<GeneratorArgs>
-  ): MCPToolDefinition {
+  private createToolDefinition(generator: Generator): MCPToolDefinition {
     const schema = generator.schema as ExtendedSchema;
     const shape = SchemaManager.getShape(schema);
 
@@ -88,12 +86,10 @@ export class ToolManager extends PluginInterfaceManager<MCPTool> {
   /**
    * Create an MCP tool handler from a generator
    */
-  private createToolHandler(
-    generator: PluginGenerator<GeneratorArgs>
-  ): MCPToolHandler {
+  private createToolHandler(generator: Generator): MCPToolHandler {
     return async (args: any) => {
       try {
-        const validatedArgs = generator.schema.parse(args) as GeneratorArgs;
+        const validatedArgs = generator.schema.parse(args);
         await generator.generate(validatedArgs);
 
         return {
@@ -112,7 +108,7 @@ export class ToolManager extends PluginInterfaceManager<MCPTool> {
   /**
    * Create both tool definition and handler for a generator
    */
-  private createTool(generator: PluginGenerator<GeneratorArgs>): MCPTool {
+  private createTool(generator: Generator): MCPTool {
     return {
       definition: this.createToolDefinition(generator),
       handler: this.createToolHandler(generator),

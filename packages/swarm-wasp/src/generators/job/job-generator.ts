@@ -1,27 +1,27 @@
-import { capitalise, toCamelCase } from '@ingenyus/swarm';
+import { capitalise, Out, toCamelCase } from '@ingenyus/swarm';
 import { CONFIG_TYPES } from '../../types';
-import { EntityGeneratorBase } from '../base';
-import { JobArgs, schema } from './schema';
+import { ComponentGeneratorBase } from '../base';
+import { schema } from './schema';
 
-export class JobGenerator extends EntityGeneratorBase<
-  JobArgs,
+export class JobGenerator extends ComponentGeneratorBase<
+  typeof schema,
   typeof CONFIG_TYPES.JOB
 > {
-  protected get entityType() {
+  protected get componentType() {
     return CONFIG_TYPES.JOB;
   }
 
   description = 'Generate job workers for Wasp applications';
   schema = schema;
 
-  async generate(args: JobArgs): Promise<void> {
+  async generate(args: Out<typeof schema>): Promise<void> {
     const jobName = toCamelCase(args.name);
 
-    return this.handleGeneratorError(this.entityType, jobName, async () => {
+    return this.handleGeneratorError(this.componentType, jobName, async () => {
       const configPath = this.validateFeatureConfig(args.feature);
       const { targetDirectory } = this.ensureTargetDirectory(
         args.feature,
-        this.entityType.toLowerCase()
+        this.componentType.toLowerCase()
       );
       const targetFile = `${targetDirectory}/${jobName}.ts`;
 
@@ -33,7 +33,7 @@ export class JobGenerator extends EntityGeneratorBase<
   private async generateJobFile(
     targetFile: string,
     jobName: string,
-    args: JobArgs
+    args: Out<typeof schema>
   ) {
     const jobType = capitalise(jobName);
     const entities = args.entities ?? [];
@@ -61,7 +61,7 @@ export class JobGenerator extends EntityGeneratorBase<
   private updateConfigFile(
     featurePath: string,
     jobName: string,
-    args: JobArgs,
+    args: Out<typeof schema>,
     configPath: string
   ) {
     const {

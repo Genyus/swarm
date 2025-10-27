@@ -52,5 +52,3 @@ function getCrudOperationsArray() {
     )
     .optional();
 }
-
-export type CrudArgs = z.infer<typeof schema>;

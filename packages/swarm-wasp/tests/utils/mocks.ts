@@ -1,6 +1,11 @@
-import type { FileSystem, Logger, PluginGenerator } from '@ingenyus/swarm';
+import type {
+  ExtendedSchema,
+  FileSystem,
+  Generator,
+  Logger,
+} from '@ingenyus/swarm';
 import { vi } from 'vitest';
-import { FeatureArgs } from '../../src/generators/feature/schema';
+import { schema } from '../../src/generators/feature/schema';
 
 export function createMockLogger() {
   return {
@@ -24,6 +29,8 @@ export function createMockFS(): FileSystem {
   } as FileSystem;
 }
 
-export function createMockFeatureGen(): PluginGenerator<FeatureArgs> {
-  return vi.fn() as unknown as PluginGenerator<FeatureArgs>;
+export function createMockFeatureGen<S extends ExtendedSchema>(
+  s: S
+): Generator<S> {
+  return { name: 'feature', description: 'Mock', schema: s, generate: vi.fn() };
 }

@@ -1,27 +1,17 @@
-import z from 'zod';
-import { ExtendedSchema } from '../schema';
-
-export type GeneratorArgs = z.infer<ExtendedSchema>;
+import { ExtendedSchema, Out } from '../schema';
 
 /**
  * Base generator interface
  */
-export interface Generator<TArgs extends GeneratorArgs> {
+export interface Generator<S extends ExtendedSchema = ExtendedSchema> {
   /** Dynamically generate code from Zod schema */
-  generate: (args: TArgs) => Promise<void> | void;
-}
-
-/**
- * Plugin generator interface
- */
-export interface PluginGenerator<TArgs extends GeneratorArgs>
-  extends Generator<TArgs> {
+  generate: (args: Out<S>) => Promise<void>;
   /** Unique generator name */
   name: string;
   /** Human-readable description */
   description: string;
   /** Schema with metadata for validation and help generation */
-  schema: ExtendedSchema;
+  schema: S;
   /** Template names bundled with this generator */
   templates?: string[];
 }

@@ -1,6 +1,6 @@
 import * as path from 'node:path';
 import { SwarmConfigManager } from '../config';
-import { GeneratorArgs, PluginGenerator } from '../generator';
+import { Generator } from '../generator';
 import { LocalPluginResolver, NPMPluginResolver } from './plugin-resolver';
 import { SwarmPlugin } from './types';
 
@@ -10,7 +10,7 @@ import { SwarmPlugin } from './types';
 export class PluginManager {
   private configManager: SwarmConfigManager;
   private plugins: Map<string, SwarmPlugin> = new Map();
-  private generators: Map<string, PluginGenerator<GeneratorArgs>> = new Map();
+  private generators: Map<string, Generator> = new Map();
   private npmResolver: NPMPluginResolver = new NPMPluginResolver();
   private localResolver: LocalPluginResolver = new LocalPluginResolver();
 
@@ -112,7 +112,7 @@ export class PluginManager {
    * @param name Generator name
    * @returns Generator or undefined if not found
    */
-  getGenerator(name: string): PluginGenerator<GeneratorArgs> | undefined {
+  getGenerator(name: string): Generator | undefined {
     return this.generators.get(name);
   }
 
@@ -120,7 +120,7 @@ export class PluginManager {
    * Get all registered generators
    * @returns Array of all generators
    */
-  getAllGenerators(): PluginGenerator<GeneratorArgs>[] {
+  getAllGenerators(): Generator[] {
     return Array.from(this.generators.values());
   }
 
@@ -128,7 +128,7 @@ export class PluginManager {
    * Get all enabled generators
    * @returns Array of enabled generators
    */
-  getEnabledGenerators(): PluginGenerator<GeneratorArgs>[] {
+  getEnabledGenerators(): Generator[] {
     return Array.from(this.generators.values());
   }
 

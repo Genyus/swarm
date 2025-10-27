@@ -1,19 +1,20 @@
+import { Out } from '@ingenyus/swarm';
 import { CONFIG_TYPES } from '../../types';
 import { OperationGeneratorBase } from '../base';
-import { ActionArgs, schema } from './schema';
+import { schema } from './schema';
 
 export class ActionGenerator extends OperationGeneratorBase<
-  ActionArgs,
+  typeof schema,
   typeof CONFIG_TYPES.ACTION
 > {
-  protected get entityType() {
+  protected get componentType() {
     return CONFIG_TYPES.ACTION;
   }
 
   description = 'Generate actions (mutations) for Wasp applications';
   schema = schema;
 
-  async generate(args: ActionArgs): Promise<void> {
+  async generate(args: Out<typeof schema>): Promise<void> {
     const { dataType, feature, name } = args;
     const operation = args.operation;
     const operationType = 'action';
@@ -35,7 +36,7 @@ export class ActionGenerator extends OperationGeneratorBase<
       );
 
     return this.handleGeneratorError(
-      this.entityType,
+      this.componentType,
       operationName,
       async () => {
         const configPath = this.validateFeatureConfig(feature);

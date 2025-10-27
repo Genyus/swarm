@@ -36,5 +36,3 @@ export const schema = z.object({
     helpText: 'Will generate custom middleware file',
   }),
 });
-
-export type ApiArgs = z.infer<typeof schema>;

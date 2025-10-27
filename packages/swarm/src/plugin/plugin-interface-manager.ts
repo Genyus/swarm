@@ -1,4 +1,4 @@
-import { GeneratorArgs, PluginGenerator } from '../generator';
+import { Generator } from '../generator';
 import { PluginManager } from './plugin-manager';
 
 /**
@@ -87,7 +87,7 @@ export abstract class PluginInterfaceManager<TInterface> {
    * Must be implemented by concrete classes
    */
   protected abstract createInterfaceFromGenerator(
-    generator: PluginGenerator<GeneratorArgs>
+    generator: Generator
   ): Promise<TInterface>;
 
   /**

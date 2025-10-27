@@ -1,8 +1,9 @@
 import {
+  ExtendedSchema,
   FileSystem,
+  Generator,
   hasHelperMethodCall,
   Logger,
-  PluginGenerator,
   logger as singletonLogger,
   toCamelCase,
   toKebabCase,
@@ -17,16 +18,17 @@ import {
 } from '../../common';
 import { ConfigType, TYPE_DIRECTORIES } from '../../types';
 import { FeatureGenerator } from '../feature/feature-generator';
-import { FeatureArgs } from '../feature/schema';
-import { WaspGeneratorArgs, WaspGeneratorBase } from './wasp-generator.base';
+import { schema as featureSchema } from '../feature/schema';
+import { WaspGeneratorBase } from './wasp-generator.base';
+
 /**
- * Abstract base class for all entity generators
+ * Abstract base class for all Wasp component generators
  */
-export abstract class EntityGeneratorBase<
-  TArgs extends WaspGeneratorArgs,
+export abstract class ComponentGeneratorBase<
+  S extends ExtendedSchema,
   TConfig extends ConfigType,
-> extends WaspGeneratorBase<TArgs> {
-  protected abstract entityType: TConfig;
+> extends WaspGeneratorBase<S> {
+  protected abstract componentType: TConfig;
 
   protected getDefaultTemplatePath(templateName: string): string {
     return this.templateUtility.resolveTemplatePath(
@@ -39,10 +41,9 @@ export abstract class EntityGeneratorBase<
   constructor(
     public logger: Logger = singletonLogger,
     public fileSystem: FileSystem = realFileSystem,
-    protected featureDirectoryGenerator: PluginGenerator<FeatureArgs> = new FeatureGenerator(
-      logger,
-      fileSystem
-    )
+    protected featureDirectoryGenerator: Generator<
+      typeof featureSchema
+    > = new FeatureGenerator(logger, fileSystem)
   ) {
     super(fileSystem, logger);
     // Set the featureGenerator for the base class
@@ -50,10 +51,8 @@ export abstract class EntityGeneratorBase<
   }
 
   public get name(): string {
-    return toKebabCase(this.entityType.toString());
+    return toKebabCase(this.componentType);
   }
-
-  public abstract generate(flags: TArgs): Promise<void> | void;
 
   /**
    * Validates that the feature config file exists in the target or ancestor directories
@@ -205,7 +204,7 @@ export abstract class EntityGeneratorBase<
   ): Promise<void> {
     const replacements = {
       name,
-      middlewareType: toCamelCase(this.entityType || ''),
+      middlewareType: toCamelCase(this.componentType || ''),
     };
 
     await this.renderTemplateToFile(

@@ -9,8 +9,9 @@ import {
   validateProjectName,
 } from '../../common';
 import { Logger, SignaleLogger } from '../../logger';
+import { Out } from '../../schema';
 import { GeneratorBase } from '../generator.base';
-import { schema, SchemaArgs } from './schema';
+import { schema } from './schema';
 
 interface ReplacementContext {
   projectName: string;
@@ -19,7 +20,7 @@ interface ReplacementContext {
   kebabName: string;
 }
 
-export class AppGenerator extends GeneratorBase<SchemaArgs> {
+export class AppGenerator extends GeneratorBase<typeof schema> {
   name = 'create';
   description = 'Create a new Swarm-enabled project from a GitHub template';
   schema = schema;
@@ -32,14 +33,15 @@ export class AppGenerator extends GeneratorBase<SchemaArgs> {
     super(fileSystem, logger);
   }
 
-  async generate(params: SchemaArgs): Promise<void> {
-    return this.handleGeneratorError('project', params.name, async () => {
-      const validation = validateProjectName(params.name);
+  async generate(args: Out<typeof schema>): Promise<void> {
+    return this.handleGeneratorError('project', args.name, async () => {
+      const validation = validateProjectName(args.name);
+
       if (!validation.valid) {
         throw new Error(validation.error);
       }
 
-      const targetDir = params.targetDir || params.name;
+      const targetDir = args.targetDir ?? args.name;
       const fullPath = this.path.resolve(process.cwd(), targetDir);
 
       // Check if directory exists
@@ -47,20 +49,20 @@ export class AppGenerator extends GeneratorBase<SchemaArgs> {
         throw new Error(`Directory already exists: ${fullPath}`);
       }
 
-      this.logger.info(`Creating project: ${params.name}`);
-      this.logger.info(`Template: ${params.template}`);
+      this.logger.info(`Creating project: ${args.name}`);
+      this.logger.info(`Template: ${args.template}`);
       this.logger.info(`Target: ${fullPath}`);
 
       // Clone template using degit
-      const emitter = degit(params.template, { cache: false, force: false });
+      const emitter = degit(args.template, { cache: false, force: false });
       await emitter.clone(fullPath);
 
       // Prepare replacement context
       const context = {
-        projectName: params.name,
-        friendlyName: toFriendlyName(params.name),
-        pascalName: toPascalCase(params.name),
-        kebabName: toKebabCase(params.name),
+        projectName: args.name,
+        friendlyName: toFriendlyName(args.name),
+        pascalName: toPascalCase(args.name),
+        kebabName: toKebabCase(args.name),
       };
 
       // Replace placeholders in key files

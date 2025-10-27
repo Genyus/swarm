@@ -1,26 +1,26 @@
-import { toCamelCase } from '@ingenyus/swarm';
+import { Out, toCamelCase } from '@ingenyus/swarm';
 import path from 'node:path';
 import { CONFIG_TYPES } from '../../types';
-import { EntityGeneratorBase } from '../base';
-import { ApiNamespaceArgs, schema } from './schema';
+import { ComponentGeneratorBase } from '../base';
+import { schema } from './schema';
 
-export class ApiNamespaceGenerator extends EntityGeneratorBase<
-  ApiNamespaceArgs,
+export class ApiNamespaceGenerator extends ComponentGeneratorBase<
+  typeof schema,
   typeof CONFIG_TYPES.API_NAMESPACE
 > {
-  protected get entityType() {
+  protected get componentType() {
     return CONFIG_TYPES.API_NAMESPACE;
   }
 
   description = 'Generate API namespaces for Wasp applications';
   schema = schema;
 
-  async generate(args: ApiNamespaceArgs): Promise<void> {
+  async generate(args: Out<typeof schema>): Promise<void> {
     const { name, path: namespacePath, feature } = args;
     const namespaceName = toCamelCase(name);
 
     return this.handleGeneratorError(
-      this.entityType,
+      this.componentType,
       namespaceName,
       async () => {
         const configPath = this.validateFeatureConfig(feature);
@@ -50,7 +50,7 @@ export class ApiNamespaceGenerator extends EntityGeneratorBase<
     namespaceName: string,
     importDirectory: string,
     namespacePath: string,
-    args: ApiNamespaceArgs,
+    args: Out<typeof schema>,
     configFilePath: string
   ) {
     const { force = false } = args;

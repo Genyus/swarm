@@ -131,5 +131,3 @@ export const schema = z.object({
   args: argsSchema,
   force: commonSchemas.force,
 });
-
-export type JobArgs = z.infer<typeof schema>;

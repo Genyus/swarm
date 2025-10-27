@@ -1,19 +1,20 @@
+import { Out } from '@ingenyus/swarm';
 import { CONFIG_TYPES } from '../../types';
 import { OperationGeneratorBase } from '../base';
-import { QueryArgs, schema } from './schema';
+import { schema } from './schema';
 
 export class QueryGenerator extends OperationGeneratorBase<
-  QueryArgs,
+  typeof schema,
   typeof CONFIG_TYPES.QUERY
 > {
-  protected get entityType() {
+  protected get componentType() {
     return CONFIG_TYPES.QUERY;
   }
 
   description = 'Generate queries (data fetching) for Wasp applications';
   schema = schema;
 
-  async generate(args: QueryArgs): Promise<void> {
+  async generate(args: Out<typeof schema>): Promise<void> {
     const { dataType, feature, name } = args;
     const operation = args.operation;
     const operationType = 'query';
@@ -35,7 +36,7 @@ export class QueryGenerator extends OperationGeneratorBase<
       );
 
     return this.handleGeneratorError(
-      this.entityType,
+      this.componentType,
       operationName,
       async () => {
         const configPath = this.validateFeatureConfig(feature);

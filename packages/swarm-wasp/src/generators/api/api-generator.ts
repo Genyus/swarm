@@ -1,24 +1,24 @@
-import { toCamelCase, toPascalCase } from '@ingenyus/swarm';
+import { Out, toCamelCase, toPascalCase } from '@ingenyus/swarm';
 import { getFeatureImportPath } from '../../common';
 import { CONFIG_TYPES } from '../../types';
-import { EntityGeneratorBase } from '../base';
-import { ApiArgs, schema } from './schema';
+import { ComponentGeneratorBase } from '../base';
+import { schema } from './schema';
 
-export class ApiGenerator extends EntityGeneratorBase<
-  ApiArgs,
+export class ApiGenerator extends ComponentGeneratorBase<
+  typeof schema,
   typeof CONFIG_TYPES.API
 > {
-  protected get entityType() {
+  protected get componentType() {
     return CONFIG_TYPES.API;
   }
 
   description = 'Generate API endpoints for Wasp applications';
   schema = schema;
 
-  async generate(args: ApiArgs): Promise<void> {
+  async generate(args: Out<typeof schema>): Promise<void> {
     const apiName = toCamelCase(args.name);
 
-    return this.handleGeneratorError(this.entityType, apiName, async () => {
+    return this.handleGeneratorError(this.componentType, apiName, async () => {
       const configPath = this.validateFeatureConfig(args.feature);
       const {
         targetDirectory: apiTargetDirectory,
@@ -54,7 +54,7 @@ export class ApiGenerator extends EntityGeneratorBase<
   private async generateApiFile(
     targetFile: string,
     apiName: string,
-    { method, auth = false, force = false }: ApiArgs
+    { method, auth = false, force = false }: Out<typeof schema>
   ) {
     const replacements = this.buildTemplateData(apiName, method, auth);
 
@@ -71,7 +71,7 @@ export class ApiGenerator extends EntityGeneratorBase<
     apiName: string,
     apiFile: string,
     importDirectory: string,
-    args: ApiArgs,
+    args: Out<typeof schema>,
     configFilePath: string
   ) {
     const {

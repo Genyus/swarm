@@ -4,5 +4,3 @@ import { commonSchemas } from '../../common';
 export const schema = z.object({
   target: commonSchemas.target,
 });
-
-export type FeatureArgs = z.infer<typeof schema>;

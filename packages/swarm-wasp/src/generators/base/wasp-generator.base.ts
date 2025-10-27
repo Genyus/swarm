@@ -9,19 +9,16 @@ import {
   SwarmConfigManager,
   TemplateResolver,
 } from '@ingenyus/swarm';
-import z from 'zod';
 import { realFileSystem, TemplateUtility } from '../../common';
 import { PLUGIN_NAME } from '../../types';
 import { WaspConfigGenerator } from '../config';
-
-export type WaspGeneratorArgs = z.infer<ExtendedSchema>;
 
 /**
  * Abstract base class for all Wasp generators
  */
 export abstract class WaspGeneratorBase<
-  TArgs = WaspGeneratorArgs,
-> extends GeneratorBase<TArgs> {
+  S extends ExtendedSchema,
+> extends GeneratorBase<S> {
   protected configGenerator: WaspConfigGenerator;
   protected templateUtility: TemplateUtility;
   protected templateResolver: TemplateResolver;

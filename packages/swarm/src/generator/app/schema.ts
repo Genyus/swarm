@@ -21,5 +21,3 @@ export const schema = z.object({
     examples: ['./my-app', '../projects/app'],
   }),
 });
-
-export type SchemaArgs = z.infer<typeof schema>;

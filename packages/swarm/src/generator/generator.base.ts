@@ -1,18 +1,25 @@
 import path from 'node:path';
+import z, { core, ZodError, ZodIssue, ZodType } from 'zod';
 import { FileSystem } from '../common';
 import { Logger } from '../logger/logger';
-import { ExtendedSchema, ValidationResult } from '../schema';
-import { PluginGenerator } from './types';
+import {
+  ExtendedSchema,
+  In,
+  Out,
+  SchemaManager,
+  ValidationResult,
+} from '../schema';
+import { Generator } from './types';
 
 /**
  * Abstract base class for all generators
  */
-export abstract class GeneratorBase<TArgs = any>
-  implements PluginGenerator<TArgs>
+export abstract class GeneratorBase<S extends ExtendedSchema>
+  implements Generator<S>
 {
   abstract name: string;
   abstract description: string;
-  abstract schema: ExtendedSchema;
+  abstract schema: S;
   templates?: string[];
   protected path = path;
 
@@ -26,21 +33,28 @@ export abstract class GeneratorBase<TArgs = any>
    * @param params Generation parameters
    * @returns Generation result
    */
-  abstract generate(params: any): Promise<void> | void;
+  abstract generate(params: Out<S>): Promise<void>;
 
   /**
    * Validate parameters against the schema
    * @param params Parameters to validate
    * @returns Validation result
    */
-  validate(params: any): ValidationResult {
+  validate(params: In<S>): ValidationResult {
     try {
       const validated = this.schema.parse(params);
       return { valid: true, data: validated };
-    } catch (error) {
+    } catch (error: any) {
+      if (error instanceof ZodError) {
+        return {
+          valid: false,
+          errors: this.formatValidationErrors(error),
+        };
+      }
+
       return {
         valid: false,
-        errors: this.formatValidationErrors(error),
+        errors: [(error as Error).message],
       };
     }
   }
@@ -50,15 +64,16 @@ export abstract class GeneratorBase<TArgs = any>
    * @returns Formatted help text
    */
   generateHelp(): string {
-    const shape = (this.schema as any)._def?.shape;
+    const shape = SchemaManager.getShape(this.schema);
+
     if (!shape) return this.description;
 
     let help = `${this.description}\n\n`;
 
     Object.keys(shape).forEach((fieldName) => {
-      const fieldSchema = shape[fieldName];
-      const metadata = fieldSchema._metadata;
-      const isRequired = !fieldSchema._def?.typeName?.includes('Optional');
+      const fieldSchema = shape[fieldName] as ZodType;
+      const metadata = SchemaManager.getFieldMetadata(fieldSchema);
+      const isRequired = SchemaManager.isFieldRequired(fieldSchema);
       const fieldType = this.getFieldType(fieldSchema);
 
       help += `  ${fieldName} (${fieldType})${isRequired ? ' (required)' : ' (optional)'}\n`;
@@ -74,35 +89,22 @@ export abstract class GeneratorBase<TArgs = any>
     return help;
   }
 
-  private getFieldType(fieldSchema: any): string {
-    const typeName = fieldSchema._def?.typeName;
-    switch (typeName) {
-      case 'ZodString':
-        return 'string';
-      case 'ZodNumber':
-        return 'number';
-      case 'ZodBoolean':
-        return 'boolean';
-      case 'ZodArray':
-        return 'array';
-      case 'ZodObject':
-        return 'object';
-      case 'ZodEnum':
-        return 'enum';
-      default:
-        return 'unknown';
-    }
+  private getFieldType(fieldSchema: ZodType): string {
+    const typeName = fieldSchema._zod.def.type;
+    return SchemaManager.getFieldTypeName(fieldSchema);
   }
 
-  private formatValidationErrors(error: any): string[] {
-    if (error.errors) {
-      return error.errors.map((err: any) => {
-        const fieldName = err.path?.join('.') || 'unknown';
-        const message = err.message || 'Invalid value';
+  private formatValidationErrors(error: ZodError): string[] {
+    if (error.issues) {
+      return error.issues.map((err: core.$ZodIssue) => {
+        const fieldName = err.path.join('.') || 'unknown';
+        const message = err.message;
+
         return `${fieldName}: ${message}`;
       });
     }
-    return [error.message || 'Validation failed'];
+
+    return [error.message];
   }
 
   /**

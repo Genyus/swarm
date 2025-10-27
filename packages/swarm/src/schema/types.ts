@@ -1,4 +1,4 @@
-import { ZodType } from 'zod';
+import z, { ZodType } from 'zod';
 
 /**
  * Extends a Zod schema with metadata
@@ -16,7 +16,19 @@ export function extend<T extends ZodType>(
 /**
  * Type for schemas that have been extended with metadata
  */
-export type ExtendedSchema = ZodType & { _metadata?: FieldMetadata };
+export type ExtendedSchema<S extends ZodType = ZodType> = S & {
+  _metadata?: FieldMetadata;
+};
+
+/**
+ * Pre-parse type (what callers can pass)
+ */
+export type In<S extends ZodType> = z.input<S>;
+
+/**
+ * Post-parse type
+ */
+export type Out<S extends ZodType> = z.infer<S>;
 
 /**
  * Metadata for individual schema fields
