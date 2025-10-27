@@ -17,7 +17,7 @@ export class RouteGenerator extends ComponentGeneratorBase<
     return CONFIG_TYPES.ROUTE;
   }
 
-  description = 'Generate route handlers for Wasp applications';
+  description = 'Generates a Wasp Page and Route';
   schema = schema;
 
   async generate(args: Out<typeof schema>): Promise<void> {

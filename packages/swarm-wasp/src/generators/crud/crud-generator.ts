@@ -20,7 +20,7 @@ export class CrudGenerator extends OperationGeneratorBase<
     return CONFIG_TYPES.CRUD;
   }
 
-  description = 'Generate CRUD operations for Wasp applications';
+  description = 'Generates a Wasp CRUD operation';
   schema = schema;
 
   async generate(args: Out<typeof schema>): Promise<void> {

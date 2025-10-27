@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { commonSchemas } from '../../common';
 import { API_HTTP_METHODS } from '../../types';
 
-const validHttpMethods = Object.values(API_HTTP_METHODS);
+const validHttpMethods = API_HTTP_METHODS.map((method) => `'${method}'`);
 
 export const schema = z.object({
   method: extend(
@@ -13,14 +13,15 @@ export const schema = z.object({
       .transform((val) => val.toUpperCase())
       .pipe(
         z.enum(API_HTTP_METHODS, {
-          message: `Invalid HTTP method. Must be one of: ${API_HTTP_METHODS.join(', ')}`,
+          message: `Invalid HTTP method. Must be one of: ${validHttpMethods.join(', ')}`,
         })
       ),
     {
-      description: 'The HTTP method used for this API endpoint',
+      description: 'The HTTP method used for this API Endpoint',
       friendlyName: 'HTTP Method',
       shortName: 'm',
       examples: validHttpMethods,
+      helpText: `Must be one of: ${validHttpMethods.join(', ')}`,
     }
   ),
   feature: commonSchemas.feature,
@@ -30,7 +31,7 @@ export const schema = z.object({
   auth: commonSchemas.auth,
   force: commonSchemas.force,
   customMiddleware: extend(z.boolean().optional(), {
-    description: 'Enable custom middleware for this API endpoint',
+    description: 'Enable custom middleware for this API Endpoint',
     friendlyName: 'Custom Middleware',
     shortName: 'c',
     helpText: 'Will generate custom middleware file',

@@ -26,7 +26,8 @@ export class FeatureGenerator extends WaspGeneratorBase<typeof schema> {
   ) {
     super(fileSystem, logger);
     this.name = 'feature';
-    this.description = 'Generate feature directory structure';
+    this.description =
+      'Generates a feature directory containing a Wasp configuration file';
   }
 
   protected getDefaultTemplatePath(templateName: string): string {
@@ -38,8 +39,8 @@ export class FeatureGenerator extends WaspGeneratorBase<typeof schema> {
   }
 
   /**
-   * Generate feature directory structure (main entry point)
-   * @param target - The target directory to create the feature in
+   * Generates a feature directory containing a Wasp configuration file
+   * @param target - The target path of the generated directory
    */
   async generate(args: Out<typeof schema>): Promise<void> {
     const { target } = args;

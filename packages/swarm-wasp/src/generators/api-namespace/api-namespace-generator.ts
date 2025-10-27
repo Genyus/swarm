@@ -12,7 +12,7 @@ export class ApiNamespaceGenerator extends ComponentGeneratorBase<
     return CONFIG_TYPES.API_NAMESPACE;
   }
 
-  description = 'Generate API namespaces for Wasp applications';
+  description = 'Generates a Wasp API Namespace';
   schema = schema;
 
   async generate(args: Out<typeof schema>): Promise<void> {

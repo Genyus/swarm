@@ -11,7 +11,7 @@ export class QueryGenerator extends OperationGeneratorBase<
     return CONFIG_TYPES.QUERY;
   }
 
-  description = 'Generate queries (data fetching) for Wasp applications';
+  description = 'Generates a Wasp Query';
   schema = schema;
 
   async generate(args: Out<typeof schema>): Promise<void> {

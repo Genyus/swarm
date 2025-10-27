@@ -12,7 +12,7 @@ export class ApiGenerator extends ComponentGeneratorBase<
     return CONFIG_TYPES.API;
   }
 
-  description = 'Generate API endpoints for Wasp applications';
+  description = 'Generates a Wasp API Endpoint';
   schema = schema;
 
   async generate(args: Out<typeof schema>): Promise<void> {
@@ -62,7 +62,7 @@ export class ApiGenerator extends ComponentGeneratorBase<
       'api.eta',
       replacements,
       targetFile,
-      'API endpoint file',
+      'API Endpoint file',
       force
     );
   }

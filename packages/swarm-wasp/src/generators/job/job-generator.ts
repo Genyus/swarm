@@ -11,7 +11,7 @@ export class JobGenerator extends ComponentGeneratorBase<
     return CONFIG_TYPES.JOB;
   }
 
-  description = 'Generate job workers for Wasp applications';
+  description = 'Generates a Wasp Job';
   schema = schema;
 
   async generate(args: Out<typeof schema>): Promise<void> {

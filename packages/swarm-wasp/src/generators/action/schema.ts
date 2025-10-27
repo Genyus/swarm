@@ -3,7 +3,9 @@ import { z } from 'zod';
 import { commonSchemas } from '../../common';
 import { ACTION_OPERATIONS } from '../../types';
 
-const validActions = Object.values(ACTION_OPERATIONS);
+const validActions = Object.values(ACTION_OPERATIONS).map(
+  (action) => `'${action}'`
+);
 const actionSchema = extend(
   z
     .string()
@@ -19,7 +21,7 @@ const actionSchema = extend(
     friendlyName: 'Action Operation',
     shortName: 'o',
     examples: validActions,
-    helpText: 'Available actions: create, update, delete',
+    helpText: `Available actions: ${validActions.join(', ')}`,
   }
 );
 

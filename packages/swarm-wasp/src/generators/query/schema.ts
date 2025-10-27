@@ -3,7 +3,9 @@ import { z } from 'zod';
 import { commonSchemas } from '../../common';
 import { QUERY_OPERATIONS } from '../../types';
 
-const validQueries = Object.values(QUERY_OPERATIONS);
+const validQueries = Object.values(QUERY_OPERATIONS).map(
+  (query) => `'${query}'`
+);
 
 const querySchema = extend(
   z
@@ -20,7 +22,7 @@ const querySchema = extend(
     friendlyName: 'Query Operation',
     shortName: 'o',
     examples: validQueries,
-    helpText: 'Available queries: get, getAll, getFiltered',
+    helpText: `Available queries: ${validQueries.join(', ')}`,
   }
 );
 
