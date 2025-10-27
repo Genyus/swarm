@@ -17,7 +17,7 @@ export async function main(): Promise<void> {
   const packageJsonPath = path.join(__dirname, '../../package.json');
   const version = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8')).version;
   const command = new Command()
-    .name('swarm')
+    .name('swarm-cli')
     .description('Swarm generator command-line interface')
     .version(version);
 
