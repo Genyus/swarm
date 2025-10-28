@@ -73,7 +73,7 @@ export class ToolManager extends PluginInterfaceManager<MCPTool> {
     });
 
     return {
-      name: generator.name,
+      name: `generate-${generator.name}`,
       description: generator.description,
       inputSchema: {
         type: 'object',
