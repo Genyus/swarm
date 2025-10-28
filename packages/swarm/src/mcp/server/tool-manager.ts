@@ -123,7 +123,8 @@ export class ToolManager extends PluginInterfaceManager<MCPTool> {
     metadata?: FieldMetadata
   ): Record<string, any> {
     const typeName = SchemaManager.getFieldTypeName(fieldSchema);
-    const description = metadata?.description || '';
+    const description =
+      (fieldSchema as any).description || metadata?.description || '';
 
     switch (typeName) {
       case 'string':
@@ -170,17 +171,33 @@ export class ToolManager extends PluginInterfaceManager<MCPTool> {
       case 'optional': {
         const innerType = SchemaManager.getInnerType(fieldSchema);
 
-        return innerType
-          ? this.convertZodToJSONSchema(innerType)
-          : { type: 'string', description };
+        if (innerType) {
+          const innerMetadata = SchemaManager.getFieldMetadata(innerType);
+          const innerSchema = this.convertZodToJSONSchema(
+            innerType,
+            innerMetadata || metadata
+          );
+
+          return {
+            ...innerSchema,
+            description: description || innerSchema.description,
+          };
+        }
+
+        return { type: 'string', description };
       }
 
       case 'default': {
         const defaultInfo = SchemaManager.getDefaultInnerType(fieldSchema);
 
         if (defaultInfo) {
+          const innerSchema = this.convertZodToJSONSchema(
+            defaultInfo.innerType
+          );
+
           return {
-            ...this.convertZodToJSONSchema(defaultInfo.innerType),
+            ...innerSchema,
+            description: description || innerSchema.description,
             default: defaultInfo.defaultValue,
           };
         }
@@ -207,8 +224,8 @@ export class ToolManager extends PluginInterfaceManager<MCPTool> {
     const tools = this.getInterfaces();
     const definitions: Record<string, MCPToolDefinition> = {};
 
-    for (const [name, tool] of Object.entries(tools)) {
-      definitions[name] = tool.definition;
+    for (const tool of Object.values(tools)) {
+      definitions[tool.definition.name] = tool.definition;
     }
 
     return definitions;
@@ -225,8 +242,8 @@ export class ToolManager extends PluginInterfaceManager<MCPTool> {
     const tools = this.getInterfaces();
     const handlers: Record<string, MCPToolHandler> = {};
 
-    for (const [name, tool] of Object.entries(tools)) {
-      handlers[name] = tool.handler;
+    for (const tool of Object.values(tools)) {
+      handlers[tool.definition.name] = tool.handler;
     }
 
     return handlers;

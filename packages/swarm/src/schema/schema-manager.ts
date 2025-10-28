@@ -96,6 +96,12 @@ export class SchemaManager {
       return Object.values((fieldSchema._zod.def as ZodEnumDef).entries);
     }
 
+    if (fieldSchema._zod.def.type === 'optional') {
+      const innerType = this.getInnerType(fieldSchema);
+
+      return innerType ? this.getEnumValues(innerType) : undefined;
+    }
+
     return undefined;
   }
 

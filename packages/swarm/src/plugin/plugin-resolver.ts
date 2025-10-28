@@ -41,14 +41,8 @@ export class NPMPluginResolver implements PluginResolver {
       let plugin;
 
       if (pluginPath) {
-        // Look for the specific plugin export
         plugin = pluginModule[pluginPath];
-        // If it's a function, call it to get the plugin
-        if (typeof plugin === 'function') {
-          plugin = plugin();
-        }
       } else {
-        // Look for default export
         plugin = pluginModule.default;
       }
 
@@ -131,10 +125,6 @@ export class NPMPluginResolver implements PluginResolver {
 
           if (pluginName) {
             plugin = packageModule[pluginName];
-
-            if (typeof plugin === 'function') {
-              plugin = plugin();
-            }
           } else {
             plugin = packageModule.default;
           }
