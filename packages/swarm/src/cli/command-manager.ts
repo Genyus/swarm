@@ -3,7 +3,7 @@ import { z, ZodType } from 'zod';
 import { toKebabCase } from '../common';
 import { Generator } from '../generator';
 import { PluginInterfaceManager } from '../plugin';
-import { ExtendedSchema, SchemaManager } from '../schema';
+import { commandRegistry, SchemaManager } from '../schema';
 
 /**
  * Manages CLI commands created from generators
@@ -23,7 +23,7 @@ export class CommandManager extends PluginInterfaceManager<Command> {
   ): Promise<Command> {
     const name = generator.name;
     const description = generator.description || `Generate ${generator.name}`;
-    const schema = generator.schema as ExtendedSchema;
+    const schema = generator.schema;
 
     this.commands.set(name, {
       schema: schema as ZodType,
@@ -96,14 +96,14 @@ export class CommandManager extends PluginInterfaceManager<Command> {
     fieldName: string,
     fieldSchema: ZodType
   ): void {
-    const metadata = SchemaManager.getFieldMetadata(fieldSchema);
+    const metadata = SchemaManager.getCommandMetadata(fieldSchema);
     const isRequired = SchemaManager.isFieldRequired(fieldSchema);
     const isArray = this.isArrayType(fieldSchema);
     const typeName = SchemaManager.getFieldTypeName(fieldSchema);
     const argName = toKebabCase(fieldName);
     const shortName = metadata?.shortName;
     let optionString = '';
-    let description = metadata?.description || `${fieldName} field`;
+    let description = fieldSchema.meta()?.description || `${fieldName} field`;
 
     if (metadata?.examples && metadata.examples.length > 0) {
       description = `${description} (examples: ${metadata.examples.join(', ')})`;

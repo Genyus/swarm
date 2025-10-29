@@ -1,24 +1,21 @@
 import z, { ZodType } from 'zod';
 
 /**
- * Extends a Zod schema with metadata
- * @param schema The Zod schema to extend
- * @param metadata Field metadata to attach
- * @returns Extended schema with metadata
+ * Global type with registry
  */
-export function extend<T extends ZodType>(
-  schema: T,
-  metadata: FieldMetadata
-): T & { _metadata: FieldMetadata } {
-  return Object.assign(schema, { _metadata: metadata });
-}
+type GlobalWithRegistry = typeof globalThis & {
+  [registryKey]?: z.core.$ZodRegistry<CommandMetadata>;
+};
+
+const registryKey = Symbol.for('swarm.commandRegistry');
+const globalWithRegistry = globalThis as GlobalWithRegistry;
 
 /**
- * Type for schemas that have been extended with metadata
+ * Memoized custom Zod registry for storing CLI-specific metadata
  */
-export type ExtendedSchema<S extends ZodType = ZodType> = S & {
-  _metadata?: FieldMetadata;
-};
+export const commandRegistry =
+  globalWithRegistry[registryKey] ??
+  (globalWithRegistry[registryKey] = z.registry<CommandMetadata>());
 
 /**
  * Pre-parse type (what callers can pass)
@@ -31,13 +28,10 @@ export type In<S extends ZodType> = z.input<S>;
 export type Out<S extends ZodType> = z.infer<S>;
 
 /**
- * Metadata for individual schema fields
+ * CLI command metadata for schema fields
+ * Descriptions should be set using Zod's native .meta() method
  */
-export interface FieldMetadata {
-  /** Human-readable description of the field */
-  description: string;
-  /** Friendly display name for the field */
-  friendlyName: string;
+export interface CommandMetadata {
   /** Example values for the field */
   examples?: string[];
   /** Additional help text for the field */

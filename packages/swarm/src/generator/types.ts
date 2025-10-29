@@ -1,9 +1,10 @@
-import { ExtendedSchema, Out } from '../schema';
+import { ZodType } from 'zod';
+import { Out } from '../schema';
 
 /**
  * Base generator interface
  */
-export interface Generator<S extends ExtendedSchema = ExtendedSchema> {
+export interface Generator<S extends ZodType = ZodType> {
   /** Dynamically generate code from Zod schema */
   generate: (args: Out<S>) => Promise<void>;
   /** Unique generator name */

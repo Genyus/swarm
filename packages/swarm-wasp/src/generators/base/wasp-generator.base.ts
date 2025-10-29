@@ -1,5 +1,4 @@
 import {
-  ExtendedSchema,
   FileSystem,
   GeneratorBase,
   Logger,
@@ -9,6 +8,7 @@ import {
   SwarmConfigManager,
   TemplateResolver,
 } from '@ingenyus/swarm';
+import { ZodType } from 'zod';
 import { realFileSystem, TemplateUtility } from '../../common';
 import { PLUGIN_NAME } from '../../types';
 import { WaspConfigGenerator } from '../config';
@@ -17,7 +17,7 @@ import { WaspConfigGenerator } from '../config';
  * Abstract base class for all Wasp generators
  */
 export abstract class WaspGeneratorBase<
-  S extends ExtendedSchema,
+  S extends ZodType,
 > extends GeneratorBase<S> {
   protected configGenerator: WaspConfigGenerator;
   protected templateUtility: TemplateUtility;

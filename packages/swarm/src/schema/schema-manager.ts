@@ -1,5 +1,5 @@
 import { ZodObject, ZodRawShape, ZodType } from 'zod';
-import { ExtendedSchema, FieldMetadata } from './types';
+import { CommandMetadata, commandRegistry } from './types';
 
 interface ZodArrayDef {
   type: 'array';
@@ -32,7 +32,7 @@ export class SchemaManager {
    * @param schema The extended schema to extract shape from
    * @returns The raw shape object or undefined if not a ZodObject
    */
-  static getShape(schema: ExtendedSchema): ZodRawShape | undefined {
+  static getShape(schema: ZodType): ZodRawShape | undefined {
     if (schema instanceof ZodObject) {
       return schema.shape;
     }
@@ -49,12 +49,30 @@ export class SchemaManager {
   }
 
   /**
-   * Extract metadata from a field schema.
+   * Extract command metadata from a field schema.
    * @param fieldSchema The Zod schema for the field
    * @returns Field metadata if present
    */
-  static getFieldMetadata(fieldSchema: ZodType): FieldMetadata | undefined {
-    return (fieldSchema as any)._metadata as FieldMetadata | undefined;
+  static getCommandMetadata(fieldSchema: ZodType): CommandMetadata | undefined {
+    // Try registry lookup on the schema directly
+    let metadata = commandRegistry.get(fieldSchema);
+    if (metadata) return metadata;
+
+    // If not found, try unwrapping optional/default wrappers
+    const innerType = SchemaManager.getInnerType(fieldSchema);
+    if (innerType) {
+      metadata = commandRegistry.get(innerType);
+      if (metadata) return metadata;
+    }
+
+    // If still not found, try unwrapping default
+    const defaultInfo = SchemaManager.getDefaultInnerType(fieldSchema);
+    if (defaultInfo) {
+      metadata = commandRegistry.get(defaultInfo.innerType);
+      if (metadata) return metadata;
+    }
+
+    return undefined;
   }
 
   /**

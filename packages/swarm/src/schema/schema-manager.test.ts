@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { z, ZodType } from 'zod';
 import { SchemaManager } from '.';
-import { extend } from './types';
+import { commandRegistry } from './types';
 
 describe('SchemaManager', () => {
   describe('getShape', () => {
@@ -46,24 +46,28 @@ describe('SchemaManager', () => {
     });
   });
 
-  describe('getFieldMetadata', () => {
-    it('should extract metadata from extended schemas', () => {
+  describe('getCommandMetadata', () => {
+    it('should extract CLI command metadata from registered schemas', () => {
       const metadata = {
-        description: 'Test field',
         friendlyName: 'Test',
         examples: ['example1', 'example2'],
         shortName: 't',
       };
 
-      const extendedSchema = extend(z.string(), metadata);
-      const extractedMetadata = SchemaManager.getFieldMetadata(extendedSchema);
+      const schema = z
+        .string()
+        .meta({ description: 'Test field' })
+        .register(commandRegistry, metadata);
+
+      const extractedMetadata = SchemaManager.getCommandMetadata(schema);
 
       expect(extractedMetadata).toEqual(metadata);
+      expect(schema.meta()).toEqual({ description: 'Test field' });
     });
 
     it('should return undefined for schemas without metadata', () => {
       const regularSchema = z.string();
-      const extractedMetadata = SchemaManager.getFieldMetadata(regularSchema);
+      const extractedMetadata = SchemaManager.getCommandMetadata(regularSchema);
 
       expect(extractedMetadata).toBeUndefined();
     });
@@ -100,22 +104,28 @@ describe('SchemaManager', () => {
   describe('integration with real schemas', () => {
     it('should work with a complete schema like those used in generators', () => {
       const schema = z.object({
-        name: extend(z.string().min(1), {
-          description: 'The name of the resource',
-          friendlyName: 'Name',
-          shortName: 'n',
-          examples: ['users', 'products'],
-        }),
-        feature: extend(z.string().optional(), {
-          description: 'The feature directory',
-          friendlyName: 'Feature',
-          shortName: 'f',
-        }),
-        force: extend(z.boolean().optional(), {
-          description: 'Force overwrite',
-          friendlyName: 'Force',
-          shortName: 'F',
-        }),
+        name: z
+          .string()
+          .min(1)
+          .meta({ description: 'The name of the resource' })
+          .register(commandRegistry, {
+            shortName: 'n',
+            examples: ['users', 'products'],
+          }),
+        feature: z
+          .string()
+          .optional()
+          .meta({ description: 'The feature directory' })
+          .register(commandRegistry, {
+            shortName: 'f',
+          }),
+        force: z
+          .boolean()
+          .optional()
+          .meta({ description: 'Force overwrite' })
+          .register(commandRegistry, {
+            shortName: 'F',
+          }),
       });
 
       const shape = SchemaManager.getShape(schema);
@@ -125,25 +135,19 @@ describe('SchemaManager', () => {
       const nameField = shape!.name as ZodType;
       expect(SchemaManager.isFieldRequired(nameField)).toBe(true);
       expect(SchemaManager.getFieldTypeName(nameField)).toBe('string');
-      expect(SchemaManager.getFieldMetadata(nameField)?.description).toBe(
-        'The name of the resource'
-      );
+      expect(nameField.meta()?.description).toBe('The name of the resource');
 
       // Test feature field (optional)
       const featureField = shape!.feature as ZodType;
       expect(SchemaManager.isFieldRequired(featureField)).toBe(false);
       expect(SchemaManager.getFieldTypeName(featureField)).toBe('string');
-      expect(SchemaManager.getFieldMetadata(featureField)?.description).toBe(
-        'The feature directory'
-      );
+      expect(featureField.meta()?.description).toBe('The feature directory');
 
       // Test force field (optional boolean)
       const forceField = shape!.force as ZodType;
       expect(SchemaManager.isFieldRequired(forceField)).toBe(false);
       expect(SchemaManager.getFieldTypeName(forceField)).toBe('boolean');
-      expect(SchemaManager.getFieldMetadata(forceField)?.description).toBe(
-        'Force overwrite'
-      );
+      expect(forceField.meta()?.description).toBe('Force overwrite');
     });
   });
 

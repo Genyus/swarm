@@ -1,7 +1,7 @@
 import { ZodType } from 'zod';
 import { Generator } from '../../generator';
 import { PluginInterfaceManager } from '../../plugin';
-import { ExtendedSchema, FieldMetadata, SchemaManager } from '../../schema';
+import { CommandMetadata, SchemaManager } from '../../schema';
 
 /**
  * MCP Tool definition interface
@@ -47,7 +47,7 @@ export class ToolManager extends PluginInterfaceManager<MCPTool> {
    * Create an MCP tool definition from a generator's schema
    */
   private createToolDefinition(generator: Generator): MCPToolDefinition {
-    const schema = generator.schema as ExtendedSchema;
+    const schema = generator.schema;
     const shape = SchemaManager.getShape(schema);
 
     if (!shape) {
@@ -59,7 +59,7 @@ export class ToolManager extends PluginInterfaceManager<MCPTool> {
 
     Object.keys(shape).forEach((fieldName) => {
       const fieldSchema = shape[fieldName] as ZodType;
-      const metadata = SchemaManager.getFieldMetadata(fieldSchema);
+      const metadata = SchemaManager.getCommandMetadata(fieldSchema);
       const isRequired = SchemaManager.isFieldRequired(fieldSchema);
 
       if (isRequired) {
@@ -120,11 +120,10 @@ export class ToolManager extends PluginInterfaceManager<MCPTool> {
    */
   private convertZodToJSONSchema(
     fieldSchema: ZodType,
-    metadata?: FieldMetadata
+    metadata?: CommandMetadata
   ): Record<string, any> {
     const typeName = SchemaManager.getFieldTypeName(fieldSchema);
-    const description =
-      (fieldSchema as any).description || metadata?.description || '';
+    const description = fieldSchema.meta()?.description || '';
 
     switch (typeName) {
       case 'string':
@@ -172,7 +171,7 @@ export class ToolManager extends PluginInterfaceManager<MCPTool> {
         const innerType = SchemaManager.getInnerType(fieldSchema);
 
         if (innerType) {
-          const innerMetadata = SchemaManager.getFieldMetadata(innerType);
+          const innerMetadata = SchemaManager.getCommandMetadata(innerType);
           const innerSchema = this.convertZodToJSONSchema(
             innerType,
             innerMetadata || metadata
@@ -180,7 +179,10 @@ export class ToolManager extends PluginInterfaceManager<MCPTool> {
 
           return {
             ...innerSchema,
-            description: description || innerSchema.description,
+            description:
+              description ||
+              innerType.meta()?.description ||
+              innerSchema.description,
           };
         }
 
@@ -197,7 +199,10 @@ export class ToolManager extends PluginInterfaceManager<MCPTool> {
 
           return {
             ...innerSchema,
-            description: description || innerSchema.description,
+            description:
+              description ||
+              defaultInfo.innerType.meta()?.description ||
+              innerSchema.description,
             default: defaultInfo.defaultValue,
           };
         }

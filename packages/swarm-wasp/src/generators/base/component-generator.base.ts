@@ -1,5 +1,4 @@
 import {
-  ExtendedSchema,
   FileSystem,
   Generator,
   hasHelperMethodCall,
@@ -10,6 +9,7 @@ import {
   validateFeaturePath,
 } from '@ingenyus/swarm';
 import path from 'node:path';
+import { ZodType } from 'zod';
 import {
   ensureDirectoryExists,
   getFeatureDir,
@@ -25,7 +25,7 @@ import { WaspGeneratorBase } from './wasp-generator.base';
  * Abstract base class for all Wasp component generators
  */
 export abstract class ComponentGeneratorBase<
-  S extends ExtendedSchema,
+  S extends ZodType,
   TConfig extends ConfigType,
 > extends WaspGeneratorBase<S> {
   protected abstract componentType: TConfig;

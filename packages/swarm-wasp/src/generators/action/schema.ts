@@ -1,4 +1,4 @@
-import { extend, SchemaManager } from '@ingenyus/swarm';
+import { SchemaManager, commandRegistry } from '@ingenyus/swarm';
 import { z } from 'zod';
 import { commonSchemas } from '../../common';
 import { ACTION_OPERATIONS } from '../../types';
@@ -6,30 +6,33 @@ import { ACTION_OPERATIONS } from '../../types';
 const validActions = Object.values(ACTION_OPERATIONS).map(
   (action) => `'${action}'`
 );
-const actionSchema = extend(
-  z
-    .string()
-    .min(1, 'Action type is required')
-    .transform((val) => SchemaManager.findEnumValue(ACTION_OPERATIONS, val))
-    .pipe(
-      z.enum(ACTION_OPERATIONS, {
-        message: `Invalid action. Must be one of: ${validActions.join(', ')}`,
-      })
-    ),
-  {
-    description: 'The action operation to generate',
-    friendlyName: 'Action Operation',
+const actionSchema = z
+  .string()
+  .min(1, 'Action type is required')
+  .transform((val) => SchemaManager.findEnumValue(ACTION_OPERATIONS, val))
+  .pipe(
+    z.enum(ACTION_OPERATIONS, {
+      message: `Invalid action. Must be one of: ${validActions.join(', ')}`,
+    })
+  )
+  .meta({ description: 'The action operation to generate' })
+  .register(commandRegistry, {
     shortName: 'o',
     examples: validActions,
     helpText: `Available actions: ${validActions.join(', ')}`,
-  }
-);
+  });
 
 export const schema = z.object({
   feature: commonSchemas.feature,
   operation: actionSchema,
   dataType: commonSchemas.dataType,
-  name: extend(commonSchemas.name.optional(), commonSchemas.name._metadata),
+  name: commonSchemas.name
+    .optional()
+    .meta({
+      ...(commonSchemas.name.meta() ?? {}),
+      description: `${commonSchemas.name.meta()?.description ?? ''} (optional)`,
+    })
+    .register(commandRegistry, commandRegistry.get(commonSchemas.name) ?? {}),
   entities: commonSchemas.entities,
   force: commonSchemas.force,
   auth: commonSchemas.auth,

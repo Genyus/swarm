@@ -1,10 +1,10 @@
 import {
   capitalise,
-  ExtendedSchema,
   getPlural,
   handleFatalError,
   toPascalCase,
 } from '@ingenyus/swarm';
+import { ZodType } from 'zod';
 import {
   copyDirectory,
   generateIntersectionType,
@@ -47,7 +47,7 @@ interface OperationConfigEntry {
  * both OperationGenerator and CrudGenerator.
  */
 export abstract class OperationGeneratorBase<
-  S extends ExtendedSchema,
+  S extends ZodType,
   TConfig extends
     | typeof CONFIG_TYPES.ACTION
     | typeof CONFIG_TYPES.QUERY

@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { z } from 'zod';
 import type { Generator } from '../../generator';
+import { commandRegistry } from '../../schema';
 import { ToolManager } from './tool-manager';
 
 vi.mock('../../plugin/plugin-manager', () => ({

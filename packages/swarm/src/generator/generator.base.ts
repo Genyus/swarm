@@ -2,21 +2,13 @@ import path from 'node:path';
 import z, { core, ZodError, ZodIssue, ZodType } from 'zod';
 import { FileSystem } from '../common';
 import { Logger } from '../logger/logger';
-import {
-  ExtendedSchema,
-  In,
-  Out,
-  SchemaManager,
-  ValidationResult,
-} from '../schema';
+import { In, Out, SchemaManager, ValidationResult } from '../schema';
 import { Generator } from './types';
 
 /**
  * Abstract base class for all generators
  */
-export abstract class GeneratorBase<S extends ExtendedSchema>
-  implements Generator<S>
-{
+export abstract class GeneratorBase<S extends ZodType> implements Generator<S> {
   abstract name: string;
   abstract description: string;
   abstract schema: S;
@@ -72,16 +64,17 @@ export abstract class GeneratorBase<S extends ExtendedSchema>
 
     Object.keys(shape).forEach((fieldName) => {
       const fieldSchema = shape[fieldName] as ZodType;
-      const metadata = SchemaManager.getFieldMetadata(fieldSchema);
+      const metadata = SchemaManager.getCommandMetadata(fieldSchema);
       const isRequired = SchemaManager.isFieldRequired(fieldSchema);
       const fieldType = this.getFieldType(fieldSchema);
+      const description = fieldSchema.meta()?.description;
 
       help += `  ${fieldName} (${fieldType})${isRequired ? ' (required)' : ' (optional)'}\n`;
-      if (metadata) {
-        help += `    ${metadata.description}\n`;
-        if (metadata.examples) {
-          help += `    Examples: ${metadata.examples.join(', ')}\n`;
-        }
+      if (description) {
+        help += `    ${description}\n`;
+      }
+      if (metadata?.examples) {
+        help += `    Examples: ${metadata.examples.join(', ')}\n`;
       }
       help += '\n';
     });
