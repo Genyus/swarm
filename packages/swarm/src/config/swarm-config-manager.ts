@@ -5,27 +5,56 @@ import { DEFAULT_CONFIG_FILE, DEFAULT_CUSTOM_TEMPLATES_DIR } from '../common';
 
 /**
  * Swarm configuration interface
- * plugins.import is the name of the plugin to import
- * plugins.from is the package name or path where the plugin will be imported from
- * plugins.enabled is a boolean indicating if the plugin is enabled
- * plugins.generators is an object with the name of the generator as the key and the value is an object with the enabled flag set
- * @example
+ *
+ * Configuration can be loaded from swarm.config.json or the `swarm` section in package.json
+ *
+ * - `templateDirectory` is an optional string to specify the directory where the templates are located (defaults to `.swarm/templates`)
+ * - `plugins[].import` is the name of the plugin to import
+ * - `plugins[].from` is the package name or path where the plugin will be imported from
+ * - `plugins[].disabled` is an optional boolean to explicitly disable the plugin (defaults to enabled)
+ * - `plugins[].generators` is an optional array that can be used to disable specific generators
+ * - `plugins[].generators[].disabled` is an optional boolean to explicitly disable the generator (defaults to enabled)
+ *
+ * @example <caption>swarm.config.json (primary)</caption>
+ *
  * ```json
- * {
- *   "templateDirectory": "templates",
- *   "plugins": [
- *     {
- *       "import": "wasp",
- *       "from": "@ingenyus/swarm-wasp",
- *       "enabled": true,
- *       "generators": {
- *         "api": {
- *           "enabled": true
- *         }
- *       }
- *     }
- *   ]
- * }
+ *          {
+ *            "templateDirectory": "templates",
+ *            "plugins": [
+ *              {
+ *                "import": "wasp",
+ *                "from": "@ingenyus/swarm-wasp"
+ *                "disabled": false,
+ *                "generators": {
+ *                  "api": {
+ *                    "disabled": true
+ *                  }
+ *                }
+ *              }
+ *            ]
+ *          }
+ * ```
+ *
+ * @example <caption>package.json (fallback)</caption>
+ * ```json
+ *         {
+ *           "name": "my-app",
+ *           "swarm": {
+ *            "templateDirectory": ".swarm/templates",
+ *             "plugins": [
+ *               {
+ *                 "import": "wasp",
+ *                  "from": "@ingenyus/swarm-wasp"
+ *                  "disabled": false,
+ *                  "generators": {
+ *                    "api": {
+ *                      "disabled": true
+ *                    }
+ *                  }
+ *               }
+ *             ]
+ *           }
+ *        }
  * ```
  */
 export interface SwarmConfig {
@@ -58,7 +87,9 @@ export class SwarmConfigManager {
   private configPath: string | null = null;
   private lilconfig: AsyncSearcher;
 
-  constructor(private searchPlaces: string[] = [DEFAULT_CONFIG_FILE]) {
+  constructor(
+    private searchPlaces: string[] = [DEFAULT_CONFIG_FILE, 'package.json']
+  ) {
     this.lilconfig = lilconfig('swarm', {
       searchPlaces: this.searchPlaces,
     });
@@ -136,19 +167,19 @@ export class SwarmConfigManager {
 
       let result: LilconfigResult | null = null;
 
-      for (const searchPlace of this.searchPlaces) {
-        const fullPath = path.join(searchDir, searchPlace);
-
+      if (configPath) {
+        // If a specific config path is provided, load directly
         try {
-          result = await this.lilconfig.load(fullPath);
-
-          if (result) break;
+          result = await this.lilconfig.load(configPath);
         } catch (e) {
-          continue;
+          // Ignore errors for specific path
         }
+      } else {
+        // Use lilconfig's search which handles searchPlaces and package.json key extraction
+        result = await this.lilconfig.search(searchDir);
       }
 
-      if (!result) {
+      if (!result || !result.config) {
         // Use default configuration when no config file is found
         console.warn(
           `⚠️  No configuration file found in ${searchDir}. Searched for: ${this.searchPlaces.join(', ')}`
@@ -161,7 +192,7 @@ export class SwarmConfigManager {
       }
 
       this.config = result.config;
-      this.configPath = result.filepath;
+      this.configPath = result.filepath || null;
 
       if (this.config && !this.config.templateDirectory) {
         this.config.templateDirectory = DEFAULT_CUSTOM_TEMPLATES_DIR;
