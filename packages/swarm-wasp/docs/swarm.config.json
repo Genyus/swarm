@@ -2,34 +2,7 @@
   "plugins": [
     {
       "import": "wasp",
-      "from": "@ingenyus/swarm-wasp",
-      "enabled": true,
-      "generators": {
-        "api": {
-          "enabled": true
-        },
-        "api-namespace": {
-          "enabled": true
-        },
-        "crud": {
-          "enabled": true
-        },
-        "feature": {
-          "enabled": true
-        },
-        "job": {
-          "enabled": true
-        },
-        "operation": {
-          "enabled": true
-        },
-        "route": {
-          "enabled": true
-        },
-        "config": {
-          "enabled": true
-        }
-      }
+      "from": "@ingenyus/swarm-wasp"
     }
   ]
 }

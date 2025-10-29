@@ -33,14 +33,12 @@ export interface SwarmConfig {
   plugins: Array<{
     import: string;
     from: string;
-    enabled: boolean;
+    disabled?: boolean;
     generators?: {
       [generatorName: string]: {
-        enabled: boolean;
-        config?: Record<string, any>;
+        disabled?: boolean;
       };
     };
-    config?: Record<string, any>;
   }>;
 }
 

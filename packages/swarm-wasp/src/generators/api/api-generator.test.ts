@@ -21,7 +21,6 @@ vi.mock('@ingenyus/swarm', async () => {
           {
             from: '@ingenyus/swarm-wasp',
             import: 'wasp',
-            enabled: true,
           },
         ],
       }),

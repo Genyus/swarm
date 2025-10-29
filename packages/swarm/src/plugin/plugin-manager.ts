@@ -53,7 +53,7 @@ export class PluginManager {
     const applicationRoot = this.getApplicationRoot();
 
     for (const pluginConfig of config.plugins) {
-      if (pluginConfig.enabled) {
+      if (pluginConfig.disabled !== true) {
         try {
           const plugin = await this.resolver.resolve(
             pluginConfig.from,
@@ -66,7 +66,7 @@ export class PluginManager {
 
             plugin.generators.forEach((generator) => {
               const isEnabled =
-                pluginConfig.generators?.[generator.name]?.enabled ?? true;
+                pluginConfig.generators?.[generator.name]?.disabled !== true;
               if (isEnabled) {
                 this.generators.set(generator.name, generator);
               } else {
@@ -138,7 +138,7 @@ export class PluginManager {
     return Array.from(this.plugins.values()).filter((plugin) => {
       const pluginConfig = config.plugins.find((p) => p.import === plugin.name);
 
-      return pluginConfig?.enabled ?? false;
+      return pluginConfig?.disabled !== true;
     });
   }
 
