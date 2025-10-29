@@ -1,7 +1,7 @@
 import * as path from 'node:path';
 import { SwarmConfigManager } from '../config';
 import { Generator } from '../generator';
-import { LocalPluginResolver, NPMPluginResolver } from './plugin-resolver';
+import { PluginResolver } from './plugin-resolver';
 import { SwarmPlugin } from './types';
 
 /**
@@ -11,8 +11,7 @@ export class PluginManager {
   private configManager: SwarmConfigManager;
   private plugins: Map<string, SwarmPlugin> = new Map();
   private generators: Map<string, Generator> = new Map();
-  private npmResolver: NPMPluginResolver = new NPMPluginResolver();
-  private localResolver: LocalPluginResolver = new LocalPluginResolver();
+  private resolver: PluginResolver = new PluginResolver();
 
   constructor() {
     this.configManager = new SwarmConfigManager();
@@ -53,23 +52,14 @@ export class PluginManager {
 
     const applicationRoot = this.getApplicationRoot();
 
-    for (const [packageName, pluginConfig] of Object.entries(config.plugins)) {
+    for (const pluginConfig of config.plugins) {
       if (pluginConfig.enabled) {
         try {
-          let plugin: SwarmPlugin | null = null;
-
-          if (packageName.startsWith('.')) {
-            plugin = await this.localResolver.resolve(
-              packageName,
-              applicationRoot
-            );
-          } else {
-            plugin = await this.npmResolver.resolveFromManifest(
-              packageName,
-              pluginConfig.plugin,
-              applicationRoot
-            );
-          }
+          const plugin = await this.resolver.resolve(
+            pluginConfig.from,
+            pluginConfig.import,
+            applicationRoot
+          );
 
           if (plugin) {
             this.registerPlugin(plugin);
@@ -84,10 +74,15 @@ export class PluginManager {
               }
             });
           } else {
-            console.warn(`Could not resolve plugin '${packageName}'`);
+            console.warn(
+              `Could not resolve plugin '${pluginConfig.import}' from '${pluginConfig.from}'`
+            );
           }
         } catch (error) {
-          console.warn(`Failed to load plugin '${packageName}':`, error);
+          console.warn(
+            `Failed to load plugin '${pluginConfig.import}' from '${pluginConfig.from}':`,
+            error
+          );
         }
       }
     }
@@ -140,9 +135,11 @@ export class PluginManager {
     const config = this.configManager.getConfig();
     if (!config) return [];
 
-    return Array.from(this.plugins.values()).filter((plugin) =>
-      this.configManager.isPluginEnabled(plugin.name)
-    );
+    return Array.from(this.plugins.values()).filter((plugin) => {
+      const pluginConfig = config.plugins.find((p) => p.import === plugin.name);
+
+      return pluginConfig?.enabled ?? false;
+    });
   }
 
   /**

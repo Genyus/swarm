@@ -1,7 +1,8 @@
 {
-  "plugins": {
-    "@ingenyus/swarm-wasp": {
-      "plugin": "wasp",
+  "plugins": [
+    {
+      "import": "wasp",
+      "from": "@ingenyus/swarm-wasp",
       "enabled": true,
       "generators": {
         "api": {
@@ -30,5 +31,5 @@
         }
       }
     }
-  }
+  ]
 }

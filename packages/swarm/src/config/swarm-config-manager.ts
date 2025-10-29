@@ -5,22 +5,43 @@ import { DEFAULT_CONFIG_FILE, DEFAULT_CUSTOM_TEMPLATES_DIR } from '../common';
 
 /**
  * Swarm configuration interface
+ * plugins.import is the name of the plugin to import
+ * plugins.from is the package name or path where the plugin will be imported from
+ * plugins.enabled is a boolean indicating if the plugin is enabled
+ * plugins.generators is an object with the name of the generator as the key and the value is an object with the enabled flag set
+ * @example
+ * ```json
+ * {
+ *   "templateDirectory": "templates",
+ *   "plugins": [
+ *     {
+ *       "import": "wasp",
+ *       "from": "@ingenyus/swarm-wasp",
+ *       "enabled": true,
+ *       "generators": {
+ *         "api": {
+ *           "enabled": true
+ *         }
+ *       }
+ *     }
+ *   ]
+ * }
+ * ```
  */
 export interface SwarmConfig {
   templateDirectory?: string;
-  plugins: {
-    [packageName: string]: {
-      plugin?: string; // Specific plugin name within the package
-      enabled: boolean;
-      generators?: {
-        [generatorName: string]: {
-          enabled: boolean;
-          config?: Record<string, any>;
-        };
+  plugins: Array<{
+    import: string;
+    from: string;
+    enabled: boolean;
+    generators?: {
+      [generatorName: string]: {
+        enabled: boolean;
+        config?: Record<string, any>;
       };
-      config?: Record<string, any>;
     };
-  };
+    config?: Record<string, any>;
+  }>;
 }
 
 /**
@@ -28,7 +49,7 @@ export interface SwarmConfig {
  */
 const DEFAULT_CONFIG: SwarmConfig = {
   templateDirectory: DEFAULT_CUSTOM_TEMPLATES_DIR,
-  plugins: {},
+  plugins: [],
 };
 
 /**
@@ -151,7 +172,7 @@ export class SwarmConfigManager {
       // Check if no plugins are defined and warn the user
       if (
         this.config &&
-        (!this.config.plugins || Object.keys(this.config.plugins).length === 0)
+        (!this.config.plugins || this.config.plugins.length === 0)
       ) {
         console.warn('⚠️  No plugins are defined in the configuration file.');
         console.warn('Swarm will not have any generators available.');
@@ -179,50 +200,5 @@ export class SwarmConfigManager {
    */
   getConfigPath(): string | null {
     return this.configPath;
-  }
-
-  /**
-   * Check if a plugin is enabled
-   * @param pluginName Name of the plugin
-   * @returns True if plugin is enabled
-   */
-  isPluginEnabled(pluginName: string): boolean {
-    return this.config?.plugins?.[pluginName]?.enabled ?? false;
-  }
-
-  /**
-   * Check if a generator is enabled
-   * @param pluginName Name of the plugin
-   * @param generatorName Name of the generator
-   * @returns True if generator is enabled
-   */
-  isGeneratorEnabled(pluginName: string, generatorName: string): boolean {
-    return (
-      this.config?.plugins?.[pluginName]?.generators?.[generatorName]
-        ?.enabled ?? false
-    );
-  }
-
-  /**
-   * Get plugin configuration
-   * @param pluginName Name of the plugin
-   * @returns Plugin configuration or undefined
-   */
-  getPluginConfig(pluginName: string): Record<string, any> | undefined {
-    return this.config?.plugins?.[pluginName]?.config;
-  }
-
-  /**
-   * Get generator configuration
-   * @param pluginName Name of the plugin
-   * @param generatorName Name of the generator
-   * @returns Generator configuration or undefined
-   */
-  getGeneratorConfig(
-    pluginName: string,
-    generatorName: string
-  ): Record<string, any> | undefined {
-    return this.config?.plugins?.[pluginName]?.generators?.[generatorName]
-      ?.config;
   }
 }

@@ -17,12 +17,13 @@ vi.mock('@ingenyus/swarm', async () => {
     SwarmConfigManager: vi.fn().mockImplementation(() => ({
       loadConfig: vi.fn().mockResolvedValue({
         templateDirectory: DEFAULT_CUSTOM_TEMPLATES_DIR,
-        plugins: {
-          wasp: {
+        plugins: [
+          {
+            from: '@ingenyus/swarm-wasp',
+            import: 'wasp',
             enabled: true,
-            plugin: 'wasp',
           },
-        },
+        ],
       }),
     })),
   };
