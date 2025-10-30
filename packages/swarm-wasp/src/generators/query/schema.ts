@@ -3,10 +3,7 @@ import { z } from 'zod';
 import { commonSchemas } from '../../common';
 import { QUERY_OPERATIONS } from '../../types';
 
-const validQueries = Object.values(QUERY_OPERATIONS).map(
-  (query) => `'${query}'`
-);
-
+const validQueries = Object.values(QUERY_OPERATIONS);
 const querySchema = z
   .string()
   .min(1, 'Query type is required')

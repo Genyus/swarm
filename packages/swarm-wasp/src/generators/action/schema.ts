@@ -3,9 +3,7 @@ import { z } from 'zod';
 import { commonSchemas } from '../../common';
 import { ACTION_OPERATIONS } from '../../types';
 
-const validActions = Object.values(ACTION_OPERATIONS).map(
-  (action) => `'${action}'`
-);
+const validActions = Object.values(ACTION_OPERATIONS);
 const actionSchema = z
   .string()
   .min(1, 'Action type is required')

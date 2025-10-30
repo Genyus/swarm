@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { commonSchemas } from '../../common';
 import { API_HTTP_METHODS } from '../../types';
 
-const validHttpMethods = API_HTTP_METHODS.map((method) => `'${method}'`);
+const validHttpMethods = API_HTTP_METHODS.map((method) => `${method}`);
 
 export const schema = z.object({
   method: z

@@ -14,9 +14,9 @@ export const commonSchemas = {
     })
     .register(commandRegistry, {
       shortName: 'f',
-      examples: ["'root'", "'auth'", "'dashboard/users'"],
+      examples: ['root', 'auth', 'dashboard/users'],
       helpText:
-        'Can be nested as a logical or relative path, e.g. "dashboard/users" or "features/dashboard/features/users"',
+        "Can be nested as a logical or relative path, e.g. 'dashboard/users' or 'features/dashboard/features/users'",
     }),
   name: z
     .string()
@@ -24,7 +24,7 @@ export const commonSchemas = {
     .meta({ description: 'The name of the generated component' })
     .register(commandRegistry, {
       shortName: 'n',
-      examples: ["'users'", "'task'"],
+      examples: ['users', 'task'],
       helpText: 'Will be used for generated files and configuration entries',
     }),
   target: z
@@ -33,9 +33,9 @@ export const commonSchemas = {
     .meta({ description: 'The target path of the generated directory' })
     .register(commandRegistry, {
       shortName: 't',
-      examples: ["'dashboard/users'", "'features/dashboard/features/users'"],
+      examples: ['dashboard/users', 'features/dashboard/features/users'],
       helpText:
-        'A logical or relative path, e.g. "dashboard/users" or "features/dashboard/features/users"',
+        "A logical or relative path, e.g. 'dashboard/users' or 'features/dashboard/features/users'",
     }),
   path: z
     .string()
@@ -43,8 +43,18 @@ export const commonSchemas = {
     .meta({ description: 'The path that this component will be accessible at' })
     .register(commandRegistry, {
       shortName: 'p',
-      examples: ["'/api/users/:id'", "'/api/products'"],
-      helpText: 'Supports Express-style placeholders, e.g. "/api/users/:id"',
+      examples: ['/api/users/:id', '/api/products'],
+      helpText: "Supports Express-style placeholders, e.g. '/api/users/:id'",
+    }),
+  dataType: z
+    .string()
+    .min(1, 'Data type is required')
+    .meta({ description: 'The data type/model name for this operation' })
+    .register(commandRegistry, {
+      shortName: 'd',
+      examples: ['User', 'Product', 'Task'],
+      helpText:
+        'The Wasp entity or model name this operation will interact with',
     }),
   entities: z
     .array(z.string())
@@ -55,7 +65,7 @@ export const commonSchemas = {
     })
     .register(commandRegistry, {
       shortName: 'e',
-      examples: ["'User'", "'User' 'Task'"],
+      examples: ['User', 'User Task'],
       helpText: 'An array of Wasp entity names',
     }),
   force: z
@@ -79,15 +89,5 @@ export const commonSchemas = {
     .register(commandRegistry, {
       shortName: 'a',
       helpText: 'Will generate authentication checks',
-    }),
-  dataType: z
-    .string()
-    .min(1, 'Data type is required')
-    .meta({ description: 'The data type/model name for this operation' })
-    .register(commandRegistry, {
-      shortName: 'd',
-      examples: ["'User'", "'Product'", "'Task'"],
-      helpText:
-        'The Wasp entity or model name this operation will interact with',
     }),
 } satisfies Record<string, z.ZodTypeAny>;
