@@ -3,5 +3,13 @@
   "references": [
     { "path": "./tsconfig.src.json" },
     { "path": "./tsconfig.wasp.json" }
-  ]
+  ],
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": [
+        "src/shared/client/*"
+      ]
+    }
+  }
 }

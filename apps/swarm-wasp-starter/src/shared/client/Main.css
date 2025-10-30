@@ -1,32 +1,41 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@source "../..";
 
+@plugin "@tailwindcss/forms";
+@plugin "@tailwindcss/typography";
+
+@custom-variant dark (&:is(.dark *));
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
+  /* Remove Tailwind's default Surface colors */
+  --color-zinc-*: initial;
+  --color-slate-*: initial;
+  --color-neutral-*: initial;
+  --color-stone-*: initial;
+  --color-gray-*: initial;
 
   /* Surfaces are neutral colors that are used for the majority of your UI */
   /* Default values are similar to Tailwind Zinc colors */
-  --color-surface-100: #131313; /* Most important text */
-  --color-surface-200: #3c3c3c; /* Majority of text */
-  --color-surface-300: #b5b5b5; /* Hover background */
-  --color-surface-400: #dcdcdc;
-  --color-surface-500: #e3e3e3;
-  --color-surface-600: #ebebeb;
-  --color-surface-700: #f2f2f2; /* Page background */
-  --color-surface-800: #f7f7f7;
-  --color-surface-900: #fcfcfc;
+  --color-surface-100: oklch(0.1867 0 0); /* Most important text */
+  --color-surface-200: oklch(0.3562 0 0); /* Majority of text */
+  --color-surface-300: oklch(0.7731 0 0); /* Hover background */
+  --color-surface-400: oklch(0.8945 0 0);
+  --color-surface-500: oklch(0.9158 0 0);
+  --color-surface-600: oklch(0.9401 0 0);
+  --color-surface-700: oklch(0.9612 0 0); /* Page background */
+  --color-surface-800: oklch(0.9761 0 0);
+  --color-surface-900: oklch(0.9911 0 0);
 
   /* Primary color. This is probably the one in your logo or branding */
   --color-primary: oklch(0.75 0.15 237); /* Use for most important elements */
   --color-primary-foreground: oklch(1 0 89);
 
   /* These shades are used for the charts. It can be any color, but I recommend
-   * using different shades of the same color rather than different hues for
-   * better accessibility for colorblind users. The ShadCN chart component is not
-   * installed by default, so you'll only need to update these variables if you add it.
-   */
+ * using different shades of the same color rather than different hues for
+ * better accessibility for colorblind users. The ShadCN chart component is not
+ * installed by default, so you'll only need to update these variables if you add it.
+ */
   --color-chart-100: var(--color-primary);
   --color-chart-200: oklch(0.6 0.15 237);
   --color-chart-300: oklch(0.45 0.15 237);
@@ -52,34 +61,132 @@
   --color-destructive-foreground: oklch(0.45 0.19 29);
 
   --radius: 0.5rem;
-
-  /* Remove Tailwind's default Surface colors */
-  --color-zinc-*: initial;
-  --color-slate-*: initial;
-  --color-neutral-*: initial;
-  --color-stone-*: initial;
-  --color-gray-*: initial;
 }
 
 .dark {
   /* Dark versions of your surface colors */
   /* Default values are similar to Tailwind Zinc colors */
-  --color-surface-100: #e3e3e3; /* Most important text */
-  --color-surface-200: #b5b5b5; /* Majority of text */
-  --color-surface-300: #4f4f4f; /* Hover background */
-  --color-surface-400: #303030;
-  --color-surface-500: #2e2e2e;
-  --color-surface-600: #222222;
-  --color-surface-700: #1e1e1e; /* Page background */
-  --color-surface-800: #121212;
-  --color-surface-900: #0e0e0e;
+  --color-surface-100: oklch(0.9158 0 0); /* Most important text */
+  --color-surface-200: oklch(0.7731 0 0); /* Majority of text */
+  --color-surface-300: oklch(0.4276 0 0); /* Hover background */
+  --color-surface-400: oklch(0.3092 0 0);
+  --color-surface-500: oklch(0.3012 0 0);
+  --color-surface-600: oklch(0.252 0 0);
+  --color-surface-700: oklch(0.235 0 0); /* Page background */
+  --color-surface-800: oklch(0.1822 0 0);
+  --color-surface-900: oklch(0.1638 0 0);
 }
 
+@theme inline {
+  --color-surface-100: var(--color-surface-100);
+  --color-surface-200: var(--color-surface-200);
+  --color-surface-300: var(--color-surface-300);
+  --color-surface-400: var(--color-surface-400);
+  --color-surface-500: var(--color-surface-500);
+  --color-surface-600: var(--color-surface-600);
+  --color-surface-700: var(--color-surface-700);
+  --color-surface-800: var(--color-surface-800);
+  --color-surface-900: var(--color-surface-900);
+
+  --color-primary: var(--color-primary);
+  --color-primary-foreground: var(--color-primary-foreground);
+
+  --color-accent: var(--color-accent);
+  --color-accent-foreground: var(--color-accent-foreground);
+
+  --color-info: var(--color-info);
+  --color-info-content: var(--color-info-foreground);
+
+  --color-success: var(--color-success);
+  --color-success-content: var(--color-success-foreground);
+
+  --color-warning: var(--color-warning);
+  --color-warning-content: var(--color-warning-foreground);
+
+  --color-destructive: var(--color-destructive);
+  --color-destructive-foreground: var(--color-destructive-foreground);
+
+  --color-background: var(--color-surface-700);
+  --color-foreground: var(--color-surface-200);
+
+  --color-card: var(--color-surface-800);
+  --color-card-foreground: var(--color-surface-200);
+
+  --color-popover: var(--color-surface-800);
+  --color-popover-foreground: var(--color-surface-200);
+
+  --color-secondary: var(--color-secondary);
+  --color-secondary-foreground: var(--color-secondary-foreground);
+
+  --color-muted: var(--color-surface-600);
+  --color-muted-foreground: var(--color-surface-200);
+
+  --color-border: var(--color-surface-500);
+  --color-input: var(--color-surface-500);
+  --color-ring: var(--color-accent);
+
+  --color-chart-1: var(--color-chart-shade-1);
+  --color-chart-2: var(--color-chart-shade-2);
+  --color-chart-3: var(--color-chart-shade-3);
+  --color-chart-4: var(--color-chart-shade-4);
+  --color-chart-5: var(--color-chart-shade-5);
+
+  --color-sidebar: var(--color-surface-800);
+  --color-sidebar-foreground: var(--color-surface-200);
+  --color-sidebar-primary: var(--color-primary);
+  --color-sidebar-primary-foreground: var(--color-primary-foreground);
+  --color-sidebar-accent: var(--color-surface-500);
+  --color-sidebar-accent-foreground: var(--color-surface-100);
+  --color-sidebar-border: var(--color-surface-400);
+  --color-sidebar-ring: var(--color-accent);
+
+  --animate-accordion-down: accordion-down 0.2s ease-out;
+  --animate-accordion-up: accordion-up 0.2s ease-out;
+
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+
+  @keyframes accordion-down {
+    from {
+      height: 0;
+    }
+    to {
+      height: var(--radix-accordion-content-height);
+    }
+  }
+  @keyframes accordion-up {
+    from {
+      height: var(--radix-accordion-content-height);
+    }
+    to {
+      height: 0;
+    }
+  }
+}
+
+/*
+  The default border color has changed to `currentcolor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentcolor);
+  }
+}
 
 @layer base {
   /* Text color and borders */
   * {
-    @apply text-surface-200 font-sans;
+    @apply font-sans text-surface-200;
     @apply border-border;
   }
 
@@ -90,7 +197,7 @@
   }
 
   a:hover {
-    color: var(--color-secondary)
+    color: var(--color-secondary);
   }
 
   /* Page background */
@@ -98,7 +205,8 @@
     background-color: var(--color-surface-700);
   }
 
-  h1, h2 {
+  h1,
+  h2 {
     font-weight: 700;
   }
 }

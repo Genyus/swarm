@@ -1,22 +1,25 @@
-import { Toaster } from 'react-hot-toast';
 import { Outlet } from "react-router-dom";
-import { useTheme, useThemeProvider } from "../hooks/useTheme";
-import '../Main.css';
-import { TooltipProvider } from "./ui";
-
-// TODO: Add things like a header and footer
-// TooltipProvider and ThemeContext are already included.
+import { useThemeProvider } from "../hooks/useTheme";
+import "../Main.css";
+import Footer from "./Footer";
+import Header from "./Header";
+import { Toaster, TooltipProvider } from "./ui";
 
 export default function Layout() {
-    const ThemeProvider = useThemeProvider()
-    const t = useTheme()
+  const ThemeProvider = useThemeProvider();
 
-    return <ThemeProvider>
-        <TooltipProvider>
-            <Toaster toastOptions={{
-                className: 'bg-surface-800 text-surface-100 border',
-            }}/>
-            <Outlet/>
-        </TooltipProvider>
+  return (
+    <ThemeProvider>
+      <TooltipProvider>
+        <div className="flex min-h-screen flex-col">
+          <Header />
+          <main className="flex-1">
+            <Outlet />
+          </main>
+          <Footer />
+        </div>
+        <Toaster position="top-center" />
+      </TooltipProvider>
     </ThemeProvider>
+  );
 }

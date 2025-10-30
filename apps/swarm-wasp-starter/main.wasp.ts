@@ -1,11 +1,10 @@
 import { App } from "@ingenyus/swarm-wasp";
 
-// App Configurations
-const app = await App.create("swarm-starter", {
-  title: "New Wasp App",
+const app = await App.create("swarm-wasp-starter", {
+  title: "Swarm Wasp Starter",
   wasp: { version: "^0.18.1" },
   head: [
-    '<meta name="description" content="Your app description!">', // <- TODO: Change this to your own description!
+    '<meta name="description" content="Swarm Wasp Starter description">',
     '<meta name="viewport" content="width=device-width, initial-scale=1.0">',
     '<meta charset="UTF-8">',
   ],

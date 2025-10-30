@@ -1,0 +1,25 @@
+{
+  "master": {
+    "metadata": {
+      "name": "master",
+      "description": "Main task list",
+      "createdAt": "2025-10-21T18:41:42.000Z",
+      "lastModified": "2025-10-21T18:41:42.000Z",
+      "created": "2025-10-21T21:49:17.288Z",
+      "updated": "2025-10-21T21:49:17.288Z"
+    },
+    "tasks": [
+      {
+        "id": 1,
+        "title": "Add shadcn/ui icon script with import path fixing",
+        "description": "Create a package.json script to add shadcn/ui icons with automatic import path fixing",
+        "status": "done",
+        "priority": "high",
+        "dependencies": [],
+        "details": "The script should:\n\n1. Install the component using `npx shadcn@latest add [component-name]`\n2. Capture the installed files from the command output\n3. Fix imports by reading paths from components.json and updating relative imports to use the defined aliases\n4. Format the files with Prettier\n\nThe script should be added as a new npm script in package.json and should handle the common issue where shadcn/ui generates incorrect import paths that don't follow the project's component structure defined in components.json.\n\nReference implementation: https://github.com/wardbox/roke/blob/main/scripts/fix-shadcn-imports.ts",
+        "testStrategy": "Test the script by adding a shadcn/ui icon component and verifying that:\n1. The component is installed correctly\n2. Import paths are fixed to use aliases from components.json\n3. Files are properly formatted with Prettier\n4. The component can be imported and used in the project",
+        "subtasks": []
+      }
+    ]
+  }
+}
