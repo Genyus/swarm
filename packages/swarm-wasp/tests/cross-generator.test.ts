@@ -64,7 +64,7 @@ describe('Cross-Generator Integration Tests', () => {
       force: false,
     });
 
-    const configPath = 'src/features/posts/posts.wasp.ts';
+    const configPath = 'src/features/posts/feature.wasp.ts';
     const content = readGeneratedFile(projectPaths.root, configPath);
 
     expect(content).toContain('addCrud');
@@ -125,7 +125,7 @@ describe('Cross-Generator Integration Tests', () => {
       force: false,
     });
 
-    const configPath = 'src/features/posts/posts.wasp.ts';
+    const configPath = 'src/features/posts/feature.wasp.ts';
     const content = readGeneratedFile(projectPaths.root, configPath);
 
     assertConfigGroupOrder(content, [
@@ -167,8 +167,8 @@ describe('Cross-Generator Integration Tests', () => {
       force: false,
     });
 
-    const postsConfig = 'src/features/posts/posts.wasp.ts';
-    const usersConfig = 'src/features/users/users.wasp.ts';
+    const postsConfig = 'src/features/posts/feature.wasp.ts';
+    const usersConfig = 'src/features/users/feature.wasp.ts';
 
     const postsContent = readGeneratedFile(projectPaths.root, postsConfig);
     const usersContent = readGeneratedFile(projectPaths.root, usersConfig);

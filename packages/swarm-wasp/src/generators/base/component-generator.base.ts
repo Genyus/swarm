@@ -68,7 +68,7 @@ export abstract class ComponentGeneratorBase<
       const featureName = pathSegments[pathSegments.length - 1];
 
       const featureDir = getFeatureDir(this.fileSystem, currentPath);
-      const configPath = path.join(featureDir, `${featureName}.wasp.ts`);
+      const configPath = path.join(featureDir, `feature.wasp.ts`);
 
       if (this.fileSystem.existsSync(configPath)) {
         return configPath;
@@ -80,7 +80,7 @@ export abstract class ComponentGeneratorBase<
       `Feature config file not found in '${normalisedPath}' or any ancestor directories`
     );
     this.logger.error(
-      `Expected to find a .wasp.ts config file in one of the feature directories`
+      `Expected to find a feature.wasp.ts config file in one of the feature directories`
     );
     throw new Error('Feature config file not found');
   }

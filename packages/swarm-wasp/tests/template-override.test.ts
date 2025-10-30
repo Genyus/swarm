@@ -118,7 +118,7 @@ export const <%=apiName%>: <%=apiType%> = async (req, res, context) => {
 
     const configContent = readGeneratedFile(
       projectPaths.root,
-      'src/features/posts/posts.wasp.ts'
+      'src/features/posts/feature.wasp.ts'
     );
 
     expect(configContent).toContain('customFeature: true');
@@ -167,7 +167,7 @@ export const <%=apiName%>: <%=apiType%> = async (req, res, context) => {
 
     const configContent = readGeneratedFile(
       projectPaths.root,
-      'src/features/posts/posts.wasp.ts'
+      'src/features/posts/feature.wasp.ts'
     );
 
     expect(configContent).not.toContain('customFeature: true');
@@ -236,7 +236,7 @@ export const <%=apiName%>: <%=apiType%> = async (req, res, context) => {
 
     const configContent = readGeneratedFile(
       projectPaths.root,
-      'src/features/posts/posts.wasp.ts'
+      'src/features/posts/feature.wasp.ts'
     );
 
     expect(configContent).toContain('customFeature: true');

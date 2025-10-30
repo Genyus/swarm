@@ -80,7 +80,7 @@ describe('Configuration File Management Tests', () => {
       force: false,
     });
 
-    const configPath = 'src/features/posts/posts.wasp.ts';
+    const configPath = 'src/features/posts/feature.wasp.ts';
     const content = readGeneratedFile(projectPaths.root, configPath);
 
     // The actual generated format doesn't have group headers, just comments
@@ -111,7 +111,7 @@ describe('Configuration File Management Tests', () => {
       force: false,
     });
 
-    const configPath = 'src/features/posts/posts.wasp.ts';
+    const configPath = 'src/features/posts/feature.wasp.ts';
     const content = readGeneratedFile(projectPaths.root, configPath);
 
     expect(content).toMatch(/\/\/\s*Action definitions/);
@@ -130,7 +130,7 @@ describe('Configuration File Management Tests', () => {
       force: false,
     });
 
-    const configPath = 'src/features/posts/posts.wasp.ts';
+    const configPath = 'src/features/posts/feature.wasp.ts';
     const content = readGeneratedFile(projectPaths.root, configPath);
 
     // The generated config ends with a closing brace, not semicolon
@@ -163,7 +163,7 @@ describe('Configuration File Management Tests', () => {
       force: false,
     });
 
-    const configPath = 'src/features/posts/posts.wasp.ts';
+    const configPath = 'src/features/posts/feature.wasp.ts';
     const content = readGeneratedFile(projectPaths.root, configPath);
 
     // The generated config should end with a closing brace
@@ -199,7 +199,7 @@ describe('Configuration File Management Tests', () => {
       force: false,
     });
 
-    const configPath = 'src/features/posts/posts.wasp.ts';
+    const configPath = 'src/features/posts/feature.wasp.ts';
     const content = readGeneratedFile(projectPaths.root, configPath);
 
     const createPos = content.indexOf('createPost');

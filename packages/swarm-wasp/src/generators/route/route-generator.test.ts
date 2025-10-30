@@ -86,7 +86,7 @@ export default function configureFeature(app: App, feature: string): void {
     // The WaspBaseGenerator uses its own configGenerator instead of updateFeatureConfig
     // So we expect the config file to be written directly
     expect(fs.writeFileSync).toHaveBeenCalledWith(
-      expect.stringContaining('foo.wasp.ts'),
+      expect.stringContaining('feature.wasp.ts'),
       expect.any(String)
     );
   });

@@ -53,8 +53,7 @@ export class WaspConfigGenerator implements ConfigGenerator {
       return;
     }
 
-    const configFilePrefix = featurePath.split('/').at(-1)!;
-    const configFilePath = path.join(featureDir, `${configFilePrefix}.wasp.ts`);
+    const configFilePath = path.join(featureDir, `feature.wasp.ts`);
 
     if (this.fileSystem.existsSync(configFilePath)) {
       this.logger.warn(`Feature config already exists: ${configFilePath}`);
@@ -72,9 +71,8 @@ export class WaspConfigGenerator implements ConfigGenerator {
    * @returns The updated feature configuration file
    */
   update(featurePath: string, declaration: string): string {
-    const configFilePrefix = featurePath.split('/').at(-1)!;
     const configDir = getFeatureDir(this.fileSystem, featurePath);
-    const configFilePath = path.join(configDir, `${configFilePrefix}.wasp.ts`);
+    const configFilePath = path.join(configDir, `feature.wasp.ts`);
 
     if (!this.fileSystem.existsSync(configFilePath)) {
       const templatePath = this.getTemplatePath('feature.wasp.eta');
