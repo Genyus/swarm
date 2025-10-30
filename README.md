@@ -1,127 +1,60 @@
-# Swarm
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/Genyus/swarm/HEAD/docs/images/docs/images/swarm-logo-horizontal-dark.svg">
+    <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/Genyus/swarm/HEAD/docs/images/docs/images/swarm-logo-horizontal.svg">
+    <img alt="Swarm - Typescript Code Generator" src="https://raw.githubusercontent.com/Genyus/swarm/HEAD/docs/images/docs/swarm-logo-horizontal.svg" width="350" style="max-width: 100%;">
+  </picture>
+</p>
 
-A powerful TypeScript monorepo containing tools and utilities for Wasp full-stack framework development. Built with type safety, modularity, and extensibility in mind.
+<p align="center">
+A Typescript code generation framework built with modularity and extensibility in mind.
+</p>
 
-Wasp is a full-stack web framework that lets you develop web apps in React, Node.js, and Prisma with minimal boilerplate. Swarm accelerates development by generating all the necessary files, configurations, and boilerplate code that follows Wasp's conventions and best practices.
+## Repository Structure
 
-## Packages
+This repository is organised as a monorepo, using pnpm. Key directories include:
 
-### Core Package
-- [`@ingenyus/swarm`](./packages/swarm) - Core shared logic including generators, templates, utilities, and types
+- apps/
+  - [`swarm-wasp-starter`](./apps/swarm-wasp-starter/): Minimal Wasp starter template
+- packages/
+  - [`swarm`](./packages/swarm): Core framework including CLI, MCP server, plugin system, and app generator
+  - [`swarm-wasp`](./packages/swarm-wasp): [Wasp](https://wasp.sh) component generators, templates, and enhanced configuration
 
-### CLI Package
-- [`@ingenyus/swarm-cli`](./packages/swarm-cli) - A CLI tool for rapidly generating features, APIs, jobs, CRUD operations, and more
+## Getting Started
 
-### MCP Package
-- [`@ingenyus/swarm-mcp`](./packages/swarm-mcp) - A Model Context Protocol server for AI agent integration
-
-## Quick Start
-
-### CLI Usage
-```bash
-# Install globally
-npm install -g @ingenyus/swarm
-
-# Or use with npx
-npx @ingenyus/swarm feature users
-npx @ingenyus/swarm api users --name "getUsers" --method GET --route "/api/users"
-npx @ingenyus/swarm crud users --datatype User
-```
-
-### Programmatic Usage
-```bash
-# Install core package
-npm install @ingenyus/swarm
-
-# Use in your code
-import { ApiGenerator, FeatureGenerator } from '@ingenyus/swarm';
-```
-
-### AI Agent Integration
-```bash
-# Install MCP server
-npm install @ingenyus/swarm-mcp
-
-# Start MCP server
-swarm-mcp start
-```
-
-## Development
-
-This is a pnpm workspace monorepo. Make sure you have pnpm installed:
+Install pnpm if you don't have it already:
 
 ```bash
 npm install -g pnpm
 ```
 
-### Getting Started
+Clone, install and validate the project:
 
 ```bash
 # Clone the repository
 git clone <repository-url>
 cd swarm
 
-# Install dependencies for all packages
+# Install dependencies
 pnpm install
 
-# Build all packages
-pnpm build
-
-# Test all packages  
-pnpm test
-
-# Lint all packages
-pnpm lint
-
-# Format all packages
-pnpm format
+# Build, test, lint and format all packages
+pnpm validate
 ```
 
-### Package-Specific Development
+To integrate Swarm components into your own projects or to extend the framework, see the relevant README files inside specific templates and packages (e.g. `apps/swarm-wasp-starter`, `projects/swarm-wasp`, etc.)
 
-```bash
-# Work on a specific package
-cd packages/swarm-cli
-pnpm dev
+## Scripts & Tooling
 
-# Run tests for a specific package
-cd packages/swarm
-pnpm test
-
-# Build a specific package
-cd packages/swarm-mcp
-pnpm build
-```
-
-### Project Structure
-
-```
-swarm/
-├── packages/
-│   ├── swarm/               # Core shared logic
-│   │   ├── src/
-│   │   │   ├── generators/  # Code generators
-│   │   │   ├── utils/       # Shared utilities
-│   │   │   ├── types/       # TypeScript types
-│   │   │   └── templates/   # Code templates
-│   │   └── tests/           # Unit tests
-│   ├── swarm-cli/           # CLI tool
-│   │   ├── src/
-│   │   │   ├── cli/         # CLI commands
-│   │   │   └── types/       # CLI-specific types
-│   │   └── test/            # Integration tests
-│   └── swarm-mcp/           # MCP server
-│       ├── src/
-│       │   └── server/      # MCP server implementation
-│       └── tests/           # Integration tests
-├── scripts/                 # Build and deployment scripts
-├── test/                    # Global integration tests
-└── tsconfig.base.json       # Shared TypeScript configuration
-```
+- **Monorepo management:** [pnpm](https://pnpm.io/) (`pnpm-workspace.yaml`)
+- **Code style and linting:** [ESLint](https://eslint.org), [Prettier](https://prettier.io), [EditorConfig](https://editorconfig.org)
+- **Schema management:** [Zod](https://zod.dev)
+- **Testing:** [Vitest](https://vitest.dev)
+- **CI/CD:** [GitHub Actions](https://docs.github.com/en/actions)
 
 ## Contributing
 
-We use [changesets](https://github.com/changesets/changesets) with automatic generation from [conventional commits](https://www.conventionalcommits.org/) for version management and releases. The system uses a modular architecture with shared utilities to maintain consistency and avoid code duplication.
+This project uses [changesets](https://github.com/changesets/changesets) with automatic generation via [conventional commits](https://www.conventionalcommits.org/) for version management and releases.
 
 ### Making Changes
 
@@ -129,8 +62,8 @@ We use [changesets](https://github.com/changesets/changesets) with automatic gen
 2. Commit using conventional commit format:
    ```bash
    git commit -m "feat: add new feature"
-   git commit -m "fix(core): resolve issue in swarm"
-   git commit -m "feat(cli): add new command"
+   git commit -m "fix(swarm): resolve issue in swarm"
+   git commit -m "feat(swarm-wasp): add new command"
    git commit -m "feat!: breaking change"
    ```
 3. Changesets are automatically generated from your commit messages during CI
@@ -144,9 +77,7 @@ pnpm changeset
 
 Releases are automated through GitHub Actions:
 1. When PRs are merged to `main`, a "Version Packages" PR is automatically created
-2. Review and merge the version PR to publish the packages to npm
-
-See [MIGRATION_TO_CHANGESETS.md](./MIGRATION_TO_CHANGESETS.md) for more details about our release process.
+2. The version PR is reviewed and merged to publish the packages to npm
 
 ### Development Guidelines
 
@@ -159,7 +90,3 @@ See [MIGRATION_TO_CHANGESETS.md](./MIGRATION_TO_CHANGESETS.md) for more details 
 ## License
 
 MIT License - see the [LICENSE](LICENSE) file for details.
-
----
-
-**Built with ❤️ for Wasp framework developers**

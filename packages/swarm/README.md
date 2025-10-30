@@ -1,8 +1,16 @@
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/Genyus/swarm/HEAD/docs/images/swarm-logo-horizontal-dark.svg">
+    <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/Genyus/swarm/HEAD/docs/images/swarm-logo-horizontal.svg">
+    <img alt="Swarm - Typescript Code Generator" src="https://raw.githubusercontent.com/Genyus/swarm/HEAD/docs/images/docs/swarm-logo-horizontal.svg" width="350" style="max-width: 100%;">
+  </picture>
+</p>
+
 # @ingenyus/swarm
 
-An extensible code generation framework for JavaScript and TypeScript projects. Built with extensibility in mind, Swarm uses a plugin architecture that allows developers to create generators for different types of content, whilst starter repositories define the structure and scaffolding for various project types.
+An modular code generation framework for TypeScript developers. Built with extensibility in mind, Swarm uses a plugin architecture that allows developers to create generators for different types of content, while starter templates can define the structure and scaffolding for various project types.
 
-Swarm provides both CLI commands and AI agent integration via MCP (Model Context Protocol) to create customised boilerplate code and scaffold new projects.
+Swarm provides both CLI commands and AI agent integration via MCP to create customised boilerplate code and scaffold new projects.
 
 ## Table of Contents
 
@@ -53,7 +61,64 @@ Swarm operates through a flexible plugin architecture:
 - **Starter repositories** define project scaffolding and initial structure
 - **Configuration files** enable or disable specific plugins and generators for a project
 
-Swarm commands are built dynamically from the available plugins and their generators, allowing you to create boilerplate code tailored to each project. The `create` command scaffolds entire projects from starter templates, whilst individual generators add specific functionality to existing projects.
+Swarm commands are built dynamically from the configured plugins and their generators, allowing you to create boilerplate code tailored to each project. The `create` command scaffolds entire projects from starter templates, whilst individual generators add specific functionality to existing projects.
+
+## Creating Custom Plugins
+
+Swarm's plugin architecture lets you create custom generators for any project type. A plugin is simply a container for generators that share common functionality.
+
+**Quick Example:**
+```typescript
+import { SwarmPlugin } from '@ingenyus/swarm';
+
+export function createMyPlugin(): SwarmPlugin {
+  return {
+    name: 'my-plugin',
+    version: '1.0.0',
+    description: 'My custom plugin',
+    swarmVersion: '0.2.0',
+    generators: [
+      new MyCustomGenerator(),
+    ],
+  };
+}
+
+// Lazy-load the plugin to avoid circular dependency issues
+let plugin: SwarmPlugin | null = null;
+
+function getMyPlugin(): SwarmPlugin {
+  if (!plugin) {
+    plugin = createMyPlugin();
+  }
+
+  return plugin;
+}
+
+export const wasp = getMyPlugin;
+```
+
+For detailed plugin development guidance, see [Plugin Development Guide](../../docs/PLUGIN_DEVELOPMENT.md).
+
+## Configuration
+
+Projects using Swarm plugins configure them via `swarm.config.json`:
+
+```json
+{
+  "plugins": {
+    "@ingenyus/swarm-wasp": {
+      "plugin": "wasp",
+      "enabled": true,
+      "generators": {
+        "api": { "enabled": true },
+        "crud": { "enabled": true }
+      }
+    }
+  }
+}
+```
+
+Custom templates can override built-in templates by placing them in `.swarm/templates/<plugin>/<generator>/`.
 
 ## CLI Commands
 
@@ -132,12 +197,12 @@ pnpm build:watch
 
 ```
 src/
-├── generators/           # Core generation logic
-│   └── app/              # App generator for project scaffolding
 ├── cli/                  # Command-line interface
 ├── mcp/                  # MCP server for AI tool integration
-├── plugin/               # Plugin system
-├── common/                # Shared utilities
+├── generators/           # Core generation logic
+│   └── app/              # App generator for project scaffolding
+├── plugin/               # Plugin system and management
+├── common/               # Shared utilities
 │   ├── strings.ts        # String manipulation
 │   ├── logger.ts         # Logging utilities
 │   └── errors.ts         # Error handling
