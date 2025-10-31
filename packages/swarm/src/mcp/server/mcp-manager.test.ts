@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { MCPManager } from './index.js';
-import type { ServerConfig } from './types/mcp.js';
+import { MCPManager } from './index';
+import type { ServerConfig } from './types/mcp';
 
 describe('MCPManager', () => {
   let server: MCPManager;

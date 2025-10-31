@@ -1,4 +1,4 @@
-import { ErrorContext } from './app-error.js';
+import { ErrorContext } from './app-error';
 
 /**
  * Create an error context

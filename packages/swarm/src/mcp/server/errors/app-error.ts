@@ -1,4 +1,4 @@
-import { MCPErrorCode, MCPProtocolError } from './mcp-protocol-error.js';
+import { MCPErrorCode, MCPProtocolError } from './mcp-protocol-error';
 
 /**
  * Error context interface

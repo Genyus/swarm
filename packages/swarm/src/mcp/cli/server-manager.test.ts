@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { ServerManager } from './server-manager.js';
+import { ServerManager } from './server-manager';
 
 // Mock the MCPManager
 vi.mock('../server/mcp-manager', () => ({

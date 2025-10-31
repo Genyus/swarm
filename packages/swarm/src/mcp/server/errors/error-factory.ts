@@ -1,7 +1,7 @@
-import { ErrorContext } from './app-error.js';
-import { ConfigurationError } from './configuration-error.js';
-import { InternalError } from './internal-error.js';
-import { MCPErrorCode, MCPProtocolError } from './mcp-protocol-error.js';
+import { ErrorContext } from './app-error';
+import { ConfigurationError } from './configuration-error';
+import { InternalError } from './internal-error';
+import { MCPErrorCode, MCPProtocolError } from './mcp-protocol-error';
 
 export class ErrorFactory {
   static configuration(

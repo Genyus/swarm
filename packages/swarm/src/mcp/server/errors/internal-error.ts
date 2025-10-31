@@ -1,5 +1,5 @@
-import { AppError, ErrorContext } from './app-error.js';
-import { MCPErrorCode } from './mcp-protocol-error.js';
+import { AppError, ErrorContext } from './app-error';
+import { MCPErrorCode } from './mcp-protocol-error';
 
 /**
  * Internal error class

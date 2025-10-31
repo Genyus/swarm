@@ -1,6 +1,6 @@
 import { Command } from 'commander';
 import { configureLogger, LogFormat, logger, LogLevel } from '../../../logger';
-import { ServerManager } from '../server-manager.js';
+import { ServerManager } from '../server-manager';
 
 interface StopOptions {
   force?: boolean;

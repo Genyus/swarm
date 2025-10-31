@@ -11,14 +11,14 @@ import {
 } from '@modelcontextprotocol/sdk/types.js';
 import { randomUUID } from 'crypto';
 import { configureLogger, LogFormat, logger, LogLevel } from '../../logger';
-import { configManager } from './configuration-manager.js';
+import { configManager } from './configuration-manager';
 import {
   createErrorContext,
   ErrorFactory,
   MCPErrorCode,
   MCPProtocolError,
 } from './errors';
-import { ToolManager } from './tool-manager.js';
+import { ToolManager } from './tool-manager';
 import { ServerConfig, ServerInfo, ServerState } from './types';
 
 export class MCPManager {

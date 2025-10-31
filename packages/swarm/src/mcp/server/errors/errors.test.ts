@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { AppError } from './app-error.js';
-import { ConfigurationError } from './configuration-error.js';
-import { ErrorFactory } from './error-factory.js';
-import { createErrorContext } from './errors.js';
-import { InternalError } from './internal-error.js';
-import { MCPErrorCode, MCPProtocolError } from './mcp-protocol-error.js';
+import { AppError } from './app-error';
+import { ConfigurationError } from './configuration-error';
+import { ErrorFactory } from './error-factory';
+import { createErrorContext } from './errors';
+import { InternalError } from './internal-error';
+import { MCPErrorCode, MCPProtocolError } from './mcp-protocol-error';
 
 describe('Error Handling Framework', () => {
   describe('AppError', () => {
