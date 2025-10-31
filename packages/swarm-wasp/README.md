@@ -10,168 +10,57 @@
 
 A [Swarm](../swarm/README.md) plugin that provides a set of tools for accelerated [Wasp](https://wasp.sh) app development.
 
+## Getting Started
+
+This package is part of the Swarm monorepo. See the main [README](../../README.md) for development setup instructions.
+
+Install the plugin:
+
+```bash
+npm install @ingenyus/swarm @ingenyus/swarm-wasp
+```
+
+### Configuration
+
+The plugin can be configured via the `swarm.config.json` file, or by the `swarm` block in `package.json` as follows:
+
+```json
+{
+  "plugins": [
+    {
+      "import": "wasp",
+      "from": "@ingenyus/swarm-wasp"
+    }
+  ]
+}
+```
+
+To disable the plugin or any provided generators, set the `disabled` property (`false` by default) on the relevant object:
+
+```json
+{
+  "plugins": [
+    {
+      "import": "wasp",
+      "from": "@ingenyus/swarm-wasp",
+      "disabled": false,
+      "generators": {
+        "api": {
+          "disabled": true
+        }
+      }
+    }
+  ]
+}
+```
+
 ## Features
 
 ### Component Generators
 
-This plugin defines generators for feature directories and all documented Wasp components (API endpoints and namespaces, CRUD operations, Actions, Queries, Routes and Jobs). The generated boilerplate is fully type-safe and compatible with your Prisma schema
+This plugin provides generators to create feature directories and boilerplate code for all documented Wasp components (API endpoints and namespaces, CRUD operations, Actions, Queries, Routes and Jobs). Generator output is fully type-safe and compatible with your Prisma schema and all generators are exposed by the core framework as both CLI commands and MCP tools.
 
-#### Feature Generator
-Generates feature directories containing a Wasp configuration file.
-
-:lightbulb: **NOTE:** Feature directories can be nested, child directories will be added to the "features" sub-directory under the parent feature.
-
-```
-Usage: swarm-cli feature [options]
-
-Generates a feature directory containing a Wasp configuration file
-
-Options:
-  -t, --target <target>  The target path of the generated directory (examples: dashboard/users,
-                         features/dashboard/features/users)
-  -h, --help             display help for command
-```
-
-#### Action Generator
-Generates [Actions](https://wasp.sh/docs/data-model/operations/actions).
-
-```
-Usage: swarm-cli action [options]
-
-Generates a Wasp action
-
-Options:
-  -f, --feature <feature>       The feature directory this component will be generated in (examples: 'root', 'auth',
-                                'dashboard/users')
-  -o, --operation <operation>   The action operation to generate (examples: 'create', 'update', 'delete')
-  -d, --data-type <data-type>   The data type/model name for this operation (examples: 'User', 'Product', 'Task')
-  -n, --name [name]             The name of the generated component (examples: 'users', 'task')
-  -e, --entities [entities...]  The Wasp entities that will be available to this component (optional) (examples: 'User',
-                                'User' 'Task')
-  -F, --force                   Force overwrite of existing files and configuration entries (optional)
-  -a, --auth                    Require authentication for this component (optional)
-  -h, --help                    display help for command
-```
-
-#### API Generator
-Generates [API Endpoints](https://wasp.sh/docs/advanced/apis)
-
-```
-Usage: swarm-cli api [options]
-
-Generates a Wasp API Endpoint
-
-Options:
-  -m, --method <method>         The HTTP method used for this API endpoint (examples: 'ALL', 'GET', 'POST', 'PUT', 'DELETE')
-  -f, --feature <feature>       The feature directory this component will be generated in (examples: 'root', 'auth',
-                                'dashboard/users')
-  -n, --name <name>             The name of the generated component (examples: 'users', 'task')
-  -p, --path <path>             The path that this component will be accessible at (examples: '/api/users/:id',
-                                '/api/products')
-  -e, --entities [entities...]  The Wasp entities that will be available to this component (optional) (examples: 'User',
-                                'User' 'Task')
-  -a, --auth                    Require authentication for this component (optional)
-  -F, --force                   Force overwrite of existing files and configuration entries (optional)
-  -c, --custom-middleware       Enable custom middleware for this API endpoint
-  -h, --help                    display help for command
-```
-
-#### API Namespace Generator
-Creates [API Namespaces](https://wasp.sh/docs/advanced/middleware-config#3-customize-per-path-middleware)
-
-```
-Usage: swarm-cli api-namespace [options]
-
-Generates a Wasp API Namespace
-
-Options:
-  -f, --feature <feature>  The feature directory this component will be generated in (examples: 'root', 'auth',
-                           'dashboard/users')
-  -n, --name <name>        The name of the generated component (examples: 'users', 'task')
-  -p, --path <path>        The path that this component will be accessible at (examples: '/api/users/:id', '/api/products')
-  -F, --force              Force overwrite of existing files and configuration entries (optional)
-  -h, --help               display help for command
-```
-
-#### CRUD Generator
-Generates [CRUD Operations](https://wasp.sh/docs/data-model/crud)
-
-```
-Usage: swarm-cli crud [options]
-
-Generates a Wasp CRUD operation
-
-Options:
-  -f, --feature <feature>       The feature directory this component will be generated in (examples: 'root', 'auth',
-                                'dashboard/users')
-  -n, --name <name>             The name of the generated component (examples: 'users', 'task')
-  -d, --data-type <data-type>   The data type/model name for this operation (examples: 'User', 'Product', 'Task')
-  -b, --public [public...]      Public CRUD operations (accessible without authentication) (examples: 'get', 'get' 'getAll')
-  -v, --override [override...]  Override existing CRUD operations (examples: 'create', 'create' 'update')
-  -x, --exclude [exclude...]    Exclude specific CRUD operations from generation (examples: 'delete', 'delete' 'update')
-  -F, --force                   Force overwrite of existing files and configuration entries (optional)
-  -h, --help                    display help for command
-```
-
-#### Job Generator
-Generates Jobs
-
-```
-Usage: swarm-cli job [options]
-
-Generates a Wasp Job
-
-Options:
-  -f, --feature <feature>       The feature directory this component will be generated in (examples: 'root', 'auth',
-                                'dashboard/users')
-  -n, --name <name>             The name of the generated component (examples: 'users', 'task')
-  -e, --entities [entities...]  The Wasp entities that will be available to this component (optional) (examples: 'User',
-                                'User' 'Task')
-  -c, --cron [cron]             Cron schedule expression for the job (examples: 0 9 * * *, */15 * * * *, 0 0 1 * *)
-  -a, --args [args]             Arguments to pass to the job function when executed (examples: {"userId": 123}, {"type":
-                                "cleanup", "batchSize": 100})
-  -F, --force                   Force overwrite of existing files and configuration entries (optional)
-  -h, --help                    display help for command
-```
-
-#### Query Generator
-Generates [Queries](https://wasp.sh/docs/data-model/operations/queries)
-
-```
-Usage: swarm-cli query [options]
-
-Generates a Wasp Query
-
-Options:
-  -f, --feature <feature>       The feature directory this component will be generated in (examples: 'root', 'auth',
-                                'dashboard/users')
-  -o, --operation <operation>   The query operation to generate (examples: 'get', 'getAll', 'getFiltered')
-  -d, --data-type <data-type>   The data type/model name for this operation (examples: 'User', 'Product', 'Task')
-  -n, --name [name]             The name of the generated component (examples: 'users', 'task')
-  -e, --entities [entities...]  The Wasp entities that will be available to this component (optional) (examples: 'User',
-                                'User' 'Task')
-  -F, --force                   Force overwrite of existing files and configuration entries (optional)
-  -a, --auth                    Require authentication for this component (optional)
-  -h, --help                    display help for command
-```
-
-#### Route Generator
-Generates [Routed Pages](https://wasp.sh/docs/tutorial/pages)
-
-```
-Usage: swarm-cli route [options]
-
-Generates a Wasp Page and Route
-
-Options:
-  -f, --feature <feature>  The feature directory this component will be generated in (examples: 'root', 'auth',
-                           'dashboard/users')
-  -n, --name <name>        The name of the generated component (examples: 'users', 'task')
-  -p, --path <path>        The path that this component will be accessible at (examples: '/api/users/:id', '/api/products')
-  -a, --auth               Require authentication for this component (optional)
-  -F, --force              Force overwrite of existing files and configuration entries (optional)
-  -h, --help               display help for command
-```
+For complete generator documentation including MCP tool names, CLI command syntax, and all available options, see [GENERATORS.md](./docs/GENERATORS.md).
 
 ### Custom Templates
 
@@ -189,7 +78,7 @@ Swarm uses a templating system built on the [Eta](https://eta.js.org/) templatin
 
 ## Wasp Improvements
 
-The Wasp plugin follows a number of conventions that change standard Wasp practises for the better:
+The Wasp plugin provides a number of improvements to standard Wasp functionality:
 
 ### Enhanced Configuration
 
@@ -235,7 +124,7 @@ export default function configureFeature(app: App, feature: string): void {
       entities: ["Task"],
       auth: true,
     })
-    // Api definitions
+    // API definitions
     .addApi(feature, "getTasks", {
       method: "GET",
       route: "undefined",
@@ -243,7 +132,7 @@ export default function configureFeature(app: App, feature: string): void {
       auth: true,
       customMiddleware: true,
     })
-    // Crud definitions
+    // CRUD definitions
     .addCrud(feature, "Tasks", {
       entity: "Task",
       get: {
@@ -277,9 +166,9 @@ export default function configureFeature(app: App, feature: string): void {
 - `.addJob()` - Background job creation with cron scheduling
 - `.addApiNamespace()` - API namespace creation with middleware
 
-#### Composable Configuration
+#### :warning: Typescript Configuration
 
-Standard Wasp TS Config uses a monolithic `main.wasp.ts` file, but Swarm enables this to be broken up into multiple files. This is preconfigured if you're using the [Swarm Wasp Starter](https://github.com/Genyus/swarm-wasp-starter), but if you're configuring Swarm in your own project, you must make the following change to `tsconfig.wasp.json`:
+By default, Wasp only supports a monolithic `main.wasp.ts` file, but Swarm enables this to be broken up into multiple files. This is preconfigured if you're using the [Swarm Wasp Starter](https://github.com/Genyus/swarm-wasp-starter), but if you're configuring Swarm in your own project, you must first make the following change to `tsconfig.wasp.json`:
 
 ```diff
 -  "include": ["main.wasp.ts"]
@@ -298,15 +187,15 @@ src/
 │   └── <feature-name>/
 │       ├── feature.wasp.ts           # Feature-level Wasp configuration
 │       ├── client/
-│       │   └── components/           # React components
-│       │   └── pages/                # React pages
+│       │   └── components/           # General components
+│       │   └── pages/                # Page components
 │       └── server/
-│           ├── actions/              # Wasp actions
-│           ├── apis/                 # API endpoints
-│           ├── cruds/                # CRUD operations
-│           ├── jobs/                 # Background jobs
-│           ├── middleware/           # API middleware
-│           └── queries/              # Wasp queries
+│           ├── actions/              # Actions
+│           ├── apis/                 # API Endpoints
+│           ├── cruds/                # CRUD Operations
+│           ├── jobs/                 # Background Jobs
+│           ├── middleware/           # API Middleware
+│           └── queries/              # Queries
 ├── shared/
 │   ├── client/
 │   │   ├── components/               # Shared React components
@@ -323,75 +212,24 @@ src/
 
 **Wasp:** Recommends monolithic files like `actions.ts` and `queries.ts` that contain multiple instances
 
-**Swarm:** Maintains a component-per-file pattern for Wasp (back-end) components in alignment with front-end conventions. This keeps component files smaller and more readable.
+**Swarm:** Maintains a component-per-file pattern for Wasp (back-end) components. This keeps component files smaller, more readable and consistent with front-end components.
 
 ## MCP Integration
 
-Swarm automatically exposes all generators as MCP tools for AI-assisted development.
-
-### Setup
-
-1. **Install the plugin:**
-   ```bash
-   npm install @ingenyus/swarm @ingenyus/swarm-wasp
-   ```
-
-2. **Configure your AI tool** (see [MCP Setup Guide](../../docs/MCP_SETUP.md))
-
-3. **Start the MCP server:**
-   ```bash
-   npx swarm-mcp
-   ```
-
-### Available MCP Tools
-
-All generators are available as MCP tools:
-- `swarm_feature` - Feature directory generation
-- `swarm_action` - Action generation
-- `swarm_api` - API endpoint generation
-- `swarm_api_namespace` - API namespace generation
-- `swarm_crud` - CRUD operation generation
-- `swarm_job` - Job generation
-- `swarm_query` - Query generation
-- `swarm_route` - Route generation
+Swarm automatically exposes all generators as MCP tools for AI-assisted development. To configure your preferred AI tool, see the [MCP Configuration Guide](../swarm/docs/MCP_CONFIGURATION.md).
 
 ### Example AI Prompts
 
 Once MCP is configured, you can use prompts like:
 
 ```
-"Create a user management feature with a dashboard route, user CRUD operations, and a welcome email job"
+"Create a user management feature with a route to a dashboard page, a daily job to mark users haven't logged in for 30 days as inactive, and user CRUD operations where getting users or a single user are public operations, but without the delete operation enabled"
 ```
 
 ```
-"Generate an API endpoint for getting user tasks with authentication required"
+"Generate an authenticated API endpoint for getting filtered user tasks"
 ```
 
 ```
-"Add a new route for the dashboard feature that requires authentication"
+"Add a new stats page to the dashboard that will retrieve stats via the getUserStats query, requiring authentication"
 ```
-
-## Swarm Configuration
-
-Swarm can be configured via the swarm.config.json file, or by a `swarm` block in `package.json`. The configuration object accepts a list of plugins, defined with `import` and `from` specifying the plugin object and source. The plugin object accepts an optional `generators` array and a `disabled` property, allowing individiual plugins and generators to be disabled if necessary:
-
-```json
-{
-  "plugins": [
-    {
-      "import": "wasp",
-      "from": "@ingenyus/swarm-wasp",
-      "disabled": false,
-      "generators": {
-        "api": {
-          "disabled": true
-        }
-      }
-    }
-  ]
-}
-```
-
-## Development
-
-This package is part of the Swarm monorepo. See the main [README](../../README.md) for development setup instructions.

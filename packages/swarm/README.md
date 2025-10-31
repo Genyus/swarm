@@ -39,7 +39,7 @@ For plugin development, you can install Swarm as a library:
 npm install @ingenyus/swarm
 ```
 
-See our [plugin development documentation](https://github.com/genyus/swarm/tree/main/docs) for detailed guidance on creating custom generators.
+See our [plugin development documentation](./docs/PLUGIN_DEVELOPMENT.md) for detailed guidance on creating custom generators.
 
 ## Quick Start
 
@@ -71,50 +71,51 @@ Swarm's plugin architecture lets you create custom generators for any project ty
 ```typescript
 import { SwarmPlugin } from '@ingenyus/swarm';
 
-export function createMyPlugin(): SwarmPlugin {
-  return {
-    name: 'my-plugin',
-    version: '1.0.0',
-    description: 'My custom plugin',
-    swarmVersion: '0.2.0',
-    generators: [
-      new MyCustomGenerator(),
-    ],
-  };
-}
-
-// Lazy-load the plugin to avoid circular dependency issues
-let plugin: SwarmPlugin | null = null;
-
-function getMyPlugin(): SwarmPlugin {
-  if (!plugin) {
-    plugin = createMyPlugin();
-  }
-
-  return plugin;
-}
-
-export const wasp = getMyPlugin;
+export const myPlugin: SwarmPlugin = {
+  name: 'my-plugin',
+  version: '1.0.0',
+  description: 'My custom plugin',
+  generators: [
+    new MyCustomGenerator(),
+  ],
+};
 ```
 
-For detailed plugin development guidance, see [Plugin Development Guide](../../docs/PLUGIN_DEVELOPMENT.md).
+For detailed plugin development guidance, see:
+- [Plugin Development Guide](./docs/PLUGIN_DEVELOPMENT.md) - Complete guide to building custom plugins
+- [Generator Examples](./docs/GENERATOR_EXAMPLES.md) - Ideas for generators for Next.js, Astro, Remix, and more
 
 ## Configuration
 
-Projects using Swarm plugins configure them via `swarm.config.json`:
+Swarm can be configured via the `swarm.config.json` file, or by a `swarm` block in `package.json`. The configuration object accepts a list of plugins, defined with `import` and `from` specifying the plugin object and source. The Wasp plugin can be enabled as follows:
 
 ```json
 {
-  "plugins": {
-    "@ingenyus/swarm-wasp": {
-      "plugin": "wasp",
-      "enabled": true,
+  "plugins": [
+    {
+      "import": "wasp",
+      "from": "@ingenyus/swarm-wasp"
+    }
+  ]
+}
+```
+
+To support disabling a plugin or any of its provided generators, the plugin configuration accepts an optional `generators` array and a `disabled` property (`false` by default) on both the plugin and generator objects:
+
+```json
+{
+  "plugins": [
+    {
+      "import": "wasp",
+      "from": "@ingenyus/swarm-wasp",
+      "disabled": false,
       "generators": {
-        "api": { "enabled": true },
-        "crud": { "enabled": true }
+        "api": {
+          "disabled": true
+        }
       }
     }
-  }
+  ]
 }
 ```
 
