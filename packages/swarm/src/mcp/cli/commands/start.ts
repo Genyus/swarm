@@ -8,6 +8,7 @@ export function createStartCommand(serverManager: ServerManager): Command {
     level: (process.env['SWARM_MCP_LOG_LEVEL'] || 'info') as LogLevel,
     format: (process.env['SWARM_MCP_LOG_FORMAT'] || 'text') as LogFormat,
   });
+
   return new Command('start')
     .description('Start the MCP server in stdio mode')
     .action(async () => {

@@ -1,6 +1,7 @@
 import { AsyncSearcher, LilconfigResult, lilconfig } from 'lilconfig';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { DEFAULT_CONFIG_FILE, DEFAULT_CUSTOM_TEMPLATES_DIR } from '../common';
 
 /**
@@ -101,7 +102,24 @@ export class SwarmConfigManager {
    * @returns Path to project root or null if not found
    */
   private findProjectRoot(startDir?: string): string | null {
-    let currentDir = startDir || process.cwd();
+    let currentDir: string;
+
+    if (startDir) {
+      currentDir = startDir;
+    } else {
+      const moduleDir = path.dirname(fileURLToPath(import.meta.url));
+      const segments = moduleDir.split(path.sep);
+      const nodeModulesIndex = segments.lastIndexOf('node_modules');
+
+      if (nodeModulesIndex !== -1) {
+        const rootSegments = segments.slice(0, nodeModulesIndex);
+        currentDir =
+          rootSegments.length > 0 ? rootSegments.join(path.sep) : path.sep;
+      } else {
+        currentDir = process.cwd();
+      }
+    }
+
     const rootDir = path.parse(currentDir).root;
 
     while (currentDir !== rootDir) {

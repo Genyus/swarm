@@ -100,9 +100,6 @@ export class MCPManager {
 
   private async registerTools(): Promise<void> {
     logger.info('Tool registration framework initialized');
-    logger.debug(
-      'Available tools: filesystem operations, Swarm CLI generation tools'
-    );
     await this.toolManager.initialize();
 
     const tools = await this.toolManager.getTools();

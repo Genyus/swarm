@@ -8,37 +8,41 @@ import {
 } from './commands/index.js';
 import { ServerManager } from './server-manager.js';
 
-const program = new Command();
-const serverManager = new ServerManager();
+export function createProgram(): Command {
+  const program = new Command();
+  const serverManager = new ServerManager();
 
-program
-  .name('swarm-mcp')
-  .description('Model Context Protocol server for Swarm CLI integration')
-  .version('0.1.0');
+  program
+    .name('swarm-mcp')
+    .description('Model Context Protocol server for Swarm CLI integration')
+    .version('0.1.0');
 
-program.addCommand(createStartCommand(serverManager));
-program.addCommand(createStopCommand(serverManager));
-program.addCommand(createStatusCommand(serverManager));
+  program.addCommand(createStartCommand(serverManager));
+  program.addCommand(createStopCommand(serverManager));
+  program.addCommand(createStatusCommand(serverManager));
 
-program.addHelpText(
-  'after',
-  `
+  program.addHelpText(
+    'after',
+    `
 Examples:
-  $ swarm-mcp start              # Start server on default port 3000
-  $ swarm-mcp start --port 8080  # Start server on port 8080
-  $ swarm-mcp start --stdio      # Start server in stdio mode
+  $ swarm-mcp start              # Start server in stdio mode
   $ swarm-mcp stop               # Stop the server gracefully
   $ swarm-mcp stop --force       # Force stop the server
   $ swarm-mcp status             # Check server status
   $ swarm-mcp status --json      # Get status in JSON format
 `
-);
+  );
+
+  return program;
+}
+
+export async function runCli(argv = process.argv): Promise<void> {
+  const program = createProgram();
+  await program.parseAsync(argv);
+}
 
 // Only parse if this file is being run directly (not imported)
 // Check if this module is being executed directly vs imported
-if (
-  import.meta.url === `file://${process.argv[1]}` ||
-  process.argv[1]?.endsWith('swarm-mcp')
-) {
-  program.parse();
+if (import.meta.url === `file://${process.argv[1]}`) {
+  void runCli();
 }

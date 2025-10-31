@@ -1,3 +1,4 @@
+import path from 'node:path';
 import { logger } from '../../logger';
 import { ErrorFactory, createErrorContext } from '../server';
 import { configManager } from '../server/configuration-manager.js';
@@ -19,6 +20,12 @@ export class ServerManager {
     }
 
     try {
+      const projectRoot = this.resolveProjectRoot();
+
+      if (process.cwd() !== projectRoot) {
+        process.chdir(projectRoot);
+      }
+
       await configManager.loadConfig();
 
       const config: ServerConfig = {
@@ -96,5 +103,27 @@ export class ServerManager {
 
   isServerRunning(): boolean {
     return this.isRunning;
+  }
+
+  private resolveProjectRoot(): string {
+    const binPath = process.argv[1];
+
+    if (binPath) {
+      const resolvedPath = path.resolve(binPath);
+      const segments = resolvedPath.split(path.sep);
+      const nodeModulesIndex = segments.lastIndexOf('node_modules');
+
+      if (nodeModulesIndex > 0) {
+        const rootSegments = segments.slice(0, nodeModulesIndex);
+        const candidate = rootSegments.join(path.sep);
+
+        if (candidate) {
+          return candidate;
+        }
+        return path.sep;
+      }
+    }
+
+    return process.cwd();
   }
 }
