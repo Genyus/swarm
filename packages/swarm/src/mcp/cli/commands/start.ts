@@ -1,6 +1,6 @@
 import { Command } from 'commander';
-import { configureLogger, LogFormat, logger, LogLevel } from '../../../common';
-import { ServerManager } from '../server-manager.js';
+import { configureLogger, LogFormat, logger, LogLevel } from '../../../logger';
+import { ServerManager } from '../server-manager';
 
 export function createStartCommand(serverManager: ServerManager): Command {
   configureLogger({
@@ -8,6 +8,7 @@ export function createStartCommand(serverManager: ServerManager): Command {
     level: (process.env['SWARM_MCP_LOG_LEVEL'] || 'info') as LogLevel,
     format: (process.env['SWARM_MCP_LOG_FORMAT'] || 'text') as LogFormat,
   });
+
   return new Command('start')
     .description('Start the MCP server in stdio mode')
     .action(async () => {

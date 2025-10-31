@@ -1,32 +1,24 @@
-import { QueryFlags } from '../../generators/args.types';
+import { Out } from '@ingenyus/swarm';
 import { CONFIG_TYPES } from '../../types';
 import { OperationGeneratorBase } from '../base';
 import { schema } from './schema';
 
 export class QueryGenerator extends OperationGeneratorBase<
+  typeof schema,
   typeof CONFIG_TYPES.QUERY
 > {
-  protected get entityType() {
+  protected get componentType() {
     return CONFIG_TYPES.QUERY;
   }
 
-  description = 'Generate queries (data fetching) for Wasp applications';
+  description = 'Generates a Wasp Query';
   schema = schema;
 
-  async generate(
-    flags: Omit<QueryFlags, 'name'> & { name?: string }
-  ): Promise<void> {
-    const { dataType, feature, name } = flags;
-    const operation = flags.operation;
+  async generate(args: Out<typeof schema>): Promise<void> {
+    const { dataType, feature, name } = args;
+    const operation = args.operation;
     const operationType = 'query';
-    const entities = flags.entities
-      ? Array.isArray(flags.entities)
-        ? flags.entities
-        : flags.entities
-            .split(',')
-            .map((e: string) => e.trim())
-            .filter(Boolean)
-      : [];
+    const entities = args.entities ?? [];
 
     if (dataType && !entities.includes(dataType)) {
       entities.unshift(dataType);
@@ -36,7 +28,7 @@ export class QueryGenerator extends OperationGeneratorBase<
       await this.generateOperationComponents(
         dataType,
         operation,
-        flags.auth,
+        args.auth,
         entities,
         false,
         null,
@@ -44,7 +36,7 @@ export class QueryGenerator extends OperationGeneratorBase<
       );
 
     return this.handleGeneratorError(
-      this.entityType,
+      this.componentType,
       operationName,
       async () => {
         const configPath = this.validateFeatureConfig(feature);
@@ -56,7 +48,7 @@ export class QueryGenerator extends OperationGeneratorBase<
           operationsDir,
           operationName,
           operationCode,
-          flags.force || false
+          args.force || false
         );
 
         // Generate config definition and update
@@ -66,7 +58,7 @@ export class QueryGenerator extends OperationGeneratorBase<
           entities,
           'query',
           importPath,
-          flags.auth
+          args.auth
         );
 
         this.updateConfigWithCheck(
@@ -75,7 +67,7 @@ export class QueryGenerator extends OperationGeneratorBase<
           operationName,
           definition,
           feature,
-          flags.force || false
+          args.force || false
         );
       }
     );

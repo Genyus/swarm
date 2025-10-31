@@ -208,10 +208,10 @@ packages/swarm/src/
 ```typescript
 // packages/swarm/src/interfaces/generator.ts
 export interface Generator<TArgs = any> { ... }
-export interface SwarmGenerator<TArgs = any> extends Generator<TArgs> { ... }
+export interface PluginGenerator<TArgs = any> extends Generator<TArgs> { ... }
 
 // packages/swarm/src/base-classes/base-generator.ts
-export abstract class BaseGenerator<TArgs = any> implements SwarmGenerator<TArgs> { ... }
+export abstract class BaseGenerator<TArgs = any> implements PluginGenerator<TArgs> { ... }
 
 // packages/swarm-wasp/src/generators/api/generator.ts
 export class ApiGenerator extends BaseEntityGenerator<typeof CONFIG_TYPES.API> { ... }
@@ -243,7 +243,7 @@ interface Generator<TArgs = any> {
   generate: (params: TArgs) => Promise<void> | void;
 }
 
-interface SwarmGenerator<TArgs = any> extends Generator<TArgs> {
+interface PluginGenerator<TArgs = any> extends Generator<TArgs> {
   name: string;
   description: string;
   schema: ExtendedSchema;

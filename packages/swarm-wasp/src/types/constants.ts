@@ -1,48 +1,30 @@
-import {
-  ApiFlags,
-  ApiNamespaceFlags,
-  CrudFlags,
-  JobFlags,
-  OperationFlags,
-  RouteFlags,
-} from '../generators/args.types.js';
-
 export const PLUGIN_NAME = 'wasp' as const;
+
 /**
  * List of valid operation types.
  */
 export const OPERATION_TYPES = ['query', 'action'] as const;
+
 /**
  * Type for valid operation types.
  */
 export type OperationType = (typeof OPERATION_TYPES)[number];
 
 /**
- * List of valid action types.
+ * List of valid API HTTP methods.
  */
-const ACTION_TYPES = ['create', 'update', 'delete'] as const;
-/**
- * Type for valid action types.
- */
-type ActionType = (typeof ACTION_TYPES)[number];
+export const API_HTTP_METHODS = [
+  'ALL',
+  'GET',
+  'POST',
+  'PUT',
+  'DELETE',
+] as const;
 
 /**
- * List of valid query types.
+ * Type for valid API HTTP method values.
  */
-const QUERY_TYPES = ['get', 'getAll', 'getFiltered'] as const;
-/**
- * Type for valid query types.
- */
-type QueryType = (typeof QUERY_TYPES)[number];
-
-/**
- * List of valid HTTP methods.
- */
-export const HTTP_METHODS = ['ALL', 'GET', 'POST', 'PUT', 'DELETE'] as const;
-/**
- * Type for valid HTTP method values.
- */
-export type HttpMethod = (typeof HTTP_METHODS)[number];
+export type ApiHttpMethod = (typeof API_HTTP_METHODS)[number];
 
 /**
  * Map of valid operations.
@@ -55,10 +37,6 @@ export const OPERATIONS = {
   GETALL: 'getAll',
   GETFILTERED: 'getFiltered',
 } as const;
-/**
- * Type for valid operation values.
- */
-type Operation = (typeof OPERATIONS)[keyof typeof OPERATIONS];
 
 export const CRUD_OPERATIONS = {
   CREATE: 'create',
@@ -82,6 +60,7 @@ export const ACTION_OPERATIONS = {
   UPDATE: 'update',
   DELETE: 'delete',
 } as const;
+
 /**
  * Type for valid action operation values.
  */
@@ -96,6 +75,7 @@ export const QUERY_OPERATIONS = {
   GETALL: 'getAll',
   GETFILTERED: 'getFiltered',
 } as const;
+
 /**
  * Type for valid query operation values.
  */
@@ -132,43 +112,8 @@ export const CONFIG_TYPES = {
   API_NAMESPACE: 'ApiNamespace',
   CRUD: 'Crud',
 } as const;
+
 /**
  * Type for valid config type values.
  */
 export type ConfigType = (typeof CONFIG_TYPES)[keyof typeof CONFIG_TYPES];
-/**
- * Maps config types to their corresponding flags types
- */
-interface ConfigToFlagsMap {
-  API: ApiFlags;
-  JOB: JobFlags;
-  ROUTE: RouteFlags;
-  QUERY: OperationFlags;
-  ACTION: OperationFlags;
-  CRUD: CrudFlags;
-  API_NAMESPACE: ApiNamespaceFlags;
-}
-
-/**
- * Type helper to get flags type from config type
- */
-export type GetFlagsType<T extends ConfigType> =
-  T extends keyof ConfigToFlagsMap ? ConfigToFlagsMap[T] : never;
-
-/**
- * Reverse mapping from flags types to config types
- */
-type FlagsToConfigMap = {
-  [K in keyof ConfigToFlagsMap]: ConfigToFlagsMap[K] extends infer U
-    ? U extends ConfigToFlagsMap[K]
-      ? K
-      : never
-    : never;
-};
-
-/**
- * Type helper to get config type from flags type
- */
-type GetConfigType<T> = {
-  [K in keyof ConfigToFlagsMap]: T extends ConfigToFlagsMap[K] ? K : never;
-}[keyof ConfigToFlagsMap];

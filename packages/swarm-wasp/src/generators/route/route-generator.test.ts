@@ -6,6 +6,7 @@ import {
   createMockFS,
   createMockLogger,
 } from '../../../tests/utils';
+import { schema as featureSchema } from '../feature/schema';
 import { RouteGenerator } from './route-generator';
 
 // Mock SwarmConfigManager
@@ -16,12 +17,12 @@ vi.mock('@ingenyus/swarm', async () => {
     SwarmConfigManager: vi.fn().mockImplementation(() => ({
       loadConfig: vi.fn().mockResolvedValue({
         templateDirectory: DEFAULT_CUSTOM_TEMPLATES_DIR,
-        plugins: {
-          wasp: {
-            enabled: true,
-            plugin: 'wasp',
+        plugins: [
+          {
+            from: '@ingenyus/swarm-wasp',
+            import: 'wasp',
           },
-        },
+        ],
       }),
     })),
   };
@@ -30,13 +31,13 @@ vi.mock('@ingenyus/swarm', async () => {
 describe('RouteGenerator', () => {
   let fs: FileSystem;
   let logger: Logger;
-  let featureGen: SwarmGenerator<{ path: string }>;
+  let featureGen: SwarmGenerator<typeof featureSchema>;
   let gen: RouteGenerator;
 
   beforeEach(() => {
     fs = createMockFS();
     logger = createMockLogger();
-    featureGen = createMockFeatureGen();
+    featureGen = createMockFeatureGen(featureSchema);
     gen = new RouteGenerator(logger, fs, featureGen);
   });
 
@@ -85,7 +86,7 @@ export default function configureFeature(app: App, feature: string): void {
     // The WaspBaseGenerator uses its own configGenerator instead of updateFeatureConfig
     // So we expect the config file to be written directly
     expect(fs.writeFileSync).toHaveBeenCalledWith(
-      expect.stringContaining('foo.wasp.ts'),
+      expect.stringContaining('feature.wasp.ts'),
       expect.any(String)
     );
   });

@@ -3,10 +3,12 @@ import {
   GeneratorBase,
   Logger,
   SignaleLogger,
+  logger as singletonLogger,
   SwarmConfig,
   SwarmConfigManager,
   TemplateResolver,
 } from '@ingenyus/swarm';
+import { ZodType } from 'zod';
 import { realFileSystem, TemplateUtility } from '../../common';
 import { PLUGIN_NAME } from '../../types';
 import { WaspConfigGenerator } from '../config';
@@ -14,7 +16,9 @@ import { WaspConfigGenerator } from '../config';
 /**
  * Abstract base class for all Wasp generators
  */
-export abstract class WaspGeneratorBase<TArgs> extends GeneratorBase<TArgs> {
+export abstract class WaspGeneratorBase<
+  S extends ZodType,
+> extends GeneratorBase<S> {
   protected configGenerator: WaspConfigGenerator;
   protected templateUtility: TemplateUtility;
   protected templateResolver: TemplateResolver;
@@ -26,7 +30,7 @@ export abstract class WaspGeneratorBase<TArgs> extends GeneratorBase<TArgs> {
 
   constructor(
     public fileSystem: FileSystem = realFileSystem,
-    public logger: Logger = new SignaleLogger()
+    public logger: Logger = singletonLogger
   ) {
     super(fileSystem, logger);
     this.configGenerator = new WaspConfigGenerator(logger, fileSystem);

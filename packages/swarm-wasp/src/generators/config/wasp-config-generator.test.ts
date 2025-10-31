@@ -17,8 +17,10 @@ describe('WaspConfigGenerator', () => {
   it('generate creates feature config', () => {
     // Mock template path to exist, but config file to not exist
     fs.existsSync = vi.fn((p) => {
-      if (p.includes('feature.wasp.eta')) return true; // Template exists
-      if (p.includes('test-feature.wasp.ts')) return false; // Config file doesn't exist
+      if (typeof p === 'string' && p.includes('feature.wasp.eta')) return true; // Template exists
+      if (typeof p === 'string' && p.endsWith('/feature.wasp.ts')) return false; // New config file doesn't exist
+      if (typeof p === 'string' && p.includes('test-feature.wasp.ts'))
+        return false; // Old-named config doesn't exist
       return true; // Feature directory exists
     });
     fs.readFileSync = vi.fn(() => 'template');
@@ -52,9 +54,11 @@ export default function configure(app: App, feature: string): void {
 
   it('update creates config file if it does not exist', () => {
     // Mock template file to exist, but config file to not exist
-    fs.existsSync = vi.fn((path) => {
-      if (path.includes('feature.wasp.eta')) return true; // Template exists
-      if (path.includes('test-feature.wasp.ts')) return false; // Config file doesn't exist
+    fs.existsSync = vi.fn((p) => {
+      if (typeof p === 'string' && p.includes('feature.wasp.eta')) return true; // Template exists
+      if (typeof p === 'string' && p.endsWith('/feature.wasp.ts')) return false; // New config file doesn't exist
+      if (typeof p === 'string' && p.includes('test-feature.wasp.ts'))
+        return false; // Old-named config doesn't exist
       return true; // Other files exist
     });
     fs.copyFileSync = vi.fn();

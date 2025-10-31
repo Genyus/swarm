@@ -28,7 +28,7 @@ describe('Job Generator Integration Tests', () => {
     const featureGen = new FeatureGenerator(logger, realFileSystem);
     const jobGen = new JobGenerator(logger, realFileSystem, featureGen);
 
-    await featureGen.generate({ path: 'posts' });
+    await featureGen.generate({ target: 'posts' });
     await jobGen.generate({
       feature: 'posts',
       name: 'cleanupPosts',
@@ -48,7 +48,7 @@ describe('Job Generator Integration Tests', () => {
     const featureGen = new FeatureGenerator(logger, realFileSystem);
     const jobGen = new JobGenerator(logger, realFileSystem, featureGen);
 
-    await featureGen.generate({ path: 'posts' });
+    await featureGen.generate({ target: 'posts' });
     await jobGen.generate({
       feature: 'posts',
       name: 'cleanupPosts',
@@ -56,7 +56,7 @@ describe('Job Generator Integration Tests', () => {
       force: false,
     });
 
-    const configPath = 'src/features/posts/posts.wasp.ts';
+    const configPath = 'src/features/posts/feature.wasp.ts';
     const content = readGeneratedFile(projectPaths.root, configPath);
 
     expect(content).toContain('addJob');
@@ -69,7 +69,7 @@ describe('Job Generator Integration Tests', () => {
     const featureGen = new FeatureGenerator(logger, realFileSystem);
     const jobGen = new JobGenerator(logger, realFileSystem, featureGen);
 
-    await featureGen.generate({ path: 'posts' });
+    await featureGen.generate({ target: 'posts' });
     await jobGen.generate({
       feature: 'posts',
       name: 'processPosts',
@@ -78,7 +78,7 @@ describe('Job Generator Integration Tests', () => {
       force: false,
     });
 
-    const configPath = 'src/features/posts/posts.wasp.ts';
+    const configPath = 'src/features/posts/feature.wasp.ts';
     const content = readGeneratedFile(projectPaths.root, configPath);
 
     expect(content).toContain('args: {"batchSize":10,"priority":"high"}');
@@ -89,7 +89,7 @@ describe('Job Generator Integration Tests', () => {
     const featureGen = new FeatureGenerator(logger, realFileSystem);
     const jobGen = new JobGenerator(logger, realFileSystem, featureGen);
 
-    await featureGen.generate({ path: 'posts' });
+    await featureGen.generate({ target: 'posts' });
     await jobGen.generate({
       feature: 'posts',
       name: 'testJob',
@@ -97,7 +97,7 @@ describe('Job Generator Integration Tests', () => {
       force: false,
     });
 
-    const configPath = 'src/features/posts/posts.wasp.ts';
+    const configPath = 'src/features/posts/feature.wasp.ts';
     const contentBefore = readGeneratedFile(projectPaths.root, configPath);
     const occurrencesBefore = countOccurrences(contentBefore, 'testJob');
 

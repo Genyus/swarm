@@ -33,17 +33,22 @@ export function createTestWaspProject(): TestProjectPaths {
   fs.writeFileSync(path.join(root, '.wasproot'), 'wasp');
 
   const mainWasp = path.join(root, 'main.wasp.ts');
-  fs.writeFileSync(mainWasp, `
+  fs.writeFileSync(
+    mainWasp,
+    `
 import { app } from '@wasp/config';
 
 export default app('TestApp', {
-  wasp: { version: '^0.15.0' },
+  wasp: { version: '^0.18.0' },
   title: 'Test Application',
 });
-`);
+`
+  );
 
   const schema = path.join(root, 'schema.prisma');
-  fs.writeFileSync(schema, `
+  fs.writeFileSync(
+    schema,
+    `
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
@@ -85,36 +90,59 @@ model Comment {
   authorId  Int
   createdAt DateTime @default(now())
 }
-`);
+`
+  );
 
-  fs.writeFileSync(path.join(root, 'package.json'), JSON.stringify({
-    name: 'test-wasp-app',
-    version: '0.0.1',
-    private: true,
-    dependencies: {
-      '@wasp/entities': 'workspace:*',
-      'wasp': '^0.15.0'
-    }
-  }, null, 2));
+  fs.writeFileSync(
+    path.join(root, 'package.json'),
+    JSON.stringify(
+      {
+        name: 'test-wasp-app',
+        version: '0.0.1',
+        private: true,
+        dependencies: {
+          '@wasp/entities': 'workspace:*',
+          wasp: '^0.18.0',
+        },
+      },
+      null,
+      2
+    )
+  );
 
-  fs.writeFileSync(path.join(root, 'tsconfig.json'), JSON.stringify({
-    extends: './tsconfig.wasp.json',
-    compilerOptions: {
-      strict: true,
-      esModuleInterop: true,
-      skipLibCheck: true
-    }
-  }, null, 2));
+  fs.writeFileSync(
+    path.join(root, 'tsconfig.json'),
+    JSON.stringify(
+      {
+        extends: './tsconfig.wasp.json',
+        compilerOptions: {
+          strict: true,
+          esModuleInterop: true,
+          skipLibCheck: true,
+        },
+      },
+      null,
+      2
+    )
+  );
 
   const swarmConfig = path.join(root, DEFAULT_CONFIG_FILE);
-  fs.writeFileSync(swarmConfig, JSON.stringify({
-    plugins: {
-      '@ingenyus/swarm-wasp': {
-        plugin: 'wasp',
-        enabled: true
-      }
-    }
-  }, null, 2));
+  fs.writeFileSync(
+    swarmConfig,
+    JSON.stringify(
+      {
+        plugins: [
+          {
+            from: '@ingenyus/swarm-wasp',
+            import: 'wasp',
+            enabled: true,
+          },
+        ],
+      },
+      null,
+      2
+    )
+  );
 
   return { root, src, features, schema, mainWasp, swarmConfig };
 }

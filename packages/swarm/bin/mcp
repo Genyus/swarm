@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
-import('../dist/mcp/index.js').then((module) =>
-  module.startMCPServer().catch((error) => {
+import('../dist/mcp/cli/index.js')
+  .then((module) => module.runCli())
+  .catch((error) => {
     console.error('Failed to start MCP server:', error);
     process.exit(1);
-  })
-);
+  });

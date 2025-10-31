@@ -30,10 +30,11 @@ describe('CRUD Generator Integration Tests', () => {
     const featureGen = new FeatureGenerator(logger, realFileSystem);
     const crudGen = new CrudGenerator(logger, realFileSystem, featureGen);
 
-    await featureGen.generate({ path: 'posts' });
+    await featureGen.generate({ target: 'posts' });
     await crudGen.generate({
       dataType: 'Post',
       feature: 'posts',
+      name: 'posts',
       public: ['create', 'get', 'getAll', 'update', 'delete'],
       override: ['create', 'get', 'getAll', 'update', 'delete'],
       force: false,
@@ -73,15 +74,16 @@ describe('CRUD Generator Integration Tests', () => {
     const featureGen = new FeatureGenerator(logger, realFileSystem);
     const crudGen = new CrudGenerator(logger, realFileSystem, featureGen);
 
-    await featureGen.generate({ path: 'posts' });
+    await featureGen.generate({ target: 'posts' });
     await crudGen.generate({
       dataType: 'Post',
       feature: 'posts',
+      name: 'posts',
       public: ['create', 'get', 'getAll', 'update', 'delete'],
       force: false,
     });
 
-    const configPath = 'src/features/posts/posts.wasp.ts';
+    const configPath = 'src/features/posts/feature.wasp.ts';
     const content = readGeneratedFile(projectPaths.root, configPath);
     const crudPath = path.join(
       projectPaths.root,
@@ -100,15 +102,16 @@ describe('CRUD Generator Integration Tests', () => {
     const featureGen = new FeatureGenerator(logger, realFileSystem);
     const crudGen = new CrudGenerator(logger, realFileSystem, featureGen);
 
-    await featureGen.generate({ path: 'posts' });
+    await featureGen.generate({ target: 'posts' });
     await crudGen.generate({
       dataType: 'Post',
       feature: 'posts',
+      name: 'posts',
       public: ['create', 'get'],
       force: false,
     });
 
-    const configPath = 'src/features/posts/posts.wasp.ts';
+    const configPath = 'src/features/posts/feature.wasp.ts';
     const contentBefore = readGeneratedFile(projectPaths.root, configPath);
     const occurrencesBefore = countOccurrences(contentBefore, 'addCrud');
 
@@ -116,6 +119,7 @@ describe('CRUD Generator Integration Tests', () => {
     await crudGen.generate({
       dataType: 'Post',
       feature: 'posts',
+      name: 'posts',
       public: ['create', 'get'],
       force: false,
     });

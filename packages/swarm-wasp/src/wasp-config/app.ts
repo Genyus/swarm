@@ -19,6 +19,7 @@ import {
   RouteConfig,
   App as WaspApp,
 } from 'wasp-config';
+import { ApiHttpMethod } from '../types';
 
 // Type definitions for helper method options
 interface RouteOptions {
@@ -27,7 +28,7 @@ interface RouteOptions {
 }
 
 interface ApiOptions {
-  method: 'GET' | 'POST' | 'PUT' | 'DELETE';
+  method: ApiHttpMethod;
   route: string;
   customMiddleware?: boolean;
   entities?: string[];

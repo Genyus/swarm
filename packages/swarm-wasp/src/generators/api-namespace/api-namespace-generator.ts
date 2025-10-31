@@ -1,26 +1,26 @@
-import { toCamelCase } from '@ingenyus/swarm';
+import { Out, toCamelCase } from '@ingenyus/swarm';
 import path from 'node:path';
-import { ApiNamespaceFlags } from '../../generators/args.types';
 import { CONFIG_TYPES } from '../../types';
-import { EntityGeneratorBase } from '../base';
+import { ComponentGeneratorBase } from '../base';
 import { schema } from './schema';
 
-export class ApiNamespaceGenerator extends EntityGeneratorBase<
+export class ApiNamespaceGenerator extends ComponentGeneratorBase<
+  typeof schema,
   typeof CONFIG_TYPES.API_NAMESPACE
 > {
-  protected get entityType() {
+  protected get componentType() {
     return CONFIG_TYPES.API_NAMESPACE;
   }
 
-  description = 'Generate API namespaces for Wasp applications';
+  description = 'Generates a Wasp API Namespace';
   schema = schema;
 
-  async generate(flags: ApiNamespaceFlags): Promise<void> {
-    const { name, path: apiPath, feature } = flags;
+  async generate(args: Out<typeof schema>): Promise<void> {
+    const { name, path: namespacePath, feature } = args;
     const namespaceName = toCamelCase(name);
 
     return this.handleGeneratorError(
-      this.entityType,
+      this.componentType,
       namespaceName,
       async () => {
         const configPath = this.validateFeatureConfig(feature);
@@ -33,14 +33,13 @@ export class ApiNamespaceGenerator extends EntityGeneratorBase<
         await this.generateMiddlewareFile(
           targetFile,
           namespaceName,
-          flags.force || false
+          args.force || false
         );
         await this.updateConfigFile(
-          feature,
           namespaceName,
           importDirectory,
-          apiPath,
-          flags,
+          namespacePath,
+          args,
           configPath
         );
       }
@@ -48,19 +47,18 @@ export class ApiNamespaceGenerator extends EntityGeneratorBase<
   }
 
   private async updateConfigFile(
-    feature: string,
     namespaceName: string,
     importDirectory: string,
-    apiPath: string,
-    flags: ApiNamespaceFlags,
+    namespacePath: string,
+    args: Out<typeof schema>,
     configFilePath: string
   ) {
-    const { force = false } = flags;
+    const { force = false } = args;
     const importPath = path.join(importDirectory, namespaceName);
     const definition = await this.getDefinition(
       namespaceName,
       importPath,
-      apiPath
+      namespacePath
     );
 
     this.updateConfigWithCheck(
@@ -68,7 +66,7 @@ export class ApiNamespaceGenerator extends EntityGeneratorBase<
       'addApiNamespace',
       namespaceName,
       definition,
-      feature,
+      args.feature,
       force
     );
   }

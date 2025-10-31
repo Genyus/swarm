@@ -1,14 +1,16 @@
-import { logger } from '../../common';
+import path from 'node:path';
+import { getSwarmVersion } from '../../common';
+import { logger } from '../../logger';
 import {
-  ErrorFactory,
   configManager,
   createErrorContext,
-} from '../server/common/index.js';
-import { SwarmMCPServer } from '../server/index.js';
-import type { ServerConfig } from '../server/types/index.js';
+  ErrorFactory,
+  MCPManager,
+  ServerConfig,
+} from '../server';
 
 export class ServerManager {
-  private server: SwarmMCPServer | null = null;
+  private server: MCPManager | null = null;
   private isRunning = false;
   private pid: number | null = null;
 
@@ -22,11 +24,17 @@ export class ServerManager {
     }
 
     try {
+      const projectRoot = this.resolveProjectRoot();
+
+      if (process.cwd() !== projectRoot) {
+        process.chdir(projectRoot);
+      }
+
       await configManager.loadConfig();
 
       const config: ServerConfig = {
         name: 'Swarm MCP Server',
-        version: '0.1.0',
+        version: getSwarmVersion(),
         tools: [],
         capabilities: {
           tools: { listChanged: true },
@@ -35,7 +43,7 @@ export class ServerManager {
         instructions: 'Swarm MCP Server for Wasp application code generation',
       };
 
-      this.server = new SwarmMCPServer(config);
+      this.server = new MCPManager(config);
 
       await this.server.loadConfiguration();
       await this.server.start();
@@ -99,5 +107,27 @@ export class ServerManager {
 
   isServerRunning(): boolean {
     return this.isRunning;
+  }
+
+  private resolveProjectRoot(): string {
+    const binPath = process.argv[1];
+
+    if (binPath) {
+      const resolvedPath = path.resolve(binPath);
+      const segments = resolvedPath.split(path.sep);
+      const nodeModulesIndex = segments.lastIndexOf('node_modules');
+
+      if (nodeModulesIndex > 0) {
+        const rootSegments = segments.slice(0, nodeModulesIndex);
+        const candidate = rootSegments.join(path.sep);
+
+        if (candidate) {
+          return candidate;
+        }
+        return path.sep;
+      }
+    }
+
+    return process.cwd();
   }
 }

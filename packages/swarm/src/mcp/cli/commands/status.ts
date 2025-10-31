@@ -1,6 +1,6 @@
 import { Command } from 'commander';
-import { configureLogger, LogFormat, logger, LogLevel } from '../../../common';
-import { ServerManager } from '../server-manager.js';
+import { configureLogger, LogFormat, logger, LogLevel } from '../../../logger';
+import { ServerManager } from '../server-manager';
 
 interface StatusOptions {
   json?: boolean;

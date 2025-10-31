@@ -1,0 +1,12 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/ingydotnet/git-subrepo#readme
+;
+[subrepo]
+	remote = git@github.com:Genyus/swarm-wasp-starter.git
+	branch = main
+	commit = 5a4ca42e0f8fb2a16db1baee9cd90ebd9bf1528d
+	parent = 70d6bf441ee9d54b2d147a925553bd65f446add4
+	method = merge
+	cmdver = 0.4.9

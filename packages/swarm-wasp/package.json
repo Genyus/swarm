@@ -79,15 +79,5 @@
   },
   "publishConfig": {
     "access": "public"
-  },
-  "swarm": {
-    "plugins": {
-      "wasp": {
-        "entry": "./dist/index.js",
-        "name": "wasp",
-        "description": "Wasp Plugin for Swarm",
-        "version": "0.1.0"
-      }
-    }
   }
 }

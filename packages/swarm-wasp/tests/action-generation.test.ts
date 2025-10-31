@@ -29,7 +29,7 @@ describe('Action Generator Integration Tests', () => {
     const featureGen = new FeatureGenerator(logger, realFileSystem);
     const actionGen = new ActionGenerator(logger, realFileSystem, featureGen);
 
-    await featureGen.generate({ path: 'posts' });
+    await featureGen.generate({ target: 'posts' });
     await actionGen.generate({
       dataType: 'Post',
       operation: 'create',
@@ -57,7 +57,7 @@ describe('Action Generator Integration Tests', () => {
     const featureGen = new FeatureGenerator(logger, realFileSystem);
     const actionGen = new ActionGenerator(logger, realFileSystem, featureGen);
 
-    await featureGen.generate({ path: 'posts' });
+    await featureGen.generate({ target: 'posts' });
     await actionGen.generate({
       dataType: 'Post',
       operation: 'create',
@@ -66,7 +66,7 @@ describe('Action Generator Integration Tests', () => {
       force: false,
     });
 
-    const configPath = 'src/features/posts/posts.wasp.ts';
+    const configPath = 'src/features/posts/feature.wasp.ts';
     const contentBefore = readGeneratedFile(projectPaths.root, configPath);
     const occurrencesBefore = countOccurrences(contentBefore, 'createPost');
 
@@ -91,7 +91,7 @@ describe('Action Generator Integration Tests', () => {
     const featureGen = new FeatureGenerator(logger, realFileSystem);
     const actionGen = new ActionGenerator(logger, realFileSystem, featureGen);
 
-    await featureGen.generate({ path: 'posts' });
+    await featureGen.generate({ target: 'posts' });
 
     await actionGen.generate({
       dataType: 'Post',
@@ -101,7 +101,7 @@ describe('Action Generator Integration Tests', () => {
       force: false,
     });
 
-    const configPath = 'src/features/posts/posts.wasp.ts';
+    const configPath = 'src/features/posts/feature.wasp.ts';
     const contentBefore = readGeneratedFile(projectPaths.root, configPath);
     expect(contentBefore).not.toContain('authRequired: true');
 

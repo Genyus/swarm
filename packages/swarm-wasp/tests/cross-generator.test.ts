@@ -36,7 +36,7 @@ describe('Cross-Generator Integration Tests', () => {
   });
 
   it('should generate compatible CRUD and custom operations', async () => {
-    await featureGen.generate({ path: 'posts' });
+    await featureGen.generate({ target: 'posts' });
 
     const crudGen = new CrudGenerator(logger, realFileSystem, featureGen);
     const actionGen = new ActionGenerator(logger, realFileSystem, featureGen);
@@ -44,6 +44,7 @@ describe('Cross-Generator Integration Tests', () => {
 
     await crudGen.generate({
       dataType: 'Post',
+      name: 'posts',
       feature: 'posts',
       public: ['create', 'get', 'getAll', 'update', 'delete'],
       force: false,
@@ -63,7 +64,7 @@ describe('Cross-Generator Integration Tests', () => {
       force: false,
     });
 
-    const configPath = 'src/features/posts/posts.wasp.ts';
+    const configPath = 'src/features/posts/feature.wasp.ts';
     const content = readGeneratedFile(projectPaths.root, configPath);
 
     expect(content).toContain('addCrud');
@@ -79,7 +80,7 @@ describe('Cross-Generator Integration Tests', () => {
   });
 
   it('should generate complete feature with all generator types', async () => {
-    await featureGen.generate({ path: 'posts' });
+    await featureGen.generate({ target: 'posts' });
 
     const actionGen = new ActionGenerator(logger, realFileSystem, featureGen);
     const queryGen = new QueryGenerator(logger, realFileSystem, featureGen);
@@ -105,7 +106,7 @@ describe('Cross-Generator Integration Tests', () => {
       feature: 'posts',
       name: 'postsApi',
       method: 'GET',
-      route: '/api/posts',
+      path: '/api/posts',
       entities: ['Post'],
       force: false,
     });
@@ -124,7 +125,7 @@ describe('Cross-Generator Integration Tests', () => {
       force: false,
     });
 
-    const configPath = 'src/features/posts/posts.wasp.ts';
+    const configPath = 'src/features/posts/feature.wasp.ts';
     const content = readGeneratedFile(projectPaths.root, configPath);
 
     assertConfigGroupOrder(content, [
@@ -145,8 +146,8 @@ describe('Cross-Generator Integration Tests', () => {
   });
 
   it('should handle multiple features with different generators', async () => {
-    await featureGen.generate({ path: 'posts' });
-    await featureGen.generate({ path: 'users' });
+    await featureGen.generate({ target: 'posts' });
+    await featureGen.generate({ target: 'users' });
 
     const actionGen = new ActionGenerator(logger, realFileSystem, featureGen);
     const crudGen = new CrudGenerator(logger, realFileSystem, featureGen);
@@ -160,13 +161,14 @@ describe('Cross-Generator Integration Tests', () => {
 
     await crudGen.generate({
       dataType: 'User',
+      name: 'users',
       feature: 'users',
       public: ['create', 'get', 'update'],
       force: false,
     });
 
-    const postsConfig = 'src/features/posts/posts.wasp.ts';
-    const usersConfig = 'src/features/users/users.wasp.ts';
+    const postsConfig = 'src/features/posts/feature.wasp.ts';
+    const usersConfig = 'src/features/users/feature.wasp.ts';
 
     const postsContent = readGeneratedFile(projectPaths.root, postsConfig);
     const usersContent = readGeneratedFile(projectPaths.root, usersConfig);

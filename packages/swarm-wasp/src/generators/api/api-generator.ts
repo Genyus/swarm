@@ -1,50 +1,51 @@
-import { toCamelCase, toPascalCase } from '@ingenyus/swarm';
+import { Out, toCamelCase, toPascalCase } from '@ingenyus/swarm';
 import { getFeatureImportPath } from '../../common';
-import { ApiFlags } from '../../generators/args.types';
 import { CONFIG_TYPES } from '../../types';
-import { EntityGeneratorBase } from '../base';
+import { ComponentGeneratorBase } from '../base';
 import { schema } from './schema';
 
-export class ApiGenerator extends EntityGeneratorBase<typeof CONFIG_TYPES.API> {
-  protected get entityType() {
+export class ApiGenerator extends ComponentGeneratorBase<
+  typeof schema,
+  typeof CONFIG_TYPES.API
+> {
+  protected get componentType() {
     return CONFIG_TYPES.API;
   }
 
-  description = 'Generate API endpoints for Wasp applications';
+  description = 'Generates a Wasp API Endpoint';
   schema = schema;
 
-  async generate(flags: ApiFlags): Promise<void> {
-    const apiName = toCamelCase(flags?.name);
+  async generate(args: Out<typeof schema>): Promise<void> {
+    const apiName = toCamelCase(args.name);
 
-    return this.handleGeneratorError(this.entityType, apiName, async () => {
-      const configPath = this.validateFeatureConfig(flags.feature);
+    return this.handleGeneratorError(this.componentType, apiName, async () => {
+      const configPath = this.validateFeatureConfig(args.feature);
       const {
         targetDirectory: apiTargetDirectory,
         importDirectory: apiImportDirectory,
-      } = this.ensureTargetDirectory(flags.feature, this.name);
+      } = this.ensureTargetDirectory(args.feature, this.name);
       const fileName = `${apiName}.ts`;
       const targetFile = `${apiTargetDirectory}/${fileName}`;
 
-      await this.generateApiFile(targetFile, apiName, flags);
+      await this.generateApiFile(targetFile, apiName, args);
 
-      if (flags.customMiddleware) {
+      if (args.customMiddleware) {
         const { targetDirectory: middlewareTargetDirectory } =
-          this.ensureTargetDirectory(flags.feature, 'middleware');
+          this.ensureTargetDirectory(args.feature, 'middleware');
         const middlewareFile = `${middlewareTargetDirectory}/${apiName}.ts`;
 
         this.generateMiddlewareFile(
           middlewareFile,
           apiName,
-          flags.force || false
+          args.force || false
         );
       }
 
       await this.updateConfigFile(
-        flags.feature,
         apiName,
         fileName,
         apiImportDirectory,
-        flags,
+        args,
         configPath
       );
     });
@@ -53,7 +54,7 @@ export class ApiGenerator extends EntityGeneratorBase<typeof CONFIG_TYPES.API> {
   private async generateApiFile(
     targetFile: string,
     apiName: string,
-    { method, auth = false, force = false }: any
+    { method, auth = false, force = false }: Out<typeof schema>
   ) {
     const replacements = this.buildTemplateData(apiName, method, auth);
 
@@ -61,31 +62,38 @@ export class ApiGenerator extends EntityGeneratorBase<typeof CONFIG_TYPES.API> {
       'api.eta',
       replacements,
       targetFile,
-      'API endpoint file',
+      'API Endpoint file',
       force
     );
   }
 
   private async updateConfigFile(
-    featurePath: string,
     apiName: string,
     apiFile: string,
     importDirectory: string,
-    flags: any,
+    args: Out<typeof schema>,
     configFilePath: string
   ) {
-    const { force = false, entities, method, route, auth } = flags;
+    const {
+      feature,
+      force = false,
+      entities,
+      method,
+      path,
+      auth,
+      customMiddleware,
+    } = args;
     const importPath = this.path.join(importDirectory, apiFile);
     const definition = await this.getConfigDefinition(
       apiName,
-      featurePath,
+      feature,
       Array.isArray(entities) ? entities : entities ? [entities] : [],
       method,
-      route,
+      path,
       apiFile,
       auth,
       importPath,
-      flags.customMiddleware || false
+      customMiddleware || false
     );
 
     this.updateConfigWithCheck(
@@ -93,7 +101,7 @@ export class ApiGenerator extends EntityGeneratorBase<typeof CONFIG_TYPES.API> {
       'addApi',
       apiName,
       definition,
-      featurePath,
+      feature,
       force
     );
   }

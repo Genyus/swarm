@@ -1,26 +1,75 @@
 import { AsyncSearcher, LilconfigResult, lilconfig } from 'lilconfig';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { DEFAULT_CONFIG_FILE, DEFAULT_CUSTOM_TEMPLATES_DIR } from '../common';
 
 /**
  * Swarm configuration interface
+ *
+ * Configuration can be loaded from swarm.config.json or the `swarm` section in package.json
+ *
+ * - `templateDirectory` is an optional string to specify the directory where the templates are located (defaults to `.swarm/templates`)
+ * - `plugins[].import` is the name of the plugin to import
+ * - `plugins[].from` is the package name or path where the plugin will be imported from
+ * - `plugins[].disabled` is an optional boolean to explicitly disable the plugin (defaults to enabled)
+ * - `plugins[].generators` is an optional array that can be used to disable specific generators
+ * - `plugins[].generators[].disabled` is an optional boolean to explicitly disable the generator (defaults to enabled)
+ *
+ * @example <caption>swarm.config.json (primary)</caption>
+ *
+ * ```json
+ *          {
+ *            "templateDirectory": "templates",
+ *            "plugins": [
+ *              {
+ *                "import": "wasp",
+ *                "from": "@ingenyus/swarm-wasp"
+ *                "disabled": false,
+ *                "generators": {
+ *                  "api": {
+ *                    "disabled": true
+ *                  }
+ *                }
+ *              }
+ *            ]
+ *          }
+ * ```
+ *
+ * @example <caption>package.json (fallback)</caption>
+ * ```json
+ *         {
+ *           "name": "my-app",
+ *           "swarm": {
+ *            "templateDirectory": ".swarm/templates",
+ *             "plugins": [
+ *               {
+ *                 "import": "wasp",
+ *                  "from": "@ingenyus/swarm-wasp"
+ *                  "disabled": false,
+ *                  "generators": {
+ *                    "api": {
+ *                      "disabled": true
+ *                    }
+ *                  }
+ *               }
+ *             ]
+ *           }
+ *        }
+ * ```
  */
 export interface SwarmConfig {
   templateDirectory?: string;
-  plugins: {
-    [packageName: string]: {
-      plugin?: string; // Specific plugin name within the package
-      enabled: boolean;
-      generators?: {
-        [generatorName: string]: {
-          enabled: boolean;
-          config?: Record<string, any>;
-        };
+  plugins: Array<{
+    import: string;
+    from: string;
+    disabled?: boolean;
+    generators?: {
+      [generatorName: string]: {
+        disabled?: boolean;
       };
-      config?: Record<string, any>;
     };
-  };
+  }>;
 }
 
 /**
@@ -28,7 +77,7 @@ export interface SwarmConfig {
  */
 const DEFAULT_CONFIG: SwarmConfig = {
   templateDirectory: DEFAULT_CUSTOM_TEMPLATES_DIR,
-  plugins: {},
+  plugins: [],
 };
 
 /**
@@ -39,7 +88,9 @@ export class SwarmConfigManager {
   private configPath: string | null = null;
   private lilconfig: AsyncSearcher;
 
-  constructor(private searchPlaces: string[] = [DEFAULT_CONFIG_FILE]) {
+  constructor(
+    private searchPlaces: string[] = [DEFAULT_CONFIG_FILE, 'package.json']
+  ) {
     this.lilconfig = lilconfig('swarm', {
       searchPlaces: this.searchPlaces,
     });
@@ -51,7 +102,24 @@ export class SwarmConfigManager {
    * @returns Path to project root or null if not found
    */
   private findProjectRoot(startDir?: string): string | null {
-    let currentDir = startDir || process.cwd();
+    let currentDir: string;
+
+    if (startDir) {
+      currentDir = startDir;
+    } else {
+      const moduleDir = path.dirname(fileURLToPath(import.meta.url));
+      const segments = moduleDir.split(path.sep);
+      const nodeModulesIndex = segments.lastIndexOf('node_modules');
+
+      if (nodeModulesIndex !== -1) {
+        const rootSegments = segments.slice(0, nodeModulesIndex);
+        currentDir =
+          rootSegments.length > 0 ? rootSegments.join(path.sep) : path.sep;
+      } else {
+        currentDir = process.cwd();
+      }
+    }
+
     const rootDir = path.parse(currentDir).root;
 
     while (currentDir !== rootDir) {
@@ -117,19 +185,19 @@ export class SwarmConfigManager {
 
       let result: LilconfigResult | null = null;
 
-      for (const searchPlace of this.searchPlaces) {
-        const fullPath = path.join(searchDir, searchPlace);
-
+      if (configPath) {
+        // If a specific config path is provided, load directly
         try {
-          result = await this.lilconfig.load(fullPath);
-
-          if (result) break;
+          result = await this.lilconfig.load(configPath);
         } catch (e) {
-          continue;
+          // Ignore errors for specific path
         }
+      } else {
+        // Use lilconfig's search which handles searchPlaces and package.json key extraction
+        result = await this.lilconfig.search(searchDir);
       }
 
-      if (!result) {
+      if (!result || !result.config) {
         // Use default configuration when no config file is found
         console.warn(
           `⚠️  No configuration file found in ${searchDir}. Searched for: ${this.searchPlaces.join(', ')}`
@@ -142,7 +210,7 @@ export class SwarmConfigManager {
       }
 
       this.config = result.config;
-      this.configPath = result.filepath;
+      this.configPath = result.filepath || null;
 
       if (this.config && !this.config.templateDirectory) {
         this.config.templateDirectory = DEFAULT_CUSTOM_TEMPLATES_DIR;
@@ -151,7 +219,7 @@ export class SwarmConfigManager {
       // Check if no plugins are defined and warn the user
       if (
         this.config &&
-        (!this.config.plugins || Object.keys(this.config.plugins).length === 0)
+        (!this.config.plugins || this.config.plugins.length === 0)
       ) {
         console.warn('⚠️  No plugins are defined in the configuration file.');
         console.warn('Swarm will not have any generators available.');
@@ -179,50 +247,5 @@ export class SwarmConfigManager {
    */
   getConfigPath(): string | null {
     return this.configPath;
-  }
-
-  /**
-   * Check if a plugin is enabled
-   * @param pluginName Name of the plugin
-   * @returns True if plugin is enabled
-   */
-  isPluginEnabled(pluginName: string): boolean {
-    return this.config?.plugins?.[pluginName]?.enabled ?? false;
-  }
-
-  /**
-   * Check if a generator is enabled
-   * @param pluginName Name of the plugin
-   * @param generatorName Name of the generator
-   * @returns True if generator is enabled
-   */
-  isGeneratorEnabled(pluginName: string, generatorName: string): boolean {
-    return (
-      this.config?.plugins?.[pluginName]?.generators?.[generatorName]
-        ?.enabled ?? false
-    );
-  }
-
-  /**
-   * Get plugin configuration
-   * @param pluginName Name of the plugin
-   * @returns Plugin configuration or undefined
-   */
-  getPluginConfig(pluginName: string): Record<string, any> | undefined {
-    return this.config?.plugins?.[pluginName]?.config;
-  }
-
-  /**
-   * Get generator configuration
-   * @param pluginName Name of the plugin
-   * @param generatorName Name of the generator
-   * @returns Generator configuration or undefined
-   */
-  getGeneratorConfig(
-    pluginName: string,
-    generatorName: string
-  ): Record<string, any> | undefined {
-    return this.config?.plugins?.[pluginName]?.generators?.[generatorName]
-      ?.config;
   }
 }

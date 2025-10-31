@@ -1,17 +1,20 @@
-import { SwarmConfigManager } from '../config/swarm-config-manager';
-import { SwarmGenerator, SwarmPlugin } from '../contracts';
-import { PluginRegistry } from './plugin-registry';
+import * as path from 'node:path';
+import { SwarmConfigManager } from '../config';
+import { SwarmGenerator } from '../generator';
+import { PluginResolver } from './plugin-resolver';
+import { SwarmPlugin } from './types';
 
 /**
  * Main plugin management system
  */
 export class PluginManager {
   private configManager: SwarmConfigManager;
-  private registry: PluginRegistry;
+  private plugins: Map<string, SwarmPlugin> = new Map();
+  private generators: Map<string, SwarmGenerator> = new Map();
+  private resolver: PluginResolver = new PluginResolver();
 
   constructor() {
     this.configManager = new SwarmConfigManager();
-    this.registry = new PluginRegistry(this.configManager);
   }
 
   /**
@@ -21,15 +24,82 @@ export class PluginManager {
    */
   async initialize(configPath?: string): Promise<void> {
     await this.configManager.loadConfig(configPath);
-    await this.registry.loadFromConfig();
+    await this.loadFromConfig();
   }
 
   /**
-   * Register a plugin
+   * Register a plugin and its generators
    * @param plugin Plugin to register
    */
   registerPlugin(plugin: SwarmPlugin): void {
-    this.registry.registerPlugin(plugin);
+    this.plugins.set(plugin.name, plugin);
+
+    plugin.generators.forEach((generator) => {
+      this.generators.set(generator.name, generator);
+    });
+  }
+
+  /**
+   * Load plugins from configuration
+   * @returns Promise that resolves when loading is complete
+   */
+  private async loadFromConfig(): Promise<void> {
+    const config = this.configManager.getConfig();
+
+    if (!config) {
+      throw new Error('No configuration loaded');
+    }
+
+    const applicationRoot = this.getApplicationRoot();
+
+    for (const pluginConfig of config.plugins) {
+      if (pluginConfig.disabled !== true) {
+        try {
+          const plugin = await this.resolver.resolve(
+            pluginConfig.from,
+            pluginConfig.import,
+            applicationRoot
+          );
+
+          if (plugin) {
+            this.registerPlugin(plugin);
+
+            plugin.generators.forEach((generator) => {
+              const isEnabled =
+                pluginConfig.generators?.[generator.name]?.disabled !== true;
+              if (isEnabled) {
+                this.generators.set(generator.name, generator);
+              } else {
+                this.generators.delete(generator.name);
+              }
+            });
+          } else {
+            console.warn(
+              `Could not resolve plugin '${pluginConfig.import}' from '${pluginConfig.from}'`
+            );
+          }
+        } catch (error) {
+          console.warn(
+            `Failed to load plugin '${pluginConfig.import}' from '${pluginConfig.from}':`,
+            error
+          );
+        }
+      }
+    }
+  }
+
+  /**
+   * Get the application root directory from the config manager
+   * @returns The application root directory path
+   */
+  private getApplicationRoot(): string | undefined {
+    const configPath = this.configManager.getConfigPath();
+
+    if (configPath) {
+      return path.dirname(configPath);
+    }
+
+    return undefined;
   }
 
   /**
@@ -38,15 +108,23 @@ export class PluginManager {
    * @returns Generator or undefined if not found
    */
   getGenerator(name: string): SwarmGenerator | undefined {
-    return this.registry.getGenerator(name);
+    return this.generators.get(name);
   }
 
   /**
-   * Get all available generators
+   * Get all registered generators
    * @returns Array of all generators
    */
   getAllGenerators(): SwarmGenerator[] {
-    return this.registry.getAllGenerators();
+    return Array.from(this.generators.values());
+  }
+
+  /**
+   * Get all enabled generators
+   * @returns Array of enabled generators
+   */
+  getEnabledGenerators(): SwarmGenerator[] {
+    return Array.from(this.generators.values());
   }
 
   /**
@@ -54,39 +132,39 @@ export class PluginManager {
    * @returns Array of enabled plugins
    */
   getEnabledPlugins(): SwarmPlugin[] {
-    return this.registry.getEnabledPlugins();
+    const config = this.configManager.getConfig();
+    if (!config) return [];
+
+    return Array.from(this.plugins.values()).filter((plugin) => {
+      const pluginConfig = config.plugins.find((p) => p.import === plugin.name);
+
+      return pluginConfig?.disabled !== true;
+    });
   }
 
   /**
-   * Check if a generator is available
+   * Get all registered plugins
+   * @returns Array of all plugins
+   */
+  getAllPlugins(): SwarmPlugin[] {
+    return Array.from(this.plugins.values());
+  }
+
+  /**
+   * Check if a generator is registered
    * @param name Generator name
-   * @returns True if generator is available
+   * @returns True if generator is registered
    */
   hasGenerator(name: string): boolean {
-    return this.registry.hasGenerator(name);
+    return this.generators.has(name);
   }
 
   /**
-   * Get the configuration manager
-   * @returns Configuration manager instance
+   * Check if a plugin is registered
+   * @param name Plugin name
+   * @returns True if plugin is registered
    */
-  getConfigManager(): SwarmConfigManager {
-    return this.configManager;
-  }
-
-  /**
-   * Get the plugin registry
-   * @returns Plugin registry instance
-   */
-  getRegistry(): PluginRegistry {
-    return this.registry;
-  }
-
-  /**
-   * Get all enabled generators from all enabled plugins
-   * @returns Array of enabled generators
-   */
-  getEnabledGenerators(): SwarmGenerator[] {
-    return this.registry.getEnabledGenerators();
+  hasPlugin(name: string): boolean {
+    return this.plugins.has(name);
   }
 }

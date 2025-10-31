@@ -1,14 +1,14 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { logger } from '../../../common';
-import { ServerManager } from '../server-manager.js';
-import { createStartCommand } from './start.js';
+import { logger } from '../../../logger';
+import { ServerManager } from '../server-manager';
+import { createStartCommand } from './start';
 
 // Mock the ServerManager
-vi.mock('../server-manager.js', () => ({
+vi.mock('../server-manager', () => ({
   ServerManager: vi.fn(),
 }));
 
-vi.mock('../../../common', () => ({
+vi.mock('../../../logger', () => ({
   logger: {
     info: vi.fn(),
     error: vi.fn(),

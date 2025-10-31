@@ -1,9 +1,9 @@
 import {
-  ExtendedSchema,
   FileSystem,
   handleFatalError,
   Logger,
-  SignaleLogger,
+  Out,
+  logger as singletonLogger,
   validateFeaturePath,
 } from '@ingenyus/swarm';
 import path from 'node:path';
@@ -13,21 +13,21 @@ import {
   realFileSystem,
 } from '../../common';
 import { WaspGeneratorBase } from '../base/wasp-generator.base';
-import { schema, SchemaArgs } from './schema';
+import { schema } from './schema';
 
-export class FeatureGenerator extends WaspGeneratorBase<SchemaArgs> {
+export class FeatureGenerator extends WaspGeneratorBase<typeof schema> {
   name: string;
   description: string;
-  schema: ExtendedSchema;
+  schema = schema;
 
   constructor(
-    public logger: Logger = new SignaleLogger(),
+    public logger: Logger = singletonLogger,
     public fileSystem: FileSystem = realFileSystem
   ) {
     super(fileSystem, logger);
     this.name = 'feature';
-    this.description = 'Generate feature directory structure';
-    this.schema = schema;
+    this.description =
+      'Generates a feature directory containing a Wasp configuration file';
   }
 
   protected getDefaultTemplatePath(templateName: string): string {
@@ -39,13 +39,13 @@ export class FeatureGenerator extends WaspGeneratorBase<SchemaArgs> {
   }
 
   /**
-   * Generate feature directory structure (main entry point)
-   * @param featurePath - The path to the feature
+   * Generates a feature directory containing a Wasp configuration file
+   * @param target - The target path of the generated directory
    */
-  async generate(flags: SchemaArgs): Promise<void> {
-    const { path: featurePath } = flags;
-    const segments = validateFeaturePath(featurePath);
-    const normalisedPath = normaliseFeaturePath(featurePath);
+  async generate(args: Out<typeof schema>): Promise<void> {
+    const { target } = args;
+    const segments = validateFeaturePath(target);
+    const normalisedPath = normaliseFeaturePath(target);
     const sourceRoot = path.join(findWaspRoot(this.fileSystem), 'src');
 
     if (segments.length > 1) {

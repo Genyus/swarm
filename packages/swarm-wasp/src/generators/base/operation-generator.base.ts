@@ -4,6 +4,7 @@ import {
   handleFatalError,
   toPascalCase,
 } from '@ingenyus/swarm';
+import { ZodType } from 'zod';
 import {
   copyDirectory,
   generateIntersectionType,
@@ -29,8 +30,16 @@ import {
   QueryOperation,
   TYPE_DIRECTORIES,
 } from '../../types';
-import { OperationConfigEntry } from '../args.types';
-import { EntityGeneratorBase } from './entity-generator.base';
+import { ComponentGeneratorBase } from './component-generator.base';
+
+/**
+ * Represents a configuration entry for an operation.
+ */
+interface OperationConfigEntry {
+  operationName: string;
+  entities: string[];
+  authRequired: boolean;
+}
 
 /**
  * Abstract base class for generators that need to generate operation files.
@@ -38,11 +47,12 @@ import { EntityGeneratorBase } from './entity-generator.base';
  * both OperationGenerator and CrudGenerator.
  */
 export abstract class OperationGeneratorBase<
-  TArgs extends
+  S extends ZodType,
+  TConfig extends
     | typeof CONFIG_TYPES.ACTION
     | typeof CONFIG_TYPES.QUERY
     | typeof CONFIG_TYPES.CRUD,
-> extends EntityGeneratorBase<TArgs> {
+> extends ComponentGeneratorBase<S, TConfig> {
   /**
    * Gets the operation name based on operation type and model name.
    */

@@ -1,8 +1,16 @@
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/Genyus/swarm/HEAD/docs/images/swarm-logo-horizontal-dark.svg">
+    <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/Genyus/swarm/HEAD/docs/images/swarm-logo-horizontal.svg">
+    <img alt="Swarm - Typescript Code Generator" src="https://raw.githubusercontent.com/Genyus/swarm/HEAD/docs/images/docs/swarm-logo-horizontal.svg" width="350" style="max-width: 100%;">
+  </picture>
+</p>
+
 # @ingenyus/swarm
 
-An extensible code generation framework for JavaScript and TypeScript projects. Built with extensibility in mind, Swarm uses a plugin architecture that allows developers to create generators for different types of content, whilst starter repositories define the structure and scaffolding for various project types.
+An modular code generation framework for TypeScript developers. Built with extensibility in mind, Swarm uses a plugin architecture that allows developers to create generators for different types of content, while starter templates can define the structure and scaffolding for various project types.
 
-Swarm provides both CLI commands and AI agent integration via MCP (Model Context Protocol) to create customised boilerplate code and scaffold new projects.
+Swarm provides both CLI commands and AI agent integration via MCP to create customised boilerplate code and scaffold new projects.
 
 ## Table of Contents
 
@@ -11,8 +19,6 @@ Swarm provides both CLI commands and AI agent integration via MCP (Model Context
 - [How It Works](#how-it-works)
 - [CLI Commands](#cli-commands)
 - [MCP Integration](#mcp-integration)
-- [Known Plugins](#known-plugins)
-- [Known Starter Repositories](#known-starter-repositories)
 - [Development](#development)
 - [Contributing](#contributing)
 - [License](#license)
@@ -31,7 +37,7 @@ For plugin development, you can install Swarm as a library:
 npm install @ingenyus/swarm
 ```
 
-See our [plugin development documentation](https://github.com/genyus/swarm/tree/main/docs) for detailed guidance on creating custom generators.
+See our [plugin development documentation](./docs/PLUGIN_DEVELOPMENT.md) for detailed guidance on creating custom generators.
 
 ## Quick Start
 
@@ -53,7 +59,65 @@ Swarm operates through a flexible plugin architecture:
 - **Starter repositories** define project scaffolding and initial structure
 - **Configuration files** enable or disable specific plugins and generators for a project
 
-Swarm commands are built dynamically from the available plugins and their generators, allowing you to create boilerplate code tailored to each project. The `create` command scaffolds entire projects from starter templates, whilst individual generators add specific functionality to existing projects.
+Swarm commands are built dynamically from the configured plugins and their generators, allowing you to create boilerplate code tailored to each project. The `create` command scaffolds entire projects from starter templates, whilst individual generators add specific functionality to existing projects.
+
+## Creating Custom Plugins
+
+Swarm's plugin architecture lets you create custom generators for any project type. A plugin is simply a container for generators that share common functionality.
+
+**Quick Example:**
+```typescript
+import { SwarmPlugin } from '@ingenyus/swarm';
+
+export const myPlugin: SwarmPlugin = {
+  name: 'my-plugin',
+  version: '1.0.0',
+  description: 'My custom plugin',
+  generators: [
+    new MyCustomGenerator(),
+  ],
+};
+```
+
+For detailed plugin development guidance, see:
+- [Plugin Development Guide](./docs/PLUGIN_DEVELOPMENT.md) - Complete guide to building custom plugins
+- [Generator Examples](./docs/GENERATOR_EXAMPLES.md) - Ideas for generators for Next.js, Astro, Remix, and more
+
+## Configuration
+
+Swarm can be configured via the `swarm.config.json` file, or by a `swarm` block in `package.json`. The configuration object accepts a list of plugins, defined with `import` and `from` specifying the plugin object and source. The Wasp plugin can be enabled as follows:
+
+```json
+{
+  "plugins": [
+    {
+      "import": "wasp",
+      "from": "@ingenyus/swarm-wasp"
+    }
+  ]
+}
+```
+
+To support disabling a plugin or any of its provided generators, the plugin configuration accepts an optional `generators` array and a `disabled` property (`false` by default) on both the plugin and generator objects:
+
+```json
+{
+  "plugins": [
+    {
+      "import": "wasp",
+      "from": "@ingenyus/swarm-wasp",
+      "disabled": false,
+      "generators": {
+        "api": {
+          "disabled": true
+        }
+      }
+    }
+  ]
+}
+```
+
+Custom templates can override built-in templates by placing them in `.swarm/templates/<plugin>/<generator>/`.
 
 ## CLI Commands
 
@@ -93,16 +157,6 @@ Swarm includes an MCP (Model Context Protocol) server that allows AI tools to in
 
 For detailed MCP setup instructions, see our [MCP integration guide](https://github.com/genyus/swarm/tree/main/docs/mcp).
 
-## Known Plugins
-
-### `@ingenyus/swarm-wasp`
-Generators for the Wasp full-stack framework, including API endpoints, CRUD operations, routes, background jobs, and more. [View on GitHub](https://github.com/genyus/swarm/tree/main/packages/swarm-wasp)
-
-## Known Starter Repositories
-
-### `genyus/swarm-wasp-starter`
-A minimal Wasp starter template with Swarm integration, shadcn/ui components, and Tailwind CSS. Perfect for building full-stack applications with modern tooling. [View on GitHub](https://github.com/genyus/swarm-wasp-starter)
-
 ## Development
 
 ### Prerequisites
@@ -132,12 +186,12 @@ pnpm build:watch
 
 ```
 src/
-├── generators/           # Core generation logic
-│   └── app/              # App generator for project scaffolding
 ├── cli/                  # Command-line interface
 ├── mcp/                  # MCP server for AI tool integration
-├── plugin/               # Plugin system
-├── common/                # Shared utilities
+├── generators/           # Core generation logic
+│   └── app/              # App generator for project scaffolding
+├── plugin/               # Plugin system and management
+├── common/               # Shared utilities
 │   ├── strings.ts        # String manipulation
 │   ├── logger.ts         # Logging utilities
 │   └── errors.ts         # Error handling
@@ -170,6 +224,11 @@ The core architecture consists of:
 - Update documentation for new features
 - Use Conventional Commits commit messages
 - Ensure all existing tests continue to pass
+
+### Community Contributions
+
+- [@ingenyus/swarm-wasp](https://npmjs.org/@ingenyus/swarm-wasp) [Wasp](https://wasp.sh) generators with enhanced configuration and directory structure.
+- [genyus/swarm-wasp-starter](https://github.com/genyus/swarm-wasp-starter) A minimal Wasp starter template with Swarm integration, shadcn/ui components, and Tailwind CSS. Perfect for building full-stack applications with modern tooling.
 
 ## License
 

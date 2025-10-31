@@ -32,7 +32,7 @@ describe('API Namespace Generator Integration Tests', () => {
       featureGen
     );
 
-    await featureGen.generate({ path: 'posts' });
+    await featureGen.generate({ target: 'posts' });
     await apiNamespaceGen.generate({
       feature: 'posts',
       name: 'postsApi',
@@ -56,7 +56,7 @@ describe('API Namespace Generator Integration Tests', () => {
       featureGen
     );
 
-    await featureGen.generate({ path: 'posts' });
+    await featureGen.generate({ target: 'posts' });
     await apiNamespaceGen.generate({
       feature: 'posts',
       name: 'postsApi',
@@ -64,7 +64,7 @@ describe('API Namespace Generator Integration Tests', () => {
       force: false,
     });
 
-    const configPath = 'src/features/posts/posts.wasp.ts';
+    const configPath = 'src/features/posts/feature.wasp.ts';
     const content = readGeneratedFile(projectPaths.root, configPath);
 
     expect(content).toContain('addApiNamespace');
@@ -82,7 +82,7 @@ describe('API Namespace Generator Integration Tests', () => {
       featureGen
     );
 
-    await featureGen.generate({ path: 'posts' });
+    await featureGen.generate({ target: 'posts' });
     await apiNamespaceGen.generate({
       feature: 'posts',
       name: 'testApi',
@@ -90,7 +90,7 @@ describe('API Namespace Generator Integration Tests', () => {
       force: false,
     });
 
-    const configPath = 'src/features/posts/posts.wasp.ts';
+    const configPath = 'src/features/posts/feature.wasp.ts';
     const contentBefore = readGeneratedFile(projectPaths.root, configPath);
     const occurrencesBefore = countOccurrences(contentBefore, 'testApi');
 

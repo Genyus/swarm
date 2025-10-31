@@ -5,18 +5,19 @@ import {
   createMockFS,
   createMockLogger,
 } from '../../../tests/utils';
+import { schema as featureSchema } from '../feature/schema';
 import { CrudGenerator } from './crud-generator';
 
 describe('CrudGenerator', () => {
   let fs: FileSystem;
   let logger: Logger;
-  let featureGen: SwarmGenerator<{ path: string }>;
+  let featureGen: SwarmGenerator<typeof featureSchema>;
   let gen: CrudGenerator;
 
   beforeEach(() => {
     fs = createMockFS();
     logger = createMockLogger();
-    featureGen = createMockFeatureGen();
+    featureGen = createMockFeatureGen(featureSchema);
     gen = new CrudGenerator(logger, fs, featureGen);
   });
 
