@@ -62,7 +62,7 @@ jobs:
         run: |
           cd packages/swarm
           # Test that MCP server can start and respond to basic commands
-          timeout 5s node ./bin/mcp || [ $? -eq 124 ]
+          timeout 5s node ./bin/mcp start || [ $? -eq 124 ]
 
   release:
     name: Release
