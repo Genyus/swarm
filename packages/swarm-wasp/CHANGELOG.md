@@ -1,5 +1,29 @@
 # @ingenyus/swarm-wasp
 
+## 0.3.0
+
+### Minor Changes
+
+- [`0d5ea96`](https://github.com/Genyus/swarm/commit/0d5ea964b12aa77c1fa28393bccd826435222c3c) Thanks [@github-actions[bot]](https://github.com/github-actions%5Bbot%5D)! - Multiple changes:
+  - add swarm-wasp package boilerplate
+  - rename base classes to use Base suffix
+  - reorganize directory structure
+  - Phase 3 - eliminate duplication and reduce complexity
+  - split operation generator into action and query generators
+  - improve create operations
+  - Fix insertion ordering
+  - extend optional field support
+  - fix route configuration format
+  - auto-include datatype in entities array for actions and queries
+  - add optional custom name parameter to action and query generators
+  - simplify feature command
+  - fix CRUD generator command
+
+### Patch Changes
+
+- Updated dependencies [[`0d5ea96`](https://github.com/Genyus/swarm/commit/0d5ea964b12aa77c1fa28393bccd826435222c3c)]:
+  - @ingenyus/swarm@0.3.0
+
 ## 0.2.0
 
 ### Minor Changes
