@@ -1,11 +1,11 @@
 import { Command } from 'commander';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { z } from 'zod';
-import { Generator } from '../generator';
+import { SwarmGenerator } from '../generator';
 import { CommandManager } from './command-manager';
 
 // Mock generator for testing
-const createMockGenerator = (name: string, schema: any): Generator => ({
+const createMockGenerator = (name: string, schema: any): SwarmGenerator => ({
   name,
   description: `Generate ${name}`,
   schema,

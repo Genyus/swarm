@@ -1,7 +1,7 @@
 import { Command } from 'commander';
 import { z, ZodType } from 'zod';
 import { getSwarmVersion, toKebabCase } from '../common';
-import { Generator } from '../generator';
+import { SwarmGenerator } from '../generator';
 import { PluginInterfaceManager } from '../plugin';
 import { SchemaManager } from '../schema';
 
@@ -19,7 +19,7 @@ export class CommandManager extends PluginInterfaceManager<Command> {
    * Create a Commander.js command from a generator
    */
   protected async createInterfaceFromGenerator(
-    generator: Generator
+    generator: SwarmGenerator
   ): Promise<Command> {
     const name = generator.name;
     const description = generator.description || `Generate ${generator.name}`;

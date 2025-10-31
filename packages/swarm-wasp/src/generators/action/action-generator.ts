@@ -11,7 +11,7 @@ export class ActionGenerator extends OperationGeneratorBase<
     return CONFIG_TYPES.ACTION;
   }
 
-  description = 'Generates a Wasp action';
+  description = 'Generates a Wasp Action';
   schema = schema;
 
   async generate(args: Out<typeof schema>): Promise<void> {

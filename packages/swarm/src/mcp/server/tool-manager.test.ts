@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { z } from 'zod';
-import type { Generator } from '../../generator';
+import type { SwarmGenerator } from '../../generator';
 import { commandRegistry } from '../../schema';
 import { ToolManager } from './tool-manager';
 
@@ -20,7 +20,7 @@ describe('ToolManager', () => {
 
   describe('Plugin Loading', () => {
     it('should load tools from plugin generators', async () => {
-      const mockGenerators: Generator[] = [
+      const mockGenerators: SwarmGenerator[] = [
         {
           name: 'api',
           description: 'Generate API endpoint',
@@ -67,7 +67,7 @@ describe('ToolManager', () => {
     });
 
     it('should create valid JSON schema from Zod schema', async () => {
-      const mockGenerator: Generator = {
+      const mockGenerator: SwarmGenerator = {
         name: 'test',
         description: 'Test generator',
         schema: z.object({
@@ -126,7 +126,7 @@ describe('ToolManager', () => {
 
     it('should execute generator when tool handler is called', async () => {
       const generateFn = vi.fn().mockResolvedValue(undefined);
-      const mockGenerator: Generator = {
+      const mockGenerator: SwarmGenerator = {
         name: 'api',
         description: 'Generate API',
         schema: z.object({
@@ -155,7 +155,7 @@ describe('ToolManager', () => {
       const generateFn = vi
         .fn()
         .mockRejectedValue(new Error('Generation failed'));
-      const mockGenerator: Generator = {
+      const mockGenerator: SwarmGenerator = {
         name: 'api',
         description: 'Generate API',
         schema: z.object({

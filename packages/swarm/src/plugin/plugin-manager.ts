@@ -1,6 +1,6 @@
 import * as path from 'node:path';
 import { SwarmConfigManager } from '../config';
-import { Generator } from '../generator';
+import { SwarmGenerator } from '../generator';
 import { PluginResolver } from './plugin-resolver';
 import { SwarmPlugin } from './types';
 
@@ -10,7 +10,7 @@ import { SwarmPlugin } from './types';
 export class PluginManager {
   private configManager: SwarmConfigManager;
   private plugins: Map<string, SwarmPlugin> = new Map();
-  private generators: Map<string, Generator> = new Map();
+  private generators: Map<string, SwarmGenerator> = new Map();
   private resolver: PluginResolver = new PluginResolver();
 
   constructor() {
@@ -107,7 +107,7 @@ export class PluginManager {
    * @param name Generator name
    * @returns Generator or undefined if not found
    */
-  getGenerator(name: string): Generator | undefined {
+  getGenerator(name: string): SwarmGenerator | undefined {
     return this.generators.get(name);
   }
 
@@ -115,7 +115,7 @@ export class PluginManager {
    * Get all registered generators
    * @returns Array of all generators
    */
-  getAllGenerators(): Generator[] {
+  getAllGenerators(): SwarmGenerator[] {
     return Array.from(this.generators.values());
   }
 
@@ -123,7 +123,7 @@ export class PluginManager {
    * Get all enabled generators
    * @returns Array of enabled generators
    */
-  getEnabledGenerators(): Generator[] {
+  getEnabledGenerators(): SwarmGenerator[] {
     return Array.from(this.generators.values());
   }
 

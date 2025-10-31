@@ -1,9 +1,9 @@
 import {
   FileSystem,
-  Generator,
   hasHelperMethodCall,
   Logger,
   logger as singletonLogger,
+  SwarmGenerator,
   toCamelCase,
   toKebabCase,
   validateFeaturePath,
@@ -41,7 +41,7 @@ export abstract class ComponentGeneratorBase<
   constructor(
     public logger: Logger = singletonLogger,
     public fileSystem: FileSystem = realFileSystem,
-    protected featureDirectoryGenerator: Generator<
+    protected featureDirectoryGenerator: SwarmGenerator<
       typeof featureSchema
     > = new FeatureGenerator(logger, fileSystem)
   ) {

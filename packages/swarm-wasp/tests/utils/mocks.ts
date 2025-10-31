@@ -1,4 +1,4 @@
-import type { FileSystem, Generator, Logger } from '@ingenyus/swarm';
+import type { FileSystem, Logger, SwarmGenerator } from '@ingenyus/swarm';
 import { vi } from 'vitest';
 import { ZodType } from 'zod';
 
@@ -24,6 +24,13 @@ export function createMockFS(): FileSystem {
   } as FileSystem;
 }
 
-export function createMockFeatureGen<S extends ZodType>(s: S): Generator<S> {
-  return { name: 'feature', description: 'Mock', schema: s, generate: vi.fn() };
+export function createMockFeatureGen<S extends ZodType>(
+  s: S
+): SwarmGenerator<S> {
+  return {
+    name: 'feature',
+    description: 'Mock',
+    schema: s,
+    generate: vi.fn(),
+  };
 }

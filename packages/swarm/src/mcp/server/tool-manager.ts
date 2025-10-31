@@ -1,5 +1,5 @@
 import { ZodType } from 'zod';
-import { Generator } from '../../generator';
+import { SwarmGenerator } from '../../generator';
 import { PluginInterfaceManager } from '../../plugin';
 import { CommandMetadata, SchemaManager } from '../../schema';
 
@@ -38,7 +38,7 @@ export class ToolManager extends PluginInterfaceManager<MCPTool> {
    * Create an MCP tool from a generator
    */
   protected async createInterfaceFromGenerator(
-    generator: Generator
+    generator: SwarmGenerator
   ): Promise<MCPTool> {
     return this.createTool(generator);
   }
@@ -46,7 +46,7 @@ export class ToolManager extends PluginInterfaceManager<MCPTool> {
   /**
    * Create an MCP tool definition from a generator's schema
    */
-  private createToolDefinition(generator: Generator): MCPToolDefinition {
+  private createToolDefinition(generator: SwarmGenerator): MCPToolDefinition {
     const schema = generator.schema;
     const shape = SchemaManager.getShape(schema);
 
@@ -86,7 +86,7 @@ export class ToolManager extends PluginInterfaceManager<MCPTool> {
   /**
    * Create an MCP tool handler from a generator
    */
-  private createToolHandler(generator: Generator): MCPToolHandler {
+  private createToolHandler(generator: SwarmGenerator): MCPToolHandler {
     return async (args: any) => {
       try {
         const validatedArgs = generator.schema.parse(args);
@@ -108,7 +108,7 @@ export class ToolManager extends PluginInterfaceManager<MCPTool> {
   /**
    * Create both tool definition and handler for a generator
    */
-  private createTool(generator: Generator): MCPTool {
+  private createTool(generator: SwarmGenerator): MCPTool {
     return {
       definition: this.createToolDefinition(generator),
       handler: this.createToolHandler(generator),

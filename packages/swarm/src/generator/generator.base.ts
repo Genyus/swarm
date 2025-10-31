@@ -3,12 +3,14 @@ import z, { core, ZodError, ZodIssue, ZodType } from 'zod';
 import { FileSystem } from '../common';
 import { Logger } from '../logger/logger';
 import { In, Out, SchemaManager, ValidationResult } from '../schema';
-import { Generator } from './types';
+import { SwarmGenerator } from './types';
 
 /**
  * Abstract base class for all generators
  */
-export abstract class GeneratorBase<S extends ZodType> implements Generator<S> {
+export abstract class GeneratorBase<S extends ZodType>
+  implements SwarmGenerator<S>
+{
   abstract name: string;
   abstract description: string;
   abstract schema: S;
