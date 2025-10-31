@@ -14,6 +14,7 @@ This guide explains how to create custom plugins for Swarm that generate code fo
 - [Best Practices](#best-practices)
 - [Testing Your Plugin](#testing-your-plugin)
 - [Publishing Your Plugin](#publishing-your-plugin)
+- [Sharing Your Plugin](#sharing-your-plugin)
 
 ## Overview
 
@@ -151,6 +152,16 @@ Update `package.json`:
   }
 }
 ```
+
+### Example
+
+See the [`@ingenyus/swarm-wasp`](../packages/swarm-wasp) package for a complete example that includes:
+
+- Multiple generators (API, CRUD, Actions, Queries, Routes, etc.)
+- Custom base classes
+- Template system integration
+- Configuration file updates
+- Comprehensive testing
 
 ## Creating Generators
 
@@ -586,41 +597,32 @@ Swarm plugin for MyFramework.
 
 ## Installation
 
-```bash
-npm install @your-org/swarm-myframework
-```
+    ```bash
+    npm install @your-org/swarm-myframework
+    ```
 
 ## Configuration
 
 Add to `swarm.config.json`:
 
-```json
-{
-  "plugins": [
+    ```json
     {
-      "import": "myframework",
-      "from": "@your-org/swarm-myframework"
+      "plugins": [
+        {
+          "import": "myframework",
+          "from": "@your-org/swarm-myframework"
+        }
+      ]
     }
-  ]
-}
-```
+    ```
 
 ## Usage
 
-```bash
-npx @ingenyus/swarm generate component Button
+    ```bash
+    npx @ingenyus/swarm generate component Button
+    ```
 ```
 
-## Example
+## Sharing Your Plugin
 
-See the [`@ingenyus/swarm-wasp`](../packages/swarm-wasp) package for a complete example that includes:
-
-- Multiple generators (API, CRUD, Actions, Queries, Routes, etc.)
-- Custom base classes
-- Template system integration
-- Configuration file updates
-- Comprehensive testing
-
-## Contributing
-
-Created or discovered a useful Swarm plugin? Add it to [the list](../README.md#known-plugins) — PRs welcome!
+Created a useful Swarm plugin? Add it to [the list](../README.md#community-contributions) — PRs welcome!

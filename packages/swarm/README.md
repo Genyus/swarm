@@ -19,8 +19,6 @@ Swarm provides both CLI commands and AI agent integration via MCP to create cust
 - [How It Works](#how-it-works)
 - [CLI Commands](#cli-commands)
 - [MCP Integration](#mcp-integration)
-- [Known Plugins](#known-plugins)
-- [Known Starter Repositories](#known-starter-repositories)
 - [Development](#development)
 - [Contributing](#contributing)
 - [License](#license)
@@ -159,16 +157,6 @@ Swarm includes an MCP (Model Context Protocol) server that allows AI tools to in
 
 For detailed MCP setup instructions, see our [MCP integration guide](https://github.com/genyus/swarm/tree/main/docs/mcp).
 
-## Known Plugins
-
-### `@ingenyus/swarm-wasp`
-Generators for the Wasp full-stack framework, including API endpoints, CRUD operations, routes, background jobs, and more. [View on GitHub](https://github.com/genyus/swarm/tree/main/packages/swarm-wasp)
-
-## Known Starter Repositories
-
-### `genyus/swarm-wasp-starter`
-A minimal Wasp starter template with Swarm integration, shadcn/ui components, and Tailwind CSS. Perfect for building full-stack applications with modern tooling. [View on GitHub](https://github.com/genyus/swarm-wasp-starter)
-
 ## Development
 
 ### Prerequisites
@@ -236,6 +224,11 @@ The core architecture consists of:
 - Update documentation for new features
 - Use Conventional Commits commit messages
 - Ensure all existing tests continue to pass
+
+### Community Contributions
+
+- [@ingenyus/swarm-wasp](https://npmjs.org/@ingenyus/swarm-wasp) [Wasp](https://wasp.sh) generators with enhanced configuration and directory structure.
+- [genyus/swarm-wasp-starter](https://github.com/genyus/swarm-wasp-starter) A minimal Wasp starter template with Swarm integration, shadcn/ui components, and Tailwind CSS. Perfect for building full-stack applications with modern tooling.
 
 ## License
 

@@ -10,6 +10,13 @@
 
 A [Swarm](../swarm/README.md) plugin that provides a set of tools for accelerated [Wasp](https://wasp.sh) app development.
 
+## Table of Contents
+
+- [Getting Started](#getting-started)
+- [Features](#features)
+- [Wasp Improvements](#wasp-improvements)
+- [MCP Integration](#mcp-integration)
+
 ## Getting Started
 
 This package is part of the Swarm monorepo. See the main [README](../../README.md) for development setup instructions.

@@ -6,9 +6,17 @@
   </picture>
 </p>
 
-<p align="center">
-A Typescript code generation framework built with modularity and extensibility in mind.
-</p>
+# Welcome to Swarm
+
+This monorepo hosts Swarm, a Typescript code generation framework along with related plugins and starter templates.
+
+## Table of Contents
+
+- [Repository Structure](#repository-structure)
+- [Getting Started](#getting-started)
+- [Scripts & Tooling](#scripts--tooling)
+- [Contributing](#contributing)
+- [License](#license)
 
 ## Repository Structure
 
