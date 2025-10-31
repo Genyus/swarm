@@ -1,9 +1,13 @@
 import path from 'node:path';
+import { getSwarmVersion } from '../../common';
 import { logger } from '../../logger';
-import { ErrorFactory, createErrorContext } from '../server';
-import { configManager } from '../server/configuration-manager.js';
-import { MCPManager } from '../server/index.js';
-import type { ServerConfig } from '../server/types/index.js';
+import {
+  configManager,
+  createErrorContext,
+  ErrorFactory,
+  MCPManager,
+  ServerConfig,
+} from '../server';
 
 export class ServerManager {
   private server: MCPManager | null = null;
@@ -30,7 +34,7 @@ export class ServerManager {
 
       const config: ServerConfig = {
         name: 'Swarm MCP Server',
-        version: '0.1.0',
+        version: getSwarmVersion(),
         tools: [],
         capabilities: {
           tools: { listChanged: true },

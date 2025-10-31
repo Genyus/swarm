@@ -1,10 +1,12 @@
 import { Command } from 'commander';
 import fs from 'node:fs';
-import path from 'node:path';
-import { fileURLToPath } from 'url';
-import { DEFAULT_CONFIG_FILE, realFileSystem } from '../common';
+import {
+  DEFAULT_CONFIG_FILE,
+  getSwarmVersion,
+  realFileSystem,
+} from '../common';
 import { AppGenerator } from '../generator';
-import { SignaleLogger } from '../logger/signale-logger';
+import { SignaleLogger } from '../logger';
 import { CommandManager } from './command-manager';
 
 /**
@@ -13,13 +15,9 @@ import { CommandManager } from './command-manager';
  * @returns {Promise<void>} - A promise that resolves when the main function completes
  */
 export async function main(): Promise<void> {
-  const __dirname = path.dirname(fileURLToPath(import.meta.url));
-  const packageJsonPath = path.join(__dirname, '../../package.json');
-  const version = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8')).version;
-  const command = new Command()
-    .name('swarm-cli')
+  const command = new Command('swarm-cli')
     .description('Swarm generator command-line interface')
-    .version(version);
+    .version(getSwarmVersion());
 
   // Check if we're in a project context
   const hasConfig = fs.existsSync(DEFAULT_CONFIG_FILE);
@@ -62,10 +60,12 @@ export async function main(): Promise<void> {
             process.exit(1);
           }
         });
+
       command.addCommand(createCmd);
     } else {
       // Show all plugin generators when in a project
       const commandManager = new CommandManager();
+
       await commandManager.initialize();
       commandManager.registerCommands(command);
     }

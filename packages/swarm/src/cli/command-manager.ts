@@ -1,9 +1,9 @@
 import { Command } from 'commander';
 import { z, ZodType } from 'zod';
-import { toKebabCase } from '../common';
+import { getSwarmVersion, toKebabCase } from '../common';
 import { Generator } from '../generator';
 import { PluginInterfaceManager } from '../plugin';
-import { commandRegistry, SchemaManager } from '../schema';
+import { SchemaManager } from '../schema';
 
 /**
  * Manages CLI commands created from generators
@@ -24,6 +24,10 @@ export class CommandManager extends PluginInterfaceManager<Command> {
     const name = generator.name;
     const description = generator.description || `Generate ${generator.name}`;
     const schema = generator.schema;
+    const shape = SchemaManager.getShape(schema);
+    const command = new Command(name)
+      .description(description)
+      .version(getSwarmVersion());
 
     this.commands.set(name, {
       schema: schema as ZodType,
@@ -32,21 +36,15 @@ export class CommandManager extends PluginInterfaceManager<Command> {
       },
     });
 
-    const cmd = new Command(name);
-
-    cmd.description(description);
-
-    const shape = SchemaManager.getShape(schema);
-
     if (shape) {
       Object.keys(shape).forEach((fieldName) => {
         const fieldSchema = shape[fieldName] as ZodType;
 
-        this.addOptionFromField(cmd, fieldName, fieldSchema);
+        this.addOptionFromField(command, fieldName, fieldSchema);
       });
     }
 
-    cmd.action(async (rawArgs: unknown) => {
+    command.action(async (rawArgs: unknown) => {
       try {
         await this.executeCommand(name, rawArgs);
       } catch (err: any) {
@@ -55,7 +53,7 @@ export class CommandManager extends PluginInterfaceManager<Command> {
       }
     });
 
-    return cmd;
+    return command;
   }
 
   /**
@@ -92,7 +90,7 @@ export class CommandManager extends PluginInterfaceManager<Command> {
    * Add a CLI option from a schema field
    */
   private addOptionFromField(
-    cmd: Command,
+    command: Command,
     fieldName: string,
     fieldSchema: ZodType
   ): void {
@@ -116,21 +114,21 @@ export class CommandManager extends PluginInterfaceManager<Command> {
     }
 
     if (typeName === 'boolean') {
-      cmd.option(optionString, description);
+      command.option(optionString, description);
     } else if (isArray) {
       if (isRequired) {
         optionString += ` <${argName}...>`;
-        cmd.requiredOption(optionString, description);
+        command.requiredOption(optionString, description);
       } else {
         optionString += ` [${argName}...]`;
-        cmd.option(optionString, description);
+        command.option(optionString, description);
       }
     } else if (isRequired) {
       optionString += ` <${argName}>`;
-      cmd.requiredOption(optionString, description);
+      command.requiredOption(optionString, description);
     } else {
       optionString += ` [${argName}]`;
-      cmd.option(optionString, description);
+      command.option(optionString, description);
     }
   }
 

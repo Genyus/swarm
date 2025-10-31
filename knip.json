@@ -1,4 +1,8 @@
 {
-  "ignore": [".github/changeset-version.js", "apps/swarm-wasp-starter/**/*"],
+  "ignore": [
+    ".github/changeset-version.js",
+    "apps/swarm-wasp-starter/**/*",
+    "packages/swarm/src/mcp/cli/**/index.ts"
+  ],
   "ignoreDependencies": ["@commander-js/extra-typings", "wasp-config"]
 }

@@ -1,21 +1,19 @@
 #!/usr/bin/env node
 
 import { Command } from 'commander';
+import { getSwarmVersion } from '../../common';
 import {
   createStartCommand,
   createStatusCommand,
   createStopCommand,
-} from './commands/index.js';
-import { ServerManager } from './server-manager.js';
+} from './commands';
+import { ServerManager } from './server-manager';
 
 export function createProgram(): Command {
-  const program = new Command();
   const serverManager = new ServerManager();
-
-  program
-    .name('swarm-mcp')
+  const program = new Command('swarm-mcp')
     .description('Model Context Protocol server for Swarm CLI integration')
-    .version('0.1.0');
+    .version(getSwarmVersion());
 
   program.addCommand(createStartCommand(serverManager));
   program.addCommand(createStopCommand(serverManager));
