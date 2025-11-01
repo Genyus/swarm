@@ -46,6 +46,7 @@ function mapScopeToPackage(scope) {
   if (validScopes.includes(withPrefix)) {
     return withPrefix;
   }
+
   return null;
 }
 
