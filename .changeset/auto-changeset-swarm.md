@@ -3,23 +3,38 @@
 ---
 
 Multiple changes:
-- restructure monorepo
-- migrate all Wasp references to swarm-wasp
-- merge swarm-config into swarm-wasp
-- refactor template handling
-- ensure parent features exist
-- rename logger export
-- remove Hungarian notation from interfaces
-- complete Hungarian notation removal and fix type issues
-- complete naming convention improvements
-- improve types and fix test imports in utils and generators
-- update imports to use barrel paths
-- resolve test failures after refactoring
+- update templates to render swarm-config methods
+- overhaul feature configuration templates
+- improve config function insertion
+- rebuild Prisma utils on AST parsing
+- enable operation generation
+- update template variables
+- update type params
+- add support for `getFiltered` queries
+- implement Eta templating
+- switch to default Eta delimiters
+- implement generator base class
+- remove entity suffixing
+- fix config insertion bug
+- enable custom API middleware
+- simplify generator API
+- refactor generators
+- prevent casing mis-match
+- remove obsolete method
+- improve logging output
+- simplify route generation
+- implement CRUD generation
+- implement alphabetical ordering for config sections
+- update directory structure
+- migrate code from swarm-mcp and swarm-cli
+- implement plugin resolution
+- rename BaseGenerator to GeneratorBase and SwarmLogger to SignaleLogger
+- reorganize directory structure
 - renamed swarm-core to swarm
-- remove relation fields from metadata
-- improve operation code generation with consistent field helpers and type utilities
-- add comprehensive support for Prisma composite primary keys
 - prevent full stack trace display for user-facing errors
 - normalise error messages
+- implement template overriding
+- handle missing config file gracefully
 - improve api generator arguments
 - implement 'create' command
+- consolidate schema introspection
