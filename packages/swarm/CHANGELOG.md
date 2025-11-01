@@ -1,5 +1,31 @@
 # @ingenyus/swarm
 
+## 0.5.0
+
+### Minor Changes
+
+- [`e4f996f`](https://github.com/Genyus/swarm/commit/e4f996fc47ec90e2e76e343c916230bb50c4dc6f) Thanks [@github-actions[bot]](https://github.com/github-actions%5Bbot%5D)! - Multiple changes:
+  - restructure monorepo
+  - migrate all Wasp references to swarm-wasp
+  - merge swarm-config into swarm-wasp
+  - refactor template handling
+  - ensure parent features exist
+  - rename logger export
+  - remove Hungarian notation from interfaces
+  - complete Hungarian notation removal and fix type issues
+  - complete naming convention improvements
+  - improve types and fix test imports in utils and generators
+  - update imports to use barrel paths
+  - resolve test failures after refactoring
+  - renamed swarm-core to swarm
+  - remove relation fields from metadata
+  - improve operation code generation with consistent field helpers and type utilities
+  - add comprehensive support for Prisma composite primary keys
+  - prevent full stack trace display for user-facing errors
+  - normalise error messages
+  - improve api generator arguments
+  - implement 'create' command
+
 ## 0.4.0
 
 ### Minor Changes
@@ -227,8 +253,8 @@
 - [#16](https://github.com/Genyus/swarm/pull/16) [`6044ca5`](https://github.com/Genyus/swarm/commit/6044ca517a6b693cf979713e340d3ff788af96d0) Thanks [@Genyus](https://github.com/Genyus)! - fix: resolve test failures after refactoring
 
   Fixed template path resolution issues:
-    (generators/base/ instead of base-classes/)
-    (removed extra 'generators' in path join)
+  (generators/base/ instead of base-classes/)
+  (removed extra 'generators' in path join)
 
   Fixed Prisma mock paths in tests:
 
