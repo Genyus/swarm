@@ -24,6 +24,9 @@ function hasChangesets() {
   return changesetFiles.length > 0;
 }
 
+/**
+ * Version the packages
+ */
 async function versionPackages() {
   try {
     // Check if there are changesets to process
