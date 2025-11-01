@@ -75,6 +75,10 @@ jobs:
       packages: write
       actions: write
 
+    env:
+      RELEASE_COMMIT_MESSAGE: "chore: version packages"
+      RELEASE_PR_TITLE: "Release Packages"
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -101,24 +105,41 @@ jobs:
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git config --global user.name "github-actions[bot]"
 
-      - name: Check if latest commit is version commit
-        id: check_version_commit
+      - name: Check if latest commit is a pre-release commit
+        id: check_release_commit
+        env:
+          RELEASE_COMMIT_MESSAGE: ${{ env.RELEASE_COMMIT_MESSAGE }}
         run: |
           LATEST_COMMIT=$(git log -1 --pretty=%B)
-          if [[ "$LATEST_COMMIT" == "chore: version packages"* ]]; then
-            echo "is_version_commit=true" >> $GITHUB_OUTPUT
-            echo "Latest commit is a version commit, skipping changeset generation"
+
+          # Check if latest commit is a merge commit (has 2 parents)
+          PARENT_COUNT=$(git log -1 --format=%P | wc -w | tr -d ' ')
+
+          if [[ "$PARENT_COUNT" -eq "2" ]]; then
+            # It's a merge commit, check if it merged from changeset-release/main
+            # GitHub merge commits contain the branch name in the message
+            if [[ "$LATEST_COMMIT" == *"changeset-release/main"* ]]; then
+              echo "is_version_commit=true" >> $GITHUB_OUTPUT
+              echo "Latest commit is a release PR merge, skipping changeset generation"
+              exit 0
+            fi
+          fi
+
+          # Also check if the commit message itself is a version commit
+          if [[ "$LATEST_COMMIT" == "$RELEASE_COMMIT_MESSAGE"* ]]; then
+            echo "is_release_commit=true" >> $GITHUB_OUTPUT
+            echo "Latest commit is a release commit, skipping changeset generation"
           else
-            echo "is_version_commit=false" >> $GITHUB_OUTPUT
-            echo "Latest commit is not a version commit, will generate changesets"
+            echo "is_release_commit=false" >> $GITHUB_OUTPUT
+            echo "Latest commit is not a release commit, will generate changesets"
           fi
 
       - name: Generate Changesets from commit messages
-        if: steps.check_version_commit.outputs.is_version_commit != 'true'
+        if: steps.check_release_commit.outputs.is_release_commit != 'true'
         run: pnpm changeset:autogenerate-batch
 
       - name: Commit generated changesets
-        if: steps.check_version_commit.outputs.is_version_commit != 'true'
+        if: steps.check_release_commit.outputs.is_release_commit != 'true'
         run: |
           git add .changeset
           if ! git diff --cached --quiet; then
@@ -133,12 +154,12 @@ jobs:
             echo "No changesets to commit"
           fi
 
-      - name: Create Release Pull Request or Publish to npm
+      - name: Create Release PR or Publish to NPM
         id: changesets
         uses: changesets/action@v1
         with:
-          commit: "chore: version packages"
-          title: "Version Packages"
+          commit: ${{ env.RELEASE_COMMIT_MESSAGE }}
+          title: ${{ env.RELEASE_PR_TITLE }}
           version: node .github/changeset-version.js
           publish: pnpm release
           createGithubReleases: true
