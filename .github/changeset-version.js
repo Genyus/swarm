@@ -6,7 +6,7 @@ const execAsync = promisify(exec);
 async function versionPackages() {
   try {
     console.log('🔄 Running changeset version...');
-    await execAsync('pnpm dlx changeset version');
+    await execAsync('npx changeset version');
 
     console.log('📦 Updating lockfile...');
     await execAsync('pnpm install --lockfile-only');
