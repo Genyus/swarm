@@ -6,11 +6,11 @@ const execAsync = promisify(exec);
 async function versionPackages() {
   try {
     console.log('🔄 Running changeset version...');
-    await execAsync('npx changeset version');
-    
+    await execAsync('pnpm dlx changeset version');
+
     console.log('📦 Updating lockfile...');
     await execAsync('pnpm install --lockfile-only');
-    
+
     console.log('✅ Version update complete');
   } catch (error) {
     console.error('❌ Error during versioning:', error);
@@ -18,4 +18,4 @@ async function versionPackages() {
   }
 }
 
-versionPackages(); 
+versionPackages();
