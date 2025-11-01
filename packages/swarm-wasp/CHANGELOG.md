@@ -1,5 +1,29 @@
 # @ingenyus/swarm-wasp
 
+## 0.5.0
+
+### Minor Changes
+
+- [`e4f996f`](https://github.com/Genyus/swarm/commit/e4f996fc47ec90e2e76e343c916230bb50c4dc6f) Thanks [@github-actions[bot]](https://github.com/github-actions%5Bbot%5D)! - Multiple changes:
+  - add swarm-wasp package boilerplate
+  - rename base classes to use Base suffix
+  - reorganize directory structure
+  - Phase 3 - eliminate duplication and reduce complexity
+  - split operation generator into action and query generators
+  - improve create operations
+  - Fix insertion ordering
+  - extend optional field support
+  - fix route configuration format
+  - auto-include datatype in entities array for actions and queries
+  - add optional custom name parameter to action and query generators
+  - simplify feature command
+  - fix CRUD generator command
+
+### Patch Changes
+
+- Updated dependencies [[`e4f996f`](https://github.com/Genyus/swarm/commit/e4f996fc47ec90e2e76e343c916230bb50c4dc6f)]:
+  - @ingenyus/swarm@0.5.0
+
 ## 0.4.0
 
 ### Minor Changes
@@ -37,7 +61,6 @@
 - [#19](https://github.com/Genyus/swarm/pull/19) [`0ab55fc`](https://github.com/Genyus/swarm/commit/0ab55fc3d7e009ec3a8caad69527c4687c7ba8da) Thanks [@Genyus](https://github.com/Genyus)! - docs: update documentation
 
 - [#19](https://github.com/Genyus/swarm/pull/19) [`0ab55fc`](https://github.com/Genyus/swarm/commit/0ab55fc3d7e009ec3a8caad69527c4687c7ba8da) Thanks [@Genyus](https://github.com/Genyus)! - fix: set uniform feature config file name
-
 
 ## 0.3.0
 
@@ -160,4 +183,3 @@
 - [#16](https://github.com/Genyus/swarm/pull/16) [`6044ca5`](https://github.com/Genyus/swarm/commit/6044ca517a6b693cf979713e340d3ff788af96d0) Thanks [@Genyus](https://github.com/Genyus)! - refactor: merge swarm-config into swarm-wasp
 
 - [#16](https://github.com/Genyus/swarm/pull/16) [`6044ca5`](https://github.com/Genyus/swarm/commit/6044ca517a6b693cf979713e340d3ff788af96d0) Thanks [@Genyus](https://github.com/Genyus)! - fix(wasp): extend optional field support
-
