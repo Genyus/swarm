@@ -1,5 +1,106 @@
 # @ingenyus/swarm
 
+## 0.4.0
+
+### Minor Changes
+
+- [#19](https://github.com/Genyus/swarm/pull/19) [`0ab55fc`](https://github.com/Genyus/swarm/commit/0ab55fc3d7e009ec3a8caad69527c4687c7ba8da) Thanks [@Genyus](https://github.com/Genyus)! - feat: simplify plugin API
+  - Replace lazy-loading function with simple object export
+  - Fix enum value extraction for wrapped types
+  - Add tool manager tests
+
+- [#19](https://github.com/Genyus/swarm/pull/19) [`0ab55fc`](https://github.com/Genyus/swarm/commit/0ab55fc3d7e009ec3a8caad69527c4687c7ba8da) Thanks [@Genyus](https://github.com/Genyus)! - feat: improve command output
+
+- [#19](https://github.com/Genyus/swarm/pull/19) [`0ab55fc`](https://github.com/Genyus/swarm/commit/0ab55fc3d7e009ec3a8caad69527c4687c7ba8da) Thanks [@Genyus](https://github.com/Genyus)! - feat: add package.json as config source
+
+### Patch Changes
+
+- [#19](https://github.com/Genyus/swarm/pull/19) [`0ab55fc`](https://github.com/Genyus/swarm/commit/0ab55fc3d7e009ec3a8caad69527c4687c7ba8da) Thanks [@Genyus](https://github.com/Genyus)! - refactor(wasp): clean up exports
+  - Remove obsolete swarmVersion property
+  - Reorganise code
+  - Remove unnecessary exports
+
+- [#19](https://github.com/Genyus/swarm/pull/19) [`0ab55fc`](https://github.com/Genyus/swarm/commit/0ab55fc3d7e009ec3a8caad69527c4687c7ba8da) Thanks [@Genyus](https://github.com/Genyus)! - refactor: rename Generator interface
+  - Rename as SwarmGenerator for consistency with SwarmPlugin
+
+- [#19](https://github.com/Genyus/swarm/pull/19) [`0ab55fc`](https://github.com/Genyus/swarm/commit/0ab55fc3d7e009ec3a8caad69527c4687c7ba8da) Thanks [@Genyus](https://github.com/Genyus)! - docs: update docs to match latest changes
+
+- [#19](https://github.com/Genyus/swarm/pull/19) [`0ab55fc`](https://github.com/Genyus/swarm/commit/0ab55fc3d7e009ec3a8caad69527c4687c7ba8da) Thanks [@Genyus](https://github.com/Genyus)! - fix: overhaul generator argument types
+  - Make generator parameters more consistent
+  - Remove obsolete static argument types
+  - Implement full Zod schema support
+  - Implement proper array parameter handling
+
+- [#19](https://github.com/Genyus/swarm/pull/19) [`0ab55fc`](https://github.com/Genyus/swarm/commit/0ab55fc3d7e009ec3a8caad69527c4687c7ba8da) Thanks [@Genyus](https://github.com/Genyus)! - test(wasp): fix tests
+
+- [#19](https://github.com/Genyus/swarm/pull/19) [`0ab55fc`](https://github.com/Genyus/swarm/commit/0ab55fc3d7e009ec3a8caad69527c4687c7ba8da) Thanks [@Genyus](https://github.com/Genyus)! - fix: prefix tool names for clarity
+  - Prefix all tools with 'generator-'
+
+- [#19](https://github.com/Genyus/swarm/pull/19) [`0ab55fc`](https://github.com/Genyus/swarm/commit/0ab55fc3d7e009ec3a8caad69527c4687c7ba8da) Thanks [@Genyus](https://github.com/Genyus)! - build: make binary file names clearer
+
+- [#19](https://github.com/Genyus/swarm/pull/19) [`0ab55fc`](https://github.com/Genyus/swarm/commit/0ab55fc3d7e009ec3a8caad69527c4687c7ba8da) Thanks [@Genyus](https://github.com/Genyus)! - revert: remove quotes from help text
+  - Remove quotes from help text and error messages
+
+- [#19](https://github.com/Genyus/swarm/pull/19) [`0ab55fc`](https://github.com/Genyus/swarm/commit/0ab55fc3d7e009ec3a8caad69527c4687c7ba8da) Thanks [@Genyus](https://github.com/Genyus)! - chore: clean up import paths
+
+- [#19](https://github.com/Genyus/swarm/pull/19) [`0ab55fc`](https://github.com/Genyus/swarm/commit/0ab55fc3d7e009ec3a8caad69527c4687c7ba8da) Thanks [@Genyus](https://github.com/Genyus)! - fix: overhaul plugin resolution
+  - Remove plugin manifest
+  - Combine package and local resolution logic
+  - Simplify configuration schema
+
+- [#19](https://github.com/Genyus/swarm/pull/19) [`0ab55fc`](https://github.com/Genyus/swarm/commit/0ab55fc3d7e009ec3a8caad69527c4687c7ba8da) Thanks [@Genyus](https://github.com/Genyus)! - refactor(core): rename file
+
+- [#19](https://github.com/Genyus/swarm/pull/19) [`0ab55fc`](https://github.com/Genyus/swarm/commit/0ab55fc3d7e009ec3a8caad69527c4687c7ba8da) Thanks [@Genyus](https://github.com/Genyus)! - refactor(core): simplify command/tool management
+  - Simplify over-abstracted code
+  - Remove obsolete code
+
+- [#19](https://github.com/Genyus/swarm/pull/19) [`0ab55fc`](https://github.com/Genyus/swarm/commit/0ab55fc3d7e009ec3a8caad69527c4687c7ba8da) Thanks [@Genyus](https://github.com/Genyus)! - refactor: remove custom metadata logic
+  - Replace ExtendedSchema type and extend function with native register() and meta() invocations
+
+- [#19](https://github.com/Genyus/swarm/pull/19) [`0ab55fc`](https://github.com/Genyus/swarm/commit/0ab55fc3d7e009ec3a8caad69527c4687c7ba8da) Thanks [@Genyus](https://github.com/Genyus)! - refactor (core): clean up package
+  - Reorganise into clean structure
+  - Remove obsolete interfaces and types
+  - Rename types for consistency
+
+- [#19](https://github.com/Genyus/swarm/pull/19) [`0ab55fc`](https://github.com/Genyus/swarm/commit/0ab55fc3d7e009ec3a8caad69527c4687c7ba8da) Thanks [@Genyus](https://github.com/Genyus)! - refactor(wasp): replace hard-coded string
+
+- [#19](https://github.com/Genyus/swarm/pull/19) [`0ab55fc`](https://github.com/Genyus/swarm/commit/0ab55fc3d7e009ec3a8caad69527c4687c7ba8da) Thanks [@Genyus](https://github.com/Genyus)! - fix: simplify Swarm configuration schema
+  - Enable plugins and generators by default
+  - Remove unused config objects
+
+- [#19](https://github.com/Genyus/swarm/pull/19) [`0ab55fc`](https://github.com/Genyus/swarm/commit/0ab55fc3d7e009ec3a8caad69527c4687c7ba8da) Thanks [@Genyus](https://github.com/Genyus)! - refactor(swarm): fix generator type constraints
+  - Remove PluginGenerator interface and merge into Generator
+  - Make Generator interface generic with `S extends ExtendedSchema`
+  - Update all generators to use concrete schema types
+  - Add schema type parameter to all concrete generators (Action, Api, Crud, etc.)
+  - Update test mocks to use createMockFeatureGen with schema parameter
+
+- [#19](https://github.com/Genyus/swarm/pull/19) [`0ab55fc`](https://github.com/Genyus/swarm/commit/0ab55fc3d7e009ec3a8caad69527c4687c7ba8da) Thanks [@Genyus](https://github.com/Genyus)! - fix: remove hard-coded version numbers
+  - Replace with package version
+  - Harmonise command declarations
+
+- [#19](https://github.com/Genyus/swarm/pull/19) [`0ab55fc`](https://github.com/Genyus/swarm/commit/0ab55fc3d7e009ec3a8caad69527c4687c7ba8da) Thanks [@Genyus](https://github.com/Genyus)! - fix: fix server registration in Cursor
+  - Set correct working directory even when called from different location
+  - Prevent duplicate MCP server instances and method invocations
+
+- [#19](https://github.com/Genyus/swarm/pull/19) [`0ab55fc`](https://github.com/Genyus/swarm/commit/0ab55fc3d7e009ec3a8caad69527c4687c7ba8da) Thanks [@Genyus](https://github.com/Genyus)! - docs: update documentation
+  - Add MCP configuration guide
+  - Add plugin development guide
+  - Extend generator documentation
+  - Remove obsolete documents
+
+- [#19](https://github.com/Genyus/swarm/pull/19) [`0ab55fc`](https://github.com/Genyus/swarm/commit/0ab55fc3d7e009ec3a8caad69527c4687c7ba8da) Thanks [@Genyus](https://github.com/Genyus)! - fix: revert addOptionFromField logic
+
+- [#19](https://github.com/Genyus/swarm/pull/19) [`0ab55fc`](https://github.com/Genyus/swarm/commit/0ab55fc3d7e009ec3a8caad69527c4687c7ba8da) Thanks [@Genyus](https://github.com/Genyus)! - fix: improve app generation command
+  - Extend placeholder replacement to process project directory recursively
+  - Merge PlaceHolderReplacer methods into AppGenerator
+  - Add tests
+
+- [#19](https://github.com/Genyus/swarm/pull/19) [`0ab55fc`](https://github.com/Genyus/swarm/commit/0ab55fc3d7e009ec3a8caad69527c4687c7ba8da) Thanks [@Genyus](https://github.com/Genyus)! - fix: set uniform feature config file name
+  - Change from <feature>/<feature>.wasp.ts to <feature>/feature.wasp.ts
+
+- [#19](https://github.com/Genyus/swarm/pull/19) [`0ab55fc`](https://github.com/Genyus/swarm/commit/0ab55fc3d7e009ec3a8caad69527c4687c7ba8da) Thanks [@Genyus](https://github.com/Genyus)! - fix(swarm): fix imports
+
 ## 0.3.0
 
 ### Minor Changes
