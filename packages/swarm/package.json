@@ -1,7 +1,7 @@
 {
   "name": "@ingenyus/swarm",
   "type": "module",
-  "version": "0.2.0",
+  "version": "0.1.0",
   "description": "Core Swarm logic - including a CLI, MCP server, plugin framework and base types for custom generators",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
