@@ -1,8 +1,9 @@
+/* eslint-disable no-undef */
 import {
   consolidateChanges,
   createChangesetFile,
   getCommitsSinceLastRelease,
-  printValidPatterns
+  printValidPatterns,
 } from './utils.js';
 
 // Main execution
@@ -23,22 +24,30 @@ if (packageNames.length === 0) {
 }
 
 // Generate changesets for each package
-packageNames.forEach(packageName => {
+packageNames.forEach((packageName) => {
   const change = packageChanges[packageName];
-  
+
   // Create consolidated description
-  const description = change.descriptions.length === 1 
-    ? change.descriptions[0]
-    : `Multiple changes:\n${change.descriptions.map(desc => `- ${desc}`).join('\n')}`;
-  
-  const filename = createChangesetFile(packageName, change.changeType, description, 'auto');
-  
+  const description =
+    change.descriptions.length === 1
+      ? change.descriptions[0]
+      : `Multiple changes:\n${change.descriptions.map((desc) => `- ${desc}`).join('\n')}`;
+
+  const filename = createChangesetFile(
+    packageName,
+    change.changeType,
+    description,
+    'auto'
+  );
+
   console.log(`✅ Changeset created: ${filename}`);
   console.log(`   Package: ${packageName}`);
   console.log(`   Type: ${change.changeType}`);
   console.log(`   Changes: ${change.descriptions.length}`);
-  console.log(`   Commits: ${change.commits.map(c => c.hash).join(', ')}`);
+  console.log(`   Commits: ${change.commits.map((c) => c.hash).join(', ')}`);
   console.log('');
 });
 
-console.log(`🎉 Generated ${packageNames.length} changeset(s) for ${commits.length} commits`); 
+console.log(
+  `🎉 Generated ${packageNames.length} changeset(s) for ${commits.length} commits`
+);

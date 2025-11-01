@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 import { execSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
@@ -9,13 +10,16 @@ import path from 'path';
 function getValidScopes() {
   try {
     const packagesDir = path.join(process.cwd(), 'packages');
-    const packageDirs = fs.readdirSync(packagesDir, { withFileTypes: true })
-      .filter(dirent => dirent.isDirectory())
-      .map(dirent => dirent.name);
+    const packageDirs = fs
+      .readdirSync(packagesDir, { withFileTypes: true })
+      .filter((dirent) => dirent.isDirectory())
+      .map((dirent) => dirent.name);
 
     return packageDirs;
-  } catch (error) {
-    console.warn('Warning: Could not read packages directory, falling back to default scopes');
+  } catch {
+    console.warn(
+      'Warning: Could not read packages directory, falling back to default scopes'
+    );
     return ['swarm', 'swarm-wasp'];
   }
 }
@@ -54,57 +58,89 @@ const commitPatterns = {
 /**
  * Parse a conventional commit message and extract package, change type, and description
  * @param {string} message - The commit message to parse
- * @returns {Object} - { packageName, changeType, description }
+ * @returns {Object} - { packageName, changeType, description, hasExplicitScope }
  */
 export function parseCommitMessage(message) {
   let packageName = null;
   let changeType = null;
   let description = null;
+  let hasExplicitScope = false;
 
   // Get the first package directory as default (usually swarm)
-  const defaultPackage = getValidScopes()[0] || 'swarm';
+  const defaultPackage = validScopes[0] || 'swarm';
 
   // Check for breaking changes first
   if (commitPatterns.major.test(message)) {
     const match = message.match(commitPatterns.major);
     changeType = 'major';
-    packageName = match[1] ? mapScopeToPackage(match[1]) || defaultPackage : defaultPackage;
+    if (match[1]) {
+      hasExplicitScope = true;
+      packageName = mapScopeToPackage(match[1]) || defaultPackage;
+    } else {
+      packageName = defaultPackage;
+    }
     description = match[2];
   } else if (commitPatterns.majorAlt.test(message)) {
     const match = message.match(commitPatterns.majorAlt);
     changeType = 'major';
-    packageName = match[2] ? mapScopeToPackage(match[2]) || defaultPackage : defaultPackage;
+    if (match[2]) {
+      hasExplicitScope = true;
+      packageName = mapScopeToPackage(match[2]) || defaultPackage;
+    } else {
+      packageName = defaultPackage;
+    }
     description = match[3];
   } else if (commitPatterns.minor.test(message)) {
     const match = message.match(commitPatterns.minor);
     const scope = match[1];
-    const mappedPackage = scope ? mapScopeToPackage(scope) : defaultPackage;
-    if (mappedPackage) {
+    if (scope) {
+      hasExplicitScope = true;
+      const mappedPackage = mapScopeToPackage(scope);
+      if (mappedPackage) {
+        packageName = mappedPackage;
+        changeType = 'minor';
+        description = match[2];
+      }
+    } else {
+      packageName = defaultPackage;
       changeType = 'minor';
-      packageName = mappedPackage;
       description = match[2];
     }
   } else if (commitPatterns.patch.test(message)) {
     const match = message.match(commitPatterns.patch);
     const scope = match[1];
-    const mappedPackage = scope ? mapScopeToPackage(scope) : defaultPackage;
-    if (mappedPackage) {
+    if (scope) {
+      hasExplicitScope = true;
+      const mappedPackage = mapScopeToPackage(scope);
+      if (mappedPackage) {
+        packageName = mappedPackage;
+        changeType = 'patch';
+        description = match[2];
+      }
+    } else {
+      packageName = defaultPackage;
       changeType = 'patch';
-      packageName = mappedPackage;
       description = match[2];
     }
   } else if (commitPatterns.patchAlt.test(message)) {
     const match = message.match(commitPatterns.patchAlt);
     const scope = match[2];
-    const mappedPackage = scope ? mapScopeToPackage(scope) : defaultPackage;
-    if (mappedPackage) {
+    if (scope) {
+      hasExplicitScope = true;
+      const mappedPackage = mapScopeToPackage(scope);
+      if (mappedPackage) {
+        packageName = mappedPackage;
+        changeType = 'patch';
+        description = match[3];
+      }
+    } else {
+      packageName = defaultPackage;
       changeType = 'patch';
-      packageName = mappedPackage;
       description = match[3];
     }
   }
 
-  return { packageName, changeType, description };
+  return { packageName, changeType, description, hasExplicitScope };
 }
 
 /**
@@ -115,10 +151,10 @@ export function parseCommitMessage(message) {
 function packageNameToFileFriendly(packageName) {
   return packageName
     .replace(/^@[^/]+\//, '') // Remove @scope/ prefix
-    .replace(/[/@]/g, '-')    // Replace / and @ with -
+    .replace(/[/@]/g, '-') // Replace / and @ with -
     .replace(/[^a-zA-Z0-9\-_]/g, '-') // Replace other non-alphanumeric chars with -
-    .replace(/-+/g, '-')      // Replace multiple consecutive - with single -
-    .replace(/^-|-$/g, '');   // Remove leading/trailing -
+    .replace(/-+/g, '-') // Replace multiple consecutive - with single -
+    .replace(/^-|-$/g, ''); // Remove leading/trailing -
 }
 
 /**
@@ -129,7 +165,12 @@ function packageNameToFileFriendly(packageName) {
  * @param {string} filenamePrefix - Prefix for the changeset filename
  * @returns {string} - The created filename
  */
-export function createChangesetFile(packageName, changeType, description, filenamePrefix = 'auto') {
+export function createChangesetFile(
+  packageName,
+  changeType,
+  description,
+  filenamePrefix = 'auto'
+) {
   const fileFriendlyPackage = packageNameToFileFriendly(packageName);
   const filename = `${filenamePrefix}-changeset-${fileFriendlyPackage}.md`;
   const filepath = path.join('.changeset', filename);
@@ -153,13 +194,66 @@ export function getLatestCommitMessage() {
 }
 
 /**
+ * Get changed files for a specific commit
+ * @param {string} hash - The commit hash
+ * @returns {Array} - Array of file paths that were changed in the commit
+ */
+function getChangedFilesForCommit(hash) {
+  try {
+    const output = execSync(
+      `git diff-tree --no-commit-id --name-only -r ${hash}`,
+      { encoding: 'utf8' }
+    ).trim();
+    if (!output) {
+      return [];
+    }
+    return output.split('\n').filter((line) => line.trim());
+  } catch (error) {
+    console.warn(
+      `Warning: Could not get changed files for commit ${hash}:`,
+      error.message
+    );
+    return [];
+  }
+}
+
+/**
+ * Extract package names from file paths
+ * Checks for files in packages/<packageName>/ directories
+ * @param {Array<string>} filePaths - Array of file paths
+ * @returns {Array<string>} - Array of unique package directory names found
+ */
+function extractPackagesFromFilePaths(filePaths) {
+  const validScopes = getValidScopes();
+  const packagesFound = new Set();
+
+  for (const filePath of filePaths) {
+    // Match packages/<packageName>/ pattern
+    const match = filePath.match(/^packages\/([^/]+)\//);
+    if (match) {
+      const packageDir = match[1];
+      // Only include if it's a valid package directory
+      if (validScopes.includes(packageDir)) {
+        packagesFound.add(packageDir);
+      }
+    }
+  }
+
+  return Array.from(packagesFound);
+}
+
+/**
  * Get commits since the last release tag
  * @returns {Array} - Array of { hash, message } objects
  */
 export function getCommitsSinceLastRelease() {
   try {
     // Try to get the last release tag
-    const lastTag = execSync('git describe --tags --abbrev=0 2>/dev/null || echo ""').toString().trim();
+    const lastTag = execSync(
+      'git describe --tags --abbrev=0 2>/dev/null || echo ""'
+    )
+      .toString()
+      .trim();
     let commitRange;
     if (lastTag) {
       commitRange = `${lastTag}..HEAD`;
@@ -169,13 +263,17 @@ export function getCommitsSinceLastRelease() {
       console.log('📋 Processing all commits (no previous release found)');
     }
 
-    const commits = execSync(`git log ${commitRange} --format="%H|%s" --reverse`).toString().trim();
+    const commits = execSync(
+      `git log ${commitRange} --format="%H|%s" --reverse`
+    )
+      .toString()
+      .trim();
 
     if (!commits) {
       console.log('ℹ️  No new commits to process');
       return [];
     }
-    return commits.split('\n').map(line => {
+    return commits.split('\n').map((line) => {
       const [hash, message] = line.split('|');
       return { hash, message };
     });
@@ -194,16 +292,51 @@ export function consolidateChanges(commits) {
   const packageChanges = {};
 
   commits.forEach(({ hash, message }) => {
-    const { packageName, changeType, description } = parseCommitMessage(message);
+    const { packageName, changeType, description, hasExplicitScope } =
+      parseCommitMessage(message);
 
-    if (packageName && changeType && description) {
-      const fullPackageName = `@ingenyus/${packageName}`;
+    // Skip if we don't have a valid conventional commit pattern
+    if (!changeType || !description) {
+      return;
+    }
+
+    let packagesToUse = [];
+
+    // If no explicit scope was provided, try file path fallback
+    if (!hasExplicitScope && packageName) {
+      const changedFiles = getChangedFilesForCommit(hash);
+
+      // Skip commits with no changed files
+      if (changedFiles.length === 0) {
+        return;
+      }
+
+      const packagesFromPaths = extractPackagesFromFilePaths(changedFiles);
+
+      // If packages found via file paths, use those instead of default
+      if (packagesFromPaths.length > 0) {
+        packagesToUse = packagesFromPaths;
+      } else {
+        // No packages found in file paths - skip commits that only modify files outside packages/
+        return;
+      }
+    } else if (packageName) {
+      // Explicit scope was provided, use the parsed package name
+      packagesToUse = [packageName];
+    } else {
+      // No package name at all, skip
+      return;
+    }
+
+    // Process each package that was affected
+    packagesToUse.forEach((pkgName) => {
+      const fullPackageName = `@ingenyus/${pkgName}`;
 
       if (!packageChanges[fullPackageName]) {
         packageChanges[fullPackageName] = {
           changeType: changeType,
           descriptions: [],
-          commits: []
+          commits: [],
         };
       }
 
@@ -216,8 +349,11 @@ export function consolidateChanges(commits) {
       }
 
       packageChanges[fullPackageName].descriptions.push(description);
-      packageChanges[fullPackageName].commits.push({ hash: hash.substring(0, 7), message });
-    }
+      packageChanges[fullPackageName].commits.push({
+        hash: hash.substring(0, 7),
+        message,
+      });
+    });
   });
   return packageChanges;
 }
@@ -227,7 +363,7 @@ export function consolidateChanges(commits) {
  */
 export function printValidPatterns() {
   const scopes = getValidScopes();
-  const scopeExamples = scopes.map(scope => {
+  const scopeExamples = scopes.map((scope) => {
     // Show both full name and short form if applicable
     if (scope.startsWith('swarm-')) {
       const shortForm = scope.replace('swarm-', '');

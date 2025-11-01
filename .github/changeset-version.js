@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 import { exec } from 'child_process';
 import { promisify } from 'util';
 
