@@ -119,13 +119,13 @@ jobs:
             # It's a merge commit, check if it merged from changeset-release/main
             # GitHub merge commits contain the branch name in the message
             if [[ "$LATEST_COMMIT" == *"changeset-release/main"* ]]; then
-              echo "is_version_commit=true" >> $GITHUB_OUTPUT
+              echo "is_release_commit=true" >> $GITHUB_OUTPUT
               echo "Latest commit is a release PR merge, skipping changeset generation"
               exit 0
             fi
           fi
 
-          # Also check if the commit message itself is a version commit
+          # Also check if the commit message itself is a release commit
           if [[ "$LATEST_COMMIT" == "$RELEASE_COMMIT_MESSAGE"* ]]; then
             echo "is_release_commit=true" >> $GITHUB_OUTPUT
             echo "Latest commit is a release commit, skipping changeset generation"
