@@ -31,6 +31,12 @@ function getValidScopes() {
  */
 function mapScopeToPackage(scope) {
   const validScopes = getValidScopes();
+
+  // Special case: 'core' maps to 'swarm' package
+  if (scope === 'core') {
+    return 'swarm';
+  }
+
   // Direct match (e.g., "swarm-cli" -> "swarm-cli")
   if (validScopes.includes(scope)) {
     return scope;
