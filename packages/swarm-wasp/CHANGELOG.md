@@ -1,5 +1,14 @@
 # @ingenyus/swarm-wasp
 
+## 0.2.1
+
+### Patch Changes
+
+- [`2bb172a`](https://github.com/Genyus/swarm/commit/2bb172a45fd5bc390af155f6a33139a02d1f5a35) Thanks [@github-actions[bot]](https://github.com/github-actions%5Bbot%5D)! - remove obsolete properties
+
+- Updated dependencies [[`2bb172a`](https://github.com/Genyus/swarm/commit/2bb172a45fd5bc390af155f6a33139a02d1f5a35)]:
+  - @ingenyus/swarm@0.2.1
+
 ## 0.2.0
 
 ### Minor Changes
