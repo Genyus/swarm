@@ -1,0 +1,75 @@
+name: Release
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types:
+      - completed
+    branches:
+      - main
+
+permissions:
+  contents: write
+  pull-requests:
+    write
+    # Needed for workflow_run
+  packages: write
+  actions: write
+
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main' }}
+
+    env:
+      RELEASE_COMMIT_MESSAGE: "chore: version packages"
+      RELEASE_PR_TITLE: "Release Packages"
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.PAT_TOKEN }}
+          # Checkout the branch (main) to get the latest commit which includes
+          # any changesets that were committed during the CI workflow
+          ref: ${{ github.event.workflow_run.head_branch }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build packages
+        run: pnpm run build
+
+      - name: Set Git user name and email
+        run: |
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
+
+      - name: Fetch latest commits
+        run: |
+          git fetch origin main
+          git checkout main
+          echo "Latest commit: $(git log -1 --oneline)"
+
+      - name: Create Release PR or Publish to NPM
+        id: changesets
+        uses: changesets/action@v1
+        with:
+          commit: ${{ env.RELEASE_COMMIT_MESSAGE }}
+          title: ${{ env.RELEASE_PR_TITLE }}
+          version: npx changeset version
+          publish: pnpm release
+          createGithubReleases: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

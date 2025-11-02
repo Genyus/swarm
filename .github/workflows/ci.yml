@@ -64,20 +64,16 @@ jobs:
           # Test that MCP server can start and respond to basic commands
           timeout 5s node ./bin/mcp start || [ $? -eq 124 ]
 
-  release:
-    name: Release
+  generate-changesets:
+    name: Generate Changesets
     needs: test
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     permissions:
       contents: write
-      pull-requests: write
-      packages: write
-      actions: write
 
     env:
       RELEASE_COMMIT_MESSAGE: "chore: version packages"
-      RELEASE_PR_TITLE: "Release Packages"
 
     steps:
       - name: Checkout code
@@ -96,9 +92,6 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-
-      - name: Build packages
-        run: pnpm run build
 
       - name: Set Git user name and email
         run: |
@@ -144,25 +137,7 @@ jobs:
           git add .changeset
           if ! git diff --cached --quiet; then
             git commit -m "chore: add changesets for release [skip ci]"
-            # Try to push, and if it fails due to being behind, pull and retry
-            if ! git push; then
-              echo "Push failed, pulling latest changes and retrying..."
-              git pull --rebase origin main
-              git push
-            fi
+            git push
           else
             echo "No changesets to commit"
           fi
-
-      - name: Create Release PR or Publish to NPM
-        id: changesets
-        uses: changesets/action@v1
-        with:
-          commit: ${{ env.RELEASE_COMMIT_MESSAGE }}
-          title: ${{ env.RELEASE_PR_TITLE }}
-          version: node .github/changeset-version.js
-          publish: pnpm release
-          createGithubReleases: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
