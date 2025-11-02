@@ -73,3 +73,10 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Update Subrepo Dependencies
+        if: steps.changesets.outputs.published == 'true'
+        run: node .github/scripts/update-subrepo-deps.js
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
+          PUBLISHED_PACKAGES: ${{ steps.changesets.outputs.publishedPackages }}
