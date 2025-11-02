@@ -1,5 +1,4 @@
 import { SwarmPlugin } from '@ingenyus/swarm';
-import { getPluginVersion } from '../common';
 import {
   ActionGenerator,
   ApiGenerator,
@@ -14,8 +13,6 @@ import { PLUGIN_NAME } from '../types';
 
 export const wasp: SwarmPlugin = {
   name: PLUGIN_NAME,
-  version: getPluginVersion(),
-  description: 'Wasp Plugin for Swarm',
   generators: [
     new ActionGenerator(),
     new ApiGenerator(),

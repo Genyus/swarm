@@ -55,24 +55,7 @@ export class PluginResolver {
         return null;
       }
 
-      const validatedPlugin = this.validatePlugin(plugin);
-
-      if (!validatedPlugin) {
-        return null;
-      }
-
-      if (!validatedPlugin.version && !isLocal) {
-        const version = await this.extractVersionFromPackage(
-          from,
-          applicationRoot
-        );
-
-        if (version) {
-          validatedPlugin.version = version;
-        }
-      }
-
-      return validatedPlugin;
+      return this.validatePlugin(plugin) ?? null;
     } catch (error) {
       console.error(
         `Failed to resolve plugin '${importName}' from '${from}':`,
@@ -130,40 +113,6 @@ export class PluginResolver {
       const mainEntry = packageJson.main || packageJson.module || 'index.js';
 
       return path.join(packagePath, mainEntry);
-    }
-  }
-
-  /**
-   * Extract version from package.json for NPM packages
-   * @param packageName Package name
-   * @param applicationRoot Application root directory
-   * @returns Version string or null
-   */
-  private async extractVersionFromPackage(
-    packageName: string,
-    applicationRoot?: string
-  ): Promise<string | null> {
-    try {
-      const startDir = applicationRoot || process.cwd();
-      const packagePath = await this.resolvePackagePath(packageName, startDir);
-
-      if (!packagePath) {
-        return null;
-      }
-
-      const packageJsonPath = path.join(packagePath, 'package.json');
-
-      if (!fs.existsSync(packageJsonPath)) {
-        return null;
-      }
-
-      const packageJsonContent = fs.readFileSync(packageJsonPath, 'utf8');
-      const packageJson = JSON.parse(packageJsonContent);
-
-      return packageJson.version || null;
-    } catch (error) {
-      console.warn(`Could not extract version from package '${packageName}'`);
-      return null;
     }
   }
 

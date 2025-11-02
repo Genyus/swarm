@@ -1,5 +1,5 @@
 import path from 'node:path';
-import z, { core, ZodError, ZodIssue, ZodType } from 'zod';
+import { core, ZodError, ZodType } from 'zod';
 import { FileSystem } from '../common';
 import { Logger } from '../logger/logger';
 import { In, Out, SchemaManager, ValidationResult } from '../schema';
@@ -14,7 +14,6 @@ export abstract class GeneratorBase<S extends ZodType>
   abstract name: string;
   abstract description: string;
   abstract schema: S;
-  templates?: string[];
   protected path = path;
 
   constructor(
