@@ -1,14 +1,11 @@
 import degit from 'degit';
 import path from 'node:path';
 import {
-  FileSystem,
-  realFileSystem,
   toFriendlyName,
   toKebabCase,
   toPascalCase,
   validateProjectName,
 } from '../../common';
-import { Logger, SignaleLogger } from '../../logger';
 import { Out } from '../../schema';
 import { GeneratorBase } from '../generator.base';
 import { schema } from './schema';
@@ -25,13 +22,6 @@ export class AppGenerator extends GeneratorBase<typeof schema> {
   description = 'Create a new Swarm-enabled project from a GitHub template';
   schema = schema;
   private readonly supportedExtensions = ['.json', '.ts', '.tsx'];
-
-  constructor(
-    public fileSystem: FileSystem = realFileSystem,
-    public logger: Logger = new SignaleLogger()
-  ) {
-    super(fileSystem, logger);
-  }
 
   async generate(args: Out<typeof schema>): Promise<void> {
     return this.handleGeneratorError('project', args.name, async () => {

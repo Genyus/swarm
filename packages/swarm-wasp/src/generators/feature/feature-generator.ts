@@ -1,17 +1,6 @@
-import {
-  FileSystem,
-  handleFatalError,
-  Logger,
-  Out,
-  logger as singletonLogger,
-  validateFeaturePath,
-} from '@ingenyus/swarm';
+import { handleFatalError, Out, validateFeaturePath } from '@ingenyus/swarm';
 import path from 'node:path';
-import {
-  findWaspRoot,
-  normaliseFeaturePath,
-  realFileSystem,
-} from '../../common';
+import { findWaspRoot, normaliseFeaturePath } from '../../common';
 import { WaspGeneratorBase } from '../base/wasp-generator.base';
 import { schema } from './schema';
 
@@ -20,11 +9,8 @@ export class FeatureGenerator extends WaspGeneratorBase<typeof schema> {
   description: string;
   schema = schema;
 
-  constructor(
-    public logger: Logger = singletonLogger,
-    public fileSystem: FileSystem = realFileSystem
-  ) {
-    super(fileSystem, logger);
+  constructor() {
+    super();
     this.name = 'feature';
     this.description =
       'Generates a feature directory containing a Wasp configuration file';

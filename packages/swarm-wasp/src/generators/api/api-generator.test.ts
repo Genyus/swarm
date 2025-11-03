@@ -1,10 +1,10 @@
-import type { FileSystem, Logger, SwarmGenerator } from '@ingenyus/swarm';
+import type { FileSystem, SwarmGenerator } from '@ingenyus/swarm';
 import { DEFAULT_CUSTOM_TEMPLATES_DIR } from '@ingenyus/swarm';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   createMockFeatureGen,
   createMockFS,
-  createMockLogger,
+  createTestGenerator,
 } from '../../../tests/utils';
 import { schema as featureSchema } from '../feature/schema';
 import { ApiGenerator } from './api-generator';
@@ -30,15 +30,16 @@ vi.mock('@ingenyus/swarm', async () => {
 
 describe('ApiGenerator', () => {
   let fs: FileSystem;
-  let logger: Logger;
   let featureGen: SwarmGenerator<typeof featureSchema>;
   let gen: ApiGenerator;
 
   beforeEach(() => {
     fs = createMockFS();
-    logger = createMockLogger();
     featureGen = createMockFeatureGen(featureSchema);
-    gen = new ApiGenerator(logger, fs, featureGen);
+    gen = createTestGenerator(ApiGenerator, {
+      fileSystem: fs,
+      featureGeneratorFactory: () => featureGen,
+    });
   });
 
   it('generate writes handler and updates config', async () => {

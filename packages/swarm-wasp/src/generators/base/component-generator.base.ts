@@ -1,8 +1,6 @@
 import {
-  FileSystem,
+  GeneratorRuntime,
   hasHelperMethodCall,
-  Logger,
-  logger as singletonLogger,
   SwarmGenerator,
   toCamelCase,
   toKebabCase,
@@ -14,7 +12,6 @@ import {
   ensureDirectoryExists,
   getFeatureDir,
   normaliseFeaturePath,
-  realFileSystem,
 } from '../../common';
 import { ConfigType, TYPE_DIRECTORIES } from '../../types';
 import { FeatureGenerator } from '../feature/feature-generator';
@@ -38,16 +35,23 @@ export abstract class ComponentGeneratorBase<
     );
   }
 
-  constructor(
-    public logger: Logger = singletonLogger,
-    public fileSystem: FileSystem = realFileSystem,
-    protected featureDirectoryGenerator: SwarmGenerator<
-      typeof featureSchema
-    > = new FeatureGenerator(logger, fileSystem)
-  ) {
-    super(fileSystem, logger);
-    // Set the featureGenerator for the base class
-    this.featureDirectoryGenerator = featureDirectoryGenerator;
+  protected featureDirectoryGenerator: SwarmGenerator<typeof featureSchema>;
+
+  constructor() {
+    super();
+
+    const runtime = GeneratorRuntime.current();
+
+    if (runtime.featureGeneratorFactory) {
+      const factoryResult = runtime.featureGeneratorFactory(runtime);
+      // Type assertion needed because factory returns SwarmGenerator<ZodType>
+      // but FeatureGenerator implements the correct specific type
+      this.featureDirectoryGenerator = factoryResult as SwarmGenerator<
+        typeof featureSchema
+      >;
+    } else {
+      this.featureDirectoryGenerator = new FeatureGenerator();
+    }
   }
 
   public get name(): string {
@@ -157,20 +161,18 @@ export abstract class ComponentGeneratorBase<
 
   /**
    * Gets the appropriate directory for a feature based on its path.
-   * @param fileSystem - The filesystem abstraction
    * @param featurePath - The full feature path
    * @param type - The type of file being generated
    * @returns The target directory and import path
    */
   protected getFeatureTargetDir(
-    fileSystem: FileSystem,
     featurePath: string,
     type: string
   ): { targetDirectory: string; importDirectory: string } {
     validateFeaturePath(featurePath);
 
     const normalisedPath = normaliseFeaturePath(featurePath);
-    const featureDir = getFeatureDir(fileSystem, normalisedPath);
+    const featureDir = getFeatureDir(this.fileSystem, normalisedPath);
     const typeKey = type.toLowerCase();
     const typeDirectory = TYPE_DIRECTORIES[typeKey];
     const targetDirectory = path.join(featureDir, typeDirectory);
@@ -184,7 +186,6 @@ export abstract class ComponentGeneratorBase<
    */
   protected ensureTargetDirectory(featurePath: string, type: string) {
     const { targetDirectory, importDirectory } = this.getFeatureTargetDir(
-      this.fileSystem,
       featurePath,
       type
     );

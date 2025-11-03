@@ -1,24 +1,25 @@
-import type { FileSystem, Logger, SwarmGenerator } from '@ingenyus/swarm';
+import type { FileSystem, SwarmGenerator } from '@ingenyus/swarm';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   createMockFeatureGen,
   createMockFS,
-  createMockLogger,
+  createTestGenerator,
 } from '../../../tests/utils';
 import { schema as featureSchema } from '../feature/schema';
 import { CrudGenerator } from './crud-generator';
 
 describe('CrudGenerator', () => {
   let fs: FileSystem;
-  let logger: Logger;
   let featureGen: SwarmGenerator<typeof featureSchema>;
   let gen: CrudGenerator;
 
   beforeEach(() => {
     fs = createMockFS();
-    logger = createMockLogger();
     featureGen = createMockFeatureGen(featureSchema);
-    gen = new CrudGenerator(logger, fs, featureGen);
+    gen = createTestGenerator(CrudGenerator, {
+      fileSystem: fs,
+      featureGeneratorFactory: () => featureGen,
+    });
   });
 
   it('buildOperations should handle public, override, and exclude flags correctly', () => {

@@ -1,9 +1,9 @@
-import { SignaleLogger } from '@ingenyus/swarm';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { FeatureGenerator, RouteGenerator } from '../src';
 import { realFileSystem } from '../src/common';
 import {
   countOccurrences,
+  createTestGenerator,
   createTestWaspProject,
   readGeneratedFile,
   type TestProjectPaths,
@@ -24,9 +24,12 @@ describe('Route Generator Integration Tests', () => {
   });
 
   it('should generate route page with proper React component', async () => {
-    const logger = new SignaleLogger();
-    const featureGen = new FeatureGenerator(logger, realFileSystem);
-    const routeGen = new RouteGenerator(logger, realFileSystem, featureGen);
+    const featureGen = createTestGenerator(FeatureGenerator, {
+      fileSystem: realFileSystem,
+    });
+    const routeGen = createTestGenerator(RouteGenerator, {
+      fileSystem: realFileSystem,
+    });
 
     await featureGen.generate({ target: 'posts' });
     await routeGen.generate({
@@ -46,9 +49,12 @@ describe('Route Generator Integration Tests', () => {
   });
 
   it('should generate authenticated route', async () => {
-    const logger = new SignaleLogger();
-    const featureGen = new FeatureGenerator(logger, realFileSystem);
-    const routeGen = new RouteGenerator(logger, realFileSystem, featureGen);
+    const featureGen = createTestGenerator(FeatureGenerator, {
+      fileSystem: realFileSystem,
+    });
+    const routeGen = createTestGenerator(RouteGenerator, {
+      fileSystem: realFileSystem,
+    });
 
     await featureGen.generate({ target: 'posts' });
     await routeGen.generate({
@@ -66,9 +72,12 @@ describe('Route Generator Integration Tests', () => {
   });
 
   it('should generate route config with correct structure', async () => {
-    const logger = new SignaleLogger();
-    const featureGen = new FeatureGenerator(logger, realFileSystem);
-    const routeGen = new RouteGenerator(logger, realFileSystem, featureGen);
+    const featureGen = createTestGenerator(FeatureGenerator, {
+      fileSystem: realFileSystem,
+    });
+    const routeGen = createTestGenerator(RouteGenerator, {
+      fileSystem: realFileSystem,
+    });
 
     await featureGen.generate({ target: 'posts' });
     await routeGen.generate({
@@ -87,9 +96,12 @@ describe('Route Generator Integration Tests', () => {
   });
 
   it('should not duplicate route in config without force flag', async () => {
-    const logger = new SignaleLogger();
-    const featureGen = new FeatureGenerator(logger, realFileSystem);
-    const routeGen = new RouteGenerator(logger, realFileSystem, featureGen);
+    const featureGen = createTestGenerator(FeatureGenerator, {
+      fileSystem: realFileSystem,
+    });
+    const routeGen = createTestGenerator(RouteGenerator, {
+      fileSystem: realFileSystem,
+    });
 
     await featureGen.generate({ target: 'posts' });
     await routeGen.generate({

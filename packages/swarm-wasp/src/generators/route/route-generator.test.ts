@@ -1,10 +1,10 @@
-import type { FileSystem, Logger, SwarmGenerator } from '@ingenyus/swarm';
+import type { FileSystem, SwarmGenerator } from '@ingenyus/swarm';
 import { DEFAULT_CUSTOM_TEMPLATES_DIR } from '@ingenyus/swarm';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   createMockFeatureGen,
   createMockFS,
-  createMockLogger,
+  createTestGenerator,
 } from '../../../tests/utils';
 import { schema as featureSchema } from '../feature/schema';
 import { RouteGenerator } from './route-generator';
@@ -30,15 +30,16 @@ vi.mock('@ingenyus/swarm', async () => {
 
 describe('RouteGenerator', () => {
   let fs: FileSystem;
-  let logger: Logger;
   let featureGen: SwarmGenerator<typeof featureSchema>;
   let gen: RouteGenerator;
 
   beforeEach(() => {
     fs = createMockFS();
-    logger = createMockLogger();
     featureGen = createMockFeatureGen(featureSchema);
-    gen = new RouteGenerator(logger, fs, featureGen);
+    gen = createTestGenerator(RouteGenerator, {
+      fileSystem: fs,
+      featureGeneratorFactory: () => featureGen,
+    });
   });
 
   it('generate writes route file and updates config', async () => {
@@ -56,7 +57,10 @@ export default function configureFeature(app: App, feature: string): void {
     fs.writeFileSync = vi.fn();
 
     // Create generator after setting up mocks
-    gen = new RouteGenerator(logger, fs, featureGen);
+    gen = createTestGenerator(RouteGenerator, {
+      fileSystem: fs,
+      featureGeneratorFactory: () => featureGen,
+    });
 
     // Mock the template utility to return a simple template
     (gen as any).templateUtility = {

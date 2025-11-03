@@ -1,17 +1,15 @@
-import type { FileSystem, Logger } from '@ingenyus/swarm';
+import type { FileSystem } from '@ingenyus/swarm';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { createMockFS, createMockLogger } from '../../../tests/utils';
+import { createMockFS, createTestGenerator } from '../../../tests/utils';
 import { FeatureGenerator } from './feature-generator';
 
 describe('WaspFeatureGenerator', () => {
   let fs: FileSystem;
-  let logger: Logger;
   let gen: FeatureGenerator;
 
   beforeEach(() => {
     fs = createMockFS();
-    logger = createMockLogger();
-    gen = new FeatureGenerator(logger, fs);
+    gen = createTestGenerator(FeatureGenerator, { fileSystem: fs });
   });
 
   it('generate creates feature directory structure', async () => {

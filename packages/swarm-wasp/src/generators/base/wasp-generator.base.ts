@@ -1,14 +1,11 @@
 import {
-  FileSystem,
   GeneratorBase,
-  Logger,
-  logger as singletonLogger,
   SwarmConfig,
   SwarmConfigManager,
   TemplateResolver,
 } from '@ingenyus/swarm';
 import { ZodType } from 'zod';
-import { realFileSystem, TemplateUtility } from '../../common';
+import { TemplateUtility } from '../../common';
 import { PLUGIN_NAME } from '../../types';
 import { WaspConfigGenerator } from '../config';
 
@@ -27,14 +24,14 @@ export abstract class WaspGeneratorBase<
   // Plugin name from swarm.config.json
   protected readonly pluginName = PLUGIN_NAME;
 
-  constructor(
-    public fileSystem: FileSystem = realFileSystem,
-    public logger: Logger = singletonLogger
-  ) {
-    super(fileSystem, logger);
-    this.configGenerator = new WaspConfigGenerator(logger, fileSystem);
-    this.templateUtility = new TemplateUtility(fileSystem);
-    this.templateResolver = new TemplateResolver(fileSystem);
+  constructor() {
+    super();
+    this.configGenerator = new WaspConfigGenerator(
+      this.logger,
+      this.fileSystem
+    );
+    this.templateUtility = new TemplateUtility(this.fileSystem);
+    this.templateResolver = new TemplateResolver(this.fileSystem);
   }
 
   private async loadSwarmConfig(): Promise<void> {

@@ -1,9 +1,9 @@
-import type { FileSystem, Logger, SwarmGenerator } from '@ingenyus/swarm';
+import type { FileSystem, SwarmGenerator } from '@ingenyus/swarm';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   createMockFeatureGen,
   createMockFS,
-  createMockLogger,
+  createTestGenerator,
 } from '../../../tests/utils';
 import { schema as featureSchema } from '../feature/schema';
 import { ActionGenerator } from './action-generator';
@@ -54,7 +54,6 @@ vi.mock('../../common/prisma', async () => {
 
 describe('ActionGenerator', () => {
   let fs: FileSystem;
-  let logger: Logger;
   let featureGen: SwarmGenerator<typeof featureSchema>;
   let gen: ActionGenerator;
 
@@ -119,9 +118,11 @@ describe('ActionGenerator', () => {
     );
 
     fs = createMockFS();
-    logger = createMockLogger();
     featureGen = createMockFeatureGen(featureSchema);
-    gen = new ActionGenerator(logger, fs, featureGen);
+    gen = createTestGenerator(ActionGenerator, {
+      fileSystem: fs,
+      featureGeneratorFactory: () => featureGen,
+    });
   });
 
   it('generate writes action file and updates config', async () => {
@@ -154,7 +155,10 @@ export default function configureFeature(app: App, feature: string): void {
     fs.mkdirSync = vi.fn();
 
     // Create generator after setting up mocks
-    gen = new ActionGenerator(logger, fs, featureGen);
+    gen = createTestGenerator(ActionGenerator, {
+      fileSystem: fs,
+      featureGeneratorFactory: () => featureGen,
+    });
 
     // Mock the template utility to return a simple template
     (gen as any).templateUtility = {
@@ -227,7 +231,10 @@ export default function configureFeature(app: App, feature: string): void {
     });
     fs.writeFileSync = vi.fn();
 
-    gen = new ActionGenerator(logger, fs, featureGen);
+    gen = createTestGenerator(ActionGenerator, {
+      fileSystem: fs,
+      featureGeneratorFactory: () => featureGen,
+    });
 
     (gen as any).templateUtility = {
       processTemplate: vi.fn((templatePath, replacements) => {
@@ -293,7 +300,10 @@ export default function configureFeature(app: App, feature: string): void {
     });
     fs.writeFileSync = vi.fn();
 
-    gen = new ActionGenerator(logger, fs, featureGen);
+    gen = createTestGenerator(ActionGenerator, {
+      fileSystem: fs,
+      featureGeneratorFactory: () => featureGen,
+    });
 
     (gen as any).templateUtility = {
       processTemplate: vi.fn((templatePath, replacements) => {
@@ -368,7 +378,10 @@ export default function configureFeature(app: App, feature: string): void {
     });
     fs.writeFileSync = vi.fn();
 
-    const testGen = new ActionGenerator(logger, fs, featureGen);
+    const testGen = createTestGenerator(ActionGenerator, {
+      fileSystem: fs,
+      featureGeneratorFactory: () => featureGen,
+    });
 
     const mockProcessTemplate = vi.fn((templatePath, replacements) => {
       if (
@@ -447,7 +460,10 @@ export default function configureFeature(app: App, feature: string): void {
     });
     fs.writeFileSync = vi.fn();
 
-    const testGen = new ActionGenerator(logger, fs, featureGen);
+    const testGen = createTestGenerator(ActionGenerator, {
+      fileSystem: fs,
+      featureGeneratorFactory: () => featureGen,
+    });
 
     const mockProcessTemplate = vi.fn((templatePath, replacements) => {
       if (
@@ -527,7 +543,10 @@ export default function configureFeature(app: App, feature: string): void {
     });
     fs.writeFileSync = vi.fn();
 
-    const testGen = new ActionGenerator(logger, fs, featureGen);
+    const testGen = createTestGenerator(ActionGenerator, {
+      fileSystem: fs,
+      featureGeneratorFactory: () => featureGen,
+    });
 
     const mockProcessTemplate = vi.fn((templatePath, replacements) => {
       if (

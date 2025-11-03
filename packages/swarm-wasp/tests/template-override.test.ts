@@ -1,7 +1,6 @@
 import {
   DEFAULT_CONFIG_FILE,
   DEFAULT_CUSTOM_TEMPLATES_DIR,
-  SignaleLogger,
 } from '@ingenyus/swarm';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
@@ -9,6 +8,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { ApiGenerator, FeatureGenerator } from '../src';
 import { realFileSystem } from '../src/common';
 import {
+  createTestGenerator,
   createTestWaspProject,
   readGeneratedFile,
   type TestProjectPaths,
@@ -92,9 +92,12 @@ export const <%=apiName%>: <%=apiType%> = async (req, res, context) => {
       JSON.stringify(swarmConfig, null, 2)
     );
 
-    const logger = new SignaleLogger();
-    const featureGen = new FeatureGenerator(logger, realFileSystem);
-    const apiGen = new ApiGenerator(logger, realFileSystem, featureGen);
+    const featureGen = createTestGenerator(FeatureGenerator, {
+      fileSystem: realFileSystem,
+    });
+    const apiGen = createTestGenerator(ApiGenerator, {
+      fileSystem: realFileSystem,
+    });
 
     await featureGen.generate({ target: 'posts' });
     await apiGen.generate({
@@ -141,9 +144,12 @@ export const <%=apiName%>: <%=apiType%> = async (req, res, context) => {
       JSON.stringify(swarmConfig, null, 2)
     );
 
-    const logger = new SignaleLogger();
-    const featureGen = new FeatureGenerator(logger, realFileSystem);
-    const apiGen = new ApiGenerator(logger, realFileSystem, featureGen);
+    const featureGen = createTestGenerator(FeatureGenerator, {
+      fileSystem: realFileSystem,
+    });
+    const apiGen = createTestGenerator(ApiGenerator, {
+      fileSystem: realFileSystem,
+    });
 
     await featureGen.generate({ target: 'posts' });
     await apiGen.generate({
@@ -219,9 +225,12 @@ export const <%=apiName%>: <%=apiType%> = async (req, res, context) => {
       JSON.stringify(swarmConfig, null, 2)
     );
 
-    const logger = new SignaleLogger();
-    const featureGen = new FeatureGenerator(logger, realFileSystem);
-    const apiGen = new ApiGenerator(logger, realFileSystem, featureGen);
+    const featureGen = createTestGenerator(FeatureGenerator, {
+      fileSystem: realFileSystem,
+    });
+    const apiGen = createTestGenerator(ApiGenerator, {
+      fileSystem: realFileSystem,
+    });
 
     await featureGen.generate({ target: 'posts' });
     await apiGen.generate({
@@ -282,9 +291,12 @@ export const <%=apiName%>: <%=apiType%> = async (req, res, context) => {
       JSON.stringify(swarmConfig, null, 2)
     );
 
-    const logger = new SignaleLogger();
-    const featureGen = new FeatureGenerator(logger, realFileSystem);
-    const apiGen = new ApiGenerator(logger, realFileSystem, featureGen);
+    const featureGen = createTestGenerator(FeatureGenerator, {
+      fileSystem: realFileSystem,
+    });
+    const apiGen = createTestGenerator(ApiGenerator, {
+      fileSystem: realFileSystem,
+    });
 
     await featureGen.generate({ target: 'posts' });
     await expect(
@@ -336,9 +348,12 @@ export const <%=apiName%>: <%=apiType%> = async (req, res, context) => {
       JSON.stringify(swarmConfig, null, 2)
     );
 
-    const logger = new SignaleLogger();
-    const featureGen = new FeatureGenerator(logger, realFileSystem);
-    const apiGen = new ApiGenerator(logger, realFileSystem, featureGen);
+    const featureGen = createTestGenerator(FeatureGenerator, {
+      fileSystem: realFileSystem,
+    });
+    const apiGen = createTestGenerator(ApiGenerator, {
+      fileSystem: realFileSystem,
+    });
 
     await featureGen.generate({ target: 'posts' });
     await apiGen.generate({

@@ -1,4 +1,3 @@
-import { SignaleLogger } from '@ingenyus/swarm';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import {
   ActionGenerator,
@@ -11,6 +10,7 @@ import {
 import { realFileSystem } from '../src/common';
 import {
   countOccurrences,
+  createTestGenerator,
   createTestWaspProject,
   readGeneratedFile,
   type TestProjectPaths,
@@ -19,15 +19,15 @@ import {
 describe('Configuration File Management Tests', () => {
   let projectPaths: TestProjectPaths;
   let originalCwd: string;
-  let logger: SignaleLogger;
   let featureGen: FeatureGenerator;
 
   beforeEach(() => {
     originalCwd = process.cwd();
     projectPaths = createTestWaspProject();
     process.chdir(projectPaths.root);
-    logger = new SignaleLogger();
-    featureGen = new FeatureGenerator(logger, realFileSystem);
+    featureGen = createTestGenerator(FeatureGenerator, {
+      fileSystem: realFileSystem,
+    });
   });
 
   afterEach(() => {
@@ -37,11 +37,21 @@ describe('Configuration File Management Tests', () => {
   it('should maintain correct group ordering with multiple definition types', async () => {
     await featureGen.generate({ target: 'posts' });
 
-    const actionGen = new ActionGenerator(logger, realFileSystem, featureGen);
-    const queryGen = new QueryGenerator(logger, realFileSystem, featureGen);
-    const apiGen = new ApiGenerator(logger, realFileSystem, featureGen);
-    const routeGen = new RouteGenerator(logger, realFileSystem, featureGen);
-    const jobGen = new JobGenerator(logger, realFileSystem, featureGen);
+    const actionGen = createTestGenerator(ActionGenerator, {
+      fileSystem: realFileSystem,
+    });
+    const queryGen = createTestGenerator(QueryGenerator, {
+      fileSystem: realFileSystem,
+    });
+    const apiGen = createTestGenerator(ApiGenerator, {
+      fileSystem: realFileSystem,
+    });
+    const routeGen = createTestGenerator(RouteGenerator, {
+      fileSystem: realFileSystem,
+    });
+    const jobGen = createTestGenerator(JobGenerator, {
+      fileSystem: realFileSystem,
+    });
 
     await routeGen.generate({
       feature: 'posts',
@@ -94,8 +104,12 @@ describe('Configuration File Management Tests', () => {
   it('should include group headers for each definition type', async () => {
     await featureGen.generate({ target: 'posts' });
 
-    const actionGen = new ActionGenerator(logger, realFileSystem, featureGen);
-    const queryGen = new QueryGenerator(logger, realFileSystem, featureGen);
+    const actionGen = createTestGenerator(ActionGenerator, {
+      fileSystem: realFileSystem,
+    });
+    const queryGen = createTestGenerator(QueryGenerator, {
+      fileSystem: realFileSystem,
+    });
 
     await actionGen.generate({
       dataType: 'Post',
@@ -121,7 +135,9 @@ describe('Configuration File Management Tests', () => {
   it('should always end config file with terminating semicolon', async () => {
     await featureGen.generate({ target: 'posts' });
 
-    const actionGen = new ActionGenerator(logger, realFileSystem, featureGen);
+    const actionGen = createTestGenerator(ActionGenerator, {
+      fileSystem: realFileSystem,
+    });
 
     await actionGen.generate({
       dataType: 'Post',
@@ -140,7 +156,9 @@ describe('Configuration File Management Tests', () => {
   it('should preserve proper structure after multiple additions', async () => {
     await featureGen.generate({ target: 'posts' });
 
-    const actionGen = new ActionGenerator(logger, realFileSystem, featureGen);
+    const actionGen = createTestGenerator(ActionGenerator, {
+      fileSystem: realFileSystem,
+    });
 
     await actionGen.generate({
       dataType: 'Post',
@@ -176,7 +194,9 @@ describe('Configuration File Management Tests', () => {
   it('should sort definitions alphabetically within groups', async () => {
     await featureGen.generate({ target: 'posts' });
 
-    const actionGen = new ActionGenerator(logger, realFileSystem, featureGen);
+    const actionGen = createTestGenerator(ActionGenerator, {
+      fileSystem: realFileSystem,
+    });
 
     await actionGen.generate({
       dataType: 'Post',
