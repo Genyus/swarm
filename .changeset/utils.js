@@ -165,27 +165,71 @@ function packageNameToFileFriendly(packageName) {
 }
 
 /**
- * Create a changeset file with the given content
+ * Create a changeset file with pre-formatted changelog entries
  * @param {string} packageName - Full package name (e.g., '@ingenyus/swarm-cli')
  * @param {string} changeType - Version bump type (patch/minor/major)
- * @param {string} description - Change description
+ * @param {Array} commits - Array of commit objects with hash, fullHash, message, authorName, authorEmail
  * @param {string} filenamePrefix - Prefix for the changeset filename
  * @returns {string} - The created filename
  */
 export function createChangesetFile(
   packageName,
   changeType,
-  description,
+  commits,
   filenamePrefix = 'auto'
 ) {
   const fileFriendlyPackage = packageNameToFileFriendly(packageName);
   const filename = `${filenamePrefix}-changeset-${fileFriendlyPackage}.md`;
   const filepath = path.join('.changeset', filename);
+
+  // Get repository URL from git config or use default
+  let repoUrl = 'https://github.com/genyus/swarm';
+  try {
+    const remoteUrl = execSync('git config --get remote.origin.url')
+      .toString()
+      .trim();
+    if (remoteUrl) {
+      // Convert SSH to HTTPS format if needed
+      if (remoteUrl.startsWith('git@')) {
+        repoUrl = remoteUrl
+          .replace('git@github.com:', 'https://github.com/')
+          .replace('.git', '');
+      } else if (remoteUrl.includes('github.com')) {
+        repoUrl = remoteUrl.replace('.git', '');
+        if (!repoUrl.startsWith('http')) {
+          repoUrl = `https://${repoUrl}`;
+        }
+      }
+    }
+  } catch {
+    // Use default
+  }
+
+  // Format each commit as a changelog entry with commit link
+  // Keep the full commit message including prefix for categorisation
+  const changelogEntries = commits.map((commit) => {
+    const commitUrl = `${repoUrl}/commit/${commit.fullHash}`;
+    return `- ${commit.message} ([${commit.hash}](${commitUrl}))`;
+  });
+
+  // Collect unique authors
+  const authors = new Set();
+  commits.forEach((commit) => {
+    if (commit.authorName && commit.authorEmail) {
+      authors.add(`${commit.authorName}<${commit.authorEmail}>`);
+    }
+  });
+
+  const authorsComment =
+    authors.size > 0
+      ? `\n\n<!-- Authors: ${Array.from(authors).join(', ')} -->`
+      : '';
+
   const changesetContent = `---
 "${packageName}": ${changeType}
 ---
 
-${description}
+${changelogEntries.join('\n')}${authorsComment}
 `;
 
   fs.writeFileSync(filepath, changesetContent);
@@ -251,7 +295,7 @@ function extractPackagesFromFilePaths(filePaths) {
 
 /**
  * Get commits since the last release tag
- * @returns {Array} - Array of { hash, message } objects
+ * @returns {Array} - Array of { hash, message, authorName, authorEmail } objects
  */
 export function getCommitsSinceLastRelease() {
   try {
@@ -271,7 +315,7 @@ export function getCommitsSinceLastRelease() {
     }
 
     const commits = execSync(
-      `git log ${commitRange} --format="%H|%s" --reverse`
+      `git log ${commitRange} --format="%H|%s|%an|%ae" --reverse`
     )
       .toString()
       .trim();
@@ -281,8 +325,8 @@ export function getCommitsSinceLastRelease() {
       return [];
     }
     return commits.split('\n').map((line) => {
-      const [hash, message] = line.split('|');
-      return { hash, message };
+      const [hash, message, authorName, authorEmail] = line.split('|');
+      return { hash, message, authorName, authorEmail };
     });
   } catch (error) {
     console.error('Error getting commits:', error.message);
@@ -292,13 +336,13 @@ export function getCommitsSinceLastRelease() {
 
 /**
  * Group changes by package and determine the highest version bump needed
- * @param {Array} commits - Array of commit objects
+ * @param {Array} commits - Array of commit objects with hash, message, authorName, authorEmail
  * @returns {Object} - Package changes grouped by package name
  */
 export function consolidateChanges(commits) {
   const packageChanges = {};
 
-  commits.forEach(({ hash, message }) => {
+  commits.forEach(({ hash, message, authorName, authorEmail }) => {
     const { packageName, changeType, description, hasExplicitScope } =
       parseCommitMessage(message);
 
@@ -358,7 +402,10 @@ export function consolidateChanges(commits) {
       packageChanges[fullPackageName].descriptions.push(description);
       packageChanges[fullPackageName].commits.push({
         hash: hash.substring(0, 7),
+        fullHash: hash,
         message,
+        authorName,
+        authorEmail,
       });
     });
   });

@@ -129,7 +129,7 @@ jobs:
 
       - name: Generate Changesets from commit messages
         if: steps.check_release_commit.outputs.is_release_commit != 'true'
-        run: pnpm changeset:autogenerate-batch
+        run: pnpm changeset:auto
 
       - name: Commit generated changesets
         if: steps.check_release_commit.outputs.is_release_commit != 'true'

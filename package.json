@@ -1,7 +1,7 @@
 {
   "private": true,
   "type": "module",
-  "description": "Swarm monorepo - Tools and utilities for Wasp development",
+  "description": "Swarm monorepo - Typescript code generation tools and utilities",
   "scripts": {
     "build": "pnpm -r run build",
     "test": "pnpm -r run test",
@@ -11,9 +11,8 @@
     "format:check": "pnpm -r run format:check",
     "typecheck": "pnpm -r run typecheck",
     "changeset": "changeset",
-    "changeset:autogenerate": "node .changeset/changeset-autogenerate.js",
-    "changeset:autogenerate-batch": "node .changeset/changeset-autogenerate-batch.js",
-    "version-packages": "changeset version",
+    "changeset:auto": "node .changeset/autogenerate.js",
+    "changeset:version": "node .changeset/version-packages.js",
     "release": "pnpm build && changeset publish",
     "validate": "pnpm -r run validate && pnpm knip",
     "knip": "knip",

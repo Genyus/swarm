@@ -67,7 +67,7 @@ jobs:
         with:
           commit: ${{ env.RELEASE_COMMIT_MESSAGE }}
           title: ${{ env.RELEASE_PR_TITLE }}
-          version: npx changeset version
+          version: pnpm changeset:version
           publish: pnpm release
           createGithubReleases: true
         env:
