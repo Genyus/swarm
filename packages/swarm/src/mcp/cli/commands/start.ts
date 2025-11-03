@@ -11,10 +11,11 @@ export function createStartCommand(serverManager: ServerManager): Command {
 
   return new Command('start')
     .description('Start the MCP server in stdio mode')
-    .action(async () => {
+    .option('-c, --config <path>', 'Path to configuration file')
+    .action(async (options: { config?: string }) => {
       try {
         logger.info('Starting Swarm MCP server in stdio mode...');
-        await serverManager.start();
+        await serverManager.start(options.config);
         logger.info('✅ Server started successfully in stdio mode');
       } catch (error) {
         const errorMessage =

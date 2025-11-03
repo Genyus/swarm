@@ -11,7 +11,7 @@ import {
 } from '@modelcontextprotocol/sdk/types.js';
 import { randomUUID } from 'crypto';
 import { configureLogger, LogFormat, logger, LogLevel } from '../../logger';
-import { configManager } from './configuration-manager';
+import { configManager, ConfigurationManager } from './configuration-manager';
 import {
   createErrorContext,
   ErrorFactory,
@@ -27,8 +27,13 @@ export class MCPManager {
   private state: ServerState;
   private transport?: MCPTransport;
   private toolManager: ToolManager;
+  private configurationManager: ConfigurationManager;
 
-  constructor(config: ServerConfig) {
+  constructor(
+    config: ServerConfig,
+    configurationManager?: ConfigurationManager
+  ) {
+    this.configurationManager = configurationManager || configManager;
     // Ensure logging goes to stderr to avoid corrupting MCP stdio transport.
     configureLogger({
       stream: 'stderr',
@@ -70,10 +75,10 @@ export class MCPManager {
 
   async loadConfiguration(): Promise<void> {
     try {
-      await configManager.loadConfig();
+      await this.configurationManager.loadConfig();
 
       logger.info('Configuration loaded and applied', {
-        configPath: configManager.getConfigPath(),
+        configPath: this.configurationManager.getConfigPath(),
       });
     } catch (error) {
       logger.warn('Failed to load configuration, using defaults', {

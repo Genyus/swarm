@@ -23,11 +23,12 @@ export function createProgram(): Command {
     'after',
     `
 Examples:
-  $ swarm-mcp start              # Start server in stdio mode
-  $ swarm-mcp stop               # Stop the server gracefully
-  $ swarm-mcp stop --force       # Force stop the server
-  $ swarm-mcp status             # Check server status
-  $ swarm-mcp status --json      # Get status in JSON format
+  $ swarm-mcp start                                      # Start server in stdio mode
+  $ swarm-mcp start --config ~/.swarm/swarm.config.json  # Start with custom config file
+  $ swarm-mcp stop                                       # Stop the server gracefully
+  $ swarm-mcp stop --force                               # Force stop the server
+  $ swarm-mcp status                                     # Check server status
+  $ swarm-mcp status --json                              # Get status in JSON format
 `
   );
 

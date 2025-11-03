@@ -1,8 +1,10 @@
+import { homedir } from 'node:os';
 import path from 'node:path';
 import { getSwarmVersion } from '../../common';
 import { logger } from '../../logger';
 import {
   configManager,
+  ConfigurationManager,
   createErrorContext,
   ErrorFactory,
   MCPManager,
@@ -14,7 +16,7 @@ export class ServerManager {
   private isRunning = false;
   private pid: number | null = null;
 
-  async start(): Promise<void> {
+  async start(configPath?: string): Promise<void> {
     if (this.isRunning) {
       throw ErrorFactory.internal(
         'start server',
@@ -30,7 +32,19 @@ export class ServerManager {
         process.chdir(projectRoot);
       }
 
-      await configManager.loadConfig();
+      let manager: ConfigurationManager;
+
+      if (configPath) {
+        const expandedPath = configPath.startsWith('~')
+          ? path.join(homedir(), configPath.slice(1))
+          : path.resolve(configPath);
+
+        manager = new ConfigurationManager(expandedPath);
+        await manager.loadConfig();
+      } else {
+        manager = configManager;
+        await manager.loadConfig();
+      }
 
       const config: ServerConfig = {
         name: 'Swarm MCP Server',
@@ -43,11 +57,9 @@ export class ServerManager {
         instructions: 'Swarm MCP Server for Wasp application code generation',
       };
 
-      this.server = new MCPManager(config);
-
+      this.server = new MCPManager(config, manager);
       await this.server.loadConfiguration();
       await this.server.start();
-
       this.isRunning = true;
       this.pid = process.pid;
 
