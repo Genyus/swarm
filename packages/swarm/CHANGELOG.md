@@ -1,5 +1,11 @@
 # @ingenyus/swarm
 
+## 0.3.0
+
+### Minor Changes
+
+- [`497bb41`](https://github.com/Genyus/swarm/commit/497bb417113e9094c82bfd3682d230a64032888f) Thanks [@github-actions[bot]](https://github.com/github-actions%5Bbot%5D)! - support custom config path for MCP server
+
 ## 0.2.2
 
 ### Patch Changes
