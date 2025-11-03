@@ -1,5 +1,12 @@
 # @ingenyus/swarm-wasp
 
+## 0.2.3
+
+### Patch Changes
+
+- Updated dependencies [[`497bb41`](https://github.com/Genyus/swarm/commit/497bb417113e9094c82bfd3682d230a64032888f)]:
+  - @ingenyus/swarm@0.3.0
+
 ## 0.2.2
 
 ### Patch Changes
