@@ -11,7 +11,7 @@ Generates feature directories containing a child Wasp configuration file (`featu
 ### CLI Command
 
 ```
-Usage: swarm-cli feature [options]
+Usage: swarm feature [options]
 
 Generates a feature directory containing a Wasp configuration file
 
@@ -48,7 +48,7 @@ Generates [Actions](https://wasp.sh/docs/data-model/operations/actions).
 ### CLI Command
 
 ```
-Usage: swarm-cli action [options]
+Usage: swarm action [options]
 
 Generates a Wasp Action
 
@@ -123,7 +123,7 @@ Generates [API Endpoints](https://wasp.sh/docs/advanced/apis).
 ### CLI Command
 
 ```
-Usage: swarm-cli api [options]
+Usage: swarm api [options]
 
 Generates a Wasp API Endpoint
 
@@ -204,7 +204,7 @@ Creates [API Namespaces](https://wasp.sh/docs/advanced/middleware-config#3-custo
 ### CLI Command
 
 ```
-Usage: swarm-cli api-namespace [options]
+Usage: swarm api-namespace [options]
 
 Generates a Wasp API Namespace
 
@@ -258,7 +258,7 @@ Generates [CRUD Operations](https://wasp.sh/docs/data-model/crud).
 ### CLI Command
 
 ```
-Usage: swarm-cli crud [options]
+Usage: swarm crud [options]
 
 Generates a Wasp CRUD operation
 
@@ -339,7 +339,7 @@ Generates Jobs.
 ### CLI Command
 
 ```
-Usage: swarm-cli job [options]
+Usage: swarm job [options]
 
 Generates a Wasp Job
 
@@ -410,7 +410,7 @@ Generates [Queries](https://wasp.sh/docs/data-model/operations/queries).
 ### CLI Command
 
 ```
-Usage: swarm-cli query [options]
+Usage: swarm query [options]
 
 Generates a Wasp Query
 
@@ -485,7 +485,7 @@ Generates [Routed Pages](https://wasp.sh/docs/tutorial/pages).
 ### CLI Command
 
 ```
-Usage: swarm-cli route [options]
+Usage: swarm route [options]
 
 Generates a Wasp Page and Route
 

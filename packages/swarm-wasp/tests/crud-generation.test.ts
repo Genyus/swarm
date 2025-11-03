@@ -1,4 +1,3 @@
-import { SignaleLogger } from '@ingenyus/swarm';
 import path from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { CrudGenerator, FeatureGenerator } from '../src';
@@ -6,6 +5,7 @@ import { realFileSystem } from '../src/common';
 import {
   assertImportsPresent,
   countOccurrences,
+  createTestGenerator,
   createTestWaspProject,
   readGeneratedFile,
   type TestProjectPaths,
@@ -26,9 +26,12 @@ describe('CRUD Generator Integration Tests', () => {
   });
 
   it('should generate complete CRUD operations', async () => {
-    const logger = new SignaleLogger();
-    const featureGen = new FeatureGenerator(logger, realFileSystem);
-    const crudGen = new CrudGenerator(logger, realFileSystem, featureGen);
+    const featureGen = createTestGenerator(FeatureGenerator, {
+      fileSystem: realFileSystem,
+    });
+    const crudGen = createTestGenerator(CrudGenerator, {
+      fileSystem: realFileSystem,
+    });
 
     await featureGen.generate({ target: 'posts' });
     await crudGen.generate({
@@ -70,9 +73,12 @@ describe('CRUD Generator Integration Tests', () => {
   });
 
   it('should generate CRUD config with all operations', async () => {
-    const logger = new SignaleLogger();
-    const featureGen = new FeatureGenerator(logger, realFileSystem);
-    const crudGen = new CrudGenerator(logger, realFileSystem, featureGen);
+    const featureGen = createTestGenerator(FeatureGenerator, {
+      fileSystem: realFileSystem,
+    });
+    const crudGen = createTestGenerator(CrudGenerator, {
+      fileSystem: realFileSystem,
+    });
 
     await featureGen.generate({ target: 'posts' });
     await crudGen.generate({
@@ -98,9 +104,12 @@ describe('CRUD Generator Integration Tests', () => {
   });
 
   it('should not duplicate CRUD in config without force flag', async () => {
-    const logger = new SignaleLogger();
-    const featureGen = new FeatureGenerator(logger, realFileSystem);
-    const crudGen = new CrudGenerator(logger, realFileSystem, featureGen);
+    const featureGen = createTestGenerator(FeatureGenerator, {
+      fileSystem: realFileSystem,
+    });
+    const crudGen = createTestGenerator(CrudGenerator, {
+      fileSystem: realFileSystem,
+    });
 
     await featureGen.generate({ target: 'posts' });
     await crudGen.generate({

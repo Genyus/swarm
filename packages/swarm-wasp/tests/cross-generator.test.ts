@@ -1,4 +1,3 @@
-import { SignaleLogger } from '@ingenyus/swarm';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import {
   ActionGenerator,
@@ -12,6 +11,7 @@ import {
 import { realFileSystem } from '../src/common';
 import {
   assertConfigGroupOrder,
+  createTestGenerator,
   createTestWaspProject,
   readGeneratedFile,
   type TestProjectPaths,
@@ -20,15 +20,15 @@ import {
 describe('Cross-Generator Integration Tests', () => {
   let projectPaths: TestProjectPaths;
   let originalCwd: string;
-  let logger: SignaleLogger;
   let featureGen: FeatureGenerator;
 
   beforeEach(() => {
     originalCwd = process.cwd();
     projectPaths = createTestWaspProject();
     process.chdir(projectPaths.root);
-    logger = new SignaleLogger();
-    featureGen = new FeatureGenerator(logger, realFileSystem);
+    featureGen = createTestGenerator(FeatureGenerator, {
+      fileSystem: realFileSystem,
+    });
   });
 
   afterEach(() => {
@@ -38,9 +38,15 @@ describe('Cross-Generator Integration Tests', () => {
   it('should generate compatible CRUD and custom operations', async () => {
     await featureGen.generate({ target: 'posts' });
 
-    const crudGen = new CrudGenerator(logger, realFileSystem, featureGen);
-    const actionGen = new ActionGenerator(logger, realFileSystem, featureGen);
-    const queryGen = new QueryGenerator(logger, realFileSystem, featureGen);
+    const crudGen = createTestGenerator(CrudGenerator, {
+      fileSystem: realFileSystem,
+    });
+    const actionGen = createTestGenerator(ActionGenerator, {
+      fileSystem: realFileSystem,
+    });
+    const queryGen = createTestGenerator(QueryGenerator, {
+      fileSystem: realFileSystem,
+    });
 
     await crudGen.generate({
       dataType: 'Post',
@@ -82,11 +88,21 @@ describe('Cross-Generator Integration Tests', () => {
   it('should generate complete feature with all generator types', async () => {
     await featureGen.generate({ target: 'posts' });
 
-    const actionGen = new ActionGenerator(logger, realFileSystem, featureGen);
-    const queryGen = new QueryGenerator(logger, realFileSystem, featureGen);
-    const apiGen = new ApiGenerator(logger, realFileSystem, featureGen);
-    const routeGen = new RouteGenerator(logger, realFileSystem, featureGen);
-    const jobGen = new JobGenerator(logger, realFileSystem, featureGen);
+    const actionGen = createTestGenerator(ActionGenerator, {
+      fileSystem: realFileSystem,
+    });
+    const queryGen = createTestGenerator(QueryGenerator, {
+      fileSystem: realFileSystem,
+    });
+    const apiGen = createTestGenerator(ApiGenerator, {
+      fileSystem: realFileSystem,
+    });
+    const routeGen = createTestGenerator(RouteGenerator, {
+      fileSystem: realFileSystem,
+    });
+    const jobGen = createTestGenerator(JobGenerator, {
+      fileSystem: realFileSystem,
+    });
 
     await actionGen.generate({
       dataType: 'Post',
@@ -149,8 +165,12 @@ describe('Cross-Generator Integration Tests', () => {
     await featureGen.generate({ target: 'posts' });
     await featureGen.generate({ target: 'users' });
 
-    const actionGen = new ActionGenerator(logger, realFileSystem, featureGen);
-    const crudGen = new CrudGenerator(logger, realFileSystem, featureGen);
+    const actionGen = createTestGenerator(ActionGenerator, {
+      fileSystem: realFileSystem,
+    });
+    const crudGen = createTestGenerator(CrudGenerator, {
+      fileSystem: realFileSystem,
+    });
 
     await actionGen.generate({
       dataType: 'Post',

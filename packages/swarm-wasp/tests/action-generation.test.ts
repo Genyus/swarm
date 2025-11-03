@@ -1,10 +1,10 @@
-import { SignaleLogger } from '@ingenyus/swarm';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { ActionGenerator, FeatureGenerator } from '../src';
 import { realFileSystem } from '../src/common';
 import {
   assertImportsPresent,
   countOccurrences,
+  createTestGenerator,
   createTestWaspProject,
   readGeneratedFile,
   type TestProjectPaths,
@@ -25,9 +25,12 @@ describe('Action Generator Integration Tests', () => {
   });
 
   it('should generate create action with proper types and imports', async () => {
-    const logger = new SignaleLogger();
-    const featureGen = new FeatureGenerator(logger, realFileSystem);
-    const actionGen = new ActionGenerator(logger, realFileSystem, featureGen);
+    const featureGen = createTestGenerator(FeatureGenerator, {
+      fileSystem: realFileSystem,
+    });
+    const actionGen = createTestGenerator(ActionGenerator, {
+      fileSystem: realFileSystem,
+    });
 
     await featureGen.generate({ target: 'posts' });
     await actionGen.generate({
@@ -53,9 +56,12 @@ describe('Action Generator Integration Tests', () => {
   });
 
   it('should not duplicate action in config without force flag', async () => {
-    const logger = new SignaleLogger();
-    const featureGen = new FeatureGenerator(logger, realFileSystem);
-    const actionGen = new ActionGenerator(logger, realFileSystem, featureGen);
+    const featureGen = createTestGenerator(FeatureGenerator, {
+      fileSystem: realFileSystem,
+    });
+    const actionGen = createTestGenerator(ActionGenerator, {
+      fileSystem: realFileSystem,
+    });
 
     await featureGen.generate({ target: 'posts' });
     await actionGen.generate({
@@ -87,9 +93,12 @@ describe('Action Generator Integration Tests', () => {
   });
 
   it('should replace action definition with force flag', async () => {
-    const logger = new SignaleLogger();
-    const featureGen = new FeatureGenerator(logger, realFileSystem);
-    const actionGen = new ActionGenerator(logger, realFileSystem, featureGen);
+    const featureGen = createTestGenerator(FeatureGenerator, {
+      fileSystem: realFileSystem,
+    });
+    const actionGen = createTestGenerator(ActionGenerator, {
+      fileSystem: realFileSystem,
+    });
 
     await featureGen.generate({ target: 'posts' });
 

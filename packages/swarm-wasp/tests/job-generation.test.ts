@@ -1,9 +1,9 @@
-import { SignaleLogger } from '@ingenyus/swarm';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { FeatureGenerator, JobGenerator } from '../src';
 import { realFileSystem } from '../src/common';
 import {
   countOccurrences,
+  createTestGenerator,
   createTestWaspProject,
   readGeneratedFile,
   type TestProjectPaths,
@@ -24,9 +24,12 @@ describe('Job Generator Integration Tests', () => {
   });
 
   it('should generate job with proper structure', async () => {
-    const logger = new SignaleLogger();
-    const featureGen = new FeatureGenerator(logger, realFileSystem);
-    const jobGen = new JobGenerator(logger, realFileSystem, featureGen);
+    const featureGen = createTestGenerator(FeatureGenerator, {
+      fileSystem: realFileSystem,
+    });
+    const jobGen = createTestGenerator(JobGenerator, {
+      fileSystem: realFileSystem,
+    });
 
     await featureGen.generate({ target: 'posts' });
     await jobGen.generate({
@@ -44,9 +47,12 @@ describe('Job Generator Integration Tests', () => {
   });
 
   it('should generate job config with cron schedule', async () => {
-    const logger = new SignaleLogger();
-    const featureGen = new FeatureGenerator(logger, realFileSystem);
-    const jobGen = new JobGenerator(logger, realFileSystem, featureGen);
+    const featureGen = createTestGenerator(FeatureGenerator, {
+      fileSystem: realFileSystem,
+    });
+    const jobGen = createTestGenerator(JobGenerator, {
+      fileSystem: realFileSystem,
+    });
 
     await featureGen.generate({ target: 'posts' });
     await jobGen.generate({
@@ -65,9 +71,12 @@ describe('Job Generator Integration Tests', () => {
   });
 
   it('should generate job with custom args', async () => {
-    const logger = new SignaleLogger();
-    const featureGen = new FeatureGenerator(logger, realFileSystem);
-    const jobGen = new JobGenerator(logger, realFileSystem, featureGen);
+    const featureGen = createTestGenerator(FeatureGenerator, {
+      fileSystem: realFileSystem,
+    });
+    const jobGen = createTestGenerator(JobGenerator, {
+      fileSystem: realFileSystem,
+    });
 
     await featureGen.generate({ target: 'posts' });
     await jobGen.generate({
@@ -85,9 +94,12 @@ describe('Job Generator Integration Tests', () => {
   });
 
   it('should not duplicate job in config without force flag', async () => {
-    const logger = new SignaleLogger();
-    const featureGen = new FeatureGenerator(logger, realFileSystem);
-    const jobGen = new JobGenerator(logger, realFileSystem, featureGen);
+    const featureGen = createTestGenerator(FeatureGenerator, {
+      fileSystem: realFileSystem,
+    });
+    const jobGen = createTestGenerator(JobGenerator, {
+      fileSystem: realFileSystem,
+    });
 
     await featureGen.generate({ target: 'posts' });
     await jobGen.generate({

@@ -1,10 +1,10 @@
-import type { FileSystem, Logger, SwarmGenerator } from '@ingenyus/swarm';
+import type { FileSystem, SwarmGenerator } from '@ingenyus/swarm';
 import { DEFAULT_CUSTOM_TEMPLATES_DIR } from '@ingenyus/swarm';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   createMockFeatureGen,
   createMockFS,
-  createMockLogger,
+  createTestGenerator,
 } from '../../../tests/utils';
 import { schema as featureSchema } from '../feature/schema';
 import { JobGenerator } from './job-generator';
@@ -30,15 +30,16 @@ vi.mock('@ingenyus/swarm', async () => {
 
 describe('JobGenerator', () => {
   let fs: FileSystem;
-  let logger: Logger;
   let featureGen: SwarmGenerator<typeof featureSchema>;
   let gen: JobGenerator;
 
   beforeEach(() => {
     fs = createMockFS();
-    logger = createMockLogger();
     featureGen = createMockFeatureGen(featureSchema);
-    gen = new JobGenerator(logger, fs, featureGen);
+    gen = createTestGenerator(JobGenerator, {
+      fileSystem: fs,
+      featureGeneratorFactory: () => featureGen,
+    });
   });
 
   it('generate writes worker file and updates config', async () => {
@@ -56,7 +57,10 @@ export default function configureFeature(app: App, feature: string): void {
     fs.writeFileSync = vi.fn();
 
     // Create generator after setting up mocks
-    gen = new JobGenerator(logger, fs, featureGen);
+    gen = createTestGenerator(JobGenerator, {
+      fileSystem: fs,
+      featureGeneratorFactory: () => featureGen,
+    });
 
     // Mock the template utility to return a simple template
     (gen as any).templateUtility = {

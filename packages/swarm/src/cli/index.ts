@@ -15,7 +15,7 @@ import { CommandManager } from './command-manager';
  * @returns {Promise<void>} - A promise that resolves when the main function completes
  */
 export async function main(): Promise<void> {
-  const command = new Command('swarm-cli')
+  const command = new Command('swarm')
     .description('Swarm generator command-line interface')
     .version(getSwarmVersion());
 
@@ -27,7 +27,7 @@ export async function main(): Promise<void> {
   try {
     if (!isInProject) {
       // Only show create command when not in a project
-      const appGen = new AppGenerator(realFileSystem, new SignaleLogger());
+      const appGen = new AppGenerator();
       const createCmd = new Command('create')
         .description(appGen.description)
         .argument(

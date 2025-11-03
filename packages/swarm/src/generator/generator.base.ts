@@ -3,6 +3,7 @@ import { core, ZodError, ZodType } from 'zod';
 import { FileSystem } from '../common';
 import { Logger } from '../logger/logger';
 import { In, Out, SchemaManager, ValidationResult } from '../schema';
+import { GeneratorRuntime } from './runtime';
 import { SwarmGenerator } from './types';
 
 /**
@@ -16,10 +17,21 @@ export abstract class GeneratorBase<S extends ZodType>
   abstract schema: S;
   protected path = path;
 
-  constructor(
-    protected fileSystem: FileSystem,
-    protected logger: Logger
-  ) {}
+  constructor() {}
+
+  /**
+   * Get filesystem instance from the current runtime
+   */
+  protected get fileSystem(): FileSystem {
+    return GeneratorRuntime.current().fileSystem;
+  }
+
+  /**
+   * Get logger instance from the current runtime
+   */
+  protected get logger(): Logger {
+    return GeneratorRuntime.current().logger;
+  }
 
   /**
    * Generate code based on parameters
@@ -102,7 +114,7 @@ export abstract class GeneratorBase<S extends ZodType>
   }
 
   /**
-   * Standardized error handling wrapper for generator methods
+   * Standardised error handling wrapper for generator methods
    */
   protected async handleGeneratorError<T>(
     itemType: string,

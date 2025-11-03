@@ -1,10 +1,10 @@
-import { SignaleLogger } from '@ingenyus/swarm';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { ApiGenerator, FeatureGenerator } from '../src';
 import { realFileSystem } from '../src/common';
 import {
   assertImportsPresent,
   countOccurrences,
+  createTestGenerator,
   createTestWaspProject,
   readGeneratedFile,
   type TestProjectPaths,
@@ -25,9 +25,12 @@ describe('API Generator Integration Tests', () => {
   });
 
   it('should generate API endpoint with proper structure', async () => {
-    const logger = new SignaleLogger();
-    const featureGen = new FeatureGenerator(logger, realFileSystem);
-    const apiGen = new ApiGenerator(logger, realFileSystem, featureGen);
+    const featureGen = createTestGenerator(FeatureGenerator, {
+      fileSystem: realFileSystem,
+    });
+    const apiGen = createTestGenerator(ApiGenerator, {
+      fileSystem: realFileSystem,
+    });
 
     await featureGen.generate({ target: 'posts' });
     await apiGen.generate({
@@ -51,9 +54,12 @@ describe('API Generator Integration Tests', () => {
   });
 
   it('should generate authenticated API endpoint', async () => {
-    const logger = new SignaleLogger();
-    const featureGen = new FeatureGenerator(logger, realFileSystem);
-    const apiGen = new ApiGenerator(logger, realFileSystem, featureGen);
+    const featureGen = createTestGenerator(FeatureGenerator, {
+      fileSystem: realFileSystem,
+    });
+    const apiGen = createTestGenerator(ApiGenerator, {
+      fileSystem: realFileSystem,
+    });
 
     await featureGen.generate({ target: 'posts' });
     await apiGen.generate({
@@ -75,9 +81,12 @@ describe('API Generator Integration Tests', () => {
   });
 
   it('should generate API config with correct structure', async () => {
-    const logger = new SignaleLogger();
-    const featureGen = new FeatureGenerator(logger, realFileSystem);
-    const apiGen = new ApiGenerator(logger, realFileSystem, featureGen);
+    const featureGen = createTestGenerator(FeatureGenerator, {
+      fileSystem: realFileSystem,
+    });
+    const apiGen = createTestGenerator(ApiGenerator, {
+      fileSystem: realFileSystem,
+    });
 
     await featureGen.generate({ target: 'posts' });
     await apiGen.generate({
@@ -100,9 +109,12 @@ describe('API Generator Integration Tests', () => {
   });
 
   it('should not duplicate API in config without force flag', async () => {
-    const logger = new SignaleLogger();
-    const featureGen = new FeatureGenerator(logger, realFileSystem);
-    const apiGen = new ApiGenerator(logger, realFileSystem, featureGen);
+    const featureGen = createTestGenerator(FeatureGenerator, {
+      fileSystem: realFileSystem,
+    });
+    const apiGen = createTestGenerator(ApiGenerator, {
+      fileSystem: realFileSystem,
+    });
 
     await featureGen.generate({ target: 'posts' });
     await apiGen.generate({

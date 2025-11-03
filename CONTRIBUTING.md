@@ -28,7 +28,7 @@ Thank you for your interest in contributing to Swarm! This document outlines bes
 - Prefer type aliases and enums for clarity.
 
 ## Error Handling
-- **Always use the centralized error utility from `@ingenyus/swarm`.**
+- **Always use the centralised error utility from `@ingenyus/swarm`.**
 - Do **not** use `console.log`, `console.error`, or `process.exit` directly.
 - For user-facing errors, use:
   ```ts
@@ -74,21 +74,17 @@ Thank you for your interest in contributing to Swarm! This document outlines bes
 
 ### swarm
 - This is the foundational package containing shared logic.
-- All generators, utilities, and types should be CLI-agnostic.
-- Do not include any CLI-specific dependencies (like `commander`).
 - Ensure all functionality is well-documented and tested.
-
-### swarm-cli
-- CLI-specific logic and command implementations.
-- Depends on `@ingenyus/swarm` for shared functionality.
-- Command registration and CLI-specific types belong here.
+- This package includes both the CLI and MCP server implementations.
+- CLI command implementation is in `packages/swarm/src/cli/`.
+- MCP server implementation is in `packages/swarm/src/mcp/`.
 - Use Commander.js for CLI argument parsing and validation.
+- Focus on MCP protocol compliance and AI agent workflows for MCP features.
 
-### swarm-mcp
-- MCP server implementation for AI agent integration.
-- Depends on `@ingenyus/swarm` for shared functionality.
-- Focus on MCP protocol compliance and AI agent workflows.
-- Ensure all MCP tools are properly documented and tested.
+### swarm-wasp
+- This is a plugin containing Wasp-specific functionality
+- This package includes generators for all documented Wasp components and a custom configuration class
+- All generators inherit the `GeneratorBase` class from the `swarm` package 
 
 ### Adding New Packages
 - Follow the established package structure in `packages/`.
@@ -99,34 +95,30 @@ Thank you for your interest in contributing to Swarm! This document outlines bes
 
 ### Adding New Features
 1. Determine which package the feature belongs to:
-   - Core functionality → `swarm`
-   - CLI-specific → `swarm-cli`
-   - MCP-specific → `swarm-mcp`
+   - Core functionality → `packages/swarm/`
+   - Wasp-specific → `packages/swarm-wasp/`
 2. Add the feature to the appropriate package
-3. Add any new templates to `packages/swarm/src/templates/`
-4. Update types in the appropriate `src/types/` directory
-5. Add tests for the new functionality
-6. Update documentation
+3. Update types in the appropriate `src/types/` directory
+4. Add tests for the new functionality
+5. Update documentation
 
 ## Pull Requests
 - Reference the relevant issue or PRD milestone in your PR description.
 - Ensure your branch is up to date with `main` before submitting.
-- Run all tests and linters before opening a PR:
-  ```bash
-  pnpm test
-  pnpm lint
-  pnpm format:check
-  ```
+- Validate the codebase (runs tests, linter, formatter, etc) before opening a PR:
+```bash
+pnpm validate
+```
 - Provide a clear summary of your changes and why they are needed.
 - If your changes affect multiple packages, test all affected packages.
 
 ### Commit Messages
-Use conventional commit format for clear, consistent commit messages:
+Use [Conventional Commits](http://conventionalcommits.org/en/v1.0.0/) format for clear, consistent commit messages:
 ```bash
 # Package-specific commits
-git commit -m "feat(core): add new generator"
-git commit -m "fix(cli): resolve command parsing issue"
-git commit -m "docs(mcp): update API documentation"
+git commit -m "feat(wasp): add new feature to CRUD generator"
+git commit -m "fix(swarm): resolve command parsing issue"
+git commit -m "docs(wasp): update API documentation"
 
 # Multi-package commits
 git commit -m "feat: add new feature across packages"
@@ -135,6 +127,41 @@ git commit -m "fix: resolve shared utility issue"
 # Breaking changes
 git commit -m "feat!: breaking change in core API"
 ```
+
+If you wish to include a scope, you should provide the package name your changes relate to. Alternatively, to save characters, you can specify the package suffix alone (e.g. `wasp` == `swarm-wasp`).
+
+### Changesets
+
+This CI workflow for this project automatically generates [Changesets](https://github.com/changesets/changesets) from conventional commit messages when your PR is merged. You don't need to create them manually unless you want more control over the changelog entry.
+
+#### Automatic generation
+
+- CI processes conventional commit messages (e.g., `feat:`, `fix:`, `feat!:`) and generates changesets automatically
+- Simply use [Conventional Commits](#commit-messages) format in your commits
+- Changesets are created for changes to individual packages (`@ingenyus/swarm` or `@ingenyus/swarm-wasp`)
+- When a scope isn't provided in the commit message, the workflow will examine the included file paths to determine which packages are affected
+- Test, documentation, build, CI or chore-only changes typically don't require changesets
+
+#### Manual changeset creation (optional)
+
+If you want more control over the changelog entry or to provide additional context, you can create a changeset manually:
+
+1. Run the changeset command from the monorepo root:
+   ```bash
+   pnpm changeset
+   ```
+
+2. You'll be prompted to:
+   - Select which packages are affected (`@ingenyus/swarm`, `@ingenyus/swarm-wasp`, or both)
+   - Choose the change type:
+     - `major` - Breaking changes
+     - `minor` - New features
+     - `patch` - Bug fixes or minor improvements
+   - Write a description of the changes (this will appear in the CHANGELOG)
+
+3. Commit the generated changeset file (it will be in `.changeset/`) along with your code changes
+
+**Note:** Manual changesets take precedence over auto-generated ones, so if you create one, it will be used instead of generating from commit messages.
 
 ---
 
