@@ -102,7 +102,7 @@ export abstract class GeneratorBase<S extends ZodType>
   }
 
   /**
-   * Standardized error handling wrapper for generator methods
+   * Standardised error handling wrapper for generator methods
    */
   protected async handleGeneratorError<T>(
     itemType: string,

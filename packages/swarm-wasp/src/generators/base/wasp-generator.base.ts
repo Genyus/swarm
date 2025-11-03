@@ -2,7 +2,6 @@ import {
   FileSystem,
   GeneratorBase,
   Logger,
-  SignaleLogger,
   logger as singletonLogger,
   SwarmConfig,
   SwarmConfigManager,
@@ -115,7 +114,7 @@ export abstract class WaspGeneratorBase<
 
   /**
    * Generic existence check with force flag handling
-   * Consolidates the pattern used in both file and config checks
+   * Consolidates the pattern used in both file and config existence checks
    */
   protected checkExistence(
     exists: boolean,
