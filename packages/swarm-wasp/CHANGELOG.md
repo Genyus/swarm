@@ -1,5 +1,14 @@
 # @ingenyus/swarm-wasp
 
+## 0.2.2
+
+### Patch Changes
+
+- [#26](https://github.com/Genyus/swarm/pull/26) [`bc90da5`](https://github.com/Genyus/swarm/commit/bc90da58c4b4a0258c7ed4d38e5a1a9cd893144e) Thanks [@Genyus](https://github.com/Genyus)! - remove unnecessary constructor args
+
+- Updated dependencies [[`bc90da5`](https://github.com/Genyus/swarm/commit/bc90da58c4b4a0258c7ed4d38e5a1a9cd893144e)]:
+  - @ingenyus/swarm@0.2.2
+
 ## 0.2.1
 
 ### Patch Changes
