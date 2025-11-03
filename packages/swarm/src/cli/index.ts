@@ -15,7 +15,7 @@ import { CommandManager } from './command-manager';
  * @returns {Promise<void>} - A promise that resolves when the main function completes
  */
 export async function main(): Promise<void> {
-  const command = new Command('swarm-cli')
+  const command = new Command('swarm')
     .description('Swarm generator command-line interface')
     .version(getSwarmVersion());
 

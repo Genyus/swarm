@@ -252,7 +252,7 @@ If you have Swarm CLI installed in a custom location:
 {
   "mcpServers": {
     "swarm-mcp": {
-      "command": "/path/to/swarm-cli",
+      "command": "/path/to/swarm",
       "args": ["mcp"],
       "env": {
         "SWARM_MCP_LOG_LEVEL": "debug"

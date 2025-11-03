@@ -51,7 +51,7 @@
     "rebuild:wasp": "rimraf package-lock.json && npm run reset:wasp && wasp build",
     "rebuild:db": "rimraf ./migrations && npm run reset:db",
     "rebuild:all": "npm run rebuild:wasp && npm run rebuild:db",
-    "swarm:cli": "npx swarm-cli",
+    "swarm:cli": "npx swarm",
     "swarm:mcp": "npx swarm-mcp",
     "lint": "eslint src *.wasp.ts",
     "lint:fix": "eslint src *.wasp.ts --fix",
