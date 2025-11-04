@@ -5,7 +5,7 @@ This guide explains how to configure the Swarm MCP Server with various AI-enable
 ## Table of Contents
 
 - [What is MCP?](#what-is-mcp)
-- [Quick Setup](#quick-setup)
+- [Getting Started](#getting-started)
 - [Editor-Specific Configuration](#editor-specific-configuration)
 - [Configuration Options](#configuration-options)
 - [Troubleshooting](#troubleshooting)
