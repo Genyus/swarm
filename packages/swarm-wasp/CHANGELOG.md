@@ -1,5 +1,14 @@
 # @ingenyus/swarm-wasp
 
+## [0.2.4][0.2.4] - 2025-11-04
+
+### 📦 Updated Dependencies
+
+- update @ingenyus/swarm to 0.3.1 ([04da606](https://github.com/genyus/swarm/commit/04da60693f0031aa5ad3e456a526f708ae6b1051))
+
+
+[0.2.4]: https://github.com/genyus/swarm/releases/tag/v0.2.4
+
 ## [0.2.3][0.2.3] - 2025-11-03
 
 ### Updated Dependencies
