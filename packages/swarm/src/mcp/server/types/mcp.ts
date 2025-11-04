@@ -1,4 +1,4 @@
-export interface ServerConfig {
+export interface MCPServerConfig {
   name: string;
   version: string;
   capabilities?: {
@@ -33,7 +33,7 @@ export interface ServerConfig {
   };
 }
 
-export interface ServerState {
+export interface MCPServerState {
   isRunning: boolean;
   transport?: any;
   clientCapabilities?: any;
@@ -41,10 +41,10 @@ export interface ServerState {
   sessionId?: string | undefined;
 }
 
-export interface ServerInfo {
+export interface MCPServerInfo {
   name: string;
   version: string;
   capabilities?: any;
   instructions?: string | undefined;
-  status: ServerState;
+  status: MCPServerState;
 }

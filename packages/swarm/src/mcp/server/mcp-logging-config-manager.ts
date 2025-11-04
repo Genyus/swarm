@@ -7,33 +7,33 @@ import { createErrorContext, ErrorFactory } from './errors';
 
 const ENV_PREFIX = 'SWARM_MCP_';
 
-const LoggingConfigSchema = z.object({
+const MCPLoggingOptionsSchema = z.object({
   level: z.enum(['debug', 'info', 'warn', 'error']).optional(),
   format: z.enum(['json', 'text']).optional(),
 });
 
-const ServerConfigSchema = z.object({
-  logging: LoggingConfigSchema.optional(),
+const MCPLoggingConfigSchema = z.object({
+  logging: MCPLoggingOptionsSchema.optional(),
 });
 
-interface LoggingConfig {
+export interface MCPLoggingOptions {
   level?: 'debug' | 'info' | 'warn' | 'error' | undefined;
   format?: 'json' | 'text' | undefined;
 }
 
-interface ServerConfig {
-  logging?: LoggingConfig | undefined;
+export interface MCPLoggingConfig {
+  logging?: MCPLoggingOptions | undefined;
 }
 
-const DEFAULT_CONFIG: ServerConfig = {
+const DEFAULT_CONFIG: MCPLoggingConfig = {
   logging: {
     level: 'info',
     format: 'json',
   },
 };
 
-export class ConfigurationManager {
-  private config: ServerConfig;
+export class MCPLoggingConfigManager {
+  private config: MCPLoggingConfig;
   private configPath: string;
   private isLoaded = false;
 
@@ -42,8 +42,8 @@ export class ConfigurationManager {
     this.config = { ...DEFAULT_CONFIG };
   }
 
-  private loadFromEnvironment(): Partial<ServerConfig> {
-    const envConfig: Partial<ServerConfig> = {};
+  private loadFromEnvironment(): Partial<MCPLoggingConfig> {
+    const envConfig: Partial<MCPLoggingConfig> = {};
 
     if (process.env[`${ENV_PREFIX}LOGGING_LEVEL`] !== undefined) {
       const level = process.env[`${ENV_PREFIX}LOGGING_LEVEL`]!;
@@ -98,7 +98,7 @@ export class ConfigurationManager {
     try {
       const configData = await readFile(this.configPath, 'utf-8');
       const parsedConfig = JSON.parse(configData) as unknown;
-      const validatedConfig = ServerConfigSchema.parse(parsedConfig);
+      const validatedConfig = MCPLoggingConfigSchema.parse(parsedConfig);
 
       // Ensure logging goes to stderr to avoid corrupting MCP stdio transport.
       configureLogger({
@@ -126,7 +126,7 @@ export class ConfigurationManager {
 
     const envConfig = this.loadFromEnvironment();
     if (Object.keys(envConfig).length > 0) {
-      const completeEnvConfig: ServerConfig = {
+      const completeEnvConfig: MCPLoggingConfig = {
         logging: envConfig.logging,
       };
       finalConfig = this.mergeConfig(finalConfig, completeEnvConfig);
@@ -138,10 +138,10 @@ export class ConfigurationManager {
   }
 
   private mergeConfig(
-    defaults: ServerConfig,
-    userConfig: ServerConfig
-  ): ServerConfig {
-    const merged: ServerConfig = {
+    defaults: MCPLoggingConfig,
+    userConfig: MCPLoggingConfig
+  ): MCPLoggingConfig {
+    const merged: MCPLoggingConfig = {
       logging: { ...defaults.logging },
     };
 
@@ -155,19 +155,19 @@ export class ConfigurationManager {
     return merged;
   }
 
-  getConfig(): ServerConfig {
+  getConfig(): MCPLoggingConfig {
     if (!this.isLoaded) {
       throw ErrorFactory.configuration(
         'config',
         'not loaded',
         'loaded configuration',
-        createErrorContext('ConfigurationManager', 'getConfig')
+        createErrorContext('MCPLoggingConfigManager', 'getConfig')
       );
     }
     return { ...this.config };
   }
 
-  getLoggingConfig(): LoggingConfig {
+  getLoggingConfig(): MCPLoggingOptions {
     const config = this.getConfig();
     return (
       config.logging || {
@@ -177,17 +177,17 @@ export class ConfigurationManager {
     );
   }
 
-  updateConfig(updates: Partial<ServerConfig>): void {
+  updateConfig(updates: Partial<MCPLoggingConfig>): void {
     if (!this.isLoaded) {
       throw ErrorFactory.configuration(
         'config',
         'not loaded',
         'loaded configuration',
-        createErrorContext('ConfigurationManager', 'updateConfig')
+        createErrorContext('MCPLoggingConfigManager', 'updateConfig')
       );
     }
 
-    const completeUpdates: ServerConfig = {
+    const completeUpdates: MCPLoggingConfig = {
       logging: updates.logging,
     };
 
@@ -216,4 +216,4 @@ export class ConfigurationManager {
   }
 }
 
-export const configManager = new ConfigurationManager();
+export const mcpLoggingConfigManager = new MCPLoggingConfigManager();

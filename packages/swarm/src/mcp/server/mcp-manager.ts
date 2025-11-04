@@ -11,31 +11,34 @@ import {
 } from '@modelcontextprotocol/sdk/types.js';
 import { randomUUID } from 'crypto';
 import { configureLogger, LogFormat, logger, LogLevel } from '../../logger';
-import { configManager, ConfigurationManager } from './configuration-manager';
 import {
   createErrorContext,
   ErrorFactory,
   MCPErrorCode,
   MCPProtocolError,
 } from './errors';
+import {
+  mcpLoggingConfigManager,
+  MCPLoggingConfigManager,
+} from './mcp-logging-config-manager';
 import { ToolManager } from './tool-manager';
-import { ServerConfig, ServerInfo, ServerState } from './types';
+import { MCPServerConfig, MCPServerInfo, MCPServerState } from './types';
 
 export class MCPManager {
   private mcpServer: MCPServer;
-  private config: ServerConfig;
-  private state: ServerState;
+  private config: MCPServerConfig;
+  private state: MCPServerState;
   private transport?: MCPTransport;
   private toolManager: ToolManager;
-  private configurationManager: ConfigurationManager;
+  private configurationManager: MCPLoggingConfigManager;
   private swarmConfigPath?: string;
 
   constructor(
-    config: ServerConfig,
-    configurationManager?: ConfigurationManager,
+    config: MCPServerConfig,
+    configurationManager?: MCPLoggingConfigManager,
     swarmConfigPath?: string
   ) {
-    this.configurationManager = configurationManager || configManager;
+    this.configurationManager = configurationManager || mcpLoggingConfigManager;
     this.swarmConfigPath = swarmConfigPath;
     // Ensure logging goes to stderr to avoid corrupting MCP stdio transport.
     configureLogger({
@@ -224,11 +227,11 @@ export class MCPManager {
     }
   }
 
-  getStatus(): ServerState {
+  getStatus(): MCPServerState {
     return { ...this.state };
   }
 
-  getInfo(): ServerInfo {
+  getInfo(): MCPServerInfo {
     return {
       name: this.config.name,
       version: this.config.version,

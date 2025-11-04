@@ -4,12 +4,11 @@ import path from 'node:path';
 import { getSwarmVersion } from '../../common';
 import { logger } from '../../logger';
 import {
-  configManager,
-  ConfigurationManager,
   createErrorContext,
   ErrorFactory,
+  mcpLoggingConfigManager,
   MCPManager,
-  ServerConfig,
+  MCPServerConfig,
 } from '../server';
 
 export class ServerManager {
@@ -33,13 +32,13 @@ export class ServerManager {
         process.chdir(projectRoot);
       }
 
-      // ConfigurationManager is for MCP server logging config (.mcp/config.json)
+      // MCPLoggingConfigManager is for MCP server logging config (.mcp/config.json)
       // It uses its own search logic, not the --config flag
       // The --config flag is for Swarm plugin config (swarm.config.json)
-      const manager = configManager;
+      const manager = mcpLoggingConfigManager;
       await manager.loadConfig();
 
-      const config: ServerConfig = {
+      const config: MCPServerConfig = {
         name: 'Swarm MCP Server',
         version: getSwarmVersion(),
         tools: [],
@@ -51,7 +50,7 @@ export class ServerManager {
       };
 
       // Pass the configPath to MCPManager so it can be used for SwarmConfigManager
-      // (ConfigurationManager is for MCP server logging config, separate from Swarm plugin config)
+      // (MCPLoggingConfigManager is for MCP server logging config, separate from Swarm plugin config)
       const expandedConfigPath = configPath
         ? configPath.startsWith('~')
           ? path.join(homedir(), configPath.slice(1))

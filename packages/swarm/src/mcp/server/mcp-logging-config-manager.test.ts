@@ -8,7 +8,7 @@ import {
   vi,
   type MockedFunction,
 } from 'vitest';
-import { ConfigurationManager } from './configuration-manager';
+import { MCPLoggingConfigManager } from './mcp-logging-config-manager';
 
 // Mock fs/promises
 vi.mock('node:fs/promises', () => ({
@@ -35,13 +35,13 @@ vi.mock('./logger.js', () => ({
   },
 }));
 
-describe('ConfigurationManager', () => {
-  let configManager: ConfigurationManager;
+describe('MCPLoggingConfigManager', () => {
+  let configManager: MCPLoggingConfigManager;
   const mockReadFile = readFile as MockedFunction<typeof readFile>;
 
   beforeEach(() => {
     vi.clearAllMocks();
-    configManager = new ConfigurationManager('/tests/config.json');
+    configManager = new MCPLoggingConfigManager('/tests/config.json');
   });
 
   afterEach(() => {
@@ -54,7 +54,7 @@ describe('ConfigurationManager', () => {
     });
 
     it('should accept custom config path', () => {
-      const customManager = new ConfigurationManager(
+      const customManager = new MCPLoggingConfigManager(
         '/custom/path/config.json'
       );
       expect(customManager.getConfigPath()).toBe('/custom/path/config.json');
