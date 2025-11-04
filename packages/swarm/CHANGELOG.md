@@ -1,5 +1,19 @@
 # @ingenyus/swarm
 
+## [0.3.1][0.3.1] - 2025-11-04
+
+### 🐞 Bug Fixes
+
+- ensure explicit config path is used ([2e8888e](https://github.com/genyus/swarm/commit/2e8888e9e80dad22e2e192f38928e993d7c33b28))
+
+### 🔧 Minor Improvements
+
+- improve MCP class/interface names ([07a8b17](https://github.com/genyus/swarm/commit/07a8b17f4fcc18ffd66edfdf923dc7379a7d9f7f))
+
+Contributors: [genyus](https://github.com/genyus)
+
+[0.3.1]: https://github.com/genyus/swarm/releases/tag/v0.3.1
+
 ## [0.3.0][0.3.0] - 2025-11-03
 
 ### 🎉 New Features
