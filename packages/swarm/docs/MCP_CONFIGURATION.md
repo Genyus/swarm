@@ -25,67 +25,9 @@ The Model Context Protocol (MCP) is a standard that allows AI assistants to inte
 
 ### Basic Configuration
 
-The Swarm MCP Server runs as a local process that communicates with your MCP clients via stdio (standard input/output). You can configure your editor to use a local project server, or set up a user-level server for use across multiple projects.
+The Swarm MCP Server runs as a local process that communicates with your MCP clients via stdio (standard input/output).
 
-#### Project-Level Configuration
-
-To use the Swarm server in a local project, you can set the path directly:
-
-```json
-{
-  "mcpServers": {
-    "swarm-mcp": {
-      "command": "node",
-      "args": ["/path/to/project/node_modules/.bin/swarm-mcp", "start"]
-    }
-  }
-}
-```
-
-#### User-Level Configuration
-
-When using user-level configuration, you must install Swarm and any plugin packages globally:
-
-```bash
-npm install -g @ingenyus/swarm @ingenyus/swarm-wasp
-```
-
-Create `~/.swarm/swarm.config.json` with your configuration:
-
-```json
-{
-  "logging": {
-    "level": "info",
-    "format": "json"
-  },
-  "plugins": []
-}
-```
-
-Then set the `--config` argument in your editor configuration:
-
-```json
-{
-  "mcpServers": {
-    "swarm-mcp": {
-      "command": "npx",
-      "args": ["-y", "--package=@ingenyus/swarm", "swarm-mcp", "start", "--config", "~/.swarm/swarm.config.json"]
-    }
-  }
-}
-```
-
-### Command-Line Options
-
-#### `-c, --config <path>`
-
-Specify a custom path to the configuration file. If not specified, Swarm searches for a `swarm.config.json` file in the current working directory.
-
-**Note:** `~/.swarm/swarm.config.json` is recommended for user-level configuration, but you can use any location you prefer:
-
-```bash
-swarm-mcp start --config ~/.swarm/swarm.config.json
-```
+**Note:** It's recommended to install Swarm locally in your project. While Swarm can technically be installed globally, configuration and plugin dependencies are not straightforward to resolve at that level.
 
 ### Environment Variables
 
@@ -102,32 +44,9 @@ Environment variables can be used to override default logging settings:
 
 Cursor supports MCP through its configuration system.
 
-#### Global Configuration
+#### Configuration
 
-Create or edit `~/.cursor/mcp.json` (macOS/Linux) or `%USERPROFILE%\.cursor\mcp.json` (Windows):
-
-**Prerequisite**: Install Swarm and any plugin packages globally first:
-```bash
-npm install -g @ingenyus/swarm @ingenyus/swarm-wasp
-```
-
-Then configure Cursor to use the `--config` option:
-
-```json
-{
-  "mcpServers": {
-    "swarm-mcp": {
-      "command": "npx",
-      "args": ["-y", "--package=@ingenyus/swarm", "swarm-mcp", "start", "--config", "~/.swarm/swarm.config.json"],
-      "env": {}
-    }
-  }
-}
-```
-
-#### Project-Specific Configuration
-
-For project-specific settings, create `.cursor/mcp.json` in your project root:
+Create `.cursor/mcp.json` in your project root:
 
 ```json
 {
@@ -167,30 +86,7 @@ For more information, see the [Cursor MCP documentation](https://cursor.com/docs
 
 Windsurf supports MCP through its configuration system.
 
-#### Global Configuration
-
-Create or edit `~/.codeium/windsurf/mcp_config.json` (macOS/Linux) or `%USERPROFILE%\.codeium\windsurf\mcp_config.json` (Windows):
-
-**Prerequisite**: Install Swarm and any plugin packages globally first:
-```bash
-npm install -g @ingenyus/swarm @ingenyus/swarm-wasp
-```
-
-Create `~/.swarm/swarm.config.json` with your configuration, then use the `--config` option:
-
-```json
-{
-  "mcpServers": {
-    "swarm-mcp": {
-      "command": "npx",
-      "args": ["-y", "--package=@ingenyus/swarm", "swarm-mcp", "start", "--config", "~/.swarm/swarm.config.json"],
-      "env": {}
-    }
-  }
-}
-```
-
-#### Project-Specific Configuration
+#### Configuration
 
 Create `.windsurf/mcp_config.json` in your project root:
 
@@ -225,20 +121,16 @@ VS Code requires the MCP extension to use MCP servers.
 
 Create `.vscode/mcp.json` in your project root:
 
-**Using User-Level Config File (Recommended for Global Installations)**
-
-**Prerequisite**: Install Swarm and any plugin packages globally first:
-```bash
-npm install -g @ingenyus/swarm @ingenyus/swarm-wasp
-```
-
 ```json
 {
   "servers": {
     "swarm-mcp": {
       "command": "npx",
-      "args": ["-y", "--package=@ingenyus/swarm", "swarm-mcp", "start", "--config", "~/.swarm/swarm.config.json"],
-      "env": {},
+      "args": ["-y", "--package=@ingenyus/swarm", "swarm-mcp", "start"],
+      "env": {
+        "SWARM_MCP_LOG_LEVEL": "info",
+        "SWARM_MCP_LOG_FORMAT": "json"
+      },
       "type": "stdio"
     }
   }
@@ -331,7 +223,7 @@ For more information, see the [Codex MCP documentation](https://developers.opena
 **Solutions**:
 - Ensure npx is accessible: `npm config get prefix`
 - Check PATH environment variable
-- Try installing globally: `npm install -g swarm-mcp`
+- Verify packages are installed locally: `npm list @ingenyus/swarm @ingenyus/swarm-wasp`
 
 #### 3. Configuration Not Loading
 
