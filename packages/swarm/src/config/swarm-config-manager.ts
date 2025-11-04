@@ -1,7 +1,6 @@
 import { AsyncSearcher, LilconfigResult, lilconfig } from 'lilconfig';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { DEFAULT_CONFIG_FILE, DEFAULT_CUSTOM_TEMPLATES_DIR } from '../common';
 
 /**
@@ -102,23 +101,10 @@ export class SwarmConfigManager {
    * @returns Path to project root or null if not found
    */
   private findProjectRoot(startDir?: string): string | null {
-    let currentDir: string;
-
-    if (startDir) {
-      currentDir = startDir;
-    } else {
-      const moduleDir = path.dirname(fileURLToPath(import.meta.url));
-      const segments = moduleDir.split(path.sep);
-      const nodeModulesIndex = segments.lastIndexOf('node_modules');
-
-      if (nodeModulesIndex !== -1) {
-        const rootSegments = segments.slice(0, nodeModulesIndex);
-        currentDir =
-          rootSegments.length > 0 ? rootSegments.join(path.sep) : path.sep;
-      } else {
-        currentDir = process.cwd();
-      }
-    }
+    // Always start from process.cwd() when no startDir is provided
+    // This ensures we search from the actual project directory where the command was invoked,
+    // not from where the module is installed (which can be in npx cache or node_modules)
+    let currentDir: string = startDir || process.cwd();
 
     const rootDir = path.parse(currentDir).root;
 
@@ -190,7 +176,7 @@ export class SwarmConfigManager {
         try {
           result = await this.lilconfig.load(configPath);
         } catch (e) {
-          // Ignore errors for specific path
+          console.error(`❌ Error loading config from ${configPath}: ${e}`);
         }
       } else {
         // Use lilconfig's search which handles searchPlaces and package.json key extraction

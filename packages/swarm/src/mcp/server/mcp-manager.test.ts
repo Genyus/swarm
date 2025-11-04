@@ -1,10 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { MCPManager } from './index';
-import type { ServerConfig } from './types/mcp';
+import type { MCPServerConfig } from './types/mcp';
 
 describe('MCPManager', () => {
   let server: MCPManager;
-  let config: ServerConfig;
+  let config: MCPServerConfig;
 
   beforeEach(() => {
     config = {

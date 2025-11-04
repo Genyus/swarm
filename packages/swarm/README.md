@@ -155,7 +155,7 @@ Swarm includes an MCP (Model Context Protocol) server that allows AI tools to in
 - The server exposes generators as tools that AI agents can use
 - AI tools can then generate code, create files, and scaffold projects automatically
 
-For detailed MCP setup instructions, see our [MCP integration guide](https://github.com/genyus/swarm/tree/main/docs/mcp).
+For detailed MCP setup instructions, see our [MCP configuration guide](https://github.com/Genyus/swarm/blob/main/packages/swarm/docs/MCP_CONFIGURATION.md).
 
 ## Development
 
