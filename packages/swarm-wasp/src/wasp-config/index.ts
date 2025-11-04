@@ -1,5 +1,5 @@
 // Export the main App class
-export { App } from './app.js';
+export { App } from './app';
 
 // Re-export wasp-config types for convenience
 export type {
