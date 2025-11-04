@@ -1,11 +1,20 @@
 # @ingenyus/swarm-wasp
 
+## [0.2.5][0.2.5] - 2025-11-04
+
+### 🐞 Bug Fixes
+
+- resolve Typescript import issues ([7ca9600](https://github.com/genyus/swarm/commit/7ca96008ec9df5b11561dcdcf3557ff8ef5c08b2))
+
+Contributors: [genyus](https://github.com/genyus)
+
+[0.2.5]: https://github.com/genyus/swarm/releases/tag/v0.2.5
+
 ## [0.2.4][0.2.4] - 2025-11-04
 
 ### 📦 Updated Dependencies
 
 - update @ingenyus/swarm to 0.3.1 ([04da606](https://github.com/genyus/swarm/commit/04da60693f0031aa5ad3e456a526f708ae6b1051))
-
 
 [0.2.4]: https://github.com/genyus/swarm/releases/tag/v0.2.4
 
