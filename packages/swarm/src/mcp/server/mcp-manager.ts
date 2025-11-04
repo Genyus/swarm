@@ -28,12 +28,15 @@ export class MCPManager {
   private transport?: MCPTransport;
   private toolManager: ToolManager;
   private configurationManager: ConfigurationManager;
+  private swarmConfigPath?: string;
 
   constructor(
     config: ServerConfig,
-    configurationManager?: ConfigurationManager
+    configurationManager?: ConfigurationManager,
+    swarmConfigPath?: string
   ) {
     this.configurationManager = configurationManager || configManager;
+    this.swarmConfigPath = swarmConfigPath;
     // Ensure logging goes to stderr to avoid corrupting MCP stdio transport.
     configureLogger({
       stream: 'stderr',
@@ -105,7 +108,7 @@ export class MCPManager {
 
   private async registerTools(): Promise<void> {
     logger.info('Tool registration framework initialized');
-    await this.toolManager.initialize();
+    await this.toolManager.initialize(this.swarmConfigPath);
 
     const tools = await this.toolManager.getTools();
     const toolDefinitions = this.toolManager.getToolDefinitions();

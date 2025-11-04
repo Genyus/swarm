@@ -38,7 +38,6 @@
     "pnpm": ">=10.0.0"
   },
   "devDependencies": {
-    "@changesets/changelog-github": "^0.5.1",
     "@changesets/cli": "^2.29.7",
     "@eslint/js": "^9.38.0",
     "@types/node": "^24.9.1",
@@ -50,5 +49,5 @@
     "prettier": "^3.6.2",
     "typescript": "^5.9.3"
   },
-  "packageManager": "pnpm@10.17.1"
+  "packageManager": "pnpm@10.20.0"
 }

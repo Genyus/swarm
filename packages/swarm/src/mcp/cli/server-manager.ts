@@ -1,3 +1,4 @@
+import { existsSync } from 'node:fs';
 import { homedir } from 'node:os';
 import path from 'node:path';
 import { getSwarmVersion } from '../../common';
@@ -32,19 +33,11 @@ export class ServerManager {
         process.chdir(projectRoot);
       }
 
-      let manager: ConfigurationManager;
-
-      if (configPath) {
-        const expandedPath = configPath.startsWith('~')
-          ? path.join(homedir(), configPath.slice(1))
-          : path.resolve(configPath);
-
-        manager = new ConfigurationManager(expandedPath);
-        await manager.loadConfig();
-      } else {
-        manager = configManager;
-        await manager.loadConfig();
-      }
+      // ConfigurationManager is for MCP server logging config (.mcp/config.json)
+      // It uses its own search logic, not the --config flag
+      // The --config flag is for Swarm plugin config (swarm.config.json)
+      const manager = configManager;
+      await manager.loadConfig();
 
       const config: ServerConfig = {
         name: 'Swarm MCP Server',
@@ -57,7 +50,15 @@ export class ServerManager {
         instructions: 'Swarm MCP Server for Wasp application code generation',
       };
 
-      this.server = new MCPManager(config, manager);
+      // Pass the configPath to MCPManager so it can be used for SwarmConfigManager
+      // (ConfigurationManager is for MCP server logging config, separate from Swarm plugin config)
+      const expandedConfigPath = configPath
+        ? configPath.startsWith('~')
+          ? path.join(homedir(), configPath.slice(1))
+          : path.resolve(configPath)
+        : undefined;
+
+      this.server = new MCPManager(config, manager, expandedConfigPath);
       await this.server.loadConfiguration();
       await this.server.start();
       this.isRunning = true;
@@ -122,6 +123,27 @@ export class ServerManager {
   }
 
   private resolveProjectRoot(): string {
+    // Strategy: Try process.cwd() first, then fall back to binary path resolution
+    // This handles all scenarios:
+    // 1. Local direct path: cwd() is project root
+    // 2. External direct path: cwd() is target project root
+    // 3. Local npx: cwd() is project root (fixed)
+    // 4. Remote npx: cwd() is where command was invoked, then fallback to binary path
+
+    const cwd = process.cwd();
+
+    // Check if cwd() looks like a valid project directory
+    const hasSwarmConfig = existsSync(path.join(cwd, 'swarm.config.json'));
+    const hasPackageJson = existsSync(path.join(cwd, 'package.json'));
+
+    if (hasSwarmConfig || hasPackageJson) {
+      return cwd;
+    }
+
+    // Fallback: Try to infer project root from binary location
+    // This helps when:
+    // - Binary is installed locally in project/node_modules (scenario 1)
+    // - Remote npx but binary happens to be in a project's node_modules
     const binPath = process.argv[1];
 
     if (binPath) {
@@ -133,13 +155,23 @@ export class ServerManager {
         const rootSegments = segments.slice(0, nodeModulesIndex);
         const candidate = rootSegments.join(path.sep);
 
+        // Verify the candidate actually looks like a project root
         if (candidate) {
-          return candidate;
+          const candidateHasConfig = existsSync(
+            path.join(candidate, 'swarm.config.json')
+          );
+          const candidateHasPackage = existsSync(
+            path.join(candidate, 'package.json')
+          );
+
+          if (candidateHasConfig || candidateHasPackage) {
+            return candidate;
+          }
         }
-        return path.sep;
       }
     }
 
-    return process.cwd();
+    // Final fallback: use cwd() (will be used by findProjectRoot() to search upward)
+    return cwd;
   }
 }
