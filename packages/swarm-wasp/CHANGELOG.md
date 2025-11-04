@@ -1,5 +1,15 @@
 # @ingenyus/swarm-wasp
 
+## [0.2.6][0.2.6] - 2025-11-04
+
+### 🐞 Bug Fixes
+
+- resolve NodeNext resolution error ([a18ab43](https://github.com/genyus/swarm/commit/a18ab432914b12753a9ad042a42d529496ec336e))
+
+Contributors: [genyus](https://github.com/genyus)
+
+[0.2.6]: https://github.com/genyus/swarm/releases/tag/v0.2.6
+
 ## [0.2.5][0.2.5] - 2025-11-04
 
 ### 🐞 Bug Fixes
