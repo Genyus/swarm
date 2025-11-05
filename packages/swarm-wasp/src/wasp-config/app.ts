@@ -57,7 +57,7 @@ interface OperationOptions {
 
 interface JobOptions {
   entities?: string[];
-  cron: string;
+  cron?: string;
   args?: Record<string, unknown>;
 }
 
