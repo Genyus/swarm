@@ -1,6 +1,6 @@
 import { Command } from 'commander';
 import { z, ZodType } from 'zod';
-import { getSwarmVersion, toKebabCase } from '../common';
+import { toKebabCase } from '../common';
 import { SwarmGenerator } from '../generator';
 import { PluginInterfaceManager } from '../plugin';
 import { SchemaManager } from '../schema';
@@ -25,9 +25,7 @@ export class CommandManager extends PluginInterfaceManager<Command> {
     const description = generator.description || `Generate ${generator.name}`;
     const schema = generator.schema;
     const shape = SchemaManager.getShape(schema);
-    const command = new Command(name)
-      .description(description)
-      .version(getSwarmVersion());
+    const command = new Command(name).description(description);
 
     this.commands.set(name, {
       schema: schema as ZodType,
