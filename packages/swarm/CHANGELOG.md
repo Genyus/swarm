@@ -1,5 +1,15 @@
 # @ingenyus/swarm
 
+## [0.3.2][0.3.2] - 2025-11-06
+
+### 🔧 Minor Improvements
+
+- remove version arg from sub-commands ([c743284](https://github.com/genyus/swarm/commit/c743284bc7cea0cd43fcecf12733a5f5c7f58c74))
+
+Contributors: [genyus](https://github.com/genyus)
+
+[0.3.2]: https://github.com/genyus/swarm/releases/tag/v0.3.2
+
 ## [0.3.1][0.3.1] - 2025-11-04
 
 ### 🐞 Bug Fixes
