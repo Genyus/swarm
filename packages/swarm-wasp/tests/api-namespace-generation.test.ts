@@ -39,7 +39,7 @@ describe('API Namespace Generator Integration Tests', () => {
       force: false,
     });
 
-    const middlewarePath = 'src/features/posts/server/middleware/postsApi.ts';
+    const middlewarePath = 'src/features/posts/server/apis/middleware/postsApi.ts';
     const content = readGeneratedFile(projectPaths.root, middlewarePath);
 
     expect(content).toContain('export const postsApi');

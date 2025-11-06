@@ -1,5 +1,5 @@
 import { Out, toCamelCase, toPascalCase } from '@ingenyus/swarm';
-import { getFeatureImportPath } from '../../common';
+import { ensureDirectoryExists, getFeatureImportPath } from '../../common';
 import { CONFIG_TYPES } from '../../types';
 import { ComponentGeneratorBase } from '../base';
 import { schema } from './schema';
@@ -30,8 +30,13 @@ export class ApiGenerator extends ComponentGeneratorBase<
       await this.generateApiFile(targetFile, apiName, args);
 
       if (args.customMiddleware) {
-        const { targetDirectory: middlewareTargetDirectory } =
-          this.ensureTargetDirectory(args.feature, 'middleware');
+        const middlewareTargetDirectory = this.path.join(
+          apiTargetDirectory,
+          'middleware'
+        );
+
+        ensureDirectoryExists(this.fileSystem, middlewareTargetDirectory);
+
         const middlewareFile = `${middlewareTargetDirectory}/${apiName}.ts`;
 
         this.generateMiddlewareFile(

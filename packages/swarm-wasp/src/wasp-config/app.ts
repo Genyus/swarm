@@ -214,7 +214,7 @@ export class App extends WaspApp {
     const middlewareImportPath = this.getFeatureImportPath(
       featureName,
       'server',
-      'middleware',
+      path.join('apis', 'middleware'),
       name
     );
 
@@ -397,7 +397,7 @@ export class App extends WaspApp {
     const importPath = this.getFeatureImportPath(
       featureName,
       'server',
-      'middleware',
+      path.join('apis', 'middleware'),
       name
     );
 

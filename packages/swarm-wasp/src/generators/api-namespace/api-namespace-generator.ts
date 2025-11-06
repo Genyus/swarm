@@ -1,5 +1,6 @@
 import { Out, toCamelCase } from '@ingenyus/swarm';
 import path from 'node:path';
+import { ensureDirectoryExists } from '../../common';
 import { CONFIG_TYPES } from '../../types';
 import { ComponentGeneratorBase } from '../base';
 import { schema } from './schema';
@@ -24,11 +25,19 @@ export class ApiNamespaceGenerator extends ComponentGeneratorBase<
       namespaceName,
       async () => {
         const configPath = this.validateFeatureConfig(feature);
-        const { targetDirectory, importDirectory } = this.ensureTargetDirectory(
-          feature,
+        const {
+          targetDirectory: apiTargetDirectory,
+          importDirectory: apiImportDirectory,
+        } = this.ensureTargetDirectory(feature, 'api');
+        const middlewareTargetDirectory = path.join(
+          apiTargetDirectory,
           'middleware'
         );
-        const targetFile = `${targetDirectory}/${namespaceName}.ts`;
+
+        ensureDirectoryExists(this.fileSystem, middlewareTargetDirectory);
+
+        const importDirectory = `${apiImportDirectory}/middleware`;
+        const targetFile = `${middlewareTargetDirectory}/${namespaceName}.ts`;
 
         await this.generateMiddlewareFile(
           targetFile,
@@ -54,7 +63,7 @@ export class ApiNamespaceGenerator extends ComponentGeneratorBase<
     configFilePath: string
   ) {
     const { force = false } = args;
-    const importPath = path.join(importDirectory, namespaceName);
+    const importPath = `${importDirectory}/${namespaceName}`;
     const definition = await this.getDefinition(
       namespaceName,
       importPath,
