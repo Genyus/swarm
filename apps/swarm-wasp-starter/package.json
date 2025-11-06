@@ -38,6 +38,7 @@
     "tslint-config-prettier": "^1.18.0",
     "typescript": "5.8.2",
     "vite": "^7.0.6",
+    "vitest": "^3.2.4",
     "wasp-config": "file:../../.local/share/wasp-lang/0.18.1/data/packages/wasp-config"
   },
   "scripts": {
