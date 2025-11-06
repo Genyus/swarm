@@ -62,6 +62,9 @@ export default function configureFeature(app: App, feature: string): void {
         }
         return `// Generated template for ${replacements.name || 'unknown'}`;
       }),
+      resolveTemplatePath: vi.fn((templateName) => {
+        return `/mock/templates/shared/${templateName}`;
+      }),
     };
 
     // Mock the getDefinition method to return a proper config definition

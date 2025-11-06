@@ -1,19 +1,14 @@
-<% if (middlewareType === 'apiNamespace') { -%>
 import type { RequestHandler } from "express";
-<% } -%>
 import type { MiddlewareConfigFn } from "wasp/server";
 
 export const <%=name%>: MiddlewareConfigFn = (middlewareConfig) => {
-<%- if (middlewareType === 'apiNamespace') { %>
   const <%=name%>Middleware: RequestHandler = (_req, _res, next) => {
     // TODO: Add your custom logic here
     next();
   };
 
   middlewareConfig.set("<%=name%>.middleware", <%=name%>Middleware);
-<%- } else { %>
-  // TODO: Add your custom logic here
-<%- } %>
 
   return middlewareConfig;
 };
+

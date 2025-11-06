@@ -97,6 +97,168 @@ export default function configureFeature(app: App, feature: string): void {
     );
   });
 
+  it('generate writes middleware file when customMiddleware is true', async () => {
+    // Mock existsSync to return true for config files, false for middleware directory
+    fs.existsSync = vi.fn((path) => {
+      if (typeof path === 'string' && path.includes('middleware')) {
+        return false; // Middleware directory doesn't exist yet
+      }
+      return true; // Config files and other paths exist
+    });
+    fs.readFileSync = vi.fn((path) => {
+      if (typeof path === 'string' && path.endsWith('.wasp.ts')) {
+        return `import { App } from "@ingenyus/swarm-wasp";
+
+export default function configureFeature(app: App, feature: string): void {
+  app
+}`;
+      }
+      return 'template';
+    });
+    fs.writeFileSync = vi.fn();
+    fs.mkdirSync = vi.fn();
+
+    // Mock the path methods to return predictable paths
+    const mockPathJoin = vi.fn((...args) => args.join('/'));
+    const mockPathDirname = vi.fn((path) =>
+      path.split('/').slice(0, -1).join('/')
+    );
+    (gen as any).path = { join: mockPathJoin, dirname: mockPathDirname };
+
+    const mockResolveTemplatePath = vi.fn(
+      (templateName) => `/mock/templates/shared/${templateName}`
+    );
+    const mockProcessTemplate = vi.fn((templatePath, replacements) => {
+      if (templatePath.includes('middleware.eta')) {
+        return `// Generated middleware template for ${replacements.name || 'unknown'}`;
+      } else if (templatePath.includes('config/api.eta')) {
+        return `app.addApi("${replacements.apiName}", {
+  method: ${replacements.method},
+  route: "${replacements.route}",
+  handler: "${replacements.importPath}"
+});`;
+      }
+      // Default API handler template
+      return `// Generated API handler for ${replacements.apiName || 'unknown'}`;
+    });
+
+    // Mock the template utility
+    (gen as any).templateUtility = {
+      processTemplate: mockProcessTemplate,
+      resolveTemplatePath: mockResolveTemplatePath,
+    };
+
+    await gen.generate({
+      feature: 'foo',
+      name: 'testApi',
+      method: 'GET',
+      path: '/api',
+      force: true,
+      entities: ['User'],
+      auth: true,
+      customMiddleware: true,
+    });
+
+    // Verify middleware directory was created
+    expect(fs.mkdirSync).toHaveBeenCalledWith(
+      expect.stringContaining('middleware'),
+      expect.objectContaining({ recursive: true })
+    );
+
+    // Verify middleware file was written
+    expect(fs.writeFileSync).toHaveBeenCalledWith(
+      expect.stringContaining('middleware/testApi.ts'),
+      expect.stringContaining('Generated middleware template for testApi')
+    );
+
+    // Verify resolveTemplatePath was called with correct middleware template path
+    expect(mockResolveTemplatePath).toHaveBeenCalledWith(
+      'middleware/middleware.eta',
+      'shared',
+      expect.any(String) // import.meta.url
+    );
+
+    // Verify processTemplate was called with middleware template
+    expect(mockProcessTemplate).toHaveBeenCalledWith(
+      expect.stringContaining('middleware.eta'),
+      expect.objectContaining({ name: 'testApi' })
+    );
+  });
+
+  it('generate does not write middleware file when customMiddleware is false', async () => {
+    // Mock existsSync to return true for all paths (including config files)
+    fs.existsSync = vi.fn(() => true);
+    fs.readFileSync = vi.fn((path) => {
+      if (typeof path === 'string' && path.endsWith('.wasp.ts')) {
+        return `import { App } from "@ingenyus/swarm-wasp";
+
+export default function configureFeature(app: App, feature: string): void {
+  app
+}`;
+      }
+      return 'template';
+    });
+    fs.writeFileSync = vi.fn();
+    fs.mkdirSync = vi.fn();
+
+    // Mock the path methods
+    const mockPathJoin = vi.fn((...args) => args.join('/'));
+    const mockPathDirname = vi.fn((path) =>
+      path.split('/').slice(0, -1).join('/')
+    );
+    (gen as any).path = { join: mockPathJoin, dirname: mockPathDirname };
+
+    const mockResolveTemplatePath = vi.fn(
+      (templateName) => `/mock/templates/${templateName}`
+    );
+
+    // Mock the template utility
+    (gen as any).templateUtility = {
+      processTemplate: vi.fn((templatePath, replacements) => {
+        if (templatePath.includes('config/api.eta')) {
+          return `app.addApi("${replacements.apiName}", {
+  method: ${replacements.method},
+  route: "${replacements.route}",
+  handler: "${replacements.importPath}"
+});`;
+        }
+        return `// Generated API handler for ${replacements.apiName || 'unknown'}`;
+      }),
+      resolveTemplatePath: mockResolveTemplatePath,
+    };
+
+    await gen.generate({
+      feature: 'foo',
+      name: 'testApi',
+      method: 'GET',
+      path: '/api',
+      force: true,
+      entities: ['User'],
+      auth: true,
+      customMiddleware: false,
+    });
+
+    // Verify middleware directory was NOT created
+    expect(fs.mkdirSync).not.toHaveBeenCalledWith(
+      expect.stringContaining('middleware'),
+      expect.any(Object)
+    );
+
+    // Verify resolveTemplatePath was NOT called with middleware template
+    expect(mockResolveTemplatePath).not.toHaveBeenCalledWith(
+      'middleware/middleware.eta',
+      'shared',
+      expect.any(String)
+    );
+
+    // Verify middleware file was NOT written
+    const writeCalls = (fs.writeFileSync as any).mock.calls;
+    const middlewareWriteCalls = writeCalls.filter((call: any[]) =>
+      call[0]?.includes('middleware')
+    );
+    expect(middlewareWriteCalls).toHaveLength(0);
+  });
+
   it('getConfigDefinition returns processed template', async () => {
     // Mock the template utility
     (gen as any).templateUtility = {

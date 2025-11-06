@@ -77,14 +77,14 @@ export abstract class OperationGeneratorBase<
 
   /**
    * Gets the template path for operation templates.
-   * This method resolves operation templates to the operation generator's directory
+   * This method resolves operation templates to the shared templates directory
    * instead of the current generator's directory.
    */
   protected getOperationTemplatePath(templateName: string): string {
-    // Resolve operation templates relative to the operation generator
+    // Resolve operation templates relative to the shared templates directory
     return this.templateUtility.resolveTemplatePath(
-      templateName,
-      'operation',
+      `operations/${templateName}`,
+      'shared',
       import.meta.url
     );
   }

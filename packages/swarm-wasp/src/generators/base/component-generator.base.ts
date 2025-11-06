@@ -203,17 +203,22 @@ export abstract class ComponentGeneratorBase<
     name: string,
     force: boolean
   ): Promise<void> {
-    const replacements = {
-      name,
-      middlewareType: toCamelCase(this.componentType || ''),
-    };
-
-    await this.renderTemplateToFile(
-      'middleware.eta',
-      replacements,
-      targetFile,
-      'Middleware file',
-      force
+    const templatePath = this.templateUtility.resolveTemplatePath(
+      'middleware/middleware.eta',
+      'shared',
+      import.meta.url
     );
+
+    const fileExists = this.checkFileExists(
+      targetFile,
+      force,
+      'Middleware file'
+    );
+
+    const content = this.templateUtility.processTemplate(templatePath, {
+      name,
+    });
+
+    this.writeFile(targetFile, content, 'Middleware file', fileExists);
   }
 }

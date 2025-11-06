@@ -588,4 +588,86 @@ export default function configureFeature(app: App, feature: string): void {
       })
     );
   });
+
+  it('getDefinition throws error when config template file does not exist', async () => {
+    gen = createTestGenerator(ActionGenerator, {
+      fileSystem: fs,
+      featureGeneratorFactory: () => featureGen,
+    });
+
+    // Mock resolveTemplatePath to return a non-existent path
+    const nonExistentPath = '/non/existent/path/operation.eta';
+    (gen as any).templateUtility = {
+      resolveTemplatePath: vi.fn(() => nonExistentPath),
+      processTemplate: vi.fn((templatePath) => {
+        // Simulate file not found error - Eta will throw if template doesn't exist
+        throw new Error(`Template file not found: ${templatePath}`);
+      }),
+    };
+
+    // Mock fs.existsSync to return false for the template path
+    fs.existsSync = vi.fn((path) => {
+      if (path === nonExistentPath) {
+        return false;
+      }
+      return true;
+    });
+
+    expect(() => {
+      gen.getDefinition(
+        'testAction',
+        'test',
+        ['User'],
+        'action',
+        'features/test/server/actions/testAction',
+        false
+      );
+    }).toThrow(/Template file not found/);
+
+    // Verify resolveTemplatePath was called with correct parameters
+    expect(
+      (gen as any).templateUtility.resolveTemplatePath
+    ).toHaveBeenCalledWith(
+      'operation.eta',
+      'config',
+      expect.any(String) // import.meta.url
+    );
+  });
+
+  it('getDefinition verifies config template path resolution', async () => {
+    gen = createTestGenerator(ActionGenerator, {
+      fileSystem: fs,
+      featureGeneratorFactory: () => featureGen,
+    });
+
+    const mockResolveTemplatePath = vi.fn((templateName, generatorName) => {
+      if (templateName === 'operation.eta' && generatorName === 'config') {
+        return '/mock/templates/config/operation.eta';
+      }
+      return `/mock/templates/${templateName}`;
+    });
+
+    (gen as any).templateUtility = {
+      resolveTemplatePath: mockResolveTemplatePath,
+      processTemplate: vi.fn(() => 'app.addAction("test", {});'),
+    };
+
+    fs.existsSync = vi.fn(() => true);
+
+    await gen.getDefinition(
+      'testAction',
+      'test',
+      ['User'],
+      'action',
+      'features/test/server/actions/testAction',
+      false
+    );
+
+    // Verify resolveTemplatePath was called with correct parameters for config template
+    expect(mockResolveTemplatePath).toHaveBeenCalledWith(
+      'operation.eta',
+      'config',
+      expect.any(String) // import.meta.url
+    );
+  });
 });
