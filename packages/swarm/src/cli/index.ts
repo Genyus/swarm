@@ -1,12 +1,7 @@
 import { Command } from 'commander';
 import fs from 'node:fs';
-import {
-  DEFAULT_CONFIG_FILE,
-  getSwarmVersion,
-  realFileSystem,
-} from '../common';
+import { DEFAULT_CONFIG_FILE, getSwarmVersion } from '../common';
 import { AppGenerator } from '../generator';
-import { SignaleLogger } from '../logger';
 import { CommandManager } from './command-manager';
 
 /**
