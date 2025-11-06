@@ -1,5 +1,24 @@
 # @ingenyus/swarm-wasp
 
+## [0.2.7][0.2.7] - 2025-11-06
+
+### 🐞 Bug Fixes
+
+- make JobOptions.crud optional ([98aa674](https://github.com/genyus/swarm/commit/98aa6745a52e149bfe27552d3964244561f5b713))
+- restore API middleware generation ([798cf3b](https://github.com/genyus/swarm/commit/798cf3b3d1e32478b22a469545feeb165a974f92))
+
+### 🔧 Minor Improvements
+
+- move middleware output directory ([4c901f1](https://github.com/genyus/swarm/commit/4c901f10598fb9a1ab16dad0c4149dde546e48d6))
+
+### 📦 Updated Dependencies
+
+- update @ingenyus/swarm to 0.3.2 ([7c008b4](https://github.com/genyus/swarm/commit/7c008b470e61c3d58f3bffcf2ecc5cceddf7a66b))
+
+Contributors: [genyus](https://github.com/genyus)
+
+[0.2.7]: https://github.com/genyus/swarm/releases/tag/v0.2.7
+
 ## [0.2.6][0.2.6] - 2025-11-04
 
 ### 🐞 Bug Fixes
