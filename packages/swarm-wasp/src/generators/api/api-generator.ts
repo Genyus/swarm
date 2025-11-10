@@ -1,4 +1,9 @@
-import { Out, toCamelCase, toPascalCase } from '@ingenyus/swarm';
+import {
+  GeneratorServices,
+  Out,
+  toCamelCase,
+  toPascalCase,
+} from '@ingenyus/swarm';
 import { ensureDirectoryExists, getFeatureImportPath } from '../../common';
 import { CONFIG_TYPES } from '../../types';
 import { ComponentGeneratorBase } from '../base';
@@ -14,6 +19,10 @@ export class ApiGenerator extends ComponentGeneratorBase<
 
   description = 'Generates a Wasp API Endpoint';
   schema = schema;
+
+  constructor(services: GeneratorServices) {
+    super(services);
+  }
 
   async generate(args: Out<typeof schema>): Promise<void> {
     const apiName = toCamelCase(args.name);

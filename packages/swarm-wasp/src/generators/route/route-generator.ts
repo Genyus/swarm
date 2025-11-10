@@ -1,4 +1,5 @@
 import {
+  GeneratorServices,
   formatDisplayName,
   Out,
   toCamelCase,
@@ -19,6 +20,10 @@ export class RouteGenerator extends ComponentGeneratorBase<
 
   description = 'Generates a Wasp Page and Route';
   schema = schema;
+
+  constructor(services: GeneratorServices) {
+    super(services);
+  }
 
   async generate(args: Out<typeof schema>): Promise<void> {
     const { path: routePath, name, feature } = args;

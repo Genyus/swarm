@@ -1,6 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { z } from 'zod';
-import type { SwarmGenerator } from '../../generator';
+import {
+  defineGeneratorProvider,
+  GeneratorServices,
+  SwarmGenerator,
+  SwarmGeneratorProvider,
+} from '../../generator';
 import { commandRegistry } from '../../schema';
 import { ToolManager } from './tool-manager';
 
@@ -20,29 +25,37 @@ describe('ToolManager', () => {
 
   describe('Plugin Loading', () => {
     it('should load tools from plugin generators', async () => {
-      const mockGenerators: SwarmGenerator[] = [
-        {
-          name: 'api',
-          description: 'Generate API endpoint',
-          schema: z.object({
-            name: z.string().describe('API endpoint name'),
-            method: z.enum(['GET', 'POST']).describe('HTTP method'),
+      const apiSchema = z.object({
+        name: z.string().describe('API endpoint name'),
+        method: z.enum(['GET', 'POST']).describe('HTTP method'),
+      });
+      const crudSchema = z.object({
+        entity: z.string().describe('Entity name'),
+      });
+      const mockProviders: SwarmGeneratorProvider[] = [
+        defineGeneratorProvider({
+          schema: apiSchema,
+          create: (services: GeneratorServices): SwarmGenerator => ({
+            name: 'api',
+            description: 'Generate API endpoint',
+            schema: apiSchema,
+            generate: vi.fn().mockResolvedValue(undefined),
           }),
-          generate: vi.fn().mockResolvedValue(undefined),
-        },
-        {
-          name: 'crud',
-          description: 'Generate CRUD operations',
-          schema: z.object({
-            entity: z.string().describe('Entity name'),
+        }),
+        defineGeneratorProvider({
+          schema: crudSchema,
+          create: (services: GeneratorServices): SwarmGenerator => ({
+            name: 'crud',
+            description: 'Generate CRUD operations',
+            schema: crudSchema,
+            generate: vi.fn().mockResolvedValue(undefined),
           }),
-          generate: vi.fn().mockResolvedValue(undefined),
-        },
+        }),
       ];
 
       const mockPluginManager = toolManager.getPluginManager();
       vi.mocked(mockPluginManager.getEnabledGenerators).mockReturnValue(
-        mockGenerators
+        mockProviders
       );
 
       await toolManager.initialize();
@@ -67,22 +80,26 @@ describe('ToolManager', () => {
     });
 
     it('should create valid JSON schema from Zod schema', async () => {
-      const mockGenerator: SwarmGenerator = {
-        name: 'test',
-        description: 'Test generator',
-        schema: z.object({
-          name: z.string().describe('Name field'),
-          count: z.number().optional().describe('Optional count'),
-          type: z.enum(['A', 'B']).optional().describe('Type selection'),
-          tags: z.array(z.string()).describe('List of tags'),
-          enabled: z.boolean().default(true).describe('Enable feature'),
+      const testSchema = z.object({
+        name: z.string().describe('Name field'),
+        count: z.number().optional().describe('Optional count'),
+        type: z.enum(['A', 'B']).optional().describe('Type selection'),
+        tags: z.array(z.string()).describe('List of tags'),
+        enabled: z.boolean().default(true).describe('Enable feature'),
+      });
+      const mockProvider: SwarmGeneratorProvider = defineGeneratorProvider({
+        schema: testSchema,
+        create: (services: GeneratorServices): SwarmGenerator => ({
+          name: 'test',
+          description: 'Test generator',
+          schema: testSchema,
+          generate: vi.fn().mockResolvedValue(undefined),
         }),
-        generate: vi.fn().mockResolvedValue(undefined),
-      };
+      });
 
       const mockPluginManager = toolManager.getPluginManager();
       vi.mocked(mockPluginManager.getEnabledGenerators).mockReturnValue([
-        mockGenerator,
+        mockProvider,
       ]);
 
       await toolManager.initialize();
@@ -126,18 +143,22 @@ describe('ToolManager', () => {
 
     it('should execute generator when tool handler is called', async () => {
       const generateFn = vi.fn().mockResolvedValue(undefined);
-      const mockGenerator: SwarmGenerator = {
-        name: 'api',
-        description: 'Generate API',
-        schema: z.object({
-          name: z.string(),
+      const apiSchema = z.object({
+        name: z.string(),
+      });
+      const mockProvider: SwarmGeneratorProvider = defineGeneratorProvider({
+        schema: apiSchema,
+        create: (services: GeneratorServices): SwarmGenerator => ({
+          name: 'api',
+          description: 'Generate API',
+          schema: apiSchema,
+          generate: generateFn,
         }),
-        generate: generateFn,
-      };
+      });
 
       const mockPluginManager = toolManager.getPluginManager();
       vi.mocked(mockPluginManager.getEnabledGenerators).mockReturnValue([
-        mockGenerator,
+        mockProvider,
       ]);
 
       await toolManager.initialize();
@@ -147,7 +168,14 @@ describe('ToolManager', () => {
 
       const result = await apiHandler({ name: 'test-api' });
 
-      expect(result.success).toBe(true);
+      // Tool handler now returns SDK-compatible CallToolResult format
+      expect(result).toHaveProperty('content');
+      expect(result.content).toBeInstanceOf(Array);
+      expect(result.content[0]).toHaveProperty('type', 'text');
+      expect(result.content[0]).toHaveProperty('text');
+
+      const parsedText = JSON.parse(result.content[0].text);
+      expect(parsedText.success).toBe(true);
       expect(generateFn).toHaveBeenCalledWith({ name: 'test-api' });
     });
 
@@ -155,18 +183,22 @@ describe('ToolManager', () => {
       const generateFn = vi
         .fn()
         .mockRejectedValue(new Error('Generation failed'));
-      const mockGenerator: SwarmGenerator = {
-        name: 'api',
-        description: 'Generate API',
-        schema: z.object({
-          name: z.string(),
+      const apiSchema = z.object({
+        name: z.string(),
+      });
+      const mockProvider: SwarmGeneratorProvider = defineGeneratorProvider({
+        schema: apiSchema,
+        create: (services: GeneratorServices): SwarmGenerator => ({
+          name: 'api',
+          description: 'Generate API',
+          schema: apiSchema,
+          generate: generateFn,
         }),
-        generate: generateFn,
-      };
+      });
 
       const mockPluginManager = toolManager.getPluginManager();
       vi.mocked(mockPluginManager.getEnabledGenerators).mockReturnValue([
-        mockGenerator,
+        mockProvider,
       ]);
 
       await toolManager.initialize();
@@ -174,10 +206,11 @@ describe('ToolManager', () => {
       const toolHandlers = toolManager.getToolHandlers();
       const apiHandler = toolHandlers['generate-api'];
 
-      const result = await apiHandler({ name: 'test-api' });
-
-      expect(result.success).toBe(false);
-      expect(result.error).toBe('Generation failed');
+      // Tool handler now throws errors (SDK will handle formatting)
+      await expect(apiHandler({ name: 'test-api' })).rejects.toThrow(
+        'Generation failed'
+      );
+      expect(generateFn).toHaveBeenCalledWith({ name: 'test-api' });
     });
   });
 });

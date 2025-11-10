@@ -34,7 +34,6 @@ describe('ServerManager', () => {
     mockServer = {
       start: vi.fn().mockResolvedValue(undefined),
       stop: vi.fn().mockResolvedValue(undefined),
-      loadConfiguration: vi.fn().mockResolvedValue(undefined),
     };
 
     // Set up the mock constructor to return our mock server
@@ -63,7 +62,6 @@ describe('ServerManager', () => {
     it('should start the server successfully', async () => {
       await serverManager.start();
 
-      expect(mockServer.loadConfiguration).toHaveBeenCalledOnce();
       expect(mockServer.start).toHaveBeenCalledOnce();
       expect(serverManager.isServerRunning()).toBe(true);
     });

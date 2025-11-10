@@ -1,5 +1,4 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { logger } from '../../../logger';
 import { ServerManager } from '../server-manager';
 import { createStopCommand } from './stop';
 
@@ -8,12 +7,13 @@ vi.mock('../server-manager', () => ({
   ServerManager: vi.fn(),
 }));
 
-vi.mock('../../../logger', () => ({
-  logger: {
-    info: vi.fn(),
-    error: vi.fn(),
-  },
-  configureLogger: vi.fn(),
+const mockLogger = {
+  info: vi.fn(),
+  error: vi.fn(),
+};
+
+vi.mock('../../../cli/cli-logger', () => ({
+  getCLILogger: vi.fn(() => mockLogger),
 }));
 const mockProcessExit = vi.spyOn(process, 'exit').mockImplementation(() => {
   throw new Error('process.exit called');
@@ -55,11 +55,11 @@ describe('Stop Command', () => {
 
       expect(mockServerManager.isServerRunning).toHaveBeenCalledOnce();
       expect(mockServerManager.stop).toHaveBeenCalledOnce();
-      expect((logger as any).info).toHaveBeenCalledWith(
+      expect(mockLogger.info).toHaveBeenCalledWith(
         'Stopping Swarm MCP server...'
       );
-      expect((logger as any).info).toHaveBeenCalledWith(
-        '✅ Server stopped successfully'
+      expect(mockLogger.info).toHaveBeenCalledWith(
+        'Server stopped successfully'
       );
     });
 
@@ -72,8 +72,8 @@ describe('Stop Command', () => {
 
       expect(mockServerManager.isServerRunning).toHaveBeenCalledOnce();
       expect(mockServerManager.stop).not.toHaveBeenCalled();
-      expect((logger as any).info).toHaveBeenCalledWith(
-        'ℹ️  Server is not currently running'
+      expect(mockLogger.info).toHaveBeenCalledWith(
+        'Server is not currently running'
       );
     });
 
@@ -90,11 +90,11 @@ describe('Stop Command', () => {
 
       expect(mockServerManager.isServerRunning).toHaveBeenCalledOnce();
       expect(mockServerManager.stop).toHaveBeenCalledOnce();
-      expect((logger as any).info).toHaveBeenCalledWith(
+      expect(mockLogger.info).toHaveBeenCalledWith(
         'Stopping Swarm MCP server...'
       );
-      expect((logger as any).error).toHaveBeenCalledWith(
-        '❌ Failed to stop server: Stop failed'
+      expect(mockLogger.error).toHaveBeenCalledWith(
+        'Failed to stop server: Stop failed'
       );
       expect(mockProcessExit).toHaveBeenCalledWith(1);
     });

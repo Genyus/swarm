@@ -8,6 +8,7 @@ import {
 } from '../../common';
 import { Out } from '../../schema';
 import { GeneratorBase } from '../generator.base';
+import { GeneratorServices } from '../services';
 import { schema } from './schema';
 
 interface ReplacementContext {
@@ -22,6 +23,10 @@ export class AppGenerator extends GeneratorBase<typeof schema> {
   description = 'Create a new Swarm-enabled project from a GitHub template';
   schema = schema;
   private readonly supportedExtensions = ['.json', '.ts', '.tsx'];
+
+  constructor(services: GeneratorServices) {
+    super(services);
+  }
 
   async generate(args: Out<typeof schema>): Promise<void> {
     return this.handleGeneratorError('project', args.name, async () => {

@@ -1,34 +1,46 @@
 import { Command } from 'commander';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { z } from 'zod';
-import { SwarmGenerator } from '../generator';
-import { CommandManager } from './command-manager';
+import {
+  defineGeneratorProvider,
+  GeneratorServices,
+  SwarmGenerator,
+  SwarmGeneratorProvider,
+} from '../generator';
+import { CLIManager } from './cli-manager';
 
-// Mock generator for testing
-const createMockGenerator = (name: string, schema: any): SwarmGenerator => ({
-  name,
-  description: `Generate ${name}`,
-  schema,
-  generate: vi.fn(),
-});
+// Mock generator provider for testing
+const createMockProvider = (
+  name: string,
+  schema: any
+): SwarmGeneratorProvider => {
+  return defineGeneratorProvider({
+    schema,
+    create: (services: GeneratorServices): SwarmGenerator => ({
+      name,
+      description: `Generate ${name}`,
+      schema,
+      generate: vi.fn(),
+    }),
+  });
+};
 
 describe('CommandManager', () => {
-  let commandManager: CommandManager;
+  let commandManager: CLIManager;
 
   beforeEach(() => {
-    commandManager = new CommandManager();
+    commandManager = new CLIManager();
     vi.clearAllMocks();
   });
 
-  describe('createInterfaceFromGenerator', () => {
+  describe('createInterfaceFromProvider', () => {
     it('should create a command from a generator', async () => {
       const testSchema = z.object({
         name: z.string(),
       });
-      const generator = createMockGenerator('test-command', testSchema);
+      const provider = createMockProvider('test-command', testSchema);
 
-      const cmd =
-        await commandManager['createInterfaceFromGenerator'](generator);
+      const cmd = await commandManager['createInterfaceFromProvider'](provider);
 
       expect(cmd).toBeInstanceOf(Command);
       expect(cmd.name()).toBe('test-command');
@@ -41,10 +53,9 @@ describe('CommandManager', () => {
         optional: z.string().optional(),
         flag: z.boolean().optional(),
       });
-      const generator = createMockGenerator('test-command', testSchema);
+      const provider = createMockProvider('test-command', testSchema);
 
-      const cmd =
-        await commandManager['createInterfaceFromGenerator'](generator);
+      const cmd = await commandManager['createInterfaceFromProvider'](provider);
 
       // Check that options were added (Commander.js doesn't expose options directly)
       // but we can verify the command was created successfully
@@ -57,26 +68,33 @@ describe('CommandManager', () => {
       const testSchema = z.object({
         name: z.string(),
       });
-      const generator = createMockGenerator('test-command', testSchema);
-      const generateSpy = vi.spyOn(generator, 'generate');
+      const generateFn = vi.fn().mockResolvedValue(undefined);
+      const provider = defineGeneratorProvider({
+        schema: testSchema,
+        create: (services: GeneratorServices): SwarmGenerator => ({
+          name: 'test-command',
+          description: 'Generate test-command',
+          schema: testSchema,
+          generate: generateFn,
+        }),
+      });
 
-      await commandManager['createInterfaceFromGenerator'](generator);
+      await commandManager['createInterfaceFromProvider'](provider);
 
       // Execute the command
       await commandManager['executeCommand']('test-command', {
         name: 'test-value',
       });
 
-      expect(generateSpy).toHaveBeenCalledWith({ name: 'test-value' });
+      expect(generateFn).toHaveBeenCalledWith({ name: 'test-value' });
     });
 
     it('should handle validation errors', async () => {
       const testSchema = z.object({
         name: z.string(),
       });
-      const generator = createMockGenerator('test-command', testSchema);
-
-      await commandManager['createInterfaceFromGenerator'](generator);
+      const provider = createMockProvider('test-command', testSchema);
+      await commandManager['createInterfaceFromProvider'](provider);
 
       await expect(
         commandManager['executeCommand']('test-command', { name: 123 })
@@ -97,10 +115,8 @@ describe('CommandManager', () => {
       const testSchema = z.object({
         name: z.string(),
       });
-      const generator = createMockGenerator('test-command', testSchema);
-
-      const cmd =
-        await commandManager['createInterfaceFromGenerator'](generator);
+      const provider = createMockProvider('test-command', testSchema);
+      const cmd = await commandManager['createInterfaceFromProvider'](provider);
       expect(cmd).toBeInstanceOf(Command);
     });
   });

@@ -1,7 +1,14 @@
+import type { Server as MCPServer } from '@modelcontextprotocol/sdk/server';
 import { ZodType } from 'zod';
-import { SwarmGenerator } from '../../generator';
+import {
+  GeneratorServices,
+  getGeneratorServices,
+  SwarmGenerator,
+  SwarmGeneratorProvider,
+} from '../../generator';
 import { PluginInterfaceManager } from '../../plugin';
 import { CommandMetadata, SchemaManager } from '../../schema';
+import { getMCPLogger } from '../mcp-logger';
 
 /**
  * MCP Tool definition interface
@@ -34,13 +41,22 @@ interface MCPTool {
  * Provides a unified interface for tool registration and management
  */
 export class ToolManager extends PluginInterfaceManager<MCPTool> {
+  private mcpServer: MCPServer | null = null;
+
   /**
-   * Create an MCP tool from a generator
+   * Set the MCP server instance for creating MCPLogger instances
    */
-  protected async createInterfaceFromGenerator(
-    generator: SwarmGenerator
+  setMCPServer(mcpServer: MCPServer | null): void {
+    this.mcpServer = mcpServer;
+  }
+
+  /**
+   * Create an MCP tool from a generator provider
+   */
+  protected async createInterfaceFromProvider(
+    provider: SwarmGeneratorProvider
   ): Promise<MCPTool> {
-    return this.createTool(generator);
+    return this.createTool(provider);
   }
 
   /**
@@ -84,34 +100,53 @@ export class ToolManager extends PluginInterfaceManager<MCPTool> {
   }
 
   /**
-   * Create an MCP tool handler from a generator
+   * Create services for generator instantiation
+   * Consolidated helper to avoid duplication
    */
-  private createToolHandler(generator: SwarmGenerator): MCPToolHandler {
-    return async (args: any) => {
-      try {
-        const validatedArgs = generator.schema.parse(args);
-        await generator.generate(validatedArgs);
+  private createGeneratorServices(): GeneratorServices {
+    const logger = getMCPLogger(this.mcpServer);
+    return getGeneratorServices('mcp', logger);
+  }
 
-        return {
-          success: true,
-          message: `Successfully executed generator '${generator.name}'`,
-        };
-      } catch (error) {
-        return {
-          success: false,
-          error: error instanceof Error ? error.message : 'Unknown error',
-        };
-      }
+  /**
+   * Create an MCP tool handler from a generator provider
+   * Returns SDK-compatible CallToolResult format
+   */
+  private createToolHandler(provider: SwarmGeneratorProvider): MCPToolHandler {
+    return async (args: any) => {
+      const services = this.createGeneratorServices();
+      const generator = await provider.create(services);
+      const validatedArgs = generator.schema.parse(args);
+
+      await generator.generate(validatedArgs);
+
+      return {
+        content: [
+          {
+            type: 'text',
+            text: JSON.stringify(
+              {
+                success: true,
+                message: `Successfully executed generator '${generator.name}'`,
+              },
+              null,
+              2
+            ),
+          },
+        ],
+      };
     };
   }
 
   /**
-   * Create both tool definition and handler for a generator
+   * Create both tool definition and handler for a generator provider
    */
-  private createTool(generator: SwarmGenerator): MCPTool {
+  private async createTool(provider: SwarmGeneratorProvider): Promise<MCPTool> {
+    const services = this.createGeneratorServices();
+    const generator = await provider.create(services);
     return {
       definition: this.createToolDefinition(generator),
-      handler: this.createToolHandler(generator),
+      handler: this.createToolHandler(provider),
     };
   }
 

@@ -1,8 +1,7 @@
 import {
-  GeneratorRuntime,
+  GeneratorServices,
   hasHelperMethodCall,
   SwarmGenerator,
-  toCamelCase,
   toKebabCase,
   validateFeaturePath,
 } from '@ingenyus/swarm';
@@ -37,21 +36,9 @@ export abstract class ComponentGeneratorBase<
 
   protected featureDirectoryGenerator: SwarmGenerator<typeof featureSchema>;
 
-  constructor() {
-    super();
-
-    const runtime = GeneratorRuntime.current();
-
-    if (runtime.featureGeneratorFactory) {
-      const factoryResult = runtime.featureGeneratorFactory(runtime);
-      // Type assertion needed because factory returns SwarmGenerator<ZodType>
-      // but FeatureGenerator implements the correct specific type
-      this.featureDirectoryGenerator = factoryResult as SwarmGenerator<
-        typeof featureSchema
-      >;
-    } else {
-      this.featureDirectoryGenerator = new FeatureGenerator();
-    }
+  constructor(services: GeneratorServices) {
+    super(services);
+    this.featureDirectoryGenerator = new FeatureGenerator(services);
   }
 
   public get name(): string {

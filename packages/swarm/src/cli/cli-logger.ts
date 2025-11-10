@@ -1,14 +1,13 @@
 import type { Signale, SignaleOptions } from 'signale';
 import pkg from 'signale';
-import { Logger } from './logger';
+import { Logger, LogLevel } from '../common/logger';
+import { getConfigManager } from '../config';
 
 const { Signale: SignaleConstructor } = pkg;
+type LogFormat = 'json' | 'text';
+type LogStream = 'stdout' | 'stderr';
 
-export type LogLevel = 'debug' | 'info' | 'warn' | 'error';
-export type LogFormat = 'json' | 'text';
-export type LogStream = 'stdout' | 'stderr';
-
-export class SignaleLogger implements Logger {
+export class CLILogger implements Logger {
   private signale: Signale;
   private logLevel: LogLevel;
   private logFormat: LogFormat;
@@ -57,13 +56,13 @@ export class SignaleLogger implements Logger {
 
   private createSignale(): Signale {
     const options: SignaleOptions = {
-      scope: 'Swarm',
+      // scope: 'Swarm',
       logLevel: this.logLevel,
       stream: this.logStream === 'stderr' ? process.stderr : process.stdout,
     };
 
     // For MCP calls using stderr, remove badges and labels for cleaner output
-    if (this.logStream === 'stderr') {
+    /* if (this.logStream === 'stderr') {
       options.types = Object.assign(options.types || {}, {
         debug: { badge: '', label: '' },
         info: { badge: '', label: '' },
@@ -71,7 +70,7 @@ export class SignaleLogger implements Logger {
         warn: { badge: '', label: '' },
         error: { badge: '', label: '' },
       });
-    }
+    } */
 
     return new SignaleConstructor(options);
   }
@@ -100,16 +99,20 @@ export class SignaleLogger implements Logger {
   }
 }
 
-const singleton = new SignaleLogger();
-export const logger: Logger = singleton;
+let cliLoggerInstance: CLILogger | null = null;
 
-export function configureLogger(options: {
-  level?: LogLevel;
-  format?: LogFormat;
-  stream?: LogStream;
-}): void {
-  const logger = singleton as SignaleLogger;
-  if (options.level) logger.setLogLevel(options.level);
-  if (options.format) logger.setLogFormat(options.format);
-  if (options.stream) logger.setLogStream(options.stream);
+/**
+ * Get or create the singleton CLI logger instance
+ * @param logLevel Optional log level, defaults to config manager value
+ * @returns CLILogger instance
+ */
+export function getCLILogger(logLevel?: LogLevel): CLILogger {
+  if (!cliLoggerInstance) {
+    const level = logLevel || getConfigManager().getLogLevel();
+
+    cliLoggerInstance = new CLILogger(level);
+  } else if (logLevel) {
+    cliLoggerInstance.setLogLevel(logLevel);
+  }
+  return cliLoggerInstance;
 }

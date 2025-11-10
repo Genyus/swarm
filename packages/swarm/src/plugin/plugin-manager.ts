@@ -1,6 +1,10 @@
 import * as path from 'node:path';
-import { SwarmConfigManager } from '../config';
-import { SwarmGenerator } from '../generator';
+import { getConfigManager } from '../config';
+import {
+  GeneratorServices,
+  SwarmGenerator,
+  SwarmGeneratorProvider,
+} from '../generator';
 import { PluginResolver } from './plugin-resolver';
 import { SwarmPlugin } from './types';
 
@@ -8,14 +12,10 @@ import { SwarmPlugin } from './types';
  * Main plugin management system
  */
 export class PluginManager {
-  private configManager: SwarmConfigManager;
+  private configManager = getConfigManager();
   private plugins: Map<string, SwarmPlugin> = new Map();
-  private generators: Map<string, SwarmGenerator> = new Map();
+  private providers: Map<string, SwarmGeneratorProvider> = new Map();
   private resolver: PluginResolver = new PluginResolver();
-
-  constructor() {
-    this.configManager = new SwarmConfigManager();
-  }
 
   /**
    * Initialize the plugin manager by loading configuration
@@ -28,15 +28,26 @@ export class PluginManager {
   }
 
   /**
-   * Register a plugin and its generators
+   * Register a plugin and its generator providers
    * @param plugin Plugin to register
    */
-  registerPlugin(plugin: SwarmPlugin): void {
+  async registerPlugin(plugin: SwarmPlugin): Promise<void> {
     this.plugins.set(plugin.name, plugin);
 
-    plugin.generators.forEach((generator) => {
-      this.generators.set(generator.name, generator);
-    });
+    for (const provider of plugin.generators) {
+      const tempServices: GeneratorServices = {
+        fileSystem: {} as any,
+        logger: {
+          debug: () => {},
+          info: () => {},
+          success: () => {},
+          warn: () => {},
+          error: () => {},
+        },
+      };
+      const tempGenerator = await provider.create(tempServices);
+      this.providers.set(tempGenerator.name, provider);
+    }
   }
 
   /**
@@ -62,17 +73,7 @@ export class PluginManager {
           );
 
           if (plugin) {
-            this.registerPlugin(plugin);
-
-            plugin.generators.forEach((generator) => {
-              const isEnabled =
-                pluginConfig.generators?.[generator.name]?.disabled !== true;
-              if (isEnabled) {
-                this.generators.set(generator.name, generator);
-              } else {
-                this.generators.delete(generator.name);
-              }
-            });
+            await this.registerPlugin(plugin);
           } else {
             console.warn(
               `Could not resolve plugin '${pluginConfig.import}' from '${pluginConfig.from}'`
@@ -103,28 +104,45 @@ export class PluginManager {
   }
 
   /**
-   * Get a generator by name
+   * Get a generator provider by name
    * @param name Generator name
-   * @returns Generator or undefined if not found
+   * @returns Generator provider or undefined if not found
    */
-  getGenerator(name: string): SwarmGenerator | undefined {
-    return this.generators.get(name);
+  getGenerator(name: string): SwarmGeneratorProvider | undefined {
+    return this.providers.get(name);
   }
 
   /**
-   * Get all registered generators
-   * @returns Array of all generators
+   * Create a generator instance from a provider
+   * @param name Generator name
+   * @param services Generator services
+   * @returns Generator instance or undefined if not found
    */
-  getAllGenerators(): SwarmGenerator[] {
-    return Array.from(this.generators.values());
+  async createGeneratorInstance(
+    name: string,
+    services: GeneratorServices
+  ): Promise<SwarmGenerator | undefined> {
+    const provider = this.providers.get(name);
+    if (!provider) {
+      return undefined;
+    }
+    return await provider.create(services);
   }
 
   /**
-   * Get all enabled generators
-   * @returns Array of enabled generators
+   * Get all registered generator providers
+   * @returns Array of all generator providers
    */
-  getEnabledGenerators(): SwarmGenerator[] {
-    return Array.from(this.generators.values());
+  getAllGenerators(): SwarmGeneratorProvider[] {
+    return Array.from(this.providers.values());
+  }
+
+  /**
+   * Get all enabled generator providers
+   * @returns Array of enabled generator providers
+   */
+  getEnabledGenerators(): SwarmGeneratorProvider[] {
+    return Array.from(this.providers.values());
   }
 
   /**
@@ -151,12 +169,12 @@ export class PluginManager {
   }
 
   /**
-   * Check if a generator is registered
+   * Check if a generator provider is registered
    * @param name Generator name
-   * @returns True if generator is registered
+   * @returns True if generator provider is registered
    */
   hasGenerator(name: string): boolean {
-    return this.generators.has(name);
+    return this.providers.has(name);
   }
 
   /**

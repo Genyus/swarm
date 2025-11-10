@@ -1,4 +1,4 @@
-import { Out } from '@ingenyus/swarm';
+import { GeneratorServices, Out } from '@ingenyus/swarm';
 import { CONFIG_TYPES } from '../../types';
 import { OperationGeneratorBase } from '../base';
 import { schema } from './schema';
@@ -13,6 +13,10 @@ export class ActionGenerator extends OperationGeneratorBase<
 
   description = 'Generates a Wasp Action';
   schema = schema;
+
+  constructor(services: GeneratorServices) {
+    super(services);
+  }
 
   async generate(args: Out<typeof schema>): Promise<void> {
     const { dataType, feature, name } = args;

@@ -1,26 +1,33 @@
 import { Command } from 'commander';
 import { z, ZodType } from 'zod';
-import { toKebabCase } from '../common';
-import { SwarmGenerator } from '../generator';
+import { realFileSystem, toKebabCase } from '../common';
+import { getGeneratorServices, SwarmGeneratorProvider } from '../generator';
 import { PluginInterfaceManager } from '../plugin';
 import { SchemaManager } from '../schema';
+import { getCLILogger } from './cli-logger';
 
 /**
  * Manages CLI commands created from generators
  * Provides a unified interface for command registration and management
  */
-export class CommandManager extends PluginInterfaceManager<Command> {
+export class CLIManager extends PluginInterfaceManager<Command> {
   private commands = new Map<
     string,
-    { schema: ZodType; handler: (args: any) => Promise<void> }
+    { schema: ZodType; provider: SwarmGeneratorProvider }
   >();
 
   /**
-   * Create a Commander.js command from a generator
+   * Create a Commander.js command from a generator provider
    */
-  protected async createInterfaceFromGenerator(
-    generator: SwarmGenerator
+  protected async createInterfaceFromProvider(
+    provider: SwarmGeneratorProvider
   ): Promise<Command> {
+    // Create a temporary generator instance to get metadata
+    const tempServices = {
+      fileSystem: realFileSystem,
+      logger: getCLILogger(),
+    };
+    const generator = await provider.create(tempServices);
     const name = generator.name;
     const description = generator.description || `Generate ${generator.name}`;
     const schema = generator.schema;
@@ -29,9 +36,7 @@ export class CommandManager extends PluginInterfaceManager<Command> {
 
     this.commands.set(name, {
       schema: schema as ZodType,
-      handler: async (args: any) => {
-        await generator.generate(args);
-      },
+      provider,
     });
 
     if (shape) {
@@ -46,7 +51,7 @@ export class CommandManager extends PluginInterfaceManager<Command> {
       try {
         await this.executeCommand(name, rawArgs);
       } catch (err: any) {
-        console.error('❌ Error:', err.message);
+        console.error('Error:', err.message);
         process.exit(1);
       }
     });
@@ -69,8 +74,11 @@ export class CommandManager extends PluginInterfaceManager<Command> {
 
     try {
       const validatedArgs = commandInfo.schema.parse(rawArgs);
+      const logger = getCLILogger();
+      const services = getGeneratorServices('cli', logger);
+      const generator = await commandInfo.provider.create(services);
 
-      await commandInfo.handler(validatedArgs);
+      await generator.generate(validatedArgs);
     } catch (error) {
       if (error instanceof z.ZodError) {
         const errorMessages = error.issues

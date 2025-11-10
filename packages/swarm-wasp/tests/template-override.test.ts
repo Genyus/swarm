@@ -6,6 +6,8 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { ApiGenerator, FeatureGenerator } from '../src';
+import { schema as apiSchema } from '../src/generators/api/schema';
+import { schema as featureSchema } from '../src/generators/feature/schema';
 import { realFileSystem } from '../src/common';
 import {
   createTestGenerator,
@@ -92,10 +94,10 @@ export const <%=apiName%>: <%=apiType%> = async (req, res, context) => {
       JSON.stringify(swarmConfig, null, 2)
     );
 
-    const featureGen = createTestGenerator(FeatureGenerator, {
+    const featureGen = await createTestGenerator(FeatureGenerator, featureSchema, {
       fileSystem: realFileSystem,
     });
-    const apiGen = createTestGenerator(ApiGenerator, {
+    const apiGen = await createTestGenerator(ApiGenerator, apiSchema, {
       fileSystem: realFileSystem,
     });
 
@@ -144,10 +146,10 @@ export const <%=apiName%>: <%=apiType%> = async (req, res, context) => {
       JSON.stringify(swarmConfig, null, 2)
     );
 
-    const featureGen = createTestGenerator(FeatureGenerator, {
+    const featureGen = await createTestGenerator(FeatureGenerator, featureSchema, {
       fileSystem: realFileSystem,
     });
-    const apiGen = createTestGenerator(ApiGenerator, {
+    const apiGen = await createTestGenerator(ApiGenerator, apiSchema, {
       fileSystem: realFileSystem,
     });
 
@@ -225,10 +227,10 @@ export const <%=apiName%>: <%=apiType%> = async (req, res, context) => {
       JSON.stringify(swarmConfig, null, 2)
     );
 
-    const featureGen = createTestGenerator(FeatureGenerator, {
+    const featureGen = await createTestGenerator(FeatureGenerator, featureSchema, {
       fileSystem: realFileSystem,
     });
-    const apiGen = createTestGenerator(ApiGenerator, {
+    const apiGen = await createTestGenerator(ApiGenerator, apiSchema, {
       fileSystem: realFileSystem,
     });
 
@@ -291,10 +293,10 @@ export const <%=apiName%>: <%=apiType%> = async (req, res, context) => {
       JSON.stringify(swarmConfig, null, 2)
     );
 
-    const featureGen = createTestGenerator(FeatureGenerator, {
+    const featureGen = await createTestGenerator(FeatureGenerator, featureSchema, {
       fileSystem: realFileSystem,
     });
-    const apiGen = createTestGenerator(ApiGenerator, {
+    const apiGen = await createTestGenerator(ApiGenerator, apiSchema, {
       fileSystem: realFileSystem,
     });
 
@@ -348,10 +350,10 @@ export const <%=apiName%>: <%=apiType%> = async (req, res, context) => {
       JSON.stringify(swarmConfig, null, 2)
     );
 
-    const featureGen = createTestGenerator(FeatureGenerator, {
+    const featureGen = await createTestGenerator(FeatureGenerator, featureSchema, {
       fileSystem: realFileSystem,
     });
-    const apiGen = createTestGenerator(ApiGenerator, {
+    const apiGen = await createTestGenerator(ApiGenerator, apiSchema, {
       fileSystem: realFileSystem,
     });
 

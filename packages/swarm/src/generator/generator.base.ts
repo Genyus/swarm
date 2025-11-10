@@ -1,9 +1,9 @@
 import path from 'node:path';
 import { core, ZodError, ZodType } from 'zod';
 import { FileSystem } from '../common';
-import { Logger } from '../logger/logger';
+import { Logger } from '../common/logger';
 import { In, Out, SchemaManager, ValidationResult } from '../schema';
-import { GeneratorRuntime } from './runtime';
+import { GeneratorServices } from './services';
 import { SwarmGenerator } from './types';
 
 /**
@@ -17,20 +17,14 @@ export abstract class GeneratorBase<S extends ZodType>
   abstract schema: S;
   protected path = path;
 
-  constructor() {}
+  constructor(protected services: GeneratorServices) {}
 
-  /**
-   * Get filesystem instance from the current runtime
-   */
   protected get fileSystem(): FileSystem {
-    return GeneratorRuntime.current().fileSystem;
+    return this.services.fileSystem;
   }
 
-  /**
-   * Get logger instance from the current runtime
-   */
   protected get logger(): Logger {
-    return GeneratorRuntime.current().logger;
+    return this.services.logger;
   }
 
   /**

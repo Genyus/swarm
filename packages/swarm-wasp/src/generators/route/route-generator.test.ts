@@ -8,13 +8,14 @@ import {
 } from '../../../tests/utils';
 import { schema as featureSchema } from '../feature/schema';
 import { RouteGenerator } from './route-generator';
+import { schema } from './schema';
 
-// Mock SwarmConfigManager
+// Mock getConfigManager
 vi.mock('@ingenyus/swarm', async () => {
   const actual = await vi.importActual('@ingenyus/swarm');
   return {
     ...actual,
-    SwarmConfigManager: vi.fn().mockImplementation(() => ({
+    getConfigManager: vi.fn().mockImplementation(() => ({
       loadConfig: vi.fn().mockResolvedValue({
         templateDirectory: DEFAULT_CUSTOM_TEMPLATES_DIR,
         plugins: [
@@ -33,12 +34,11 @@ describe('RouteGenerator', () => {
   let featureGen: SwarmGenerator<typeof featureSchema>;
   let gen: RouteGenerator;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     fs = createMockFS();
     featureGen = createMockFeatureGen(featureSchema);
-    gen = createTestGenerator(RouteGenerator, {
+    gen = await createTestGenerator(RouteGenerator, schema, {
       fileSystem: fs,
-      featureGeneratorFactory: () => featureGen,
     });
   });
 
@@ -57,9 +57,8 @@ export default function configureFeature(app: App, feature: string): void {
     fs.writeFileSync = vi.fn();
 
     // Create generator after setting up mocks
-    gen = createTestGenerator(RouteGenerator, {
+    gen = await createTestGenerator(RouteGenerator, schema, {
       fileSystem: fs,
-      featureGeneratorFactory: () => featureGen,
     });
 
     // Mock the template utility to return a simple template

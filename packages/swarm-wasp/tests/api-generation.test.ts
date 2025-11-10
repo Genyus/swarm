@@ -1,5 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { ApiGenerator, FeatureGenerator } from '../src';
+import { schema as apiSchema } from '../src/generators/api/schema';
+import { schema as featureSchema } from '../src/generators/feature/schema';
 import { realFileSystem } from '../src/common';
 import {
   assertImportsPresent,
@@ -25,10 +27,10 @@ describe('API Generator Integration Tests', () => {
   });
 
   it('should generate API endpoint with proper structure', async () => {
-    const featureGen = createTestGenerator(FeatureGenerator, {
+    const featureGen = await createTestGenerator(FeatureGenerator, featureSchema, {
       fileSystem: realFileSystem,
     });
-    const apiGen = createTestGenerator(ApiGenerator, {
+    const apiGen = await createTestGenerator(ApiGenerator, apiSchema, {
       fileSystem: realFileSystem,
     });
 
@@ -54,10 +56,10 @@ describe('API Generator Integration Tests', () => {
   });
 
   it('should generate authenticated API endpoint', async () => {
-    const featureGen = createTestGenerator(FeatureGenerator, {
+    const featureGen = await createTestGenerator(FeatureGenerator, featureSchema, {
       fileSystem: realFileSystem,
     });
-    const apiGen = createTestGenerator(ApiGenerator, {
+    const apiGen = await createTestGenerator(ApiGenerator, apiSchema, {
       fileSystem: realFileSystem,
     });
 
@@ -81,10 +83,10 @@ describe('API Generator Integration Tests', () => {
   });
 
   it('should generate API config with correct structure', async () => {
-    const featureGen = createTestGenerator(FeatureGenerator, {
+    const featureGen = await createTestGenerator(FeatureGenerator, featureSchema, {
       fileSystem: realFileSystem,
     });
-    const apiGen = createTestGenerator(ApiGenerator, {
+    const apiGen = await createTestGenerator(ApiGenerator, apiSchema, {
       fileSystem: realFileSystem,
     });
 
@@ -109,10 +111,10 @@ describe('API Generator Integration Tests', () => {
   });
 
   it('should not duplicate API in config without force flag', async () => {
-    const featureGen = createTestGenerator(FeatureGenerator, {
+    const featureGen = await createTestGenerator(FeatureGenerator, featureSchema, {
       fileSystem: realFileSystem,
     });
-    const apiGen = createTestGenerator(ApiGenerator, {
+    const apiGen = await createTestGenerator(ApiGenerator, apiSchema, {
       fileSystem: realFileSystem,
     });
 

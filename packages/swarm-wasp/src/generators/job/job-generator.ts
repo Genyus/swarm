@@ -1,4 +1,9 @@
-import { capitalise, Out, toCamelCase } from '@ingenyus/swarm';
+import {
+  capitalise,
+  GeneratorServices,
+  Out,
+  toCamelCase,
+} from '@ingenyus/swarm';
 import { CONFIG_TYPES } from '../../types';
 import { ComponentGeneratorBase } from '../base';
 import { schema } from './schema';
@@ -13,6 +18,10 @@ export class JobGenerator extends ComponentGeneratorBase<
 
   description = 'Generates a Wasp Job';
   schema = schema;
+
+  constructor(services: GeneratorServices) {
+    super(services);
+  }
 
   async generate(args: Out<typeof schema>): Promise<void> {
     const jobName = toCamelCase(args.name);

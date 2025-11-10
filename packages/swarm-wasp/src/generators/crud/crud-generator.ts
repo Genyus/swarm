@@ -1,4 +1,10 @@
-import { getPlural, Out, toCamelCase, toPascalCase } from '@ingenyus/swarm';
+import {
+  GeneratorServices,
+  getPlural,
+  Out,
+  toCamelCase,
+  toPascalCase,
+} from '@ingenyus/swarm';
 import { getEntityMetadata, needsPrismaImport } from '../../common';
 import { CONFIG_TYPES, CrudOperation, EntityMetadata } from '../../types';
 import { OperationGeneratorBase } from '../base';
@@ -22,6 +28,10 @@ export class CrudGenerator extends OperationGeneratorBase<
 
   description = 'Generates a Wasp CRUD operation';
   schema = schema;
+
+  constructor(services: GeneratorServices) {
+    super(services);
+  }
 
   async generate(args: Out<typeof schema>): Promise<void> {
     const { dataType, feature } = args;

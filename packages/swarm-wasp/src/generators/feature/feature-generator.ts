@@ -1,4 +1,9 @@
-import { handleFatalError, Out, validateFeaturePath } from '@ingenyus/swarm';
+import {
+  GeneratorServices,
+  handleFatalError,
+  Out,
+  validateFeaturePath,
+} from '@ingenyus/swarm';
 import path from 'node:path';
 import { findWaspRoot, normaliseFeaturePath } from '../../common';
 import { WaspGeneratorBase } from '../base/wasp-generator.base';
@@ -9,8 +14,8 @@ export class FeatureGenerator extends WaspGeneratorBase<typeof schema> {
   description: string;
   schema = schema;
 
-  constructor() {
-    super();
+  constructor(services: GeneratorServices) {
+    super(services);
     this.name = 'feature';
     this.description =
       'Generates a feature directory containing a Wasp configuration file';

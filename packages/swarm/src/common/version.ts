@@ -14,13 +14,14 @@ export function getSwarmVersion(): string {
   }
 
   const currentDir = path.dirname(fileURLToPath(import.meta.url));
-  const packageJsonPath = path.resolve(currentDir, '../../package.json');
+  const packageJsonPath = path.resolve(currentDir, '../../../package.json');
 
   try {
     const raw = readFileSync(packageJsonPath, 'utf8');
     const pkg = JSON.parse(raw) as { version?: string };
     cachedVersion = pkg.version ?? '0.1.0';
-  } catch {
+  } catch (err) {
+    console.error(err);
     cachedVersion = '0.1.0';
   }
 

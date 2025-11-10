@@ -7,18 +7,18 @@ import {
 } from '../../../tests/utils';
 import { schema as featureSchema } from '../feature/schema';
 import { ApiNamespaceGenerator } from './api-namespace-generator';
+import { schema } from './schema';
 
 describe('ApiNamespaceGenerator', () => {
   let fs: FileSystem;
   let featureGen: SwarmGenerator<typeof featureSchema>;
   let gen: ApiNamespaceGenerator;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     fs = createMockFS();
     featureGen = createMockFeatureGen(featureSchema);
-    gen = createTestGenerator(ApiNamespaceGenerator, {
+    gen = await createTestGenerator(ApiNamespaceGenerator, schema, {
       fileSystem: fs,
-      featureGeneratorFactory: () => featureGen,
     });
   });
 

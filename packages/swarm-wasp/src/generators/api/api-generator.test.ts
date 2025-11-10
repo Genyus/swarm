@@ -8,13 +8,14 @@ import {
 } from '../../../tests/utils';
 import { schema as featureSchema } from '../feature/schema';
 import { ApiGenerator } from './api-generator';
+import { schema } from './schema';
 
-// Mock SwarmConfigManager
+// Mock getConfigManager
 vi.mock('@ingenyus/swarm', async () => {
   const actual = await vi.importActual('@ingenyus/swarm');
   return {
     ...actual,
-    SwarmConfigManager: vi.fn().mockImplementation(() => ({
+    getConfigManager: vi.fn().mockImplementation(() => ({
       loadConfig: vi.fn().mockResolvedValue({
         templateDirectory: DEFAULT_CUSTOM_TEMPLATES_DIR,
         plugins: [
@@ -33,12 +34,11 @@ describe('ApiGenerator', () => {
   let featureGen: SwarmGenerator<typeof featureSchema>;
   let gen: ApiGenerator;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     fs = createMockFS();
     featureGen = createMockFeatureGen(featureSchema);
-    gen = createTestGenerator(ApiGenerator, {
+    gen = await createTestGenerator(ApiGenerator, schema, {
       fileSystem: fs,
-      featureGeneratorFactory: () => featureGen,
     });
   });
 

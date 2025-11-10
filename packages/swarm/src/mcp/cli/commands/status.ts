@@ -1,5 +1,5 @@
 import { Command } from 'commander';
-import { configureLogger, LogFormat, logger, LogLevel } from '../../../logger';
+import { getCLILogger } from '../../../cli/cli-logger';
 import { ServerManager } from '../server-manager';
 
 interface StatusOptions {
@@ -7,11 +7,7 @@ interface StatusOptions {
 }
 
 export function createStatusCommand(serverManager: ServerManager): Command {
-  configureLogger({
-    stream: 'stderr',
-    level: (process.env['SWARM_MCP_LOG_LEVEL'] || 'info') as LogLevel,
-    format: (process.env['SWARM_MCP_LOG_FORMAT'] || 'text') as LogFormat,
-  });
+  const logger = getCLILogger();
   return new Command('status')
     .description('Check server status')
     .option('--json', 'Output status in JSON format')
@@ -24,27 +20,27 @@ export function createStatusCommand(serverManager: ServerManager): Command {
           return;
         }
 
-        logger.info('🔄 Swarm MCP Server Status');
+        logger.info('Swarm MCP Server Status');
         logger.info('========================');
 
         if (status.isRunning) {
-          logger.info(`✅ Status: Running`);
-          logger.info(`🆔 PID: ${status.pid}`);
+          logger.info(`Status: Running`);
+          logger.info(`PID: ${status.pid}`);
           if (status.uptime) {
             const hours = Math.floor(status.uptime / 3600);
             const minutes = Math.floor((status.uptime % 3600) / 60);
             const seconds = Math.floor(status.uptime % 60);
-            logger.info(`⏱️  Uptime: ${hours}h ${minutes}m ${seconds}s`);
+            logger.info(`Uptime: ${hours}h ${minutes}m ${seconds}s`);
           }
         } else {
-          logger.info(`❌ Status: Not running`);
+          logger.info(`Status: Not running`);
         }
 
         logger.info('========================');
       } catch (error) {
         const errorMessage =
           error instanceof Error ? error.message : String(error);
-        logger.error(`❌ Failed to get server status: ${errorMessage}`);
+        logger.error(`Failed to get server status: ${errorMessage}`);
         process.exit(1);
       }
     });

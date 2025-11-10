@@ -8,6 +8,13 @@ import {
   QueryGenerator,
   RouteGenerator,
 } from '../src';
+import { schema as actionSchema } from '../src/generators/action/schema';
+import { schema as apiSchema } from '../src/generators/api/schema';
+import { schema as crudSchema } from '../src/generators/crud/schema';
+import { schema as featureSchema } from '../src/generators/feature/schema';
+import { schema as jobSchema } from '../src/generators/job/schema';
+import { schema as querySchema } from '../src/generators/query/schema';
+import { schema as routeSchema } from '../src/generators/route/schema';
 import { realFileSystem } from '../src/common';
 import {
   assertConfigGroupOrder,
@@ -22,11 +29,11 @@ describe('Cross-Generator Integration Tests', () => {
   let originalCwd: string;
   let featureGen: FeatureGenerator;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     originalCwd = process.cwd();
     projectPaths = createTestWaspProject();
     process.chdir(projectPaths.root);
-    featureGen = createTestGenerator(FeatureGenerator, {
+    featureGen = await createTestGenerator(FeatureGenerator, featureSchema, {
       fileSystem: realFileSystem,
     });
   });
@@ -38,13 +45,13 @@ describe('Cross-Generator Integration Tests', () => {
   it('should generate compatible CRUD and custom operations', async () => {
     await featureGen.generate({ target: 'posts' });
 
-    const crudGen = createTestGenerator(CrudGenerator, {
+    const crudGen = await createTestGenerator(CrudGenerator, crudSchema, {
       fileSystem: realFileSystem,
     });
-    const actionGen = createTestGenerator(ActionGenerator, {
+    const actionGen = await createTestGenerator(ActionGenerator, actionSchema, {
       fileSystem: realFileSystem,
     });
-    const queryGen = createTestGenerator(QueryGenerator, {
+    const queryGen = await createTestGenerator(QueryGenerator, querySchema, {
       fileSystem: realFileSystem,
     });
 
@@ -88,19 +95,19 @@ describe('Cross-Generator Integration Tests', () => {
   it('should generate complete feature with all generator types', async () => {
     await featureGen.generate({ target: 'posts' });
 
-    const actionGen = createTestGenerator(ActionGenerator, {
+    const actionGen = await createTestGenerator(ActionGenerator, actionSchema, {
       fileSystem: realFileSystem,
     });
-    const queryGen = createTestGenerator(QueryGenerator, {
+    const queryGen = await createTestGenerator(QueryGenerator, querySchema, {
       fileSystem: realFileSystem,
     });
-    const apiGen = createTestGenerator(ApiGenerator, {
+    const apiGen = await createTestGenerator(ApiGenerator, apiSchema, {
       fileSystem: realFileSystem,
     });
-    const routeGen = createTestGenerator(RouteGenerator, {
+    const routeGen = await createTestGenerator(RouteGenerator, routeSchema, {
       fileSystem: realFileSystem,
     });
-    const jobGen = createTestGenerator(JobGenerator, {
+    const jobGen = await createTestGenerator(JobGenerator, jobSchema, {
       fileSystem: realFileSystem,
     });
 
@@ -165,10 +172,10 @@ describe('Cross-Generator Integration Tests', () => {
     await featureGen.generate({ target: 'posts' });
     await featureGen.generate({ target: 'users' });
 
-    const actionGen = createTestGenerator(ActionGenerator, {
+    const actionGen = await createTestGenerator(ActionGenerator, actionSchema, {
       fileSystem: realFileSystem,
     });
-    const crudGen = createTestGenerator(CrudGenerator, {
+    const crudGen = await createTestGenerator(CrudGenerator, crudSchema, {
       fileSystem: realFileSystem,
     });
 

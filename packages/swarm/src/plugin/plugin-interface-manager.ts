@@ -1,4 +1,6 @@
-import { SwarmGenerator } from '../generator';
+import { getCLILogger } from '../cli/cli-logger';
+import { realFileSystem } from '../common';
+import { GeneratorServices, SwarmGeneratorProvider } from '../generator';
 import { PluginManager } from './plugin-manager';
 
 /**
@@ -17,22 +19,31 @@ export abstract class PluginInterfaceManager<TInterface> {
   /**
    * Initialize the manager by loading plugins and creating interfaces
    */
-  async initialize(configPath?: string): Promise<void> {
+  async initialize(
+    configPath?: string,
+    services?: GeneratorServices
+  ): Promise<void> {
     if (this.initialized) return;
 
     try {
       await this.pluginManager.initialize(configPath);
-      const generators = this.pluginManager.getEnabledGenerators();
+      const providers = this.pluginManager.getEnabledGenerators();
 
       this.interfaces = {};
 
-      for (const generator of generators) {
+      for (const provider of providers) {
         try {
           const interfaceItem =
-            await this.createInterfaceFromGenerator(generator);
-          this.interfaces[generator.name] = interfaceItem;
+            await this.createInterfaceFromProvider(provider);
+          // Get generator name from provider schema or interface
+          const tempServices: GeneratorServices = services || {
+            fileSystem: realFileSystem,
+            logger: getCLILogger(),
+          };
+          const tempGenerator = await provider.create(tempServices);
+          this.interfaces[tempGenerator.name] = interfaceItem;
         } catch (error) {
-          this.handleInterfaceCreationError(generator.name, error);
+          this.handleInterfaceCreationError('unknown', error);
         }
       }
 
@@ -83,11 +94,11 @@ export abstract class PluginInterfaceManager<TInterface> {
   }
 
   /**
-   * Abstract method to create an interface from a generator
+   * Abstract method to create an interface from a generator provider
    * Must be implemented by concrete classes
    */
-  protected abstract createInterfaceFromGenerator(
-    generator: SwarmGenerator
+  protected abstract createInterfaceFromProvider(
+    provider: SwarmGeneratorProvider
   ): Promise<TInterface>;
 
   /**

@@ -1,8 +1,13 @@
 import path from 'node:path';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { FileSystem, toFriendlyName, validateProjectName } from '../../common';
-import { createGenerator } from '../testing';
+import {
+  defineGeneratorProvider,
+  GeneratorServices,
+  getGeneratorServices,
+} from '../index';
 import { AppGenerator } from './app-generator';
+import { schema } from './schema';
 
 // Mock degit module
 vi.mock('degit', () => {
@@ -45,12 +50,17 @@ describe('AppGenerator', () => {
   let fs: any;
   let logger: any;
   let gen: AppGenerator;
+  const appProvider = defineGeneratorProvider({
+    schema,
+    create: (services: GeneratorServices) => new AppGenerator(services),
+  });
 
-  beforeEach(() => {
+  beforeEach(async () => {
     fs = createMockFS();
     logger = createMockLogger();
     vi.spyOn(path, 'resolve').mockImplementation((...args) => args.join('/'));
-    gen = createGenerator(AppGenerator, { fileSystem: fs, logger });
+    const services = getGeneratorServices('test', logger, { fileSystem: fs });
+    gen = (await appProvider.create(services)) as AppGenerator;
   });
 
   it('should validate project names correctly', () => {
@@ -71,10 +81,10 @@ describe('AppGenerator', () => {
   it('should reject existing directories', async () => {
     const testFs = createMockFS();
     testFs.existsSync = vi.fn().mockReturnValue(true);
-    const testGen = createGenerator(AppGenerator, {
+    const services = getGeneratorServices('test', logger, {
       fileSystem: testFs,
-      logger,
     });
+    const testGen = (await appProvider.create(services)) as AppGenerator;
     await expect(
       testGen.generate({ name: 'existing-app', template: 'test/template' })
     ).rejects.toThrow('Directory already exists');
@@ -148,10 +158,10 @@ describe('AppGenerator', () => {
         { name: 'component.tsx', isDirectory: () => false, isFile: () => true },
         { name: 'README.md', isDirectory: () => false, isFile: () => true },
       ]);
-      const testGen = createGenerator(AppGenerator, {
+      const services = getGeneratorServices('test', logger, {
         fileSystem: testFs,
-        logger,
       });
+      const testGen = (await appProvider.create(services)) as AppGenerator;
 
       const files = await testGen.findFilesToReplace('/test/project');
 
@@ -200,10 +210,10 @@ describe('AppGenerator', () => {
         }
         return [];
       });
-      const testGen = createGenerator(AppGenerator, {
+      const services = getGeneratorServices('test', logger, {
         fileSystem: testFs,
-        logger,
       });
+      const testGen = (await appProvider.create(services)) as AppGenerator;
 
       const files = await testGen.findFilesToReplace('/test/project');
 
@@ -227,10 +237,10 @@ describe('AppGenerator', () => {
         { name: 'dist', isDirectory: () => true, isFile: () => false },
         { name: 'package.json', isDirectory: () => false, isFile: () => true },
       ]);
-      const testGen = createGenerator(AppGenerator, {
+      const services = getGeneratorServices('test', logger, {
         fileSystem: testFs,
-        logger,
       });
+      const testGen = (await appProvider.create(services)) as AppGenerator;
 
       const files = await testGen.findFilesToReplace('/test/project');
 
@@ -241,10 +251,10 @@ describe('AppGenerator', () => {
     it('should return empty array if directory does not exist', async () => {
       const testFs = createMockFS();
       testFs.existsSync = vi.fn().mockReturnValue(false);
-      const testGen = createGenerator(AppGenerator, {
+      const services = getGeneratorServices('test', logger, {
         fileSystem: testFs,
-        logger,
       });
+      const testGen = (await appProvider.create(services)) as AppGenerator;
 
       const files = await testGen.findFilesToReplace('/nonexistent/project');
 
@@ -259,10 +269,10 @@ describe('AppGenerator', () => {
         .fn()
         .mockReturnValue('swarm-wasp-starter content');
       testFs.writeFileSync = vi.fn().mockImplementation(() => {});
-      const testGen = createGenerator(AppGenerator, {
+      const services = getGeneratorServices('test', logger, {
         fileSystem: testFs,
-        logger,
       });
+      const testGen = (await appProvider.create(services)) as AppGenerator;
 
       const context = {
         projectName: 'my-app',

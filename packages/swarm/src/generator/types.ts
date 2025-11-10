@@ -1,6 +1,8 @@
 import { ZodType } from 'zod';
 import { Out } from '../schema';
 
+export type GeneratorEnvironment = 'cli' | 'mcp' | 'test';
+
 /**
  * Swarm generator interface
  * @template S - Zod schema type

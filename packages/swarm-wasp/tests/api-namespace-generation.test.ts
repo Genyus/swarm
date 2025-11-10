@@ -1,5 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { ApiNamespaceGenerator, FeatureGenerator } from '../src';
+import { schema as apiNamespaceSchema } from '../src/generators/api-namespace/schema';
+import { schema as featureSchema } from '../src/generators/feature/schema';
 import { realFileSystem } from '../src/common';
 import {
   countOccurrences,
@@ -24,10 +26,10 @@ describe('API Namespace Generator Integration Tests', () => {
   });
 
   it('should generate API namespace middleware', async () => {
-    const featureGen = createTestGenerator(FeatureGenerator, {
+    const featureGen = await createTestGenerator(FeatureGenerator, featureSchema, {
       fileSystem: realFileSystem,
     });
-    const apiNamespaceGen = createTestGenerator(ApiNamespaceGenerator, {
+    const apiNamespaceGen = await createTestGenerator(ApiNamespaceGenerator, apiNamespaceSchema, {
       fileSystem: realFileSystem,
     });
 
@@ -47,10 +49,10 @@ describe('API Namespace Generator Integration Tests', () => {
   });
 
   it('should generate API namespace config', async () => {
-    const featureGen = createTestGenerator(FeatureGenerator, {
+    const featureGen = await createTestGenerator(FeatureGenerator, featureSchema, {
       fileSystem: realFileSystem,
     });
-    const apiNamespaceGen = createTestGenerator(ApiNamespaceGenerator, {
+    const apiNamespaceGen = await createTestGenerator(ApiNamespaceGenerator, apiNamespaceSchema, {
       fileSystem: realFileSystem,
     });
 
@@ -72,10 +74,10 @@ describe('API Namespace Generator Integration Tests', () => {
   });
 
   it('should not duplicate API namespace in config without force flag', async () => {
-    const featureGen = createTestGenerator(FeatureGenerator, {
+    const featureGen = await createTestGenerator(FeatureGenerator, featureSchema, {
       fileSystem: realFileSystem,
     });
-    const apiNamespaceGen = createTestGenerator(ApiNamespaceGenerator, {
+    const apiNamespaceGen = await createTestGenerator(ApiNamespaceGenerator, apiNamespaceSchema, {
       fileSystem: realFileSystem,
     });
 

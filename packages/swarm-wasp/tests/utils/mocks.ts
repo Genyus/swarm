@@ -4,8 +4,12 @@ import type {
   GeneratorServices,
   Logger,
   SwarmGenerator,
+  SwarmGeneratorProvider,
 } from '@ingenyus/swarm';
-import { createGenerator } from '@ingenyus/swarm';
+import {
+  defineGeneratorProvider,
+  getGeneratorServices,
+} from '@ingenyus/swarm';
 import { vi } from 'vitest';
 import { ZodType } from 'zod';
 
@@ -47,25 +51,32 @@ export function createMockFeatureGen<S extends ZodType>(
  * Automatically provides mock filesystem and logger, with optional overrides.
  *
  * @param ctor - Constructor function for the generator class
+ * @param schema - The Zod schema for the generator
  * @param overrides - Optional service overrides to apply
  * @returns A new generator instance created with mock services
  *
  * @example
  * ```typescript
- * const apiGen = createTestGenerator(ApiGenerator);
- * const customGen = createTestGenerator(FeatureGenerator, {
+ * const apiGen = await createTestGenerator(ApiGenerator, apiSchema);
+ * const customGen = await createTestGenerator(FeatureGenerator, featureSchema, {
  *   fileSystem: customMockFS
  * });
  * ```
  */
-export function createTestGenerator<T extends GeneratorBase<any>>(
-  ctor: new () => T,
+export async function createTestGenerator<T extends GeneratorBase<any>>(
+  ctor: new (services: GeneratorServices) => T,
+  schema: ZodType,
   overrides: Partial<GeneratorServices> = {}
-): T {
+): Promise<T> {
   const mockFS = createMockFS();
   const mockLogger = createMockLogger();
-  return createGenerator(
-    ctor,
-    { fileSystem: mockFS, logger: mockLogger, ...overrides }
-  );
+  const provider: SwarmGeneratorProvider = defineGeneratorProvider({
+    schema,
+    create: (services: GeneratorServices) => new ctor(services),
+  });
+  const services = getGeneratorServices('test', mockLogger, {
+    fileSystem: mockFS,
+    ...overrides,
+  });
+  return (await provider.create(services)) as T;
 }

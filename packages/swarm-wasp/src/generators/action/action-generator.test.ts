@@ -7,6 +7,7 @@ import {
 } from '../../../tests/utils';
 import { schema as featureSchema } from '../feature/schema';
 import { ActionGenerator } from './action-generator';
+import { schema } from './schema';
 
 vi.mock('../../common', async () => {
   const actual = await vi.importActual('../../common');
@@ -119,9 +120,8 @@ describe('ActionGenerator', () => {
 
     fs = createMockFS();
     featureGen = createMockFeatureGen(featureSchema);
-    gen = createTestGenerator(ActionGenerator, {
+    gen = await createTestGenerator(ActionGenerator, schema, {
       fileSystem: fs,
-      featureGeneratorFactory: () => featureGen,
     });
   });
 
@@ -155,9 +155,8 @@ export default function configureFeature(app: App, feature: string): void {
     fs.mkdirSync = vi.fn();
 
     // Create generator after setting up mocks
-    gen = createTestGenerator(ActionGenerator, {
+    gen = await createTestGenerator(ActionGenerator, schema, {
       fileSystem: fs,
-      featureGeneratorFactory: () => featureGen,
     });
 
     // Mock the template utility to return a simple template
@@ -231,9 +230,8 @@ export default function configureFeature(app: App, feature: string): void {
     });
     fs.writeFileSync = vi.fn();
 
-    gen = createTestGenerator(ActionGenerator, {
+    gen = await createTestGenerator(ActionGenerator, schema, {
       fileSystem: fs,
-      featureGeneratorFactory: () => featureGen,
     });
 
     (gen as any).templateUtility = {
@@ -300,9 +298,8 @@ export default function configureFeature(app: App, feature: string): void {
     });
     fs.writeFileSync = vi.fn();
 
-    gen = createTestGenerator(ActionGenerator, {
+    gen = await createTestGenerator(ActionGenerator, schema, {
       fileSystem: fs,
-      featureGeneratorFactory: () => featureGen,
     });
 
     (gen as any).templateUtility = {
@@ -378,9 +375,8 @@ export default function configureFeature(app: App, feature: string): void {
     });
     fs.writeFileSync = vi.fn();
 
-    const testGen = createTestGenerator(ActionGenerator, {
+    const testGen = await createTestGenerator(ActionGenerator, schema, {
       fileSystem: fs,
-      featureGeneratorFactory: () => featureGen,
     });
 
     const mockProcessTemplate = vi.fn((templatePath, replacements) => {
@@ -460,9 +456,8 @@ export default function configureFeature(app: App, feature: string): void {
     });
     fs.writeFileSync = vi.fn();
 
-    const testGen = createTestGenerator(ActionGenerator, {
+    const testGen = await createTestGenerator(ActionGenerator, schema, {
       fileSystem: fs,
-      featureGeneratorFactory: () => featureGen,
     });
 
     const mockProcessTemplate = vi.fn((templatePath, replacements) => {
@@ -543,9 +538,8 @@ export default function configureFeature(app: App, feature: string): void {
     });
     fs.writeFileSync = vi.fn();
 
-    const testGen = createTestGenerator(ActionGenerator, {
+    const testGen = await createTestGenerator(ActionGenerator, schema, {
       fileSystem: fs,
-      featureGeneratorFactory: () => featureGen,
     });
 
     const mockProcessTemplate = vi.fn((templatePath, replacements) => {
@@ -590,9 +584,8 @@ export default function configureFeature(app: App, feature: string): void {
   });
 
   it('getDefinition throws error when config template file does not exist', async () => {
-    gen = createTestGenerator(ActionGenerator, {
+    gen = await createTestGenerator(ActionGenerator, schema, {
       fileSystem: fs,
-      featureGeneratorFactory: () => featureGen,
     });
 
     // Mock resolveTemplatePath to return a non-existent path
@@ -635,9 +628,8 @@ export default function configureFeature(app: App, feature: string): void {
   });
 
   it('getDefinition verifies config template path resolution', async () => {
-    gen = createTestGenerator(ActionGenerator, {
+    gen = await createTestGenerator(ActionGenerator, schema, {
       fileSystem: fs,
-      featureGeneratorFactory: () => featureGen,
     });
 
     const mockResolveTemplatePath = vi.fn((templateName, generatorName) => {

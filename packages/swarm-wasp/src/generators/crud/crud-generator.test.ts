@@ -7,18 +7,18 @@ import {
 } from '../../../tests/utils';
 import { schema as featureSchema } from '../feature/schema';
 import { CrudGenerator } from './crud-generator';
+import { schema } from './schema';
 
 describe('CrudGenerator', () => {
   let fs: FileSystem;
   let featureGen: SwarmGenerator<typeof featureSchema>;
   let gen: CrudGenerator;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     fs = createMockFS();
     featureGen = createMockFeatureGen(featureSchema);
-    gen = createTestGenerator(CrudGenerator, {
+    gen = await createTestGenerator(CrudGenerator, schema, {
       fileSystem: fs,
-      featureGeneratorFactory: () => featureGen,
     });
   });
 

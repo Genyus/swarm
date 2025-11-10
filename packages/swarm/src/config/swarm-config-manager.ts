@@ -1,7 +1,11 @@
 import { AsyncSearcher, LilconfigResult, lilconfig } from 'lilconfig';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { DEFAULT_CONFIG_FILE, DEFAULT_CUSTOM_TEMPLATES_DIR } from '../common';
+import {
+  DEFAULT_CONFIG_FILE,
+  DEFAULT_CUSTOM_TEMPLATES_DIR,
+  LogLevel,
+} from '../common';
 
 /**
  * Swarm configuration interface
@@ -14,6 +18,7 @@ import { DEFAULT_CONFIG_FILE, DEFAULT_CUSTOM_TEMPLATES_DIR } from '../common';
  * - `plugins[].disabled` is an optional boolean to explicitly disable the plugin (defaults to enabled)
  * - `plugins[].generators` is an optional array that can be used to disable specific generators
  * - `plugins[].generators[].disabled` is an optional boolean to explicitly disable the generator (defaults to enabled)
+ * - `logLevel` is an optional log level for MCP server logging: 'debug', 'info', 'warn', or 'error' (defaults to 'info')
  *
  * @example <caption>swarm.config.json (primary)</caption>
  *
@@ -59,6 +64,7 @@ import { DEFAULT_CONFIG_FILE, DEFAULT_CUSTOM_TEMPLATES_DIR } from '../common';
  */
 export interface SwarmConfig {
   templateDirectory?: string;
+  logLevel?: LogLevel;
   plugins: Array<{
     import: string;
     from: string;
@@ -76,13 +82,14 @@ export interface SwarmConfig {
  */
 const DEFAULT_CONFIG: SwarmConfig = {
   templateDirectory: DEFAULT_CUSTOM_TEMPLATES_DIR,
+  logLevel: 'info',
   plugins: [],
 };
 
 /**
  * Manages Swarm configuration loading and access
  */
-export class SwarmConfigManager {
+class SwarmConfigManager {
   private config: SwarmConfig | null = null;
   private configPath: string | null = null;
   private lilconfig: AsyncSearcher;
@@ -162,6 +169,10 @@ export class SwarmConfigManager {
     configPath?: string,
     projectRoot?: string
   ): Promise<SwarmConfig> {
+    if (this.config) {
+      return this.config;
+    }
+
     try {
       let searchDir = projectRoot || this.findProjectRoot();
 
@@ -176,7 +187,7 @@ export class SwarmConfigManager {
         try {
           result = await this.lilconfig.load(configPath);
         } catch (e) {
-          console.error(`❌ Error loading config from ${configPath}: ${e}`);
+          console.error(`Error loading config from ${configPath}: ${e}`);
         }
       } else {
         // Use lilconfig's search which handles searchPlaces and package.json key extraction
@@ -186,7 +197,7 @@ export class SwarmConfigManager {
       if (!result || !result.config) {
         // Use default configuration when no config file is found
         console.warn(
-          `⚠️  No configuration file found in ${searchDir}. Searched for: ${this.searchPlaces.join(', ')}`
+          `No configuration file found in ${searchDir}. Searched for: ${this.searchPlaces.join(', ')}`
         );
         console.warn('Using default configuration. No plugins are enabled.');
 
@@ -207,7 +218,7 @@ export class SwarmConfigManager {
         this.config &&
         (!this.config.plugins || this.config.plugins.length === 0)
       ) {
-        console.warn('⚠️  No plugins are defined in the configuration file.');
+        console.warn('No plugins are defined in the configuration file.');
         console.warn('Swarm will not have any generators available.');
       }
 
@@ -234,4 +245,31 @@ export class SwarmConfigManager {
   getConfigPath(): string | null {
     return this.configPath;
   }
+
+  /**
+   * Get the log level for MCP server logging
+   * Priority: 1. Environment variable SWARM_MCP_LOG_LEVEL, 2. Config file logLevel, 3. Default 'info'
+   * @returns Log level
+   */
+  getLogLevel(): LogLevel {
+    // First check environment variable
+    const envLevel = process.env['SWARM_MCP_LOG_LEVEL'];
+    if (envLevel && ['debug', 'info', 'warn', 'error'].includes(envLevel)) {
+      return envLevel as LogLevel;
+    }
+
+    // Fall back to config file value
+    if (this.config?.logLevel) {
+      return this.config.logLevel;
+    }
+
+    // Default to 'info'
+    return 'info';
+  }
+}
+
+const swarmConfigManager = new SwarmConfigManager();
+
+export function getConfigManager(): SwarmConfigManager {
+  return swarmConfigManager;
 }

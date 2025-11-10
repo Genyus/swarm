@@ -1,12 +1,12 @@
 import { existsSync } from 'node:fs';
 import { homedir } from 'node:os';
 import path from 'node:path';
+import { getCLILogger } from '../../cli/cli-logger';
 import { getSwarmVersion } from '../../common';
-import { logger } from '../../logger';
+import { getConfigManager } from '../../config';
 import {
   createErrorContext,
-  ErrorFactory,
-  mcpLoggingConfigManager,
+  InternalError,
   MCPManager,
   MCPServerConfig,
 } from '../server';
@@ -15,10 +15,11 @@ export class ServerManager {
   private server: MCPManager | null = null;
   private isRunning = false;
   private pid: number | null = null;
+  private logger = getCLILogger();
 
   async start(configPath?: string): Promise<void> {
     if (this.isRunning) {
-      throw ErrorFactory.internal(
+      throw new InternalError(
         'start server',
         undefined,
         createErrorContext('ServerManager', 'start')
@@ -32,11 +33,14 @@ export class ServerManager {
         process.chdir(projectRoot);
       }
 
-      // MCPLoggingConfigManager is for MCP server logging config (.mcp/config.json)
-      // It uses its own search logic, not the --config flag
-      // The --config flag is for Swarm plugin config (swarm.config.json)
-      const manager = mcpLoggingConfigManager;
-      await manager.loadConfig();
+      const swarmConfigManager = getConfigManager();
+      const expandedConfigPath = configPath
+        ? configPath.startsWith('~')
+          ? path.join(homedir(), configPath.slice(1))
+          : path.resolve(configPath)
+        : undefined;
+
+      await swarmConfigManager.loadConfig(expandedConfigPath, projectRoot);
 
       const config: MCPServerConfig = {
         name: 'Swarm MCP Server',
@@ -49,16 +53,7 @@ export class ServerManager {
         instructions: 'Swarm MCP Server for Wasp application code generation',
       };
 
-      // Pass the configPath to MCPManager so it can be used for SwarmConfigManager
-      // (MCPLoggingConfigManager is for MCP server logging config, separate from Swarm plugin config)
-      const expandedConfigPath = configPath
-        ? configPath.startsWith('~')
-          ? path.join(homedir(), configPath.slice(1))
-          : path.resolve(configPath)
-        : undefined;
-
-      this.server = new MCPManager(config, manager, expandedConfigPath);
-      await this.server.loadConfiguration();
+      this.server = new MCPManager(config, expandedConfigPath);
       await this.server.start();
       this.isRunning = true;
       this.pid = process.pid;
@@ -73,8 +68,8 @@ export class ServerManager {
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : String(error);
-      logger.error(`Failed to start server: ${errorMessage}`);
-      throw ErrorFactory.internal(
+      this.logger.error(`Failed to start server: ${errorMessage}`);
+      throw new InternalError(
         'start server',
         new Error(errorMessage),
         createErrorContext('ServerManager', 'start')
@@ -92,12 +87,11 @@ export class ServerManager {
       this.isRunning = false;
       this.pid = null;
       this.server = null;
-      logger.info('MCP server stopped');
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : String(error);
-      logger.error(`Failed to stop server: ${errorMessage}`);
-      throw ErrorFactory.internal(
+      this.logger.error(`Failed to stop server: ${errorMessage}`);
+      throw new InternalError(
         'stop server',
         new Error(errorMessage),
         createErrorContext('ServerManager', 'stop')

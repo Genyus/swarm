@@ -1,8 +1,9 @@
 import { Command } from 'commander';
 import fs from 'node:fs';
 import { DEFAULT_CONFIG_FILE, getSwarmVersion } from '../common';
-import { AppGenerator } from '../generator';
-import { CommandManager } from './command-manager';
+import { AppGenerator, getGeneratorServices } from '../generator';
+import { getCLILogger } from './cli-logger';
+import { CLIManager } from './cli-manager';
 
 /**
  * Main entry point for the CLI
@@ -22,7 +23,9 @@ export async function main(): Promise<void> {
   try {
     if (!isInProject) {
       // Only show create command when not in a project
-      const appGen = new AppGenerator();
+      const logger = getCLILogger();
+      const services = getGeneratorServices('cli', logger);
+      const appGen = new AppGenerator(services);
       const createCmd = new Command('create')
         .description(appGen.description)
         .argument(
@@ -41,7 +44,7 @@ export async function main(): Promise<void> {
           try {
             if (!options.template) {
               console.error(
-                '❌ Error: Template is required. Use --template to specify a GitHub repository.'
+                'Error: Template is required. Use --template to specify a GitHub repository.'
               );
               process.exit(1);
             }
@@ -51,7 +54,7 @@ export async function main(): Promise<void> {
               targetDir: options.targetDir,
             });
           } catch (err: any) {
-            console.error('❌ Error:', err.message);
+            console.error('Error:', err.message);
             process.exit(1);
           }
         });
@@ -59,7 +62,7 @@ export async function main(): Promise<void> {
       command.addCommand(createCmd);
     } else {
       // Show all plugin generators when in a project
-      const commandManager = new CommandManager();
+      const commandManager = new CLIManager();
 
       await commandManager.initialize();
       commandManager.registerCommands(command);
@@ -68,7 +71,7 @@ export async function main(): Promise<void> {
     await command.parseAsync(process.argv);
   } catch (error) {
     console.error(
-      '❌ Error:',
+      'Error:',
       error instanceof Error ? error.message : 'Unknown error'
     );
     process.exit(1);

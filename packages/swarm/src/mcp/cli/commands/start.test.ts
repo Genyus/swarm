@@ -1,5 +1,4 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { logger } from '../../../logger';
 import { ServerManager } from '../server-manager';
 import { createStartCommand } from './start';
 
@@ -8,12 +7,13 @@ vi.mock('../server-manager', () => ({
   ServerManager: vi.fn(),
 }));
 
-vi.mock('../../../logger', () => ({
-  logger: {
-    info: vi.fn(),
-    error: vi.fn(),
-  },
-  configureLogger: vi.fn(),
+const mockLogger = {
+  info: vi.fn(),
+  error: vi.fn(),
+};
+
+vi.mock('../../../cli/cli-logger', () => ({
+  getCLILogger: vi.fn(() => mockLogger),
 }));
 const mockProcessExit = vi.spyOn(process, 'exit').mockImplementation(() => {
   throw new Error('process.exit called');
@@ -53,12 +53,6 @@ describe('Start Command', () => {
       await command.parseAsync(['start']);
 
       expect(mockServerManager.start).toHaveBeenCalledOnce();
-      expect((logger as any).info).toHaveBeenCalledWith(
-        'Starting Swarm MCP server in stdio mode...'
-      );
-      expect((logger as any).info).toHaveBeenCalledWith(
-        '✅ Server started successfully in stdio mode'
-      );
     });
 
     it('should handle server start failure', async () => {
@@ -72,8 +66,8 @@ describe('Start Command', () => {
       );
 
       expect(mockServerManager.start).toHaveBeenCalledOnce();
-      expect((logger as any).error).toHaveBeenCalledWith(
-        '❌ Failed to start server: Server failed to start'
+      expect(mockLogger.error).toHaveBeenCalledWith(
+        'Failed to start server: Server failed to start'
       );
       expect(mockProcessExit).toHaveBeenCalledWith(1);
     });
@@ -88,8 +82,8 @@ describe('Start Command', () => {
       );
 
       expect(mockServerManager.start).toHaveBeenCalledOnce();
-      expect((logger as any).error).toHaveBeenCalledWith(
-        '❌ Failed to start server: Unknown error'
+      expect(mockLogger.error).toHaveBeenCalledWith(
+        'Failed to start server: Unknown error'
       );
       expect(mockProcessExit).toHaveBeenCalledWith(1);
     });

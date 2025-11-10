@@ -1,5 +1,4 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { logger } from '../../../logger';
 import { ServerManager } from '../server-manager';
 import { createStatusCommand } from './status';
 
@@ -8,12 +7,13 @@ vi.mock('../server-manager', () => ({
   ServerManager: vi.fn(),
 }));
 
-vi.mock('../../../logger', () => ({
-  logger: {
-    info: vi.fn(),
-    error: vi.fn(),
-  },
-  configureLogger: vi.fn(),
+const mockLogger = {
+  info: vi.fn(),
+  error: vi.fn(),
+};
+
+vi.mock('../../../cli/cli-logger', () => ({
+  getCLILogger: vi.fn(() => mockLogger),
 }));
 
 describe('Status Command', () => {
@@ -55,18 +55,12 @@ describe('Status Command', () => {
       await command.parseAsync(['status']);
 
       expect(mockServerManager.getStatus).toHaveBeenCalledOnce();
-      expect((logger as any).info).toHaveBeenCalledWith(
-        '🔄 Swarm MCP Server Status'
-      );
-      expect((logger as any).info).toHaveBeenCalledWith(
-        '========================'
-      );
-      expect((logger as any).info).toHaveBeenCalledWith('✅ Status: Running');
-      expect((logger as any).info).toHaveBeenCalledWith('🆔 PID: 12345');
-      expect((logger as any).info).toHaveBeenCalledWith('⏱️  Uptime: 1h 1m 1s');
-      expect((logger as any).info).toHaveBeenCalledWith(
-        '========================'
-      );
+      expect(mockLogger.info).toHaveBeenCalledWith('Swarm MCP Server Status');
+      expect(mockLogger.info).toHaveBeenCalledWith('========================');
+      expect(mockLogger.info).toHaveBeenCalledWith('Status: Running');
+      expect(mockLogger.info).toHaveBeenCalledWith('PID: 12345');
+      expect(mockLogger.info).toHaveBeenCalledWith('Uptime: 1h 1m 1s');
+      expect(mockLogger.info).toHaveBeenCalledWith('========================');
     });
 
     it('should execute status action when not running', async () => {
@@ -82,18 +76,10 @@ describe('Status Command', () => {
       await command.parseAsync(['status']);
 
       expect(mockServerManager.getStatus).toHaveBeenCalledOnce();
-      expect((logger as any).info).toHaveBeenCalledWith(
-        '🔄 Swarm MCP Server Status'
-      );
-      expect((logger as any).info).toHaveBeenCalledWith(
-        '========================'
-      );
-      expect((logger as any).info).toHaveBeenCalledWith(
-        '❌ Status: Not running'
-      );
-      expect((logger as any).info).toHaveBeenCalledWith(
-        '========================'
-      );
+      expect(mockLogger.info).toHaveBeenCalledWith('Swarm MCP Server Status');
+      expect(mockLogger.info).toHaveBeenCalledWith('========================');
+      expect(mockLogger.info).toHaveBeenCalledWith('Status: Not running');
+      expect(mockLogger.info).toHaveBeenCalledWith('========================');
     });
   });
 });

@@ -7,6 +7,12 @@ import {
   QueryGenerator,
   RouteGenerator,
 } from '../src';
+import { schema as actionSchema } from '../src/generators/action/schema';
+import { schema as apiSchema } from '../src/generators/api/schema';
+import { schema as featureSchema } from '../src/generators/feature/schema';
+import { schema as jobSchema } from '../src/generators/job/schema';
+import { schema as querySchema } from '../src/generators/query/schema';
+import { schema as routeSchema } from '../src/generators/route/schema';
 import { realFileSystem } from '../src/common';
 import {
   countOccurrences,
@@ -21,11 +27,11 @@ describe('Configuration File Management Tests', () => {
   let originalCwd: string;
   let featureGen: FeatureGenerator;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     originalCwd = process.cwd();
     projectPaths = createTestWaspProject();
     process.chdir(projectPaths.root);
-    featureGen = createTestGenerator(FeatureGenerator, {
+    featureGen = await createTestGenerator(FeatureGenerator, featureSchema, {
       fileSystem: realFileSystem,
     });
   });
@@ -37,19 +43,19 @@ describe('Configuration File Management Tests', () => {
   it('should maintain correct group ordering with multiple definition types', async () => {
     await featureGen.generate({ target: 'posts' });
 
-    const actionGen = createTestGenerator(ActionGenerator, {
+    const actionGen = await createTestGenerator(ActionGenerator, actionSchema, {
       fileSystem: realFileSystem,
     });
-    const queryGen = createTestGenerator(QueryGenerator, {
+    const queryGen = await createTestGenerator(QueryGenerator, querySchema, {
       fileSystem: realFileSystem,
     });
-    const apiGen = createTestGenerator(ApiGenerator, {
+    const apiGen = await createTestGenerator(ApiGenerator, apiSchema, {
       fileSystem: realFileSystem,
     });
-    const routeGen = createTestGenerator(RouteGenerator, {
+    const routeGen = await createTestGenerator(RouteGenerator, routeSchema, {
       fileSystem: realFileSystem,
     });
-    const jobGen = createTestGenerator(JobGenerator, {
+    const jobGen = await createTestGenerator(JobGenerator, jobSchema, {
       fileSystem: realFileSystem,
     });
 
@@ -104,10 +110,10 @@ describe('Configuration File Management Tests', () => {
   it('should include group headers for each definition type', async () => {
     await featureGen.generate({ target: 'posts' });
 
-    const actionGen = createTestGenerator(ActionGenerator, {
+    const actionGen = await createTestGenerator(ActionGenerator, actionSchema, {
       fileSystem: realFileSystem,
     });
-    const queryGen = createTestGenerator(QueryGenerator, {
+    const queryGen = await createTestGenerator(QueryGenerator, querySchema, {
       fileSystem: realFileSystem,
     });
 
@@ -135,7 +141,7 @@ describe('Configuration File Management Tests', () => {
   it('should always end config file with terminating semicolon', async () => {
     await featureGen.generate({ target: 'posts' });
 
-    const actionGen = createTestGenerator(ActionGenerator, {
+    const actionGen = await createTestGenerator(ActionGenerator, actionSchema, {
       fileSystem: realFileSystem,
     });
 
@@ -156,7 +162,7 @@ describe('Configuration File Management Tests', () => {
   it('should preserve proper structure after multiple additions', async () => {
     await featureGen.generate({ target: 'posts' });
 
-    const actionGen = createTestGenerator(ActionGenerator, {
+    const actionGen = await createTestGenerator(ActionGenerator, actionSchema, {
       fileSystem: realFileSystem,
     });
 
@@ -194,7 +200,7 @@ describe('Configuration File Management Tests', () => {
   it('should sort definitions alphabetically within groups', async () => {
     await featureGen.generate({ target: 'posts' });
 
-    const actionGen = createTestGenerator(ActionGenerator, {
+    const actionGen = await createTestGenerator(ActionGenerator, actionSchema, {
       fileSystem: realFileSystem,
     });
 

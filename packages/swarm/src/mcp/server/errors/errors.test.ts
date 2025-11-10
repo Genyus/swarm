@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { AppError } from './app-error';
 import { ConfigurationError } from './configuration-error';
-import { ErrorFactory } from './error-factory';
 import { createErrorContext } from './errors';
 import { InternalError } from './internal-error';
 import { MCPErrorCode, MCPProtocolError } from './mcp-protocol-error';
@@ -38,34 +37,6 @@ describe('Error Handling Framework', () => {
       expect(error).toBeInstanceOf(InternalError);
       expect(error.code).toBe(MCPErrorCode.InternalError);
       expect(error.message).toContain('Internal error during');
-    });
-  });
-
-  describe('ErrorFactory', () => {
-    it('should create configuration errors', () => {
-      const error = ErrorFactory.configuration('port', 'abc', 'number');
-
-      expect(error).toBeInstanceOf(ConfigurationError);
-      expect(error.code).toBe(MCPErrorCode.ValidationError);
-    });
-
-    it('should create internal errors', () => {
-      const cause = new Error('Database connection failed');
-      const error = ErrorFactory.internal('database operation', cause);
-
-      expect(error).toBeInstanceOf(InternalError);
-      expect(error.code).toBe(MCPErrorCode.InternalError);
-    });
-
-    it('should create MCP protocol errors', () => {
-      const error = ErrorFactory.mcp(
-        MCPErrorCode.InvalidRequest,
-        'Invalid request'
-      );
-
-      expect(error).toBeInstanceOf(MCPProtocolError);
-      expect(error.code).toBe(MCPErrorCode.InvalidRequest);
-      expect(error.message).toBe('Invalid request');
     });
   });
 
