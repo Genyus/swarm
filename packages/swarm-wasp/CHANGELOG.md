@@ -1,5 +1,23 @@
 # @ingenyus/swarm-wasp
 
+## [0.2.8][0.2.8] - 2025-11-11
+
+### 🐞 Bug Fixes
+
+- fix MCP logging ([e173cd1](https://github.com/genyus/swarm/commit/e173cd17d0f0241079a36488bb20708450bc66a3))
+
+### 🔧 Minor Improvements
+
+- harmonise naming conventions ([9f3a4f9](https://github.com/genyus/swarm/commit/9f3a4f958cb67fd6fc75bef3a8faf71f140d6d15))
+
+### 📦 Updated Dependencies
+
+- update @ingenyus/swarm to 0.3.3 ([5efbaa4](https://github.com/genyus/swarm/commit/5efbaa468c852fd6f8fa25970896c9ee36a32cb8))
+
+Contributors: [genyus](https://github.com/genyus)
+
+[0.2.8]: https://github.com/genyus/swarm/releases/tag/v0.2.8
+
 ## [0.2.7][0.2.7] - 2025-11-06
 
 ### 🐞 Bug Fixes
