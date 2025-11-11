@@ -1,6 +1,6 @@
 import { Command } from 'commander';
 import fs from 'node:fs';
-import { DEFAULT_CONFIG_FILE, getSwarmVersion } from '../common';
+import { DEFAULT_CONFIG_FILE, getVersion } from '../common';
 import { AppGenerator, getGeneratorServices } from '../generator';
 import { getCLILogger } from './cli-logger';
 import { CLIManager } from './cli-manager';
@@ -13,7 +13,7 @@ import { CLIManager } from './cli-manager';
 export async function main(): Promise<void> {
   const command = new Command('swarm')
     .description('Swarm generator command-line interface')
-    .version(getSwarmVersion());
+    .version(getVersion());
 
   // Check if we're in a project context
   const hasConfig = fs.existsSync(DEFAULT_CONFIG_FILE);

@@ -4,10 +4,10 @@ import { Out } from '../schema';
 export type GeneratorEnvironment = 'cli' | 'mcp' | 'test';
 
 /**
- * Swarm generator interface
+ * Generator interface
  * @template S - Zod schema type
  */
-export interface SwarmGenerator<S extends ZodType = ZodType> {
+export interface Generator<S extends ZodType = ZodType> {
   /** Unique generator name */
   name: string;
   /** Human-readable description */

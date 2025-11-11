@@ -3,8 +3,8 @@ import { z } from 'zod';
 import {
   defineGeneratorProvider,
   GeneratorServices,
-  SwarmGenerator,
-  SwarmGeneratorProvider,
+  Generator,
+  GeneratorProvider,
 } from '../../generator';
 import { commandRegistry } from '../../schema';
 import { ToolManager } from './tool-manager';
@@ -32,10 +32,10 @@ describe('ToolManager', () => {
       const crudSchema = z.object({
         entity: z.string().describe('Entity name'),
       });
-      const mockProviders: SwarmGeneratorProvider[] = [
+      const mockProviders: GeneratorProvider[] = [
         defineGeneratorProvider({
           schema: apiSchema,
-          create: (services: GeneratorServices): SwarmGenerator => ({
+          create: (services: GeneratorServices): Generator => ({
             name: 'api',
             description: 'Generate API endpoint',
             schema: apiSchema,
@@ -44,7 +44,7 @@ describe('ToolManager', () => {
         }),
         defineGeneratorProvider({
           schema: crudSchema,
-          create: (services: GeneratorServices): SwarmGenerator => ({
+          create: (services: GeneratorServices): Generator => ({
             name: 'crud',
             description: 'Generate CRUD operations',
             schema: crudSchema,
@@ -87,9 +87,9 @@ describe('ToolManager', () => {
         tags: z.array(z.string()).describe('List of tags'),
         enabled: z.boolean().default(true).describe('Enable feature'),
       });
-      const mockProvider: SwarmGeneratorProvider = defineGeneratorProvider({
+      const mockProvider: GeneratorProvider = defineGeneratorProvider({
         schema: testSchema,
-        create: (services: GeneratorServices): SwarmGenerator => ({
+        create: (services: GeneratorServices): Generator => ({
           name: 'test',
           description: 'Test generator',
           schema: testSchema,
@@ -146,9 +146,9 @@ describe('ToolManager', () => {
       const apiSchema = z.object({
         name: z.string(),
       });
-      const mockProvider: SwarmGeneratorProvider = defineGeneratorProvider({
+      const mockProvider: GeneratorProvider = defineGeneratorProvider({
         schema: apiSchema,
-        create: (services: GeneratorServices): SwarmGenerator => ({
+        create: (services: GeneratorServices): Generator => ({
           name: 'api',
           description: 'Generate API',
           schema: apiSchema,
@@ -186,9 +186,9 @@ describe('ToolManager', () => {
       const apiSchema = z.object({
         name: z.string(),
       });
-      const mockProvider: SwarmGeneratorProvider = defineGeneratorProvider({
+      const mockProvider: GeneratorProvider = defineGeneratorProvider({
         schema: apiSchema,
-        create: (services: GeneratorServices): SwarmGenerator => ({
+        create: (services: GeneratorServices): Generator => ({
           name: 'api',
           description: 'Generate API',
           schema: apiSchema,

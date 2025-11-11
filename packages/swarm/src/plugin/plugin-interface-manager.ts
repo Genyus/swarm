@@ -1,6 +1,6 @@
 import { getCLILogger } from '../cli/cli-logger';
 import { realFileSystem } from '../common';
-import { GeneratorServices, SwarmGeneratorProvider } from '../generator';
+import { GeneratorProvider, GeneratorServices } from '../generator';
 import { PluginManager } from './plugin-manager';
 
 /**
@@ -98,7 +98,7 @@ export abstract class PluginInterfaceManager<TInterface> {
    * Must be implemented by concrete classes
    */
   protected abstract createInterfaceFromProvider(
-    provider: SwarmGeneratorProvider
+    provider: GeneratorProvider
   ): Promise<TInterface>;
 
   /**

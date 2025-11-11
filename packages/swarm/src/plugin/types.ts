@@ -1,11 +1,11 @@
-import { SwarmGeneratorProvider } from '../generator/provider';
+import { GeneratorProvider } from '../generator/provider';
 
 /**
- * Swarm plugin interface
+ * Plugin interface
  */
-export interface SwarmPlugin {
+export interface Plugin {
   /** Unique plugin name */
   name: string;
-  /** Array of {@link SwarmGeneratorProvider `SwarmGeneratorProvider`} instances */
-  generators: Array<SwarmGeneratorProvider>;
+  /** Array of {@link GeneratorProvider `GeneratorProvider`} instances */
+  providers: Array<GeneratorProvider>;
 }

@@ -4,19 +4,16 @@ import { z } from 'zod';
 import {
   defineGeneratorProvider,
   GeneratorServices,
-  SwarmGenerator,
-  SwarmGeneratorProvider,
+  Generator,
+  GeneratorProvider,
 } from '../generator';
 import { CLIManager } from './cli-manager';
 
 // Mock generator provider for testing
-const createMockProvider = (
-  name: string,
-  schema: any
-): SwarmGeneratorProvider => {
+const createMockProvider = (name: string, schema: any): GeneratorProvider => {
   return defineGeneratorProvider({
     schema,
-    create: (services: GeneratorServices): SwarmGenerator => ({
+    create: (services: GeneratorServices): Generator => ({
       name,
       description: `Generate ${name}`,
       schema,
@@ -71,7 +68,7 @@ describe('CommandManager', () => {
       const generateFn = vi.fn().mockResolvedValue(undefined);
       const provider = defineGeneratorProvider({
         schema: testSchema,
-        create: (services: GeneratorServices): SwarmGenerator => ({
+        create: (services: GeneratorServices): Generator => ({
           name: 'test-command',
           description: 'Generate test-command',
           schema: testSchema,

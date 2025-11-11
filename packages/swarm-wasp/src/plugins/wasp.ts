@@ -1,4 +1,4 @@
-import { defineGeneratorProvider, SwarmPlugin } from '@ingenyus/swarm';
+import { defineGeneratorProvider, Plugin } from '@ingenyus/swarm';
 import {
   ActionGenerator,
   ApiGenerator,
@@ -19,9 +19,9 @@ import { schema as querySchema } from '../generators/query/schema';
 import { schema as routeSchema } from '../generators/route/schema';
 import { PLUGIN_NAME } from '../types';
 
-export const wasp: SwarmPlugin = {
+export const wasp: Plugin = {
   name: PLUGIN_NAME,
-  generators: [
+  providers: [
     defineGeneratorProvider({
       schema: actionSchema,
       create: (services) => new ActionGenerator(services),

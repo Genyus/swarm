@@ -1,5 +1,5 @@
 import { GeneratorBase } from './generator.base';
-import { SwarmGeneratorProvider } from './provider';
+import { GeneratorProvider } from './provider';
 import { GeneratorServices, getGeneratorServices } from './services';
 
 /**
@@ -20,7 +20,7 @@ import { GeneratorServices, getGeneratorServices } from './services';
  * ```
  */
 export async function createGenerator<T extends GeneratorBase<any>>(
-  provider: SwarmGeneratorProvider,
+  provider: GeneratorProvider,
   overrides: Partial<GeneratorServices> = {}
 ): Promise<T> {
   const logger = overrides.logger || {

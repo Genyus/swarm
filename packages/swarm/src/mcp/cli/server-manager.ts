@@ -2,7 +2,7 @@ import { existsSync } from 'node:fs';
 import { homedir } from 'node:os';
 import path from 'node:path';
 import { getCLILogger } from '../../cli/cli-logger';
-import { getSwarmVersion } from '../../common';
+import { getVersion } from '../../common';
 import { getConfigManager } from '../../config';
 import {
   createErrorContext,
@@ -44,7 +44,7 @@ export class ServerManager {
 
       const config: MCPServerConfig = {
         name: 'Swarm MCP Server',
-        version: getSwarmVersion(),
+        version: getVersion(),
         tools: [],
         capabilities: {
           tools: { listChanged: true },

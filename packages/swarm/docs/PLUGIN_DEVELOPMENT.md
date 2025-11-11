@@ -31,47 +31,35 @@ A Swarm plugin is a package that exports one or more **generators** - code gener
 
 ### Plugin Interface
 
-Every plugin must implement the `SwarmPlugin` interface:
+Plugins must implement the `Plugin` interface:
 
 ```typescript
-import { SwarmPlugin, SwarmGenerator } from '@ingenyus/swarm';
+import { GeneratorProvider } from '@ingenyus/swarm';
 
-export interface SwarmPlugin {
+export interface Plugin {
   /** Unique plugin name */
   name: string;
-  /** Plugin version */
-  version: string;
-  /** Human-readable description */
-  description: string;
-  /** Plugin author (optional) */
-  author?: string;
-  /** Plugin license (optional) */
-  license?: string;
-  /** Collection of generators provided by this plugin */
-  generators: SwarmGenerator<any>[];
-  /** Plugin configuration schema (optional) */
-  configSchema?: ZodType;
+  /** Array of {@link GeneratorProvider `GeneratorProvider`} instances */
+  generators: Array<GeneratorProvider>;
 }
 ```
 
 ### Generator Interface
 
-Each generator must implement the `SwarmGenerator` interface:
+Generators must implement the `Generator` interface:
 
 ```typescript
-import { SwarmGenerator } from '@ingenyus/swarm';
+import { Generator } from '@ingenyus/swarm';
 
-export interface SwarmGenerator<S extends ZodType = ZodType> {
-  /** Generate code from validated parameters */
-  generate: (args: Out<S>) => Promise<void>;
+export interface Generator<S extends ZodType = ZodType> {
   /** Unique generator name */
   name: string;
   /** Human-readable description */
   description: string;
   /** Zod schema for validation and help generation */
   schema: S;
-  /** Template names bundled with this generator (optional) */
-  templates?: string[];
+  /** Generate code from validated parameters */
+  generate: (args: Out<S>) => Promise<void>;
 }
 ```
 
@@ -117,15 +105,18 @@ swarm-myframework/
 Create `src/index.ts`:
 
 ```typescript
-import { SwarmPlugin } from '@ingenyus/swarm';
-import { ComponentGenerator } from './generators';
+import { Plugin } from '@ingenyus/swarm';
+import { ComponentGenerator, componentSchema } from './generators';
 
-export const myframework: SwarmPlugin = {
+export const myframework: Plugin = {
   name: 'myframework',
   version: '1.0.0',
   description: 'Swarm plugin for MyFramework',
-  generators: [
-    new ComponentGenerator(),
+  providers: [
+    defineGeneratorProvider({
+      schema: componentSchema,
+      create: (services) => new ComponentGenerator(services),
+    }),
     // Add more generators here
   ],
 };

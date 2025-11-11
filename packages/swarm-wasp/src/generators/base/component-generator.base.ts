@@ -1,7 +1,7 @@
 import {
+  Generator,
   GeneratorServices,
   hasHelperMethodCall,
-  SwarmGenerator,
   toKebabCase,
   validateFeaturePath,
 } from '@ingenyus/swarm';
@@ -34,7 +34,7 @@ export abstract class ComponentGeneratorBase<
     );
   }
 
-  protected featureDirectoryGenerator: SwarmGenerator<typeof featureSchema>;
+  protected featureDirectoryGenerator: Generator<typeof featureSchema>;
 
   constructor(services: GeneratorServices) {
     super(services);

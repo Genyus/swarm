@@ -1,20 +1,16 @@
 import * as path from 'node:path';
 import { getConfigManager } from '../config';
-import {
-  GeneratorServices,
-  SwarmGenerator,
-  SwarmGeneratorProvider,
-} from '../generator';
+import { Generator, GeneratorProvider, GeneratorServices } from '../generator';
 import { PluginResolver } from './plugin-resolver';
-import { SwarmPlugin } from './types';
+import { Plugin } from './types';
 
 /**
  * Main plugin management system
  */
 export class PluginManager {
   private configManager = getConfigManager();
-  private plugins: Map<string, SwarmPlugin> = new Map();
-  private providers: Map<string, SwarmGeneratorProvider> = new Map();
+  private plugins: Map<string, Plugin> = new Map();
+  private providers: Map<string, GeneratorProvider> = new Map();
   private resolver: PluginResolver = new PluginResolver();
 
   /**
@@ -31,10 +27,10 @@ export class PluginManager {
    * Register a plugin and its generator providers
    * @param plugin Plugin to register
    */
-  async registerPlugin(plugin: SwarmPlugin): Promise<void> {
+  async registerPlugin(plugin: Plugin): Promise<void> {
     this.plugins.set(plugin.name, plugin);
 
-    for (const provider of plugin.generators) {
+    for (const provider of plugin.providers) {
       const tempServices: GeneratorServices = {
         fileSystem: {} as any,
         logger: {
@@ -108,7 +104,7 @@ export class PluginManager {
    * @param name Generator name
    * @returns Generator provider or undefined if not found
    */
-  getGenerator(name: string): SwarmGeneratorProvider | undefined {
+  getGenerator(name: string): GeneratorProvider | undefined {
     return this.providers.get(name);
   }
 
@@ -121,7 +117,7 @@ export class PluginManager {
   async createGeneratorInstance(
     name: string,
     services: GeneratorServices
-  ): Promise<SwarmGenerator | undefined> {
+  ): Promise<Generator | undefined> {
     const provider = this.providers.get(name);
     if (!provider) {
       return undefined;
@@ -133,7 +129,7 @@ export class PluginManager {
    * Get all registered generator providers
    * @returns Array of all generator providers
    */
-  getAllGenerators(): SwarmGeneratorProvider[] {
+  getAllGenerators(): GeneratorProvider[] {
     return Array.from(this.providers.values());
   }
 
@@ -141,7 +137,7 @@ export class PluginManager {
    * Get all enabled generator providers
    * @returns Array of enabled generator providers
    */
-  getEnabledGenerators(): SwarmGeneratorProvider[] {
+  getEnabledGenerators(): GeneratorProvider[] {
     return Array.from(this.providers.values());
   }
 
@@ -149,7 +145,7 @@ export class PluginManager {
    * Get all enabled plugins
    * @returns Array of enabled plugins
    */
-  getEnabledPlugins(): SwarmPlugin[] {
+  getEnabledPlugins(): Plugin[] {
     const config = this.configManager.getConfig();
     if (!config) return [];
 
@@ -164,7 +160,7 @@ export class PluginManager {
    * Get all registered plugins
    * @returns Array of all plugins
    */
-  getAllPlugins(): SwarmPlugin[] {
+  getAllPlugins(): Plugin[] {
     return Array.from(this.plugins.values());
   }
 

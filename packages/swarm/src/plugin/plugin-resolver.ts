@@ -1,6 +1,6 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { SwarmPlugin } from './types';
+import { Plugin } from './types';
 
 /**
  * Unified plugin resolver using dynamic imports
@@ -17,7 +17,7 @@ export class PluginResolver {
     from: string,
     importName: string,
     applicationRoot?: string
-  ): Promise<SwarmPlugin | null> {
+  ): Promise<Plugin | null> {
     try {
       const isLocal = this.isLocalSource(from);
       let resolvedSource = from;
@@ -178,11 +178,11 @@ export class PluginResolver {
   }
 
   /**
-   * Validate that the resolved object is a valid SwarmPlugin
+   * Validate that the resolved object is a valid Plugin
    * @param plugin Plugin object to validate
    * @returns Validated plugin or null
    */
-  private validatePlugin(plugin: any): SwarmPlugin | null {
+  private validatePlugin(plugin: any): Plugin | null {
     if (
       plugin &&
       typeof plugin === 'object' &&
@@ -190,7 +190,7 @@ export class PluginResolver {
       'generators' in plugin &&
       Array.isArray(plugin.generators)
     ) {
-      return plugin as SwarmPlugin;
+      return plugin as Plugin;
     }
     return null;
   }

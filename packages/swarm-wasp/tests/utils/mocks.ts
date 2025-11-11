@@ -3,8 +3,8 @@ import type {
   GeneratorBase,
   GeneratorServices,
   Logger,
-  SwarmGenerator,
-  SwarmGeneratorProvider,
+  Generator,
+  GeneratorProvider,
 } from '@ingenyus/swarm';
 import {
   defineGeneratorProvider,
@@ -37,7 +37,7 @@ export function createMockFS(): FileSystem {
 
 export function createMockFeatureGen<S extends ZodType>(
   s: S
-): SwarmGenerator<S> {
+): Generator<S> {
   return {
     name: 'feature',
     description: 'Mock',
@@ -70,7 +70,7 @@ export async function createTestGenerator<T extends GeneratorBase<any>>(
 ): Promise<T> {
   const mockFS = createMockFS();
   const mockLogger = createMockLogger();
-  const provider: SwarmGeneratorProvider = defineGeneratorProvider({
+  const provider: GeneratorProvider = defineGeneratorProvider({
     schema,
     create: (services: GeneratorServices) => new ctor(services),
   });

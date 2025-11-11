@@ -8,7 +8,7 @@ import {
 } from '../common';
 
 /**
- * Swarm configuration interface
+ * Configuration interface
  *
  * Configuration can be loaded from swarm.config.json or the `swarm` section in package.json
  *
@@ -62,7 +62,7 @@ import {
  *        }
  * ```
  */
-export interface SwarmConfig {
+export interface Config {
   templateDirectory?: string;
   logLevel?: LogLevel;
   plugins: Array<{
@@ -80,17 +80,17 @@ export interface SwarmConfig {
 /**
  * Default configuration when no config file is found
  */
-const DEFAULT_CONFIG: SwarmConfig = {
+const DEFAULT_CONFIG: Config = {
   templateDirectory: DEFAULT_CUSTOM_TEMPLATES_DIR,
   logLevel: 'info',
   plugins: [],
 };
 
 /**
- * Manages Swarm configuration loading and access
+ * Manages configuration loading and access
  */
-class SwarmConfigManager {
-  private config: SwarmConfig | null = null;
+class ConfigManager {
+  private config: Config | null = null;
   private configPath: string | null = null;
   private lilconfig: AsyncSearcher;
 
@@ -165,10 +165,7 @@ class SwarmConfigManager {
    * @param projectRoot Optional project root directory
    * @returns Loaded configuration
    */
-  async loadConfig(
-    configPath?: string,
-    projectRoot?: string
-  ): Promise<SwarmConfig> {
+  async loadConfig(configPath?: string, projectRoot?: string): Promise<Config> {
     if (this.config) {
       return this.config;
     }
@@ -234,7 +231,7 @@ class SwarmConfigManager {
    * Get the currently loaded configuration
    * @returns Current configuration or null if not loaded
    */
-  getConfig(): SwarmConfig | null {
+  getConfig(): Config | null {
     return this.config;
   }
 
@@ -268,8 +265,8 @@ class SwarmConfigManager {
   }
 }
 
-const swarmConfigManager = new SwarmConfigManager();
+const swarmConfigManager = new ConfigManager();
 
-export function getConfigManager(): SwarmConfigManager {
+export function getConfigManager(): ConfigManager {
   return swarmConfigManager;
 }

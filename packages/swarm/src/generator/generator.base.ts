@@ -4,14 +4,12 @@ import { FileSystem } from '../common';
 import { Logger } from '../common/logger';
 import { In, Out, SchemaManager, ValidationResult } from '../schema';
 import { GeneratorServices } from './services';
-import { SwarmGenerator } from './types';
+import { Generator } from './types';
 
 /**
  * Abstract base class for all generators
  */
-export abstract class GeneratorBase<S extends ZodType>
-  implements SwarmGenerator<S>
-{
+export abstract class GeneratorBase<S extends ZodType> implements Generator<S> {
   abstract name: string;
   abstract description: string;
   abstract schema: S;

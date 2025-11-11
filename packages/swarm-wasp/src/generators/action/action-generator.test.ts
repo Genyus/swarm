@@ -1,4 +1,4 @@
-import type { FileSystem, SwarmGenerator } from '@ingenyus/swarm';
+import type { FileSystem, Generator } from '@ingenyus/swarm';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   createMockFeatureGen,
@@ -55,7 +55,7 @@ vi.mock('../../common/prisma', async () => {
 
 describe('ActionGenerator', () => {
   let fs: FileSystem;
-  let featureGen: SwarmGenerator<typeof featureSchema>;
+  let featureGen: Generator<typeof featureSchema>;
   let gen: ActionGenerator;
 
   beforeEach(async () => {

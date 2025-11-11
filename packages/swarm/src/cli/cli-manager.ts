@@ -1,7 +1,7 @@
 import { Command } from 'commander';
 import { z, ZodType } from 'zod';
 import { realFileSystem, toKebabCase } from '../common';
-import { getGeneratorServices, SwarmGeneratorProvider } from '../generator';
+import { GeneratorProvider, getGeneratorServices } from '../generator';
 import { PluginInterfaceManager } from '../plugin';
 import { SchemaManager } from '../schema';
 import { getCLILogger } from './cli-logger';
@@ -13,14 +13,14 @@ import { getCLILogger } from './cli-logger';
 export class CLIManager extends PluginInterfaceManager<Command> {
   private commands = new Map<
     string,
-    { schema: ZodType; provider: SwarmGeneratorProvider }
+    { schema: ZodType; provider: GeneratorProvider }
   >();
 
   /**
    * Create a Commander.js command from a generator provider
    */
   protected async createInterfaceFromProvider(
-    provider: SwarmGeneratorProvider
+    provider: GeneratorProvider
   ): Promise<Command> {
     // Create a temporary generator instance to get metadata
     const tempServices = {

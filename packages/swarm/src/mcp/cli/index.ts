@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { Command } from 'commander';
-import { getSwarmVersion } from '../../common';
+import { getVersion } from '../../common';
 import {
   createStartCommand,
   createStatusCommand,
@@ -13,7 +13,7 @@ export function createProgram(): Command {
   const serverManager = new ServerManager();
   const program = new Command('swarm-mcp')
     .description('Model Context Protocol server for Swarm CLI integration')
-    .version(getSwarmVersion());
+    .version(getVersion());
 
   program.addCommand(createStartCommand(serverManager));
   program.addCommand(createStopCommand(serverManager));

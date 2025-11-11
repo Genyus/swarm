@@ -5,10 +5,10 @@ import { fileURLToPath } from 'node:url';
 let cachedVersion: string | null = null;
 
 /**
- * Get the Swarm version from the package.json file
- * @returns {string} The Swarm version
+ * Get the version from the package.json file
+ * @returns {string} The version
  */
-export function getSwarmVersion(): string {
+export function getVersion(): string {
   if (cachedVersion) {
     return cachedVersion;
   }

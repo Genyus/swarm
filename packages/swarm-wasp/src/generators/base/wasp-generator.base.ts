@@ -1,8 +1,8 @@
 import {
+  Config,
   GeneratorBase,
   GeneratorServices,
   getConfigManager,
-  SwarmConfig,
   TemplateResolver,
 } from '@ingenyus/swarm';
 import { ZodType } from 'zod';
@@ -19,7 +19,7 @@ export abstract class WaspGeneratorBase<
   protected configGenerator: WaspConfigGenerator;
   protected templateUtility: TemplateUtility;
   protected templateResolver: TemplateResolver;
-  private swarmConfig: SwarmConfig | undefined;
+  private swarmConfig: Config | undefined;
   private configLoaded = false;
 
   // Plugin name from swarm.config.json
@@ -35,7 +35,7 @@ export abstract class WaspGeneratorBase<
     this.templateResolver = new TemplateResolver(this.fileSystem);
   }
 
-  private async loadSwarmConfig(): Promise<void> {
+  private async loadConfig(): Promise<void> {
     if (this.configLoaded) return;
 
     const configManager = getConfigManager();
@@ -45,7 +45,7 @@ export abstract class WaspGeneratorBase<
   }
 
   protected async getCustomTemplateDir(): Promise<string | undefined> {
-    await this.loadSwarmConfig();
+    await this.loadConfig();
 
     return this.swarmConfig?.templateDirectory;
   }

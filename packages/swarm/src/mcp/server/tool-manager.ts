@@ -1,10 +1,10 @@
 import type { Server as MCPServer } from '@modelcontextprotocol/sdk/server';
 import { ZodType } from 'zod';
 import {
+  Generator,
+  GeneratorProvider,
   GeneratorServices,
   getGeneratorServices,
-  SwarmGenerator,
-  SwarmGeneratorProvider,
 } from '../../generator';
 import { PluginInterfaceManager } from '../../plugin';
 import { CommandMetadata, SchemaManager } from '../../schema';
@@ -54,7 +54,7 @@ export class ToolManager extends PluginInterfaceManager<MCPTool> {
    * Create an MCP tool from a generator provider
    */
   protected async createInterfaceFromProvider(
-    provider: SwarmGeneratorProvider
+    provider: GeneratorProvider
   ): Promise<MCPTool> {
     return this.createTool(provider);
   }
@@ -62,7 +62,7 @@ export class ToolManager extends PluginInterfaceManager<MCPTool> {
   /**
    * Create an MCP tool definition from a generator's schema
    */
-  private createToolDefinition(generator: SwarmGenerator): MCPToolDefinition {
+  private createToolDefinition(generator: Generator): MCPToolDefinition {
     const schema = generator.schema;
     const shape = SchemaManager.getShape(schema);
 
@@ -112,7 +112,7 @@ export class ToolManager extends PluginInterfaceManager<MCPTool> {
    * Create an MCP tool handler from a generator provider
    * Returns SDK-compatible CallToolResult format
    */
-  private createToolHandler(provider: SwarmGeneratorProvider): MCPToolHandler {
+  private createToolHandler(provider: GeneratorProvider): MCPToolHandler {
     return async (args: any) => {
       const services = this.createGeneratorServices();
       const generator = await provider.create(services);
@@ -141,7 +141,7 @@ export class ToolManager extends PluginInterfaceManager<MCPTool> {
   /**
    * Create both tool definition and handler for a generator provider
    */
-  private async createTool(provider: SwarmGeneratorProvider): Promise<MCPTool> {
+  private async createTool(provider: GeneratorProvider): Promise<MCPTool> {
     const services = this.createGeneratorServices();
     const generator = await provider.create(services);
     return {

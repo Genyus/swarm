@@ -1,4 +1,4 @@
-import type { FileSystem, SwarmGenerator } from '@ingenyus/swarm';
+import type { FileSystem, Generator } from '@ingenyus/swarm';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   createMockFeatureGen,
@@ -11,7 +11,7 @@ import { schema } from './schema';
 
 describe('ApiNamespaceGenerator', () => {
   let fs: FileSystem;
-  let featureGen: SwarmGenerator<typeof featureSchema>;
+  let featureGen: Generator<typeof featureSchema>;
   let gen: ApiNamespaceGenerator;
 
   beforeEach(async () => {

@@ -1,23 +1,19 @@
 import { ZodType } from 'zod';
 import { GeneratorServices } from './services';
-import { SwarmGenerator } from './types';
+import { Generator } from './types';
 
-export interface SwarmGeneratorProvider {
+export interface GeneratorProvider {
   schema: ZodType;
-  create: (
-    services: GeneratorServices
-  ) => SwarmGenerator | Promise<SwarmGenerator>;
+  create: (services: GeneratorServices) => Generator | Promise<Generator>;
 }
 
-interface SwarmGeneratorProviderTyped<S extends ZodType> {
+interface GeneratorProviderTyped<S extends ZodType> {
   schema: S;
-  create: (
-    services: GeneratorServices
-  ) => SwarmGenerator<S> | Promise<SwarmGenerator<S>>;
+  create: (services: GeneratorServices) => Generator<S> | Promise<Generator<S>>;
 }
 
 export function defineGeneratorProvider<S extends ZodType>(
-  provider: SwarmGeneratorProviderTyped<S>
-): SwarmGeneratorProvider {
-  return provider as unknown as SwarmGeneratorProvider;
+  provider: GeneratorProviderTyped<S>
+): GeneratorProvider {
+  return provider as unknown as GeneratorProvider;
 }
