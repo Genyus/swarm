@@ -1,5 +1,19 @@
 # @ingenyus/swarm
 
+## [0.3.4][0.3.4] - 2025-11-12
+
+### 🐞 Bug Fixes
+
+- update plugin validation ([a5e3bf0](https://github.com/genyus/swarm/commit/a5e3bf0c47e090ede439619f0ea32d40151b774e))
+
+### 🔧 Minor Improvements
+
+- simplify plugin declaration syntax ([aa79547](https://github.com/genyus/swarm/commit/aa795472b3a69c344d82e15ef4be673e62862107))
+
+Contributors: [genyus](https://github.com/genyus)
+
+[0.3.4]: https://github.com/genyus/swarm/releases/tag/v0.3.4
+
 ## [0.3.3][0.3.3] - 2025-11-11
 
 ### 🐞 Bug Fixes
