@@ -1,8 +1,0 @@
----
-"@ingenyus/swarm": patch
----
-
-- fix: update plugin validation ([a5e3bf0](https://github.com/Genyus/swarm/commit/a5e3bf0c47e090ede439619f0ea32d40151b774e))
-- refactor: simplify plugin declaration syntax ([aa79547](https://github.com/Genyus/swarm/commit/aa795472b3a69c344d82e15ef4be673e62862107))
-
-<!-- Authors: Genyus<genyus@gmail.com> -->

@@ -1,5 +1,19 @@
 # @ingenyus/swarm-wasp
 
+## [0.2.9][0.2.9] - 2025-11-12
+
+### 🔧 Minor Improvements
+
+- simplify plugin declaration syntax ([aa79547](https://github.com/genyus/swarm/commit/aa795472b3a69c344d82e15ef4be673e62862107))
+
+### 📦 Updated Dependencies
+
+- update @ingenyus/swarm to 0.3.4 ([246c377](https://github.com/genyus/swarm/commit/246c3773a307b7759930d164582af6f3eb3fda3c))
+
+Contributors: [genyus](https://github.com/genyus)
+
+[0.2.9]: https://github.com/genyus/swarm/releases/tag/v0.2.9
+
 ## [0.2.8][0.2.8] - 2025-11-11
 
 ### 🐞 Bug Fixes
