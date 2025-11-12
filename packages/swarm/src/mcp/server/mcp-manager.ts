@@ -10,7 +10,6 @@ import {
   ListToolsRequestSchema,
 } from '@modelcontextprotocol/sdk/types.js';
 import { randomUUID } from 'crypto';
-import { getCLILogger } from '../../cli/cli-logger';
 import { realFileSystem } from '../../common';
 import { getMCPLogger } from '../mcp-logger';
 import { createErrorContext, InternalError } from './errors';
@@ -24,7 +23,6 @@ export class MCPManager {
   private transport?: MCPTransport;
   private toolManager: ToolManager;
   private swarmConfigPath?: string;
-  private cliLogger = getCLILogger();
   private mcpLogger = getMCPLogger();
 
   constructor(config: MCPServerConfig, swarmConfigPath?: string) {
@@ -69,7 +67,7 @@ export class MCPManager {
       this.toolManager.setMCPServer(null);
     };
     this.mcpServer.onerror = (error: Error): void => {
-      this.cliLogger.error('MCP server error', { error: error.message });
+      this.mcpLogger.error('MCP server error', { error: error.message });
     };
   }
 
@@ -110,7 +108,7 @@ export class MCPManager {
     }
 
     try {
-      this.cliLogger.info('Starting Swarm MCP Server...');
+      this.mcpLogger.info('Starting Swarm MCP Server...');
       // Register tools before connecting
       await this.registerTools();
       this.transport = new StdioServerTransport();
@@ -118,11 +116,11 @@ export class MCPManager {
       this.toolManager.setMCPServer(this.mcpServer);
       this.state.isRunning = true;
       this.state.sessionId = randomUUID();
-      this.cliLogger.info(
+      this.mcpLogger.info(
         `Swarm MCP Server (v${this.config.version}) started successfully.`
       );
     } catch (error) {
-      this.cliLogger.error('Failed to start MCP server', {
+      this.mcpLogger.error('Failed to start MCP server', {
         error: error instanceof Error ? error.message : String(error),
       });
 
@@ -136,7 +134,7 @@ export class MCPManager {
     }
 
     try {
-      this.cliLogger.info('Stopping Swarm MCP Server...');
+      this.mcpLogger.info('Stopping Swarm MCP Server...');
 
       if (this.transport) {
         await this.transport.close();
@@ -148,9 +146,9 @@ export class MCPManager {
       this.state.transport = undefined;
       this.state.sessionId = undefined;
 
-      this.cliLogger.info('Swarm MCP Server stopped successfully');
+      this.mcpLogger.info('Swarm MCP Server stopped successfully');
     } catch (error) {
-      this.cliLogger.error('Error stopping MCP server', {
+      this.mcpLogger.error('Error stopping MCP server', {
         error: error instanceof Error ? error.message : String(error),
       });
       throw error;
