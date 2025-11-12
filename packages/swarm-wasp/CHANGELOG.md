@@ -1,5 +1,19 @@
 # @ingenyus/swarm-wasp
 
+## [0.2.10][0.2.10] - 2025-11-12
+
+### 🔧 Minor Improvements
+
+- clean up plugin directory structure ([c48a2d0](https://github.com/genyus/swarm/commit/c48a2d0911685cda2328ceab4ffeb1ed74613bcf))
+
+### 📦 Updated Dependencies
+
+- update @ingenyus/swarm to 0.3.5 ([c0932be](https://github.com/genyus/swarm/commit/c0932bea4e50aa2bef50cbbdb4809486789ad3d8))
+
+Contributors: [genyus](https://github.com/genyus)
+
+[0.2.10]: https://github.com/genyus/swarm/releases/tag/v0.2.10
+
 ## [0.2.9][0.2.9] - 2025-11-12
 
 ### 🔧 Minor Improvements
