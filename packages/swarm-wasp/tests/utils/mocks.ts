@@ -1,15 +1,12 @@
 import type {
   FileSystem,
+  Generator,
   GeneratorBase,
+  GeneratorProvider,
   GeneratorServices,
   Logger,
-  Generator,
-  GeneratorProvider,
 } from '@ingenyus/swarm';
-import {
-  defineGeneratorProvider,
-  getGeneratorServices,
-} from '@ingenyus/swarm';
+import { getGeneratorServices } from '@ingenyus/swarm';
 import { vi } from 'vitest';
 import { ZodType } from 'zod';
 
@@ -35,9 +32,7 @@ export function createMockFS(): FileSystem {
   } as FileSystem;
 }
 
-export function createMockFeatureGen<S extends ZodType>(
-  s: S
-): Generator<S> {
+export function createMockFeatureGen<S extends ZodType>(s: S): Generator<S> {
   return {
     name: 'feature',
     description: 'Mock',
@@ -70,10 +65,9 @@ export async function createTestGenerator<T extends GeneratorBase<any>>(
 ): Promise<T> {
   const mockFS = createMockFS();
   const mockLogger = createMockLogger();
-  const provider: GeneratorProvider = defineGeneratorProvider({
-    schema,
+  const provider: GeneratorProvider = {
     create: (services: GeneratorServices) => new ctor(services),
-  });
+  };
   const services = getGeneratorServices('test', mockLogger, {
     fileSystem: mockFS,
     ...overrides,

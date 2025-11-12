@@ -2,12 +2,12 @@ import path from 'node:path';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { FileSystem, toFriendlyName, validateProjectName } from '../../common';
 import {
-  defineGeneratorProvider,
+  Generator,
+  GeneratorProvider,
   GeneratorServices,
   getGeneratorServices,
 } from '../index';
 import { AppGenerator } from './app-generator';
-import { schema } from './schema';
 
 // Mock degit module
 vi.mock('degit', () => {
@@ -50,10 +50,10 @@ describe('AppGenerator', () => {
   let fs: any;
   let logger: any;
   let gen: AppGenerator;
-  const appProvider = defineGeneratorProvider({
-    schema,
-    create: (services: GeneratorServices) => new AppGenerator(services),
-  });
+  const appProvider: GeneratorProvider = {
+    create: (services: GeneratorServices): Generator<any> =>
+      new AppGenerator(services),
+  };
 
   beforeEach(async () => {
     fs = createMockFS();

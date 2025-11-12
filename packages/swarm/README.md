@@ -67,19 +67,14 @@ Swarm's plugin architecture lets you create custom generators for any project ty
 
 **Quick Example:**
 ```typescript
-import { Plugin } from '@ingenyus/swarm';
+import { createPlugin } from '@ingenyus/swarm';
+import { MyCustomGenerator } from './generators';
 
-export const myPlugin: Plugin = {
-  name: 'my-plugin',
-  version: '1.0.0',
-  description: 'My custom plugin',
-  providers: [
-    defineGeneratorProvider({
-      schema: myCustomSchema,
-      create: (services) => new MyCustomGenerator(services),
-    }),
-  ],
-};
+export const myPlugin = createPlugin(
+  'my-plugin',
+  MyCustomGenerator,
+  // Add more generator classes here
+);
 ```
 
 For detailed plugin development guidance, see:

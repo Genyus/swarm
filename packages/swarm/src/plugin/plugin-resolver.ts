@@ -200,7 +200,6 @@ export class PluginResolver {
         (provider: any) =>
           provider &&
           typeof provider === 'object' &&
-          'schema' in provider &&
           typeof provider.create === 'function'
       )
     );

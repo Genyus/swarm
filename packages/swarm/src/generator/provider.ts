@@ -1,19 +1,31 @@
-import { ZodType } from 'zod';
 import { GeneratorServices } from './services';
 import { Generator } from './types';
 
+/**
+ * Provider interface for creating a generator instances with injected services
+ */
 export interface GeneratorProvider {
-  schema: ZodType;
+  /**
+   * Create a generator instance
+   * @param services - Services to inject into the generator
+   * @returns Generator instance
+   */
   create: (services: GeneratorServices) => Generator | Promise<Generator>;
 }
 
-interface GeneratorProviderTyped<S extends ZodType> {
-  schema: S;
-  create: (services: GeneratorServices) => Generator<S> | Promise<Generator<S>>;
-}
-
-export function defineGeneratorProvider<S extends ZodType>(
-  provider: GeneratorProviderTyped<S>
-): GeneratorProvider {
-  return provider as unknown as GeneratorProvider;
+/**
+ * Creates providers for the given generator classes
+ * @param generatorClasses - Array of generator class constructors
+ * @returns Array of generator providers
+ */
+export function createProviders(
+  ...generatorClasses: Array<
+    new (services: GeneratorServices) => Generator<any>
+  >
+): Array<GeneratorProvider> {
+  return generatorClasses.map(
+    (GeneratorClass): GeneratorProvider => ({
+      create: (services) => new GeneratorClass(services),
+    })
+  );
 }

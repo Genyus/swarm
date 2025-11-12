@@ -1,25 +1,19 @@
 import { Command } from 'commander';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { z } from 'zod';
-import {
-  defineGeneratorProvider,
-  GeneratorServices,
-  Generator,
-  GeneratorProvider,
-} from '../generator';
+import { Generator, GeneratorProvider, GeneratorServices } from '../generator';
 import { CLIManager } from './cli-manager';
 
 // Mock generator provider for testing
 const createMockProvider = (name: string, schema: any): GeneratorProvider => {
-  return defineGeneratorProvider({
-    schema,
+  return {
     create: (services: GeneratorServices): Generator => ({
       name,
       description: `Generate ${name}`,
       schema,
       generate: vi.fn(),
     }),
-  });
+  };
 };
 
 describe('CommandManager', () => {
@@ -66,15 +60,14 @@ describe('CommandManager', () => {
         name: z.string(),
       });
       const generateFn = vi.fn().mockResolvedValue(undefined);
-      const provider = defineGeneratorProvider({
-        schema: testSchema,
+      const provider: GeneratorProvider = {
         create: (services: GeneratorServices): Generator => ({
           name: 'test-command',
           description: 'Generate test-command',
           schema: testSchema,
           generate: generateFn,
         }),
-      });
+      };
 
       await commandManager['createInterfaceFromProvider'](provider);
 

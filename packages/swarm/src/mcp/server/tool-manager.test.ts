@@ -1,10 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { z } from 'zod';
 import {
-  defineGeneratorProvider,
-  GeneratorServices,
   Generator,
   GeneratorProvider,
+  GeneratorServices,
 } from '../../generator';
 import { commandRegistry } from '../../schema';
 import { ToolManager } from './tool-manager';
@@ -33,24 +32,22 @@ describe('ToolManager', () => {
         entity: z.string().describe('Entity name'),
       });
       const mockProviders: GeneratorProvider[] = [
-        defineGeneratorProvider({
-          schema: apiSchema,
+        {
           create: (services: GeneratorServices): Generator => ({
             name: 'api',
             description: 'Generate API endpoint',
             schema: apiSchema,
             generate: vi.fn().mockResolvedValue(undefined),
           }),
-        }),
-        defineGeneratorProvider({
-          schema: crudSchema,
+        },
+        {
           create: (services: GeneratorServices): Generator => ({
             name: 'crud',
             description: 'Generate CRUD operations',
             schema: crudSchema,
             generate: vi.fn().mockResolvedValue(undefined),
           }),
-        }),
+        },
       ];
 
       const mockPluginManager = toolManager.getPluginManager();
@@ -87,15 +84,14 @@ describe('ToolManager', () => {
         tags: z.array(z.string()).describe('List of tags'),
         enabled: z.boolean().default(true).describe('Enable feature'),
       });
-      const mockProvider: GeneratorProvider = defineGeneratorProvider({
-        schema: testSchema,
+      const mockProvider: GeneratorProvider = {
         create: (services: GeneratorServices): Generator => ({
           name: 'test',
           description: 'Test generator',
           schema: testSchema,
           generate: vi.fn().mockResolvedValue(undefined),
         }),
-      });
+      };
 
       const mockPluginManager = toolManager.getPluginManager();
       vi.mocked(mockPluginManager.getEnabledGenerators).mockReturnValue([
@@ -146,15 +142,14 @@ describe('ToolManager', () => {
       const apiSchema = z.object({
         name: z.string(),
       });
-      const mockProvider: GeneratorProvider = defineGeneratorProvider({
-        schema: apiSchema,
+      const mockProvider: GeneratorProvider = {
         create: (services: GeneratorServices): Generator => ({
           name: 'api',
           description: 'Generate API',
           schema: apiSchema,
           generate: generateFn,
         }),
-      });
+      };
 
       const mockPluginManager = toolManager.getPluginManager();
       vi.mocked(mockPluginManager.getEnabledGenerators).mockReturnValue([
@@ -186,15 +181,14 @@ describe('ToolManager', () => {
       const apiSchema = z.object({
         name: z.string(),
       });
-      const mockProvider: GeneratorProvider = defineGeneratorProvider({
-        schema: apiSchema,
+      const mockProvider: GeneratorProvider = {
         create: (services: GeneratorServices): Generator => ({
           name: 'api',
           description: 'Generate API',
           schema: apiSchema,
           generate: generateFn,
         }),
-      });
+      };
 
       const mockPluginManager = toolManager.getPluginManager();
       vi.mocked(mockPluginManager.getEnabledGenerators).mockReturnValue([

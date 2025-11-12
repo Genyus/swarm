@@ -105,21 +105,14 @@ swarm-myframework/
 Create `src/index.ts`:
 
 ```typescript
-import { Plugin } from '@ingenyus/swarm';
-import { ComponentGenerator, componentSchema } from './generators';
+import { createPlugin } from '@ingenyus/swarm';
+import { ComponentGenerator } from './generators';
 
-export const myframework: Plugin = {
-  name: 'myframework',
-  version: '1.0.0',
-  description: 'Swarm plugin for MyFramework',
-  providers: [
-    defineGeneratorProvider({
-      schema: componentSchema,
-      create: (services) => new ComponentGenerator(services),
-    }),
-    // Add more generators here
-  ],
-};
+export const myframework = createPlugin(
+  'myframework',
+  ComponentGenerator,
+  // Add more generator classes here
+);
 ```
 
 ### Step 4: Configure Package.json
