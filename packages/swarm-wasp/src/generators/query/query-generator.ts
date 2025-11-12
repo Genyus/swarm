@@ -1,5 +1,5 @@
 import { GeneratorServices, Out } from '@ingenyus/swarm';
-import { CONFIG_TYPES } from '../../types';
+import { CONFIG_TYPES } from '../../common';
 import { OperationGeneratorBase } from '../base';
 import { schema } from './schema';
 

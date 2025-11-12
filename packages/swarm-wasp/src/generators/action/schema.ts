@@ -1,7 +1,6 @@
 import { SchemaManager, commandRegistry } from '@ingenyus/swarm';
 import { z } from 'zod';
-import { commonSchemas } from '../../common';
-import { ACTION_OPERATIONS } from '../../types';
+import { ACTION_OPERATIONS, commonSchemas } from '../../common';
 
 const validActions = Object.values(ACTION_OPERATIONS);
 const actionSchema = z

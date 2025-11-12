@@ -6,11 +6,6 @@ export const PLUGIN_NAME = 'wasp' as const;
 export const OPERATION_TYPES = ['query', 'action'] as const;
 
 /**
- * Type for valid operation types.
- */
-export type OperationType = (typeof OPERATION_TYPES)[number];
-
-/**
  * List of valid API HTTP methods.
  */
 export const API_HTTP_METHODS = [
@@ -20,11 +15,6 @@ export const API_HTTP_METHODS = [
   'PUT',
   'DELETE',
 ] as const;
-
-/**
- * Type for valid API HTTP method values.
- */
-export type ApiHttpMethod = (typeof API_HTTP_METHODS)[number];
 
 /**
  * Map of valid operations.
@@ -47,12 +37,6 @@ export const CRUD_OPERATIONS = {
 } as const;
 
 /**
- * Type for valid CRUD operation values.
- */
-export type CrudOperation =
-  (typeof CRUD_OPERATIONS)[keyof typeof CRUD_OPERATIONS];
-
-/**
  * Map of valid action operations.
  */
 export const ACTION_OPERATIONS = {
@@ -62,12 +46,6 @@ export const ACTION_OPERATIONS = {
 } as const;
 
 /**
- * Type for valid action operation values.
- */
-export type ActionOperation =
-  (typeof ACTION_OPERATIONS)[keyof typeof ACTION_OPERATIONS];
-
-/**
  * Map of valid query operations.
  */
 export const QUERY_OPERATIONS = {
@@ -75,12 +53,6 @@ export const QUERY_OPERATIONS = {
   GETALL: 'getAll',
   GETFILTERED: 'getFiltered',
 } as const;
-
-/**
- * Type for valid query operation values.
- */
-export type QueryOperation =
-  (typeof QUERY_OPERATIONS)[keyof typeof QUERY_OPERATIONS];
 
 /**
  * Maps file types to their directories.
@@ -112,8 +84,3 @@ export const CONFIG_TYPES = {
   API_NAMESPACE: 'ApiNamespace',
   CRUD: 'Crud',
 } as const;
-
-/**
- * Type for valid config type values.
- */
-export type ConfigType = (typeof CONFIG_TYPES)[keyof typeof CONFIG_TYPES];

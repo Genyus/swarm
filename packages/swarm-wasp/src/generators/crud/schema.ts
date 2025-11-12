@@ -1,7 +1,6 @@
 import { SchemaManager, commandRegistry } from '@ingenyus/swarm';
 import { z } from 'zod';
-import { commonSchemas } from '../../common';
-import { CRUD_OPERATIONS } from '../../types';
+import { commonSchemas, CRUD_OPERATIONS } from '../../common';
 
 const validCrudOperations = Object.values(CRUD_OPERATIONS);
 const publicOperations = getCrudOperationsArray();

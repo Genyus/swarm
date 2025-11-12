@@ -8,11 +8,12 @@ import {
 import path from 'node:path';
 import { ZodType } from 'zod';
 import {
+  ConfigType,
   ensureDirectoryExists,
   getFeatureDir,
   normaliseFeaturePath,
+  TYPE_DIRECTORIES,
 } from '../../common';
-import { ConfigType, TYPE_DIRECTORIES } from '../../types';
 import { FeatureGenerator } from '../feature/feature-generator';
 import { schema as featureSchema } from '../feature/schema';
 import { WaspGeneratorBase } from './wasp-generator.base';

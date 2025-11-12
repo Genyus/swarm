@@ -1,7 +1,6 @@
 import { GeneratorServices, Out, toCamelCase } from '@ingenyus/swarm';
 import path from 'node:path';
-import { ensureDirectoryExists } from '../../common';
-import { CONFIG_TYPES } from '../../types';
+import { CONFIG_TYPES, ensureDirectoryExists } from '../../common';
 import { ComponentGeneratorBase } from '../base';
 import { schema } from './schema';
 

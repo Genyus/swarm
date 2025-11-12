@@ -5,8 +5,13 @@ import {
   toCamelCase,
   toPascalCase,
 } from '@ingenyus/swarm';
-import { getEntityMetadata, needsPrismaImport } from '../../common';
-import { CONFIG_TYPES, CrudOperation, EntityMetadata } from '../../types';
+import {
+  CONFIG_TYPES,
+  CrudOperation,
+  EntityMetadata,
+  getEntityMetadata,
+  needsPrismaImport,
+} from '../../common';
 import { OperationGeneratorBase } from '../base';
 import { schema } from './schema';
 

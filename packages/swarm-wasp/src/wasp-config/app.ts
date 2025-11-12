@@ -19,7 +19,7 @@ import {
   RouteConfig,
   App as WaspApp,
 } from 'wasp-config';
-import { ApiHttpMethod } from '../types';
+import { ApiHttpMethod } from '../common';
 
 // Type definitions for helper method options
 interface RouteOptions {

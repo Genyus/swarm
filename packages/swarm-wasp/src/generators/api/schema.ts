@@ -1,7 +1,6 @@
 import { commandRegistry } from '@ingenyus/swarm';
 import { z } from 'zod';
-import { commonSchemas } from '../../common';
-import { API_HTTP_METHODS } from '../../types';
+import { API_HTTP_METHODS, commonSchemas } from '../../common';
 
 const validHttpMethods = API_HTTP_METHODS.map((method) => `${method}`);
 

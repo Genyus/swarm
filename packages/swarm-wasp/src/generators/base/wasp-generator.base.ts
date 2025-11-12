@@ -6,8 +6,7 @@ import {
   TemplateResolver,
 } from '@ingenyus/swarm';
 import { ZodType } from 'zod';
-import { TemplateUtility } from '../../common';
-import { PLUGIN_NAME } from '../../types';
+import { PLUGIN_NAME, TemplateUtility } from '../../common';
 import { WaspConfigGenerator } from '../config';
 
 /**

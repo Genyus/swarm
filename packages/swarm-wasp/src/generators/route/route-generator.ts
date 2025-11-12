@@ -5,8 +5,7 @@ import {
   toCamelCase,
   toPascalCase,
 } from '@ingenyus/swarm';
-import { getRouteNameFromPath } from '../../common';
-import { CONFIG_TYPES } from '../../types';
+import { CONFIG_TYPES, getRouteNameFromPath } from '../../common';
 import { ComponentGeneratorBase } from '../base';
 import { schema } from './schema';
 

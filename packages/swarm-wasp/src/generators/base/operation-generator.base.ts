@@ -6,7 +6,10 @@ import {
 } from '@ingenyus/swarm';
 import { ZodType } from 'zod';
 import {
+  ActionOperation,
+  CONFIG_TYPES,
   copyDirectory,
+  EntityMetadata,
   generateIntersectionType,
   generateJsonTypeHandling,
   generateOmitType,
@@ -19,17 +22,12 @@ import {
   getOptionalFields,
   getRequiredFields,
   needsPrismaImport,
-} from '../../common';
-import {
-  ActionOperation,
-  CONFIG_TYPES,
-  EntityMetadata,
   OPERATION_TYPES,
   OPERATIONS,
   OperationType,
   QueryOperation,
   TYPE_DIRECTORIES,
-} from '../../types';
+} from '../../common';
 import { ComponentGeneratorBase } from './component-generator.base';
 
 /**

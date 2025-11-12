@@ -1,4 +1,5 @@
 import { createPlugin } from '@ingenyus/swarm';
+import { PLUGIN_NAME } from './common';
 import {
   ActionGenerator,
   ApiGenerator,
@@ -8,8 +9,7 @@ import {
   JobGenerator,
   QueryGenerator,
   RouteGenerator,
-} from '../generators';
-import { PLUGIN_NAME } from '../types';
+} from './generators';
 
 export const wasp = createPlugin(
   PLUGIN_NAME,

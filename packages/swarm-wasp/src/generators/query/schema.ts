@@ -1,7 +1,6 @@
 import { SchemaManager, commandRegistry } from '@ingenyus/swarm';
 import { z } from 'zod';
-import { commonSchemas } from '../../common';
-import { QUERY_OPERATIONS } from '../../types';
+import { commonSchemas, QUERY_OPERATIONS } from '../../common';
 
 const validQueries = Object.values(QUERY_OPERATIONS);
 const querySchema = z

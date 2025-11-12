@@ -1,18 +1,36 @@
 import {
-  Break,
   Field,
   getSchema,
-  Property,
   type Attribute,
   type AttributeArgument,
   type Block,
-  type Comment,
-  type KeyValue,
   type Model,
 } from '@mrleebo/prisma-ast';
 import fs from 'node:fs';
 import path from 'node:path';
-import type { EntityMetadata } from '../types';
+
+/**
+ * Represents a field in a Prisma model.
+ */
+interface EntityField {
+  name: string;
+  type: string;
+  tsType: string;
+  isRequired: boolean;
+  isId: boolean;
+  isUnique: boolean;
+  hasDefaultValue: boolean;
+  isGenerated: boolean;
+  isUpdatedAt: boolean;
+}
+
+/**
+ * Represents metadata for a Prisma entity/model.
+ */
+export interface EntityMetadata {
+  name: string;
+  fields: Readonly<EntityField[]>;
+}
 
 /**
  * Gets metadata about a Prisma model.

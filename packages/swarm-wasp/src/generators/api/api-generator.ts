@@ -4,8 +4,11 @@ import {
   toCamelCase,
   toPascalCase,
 } from '@ingenyus/swarm';
-import { ensureDirectoryExists, getFeatureImportPath } from '../../common';
-import { CONFIG_TYPES } from '../../types';
+import {
+  CONFIG_TYPES,
+  ensureDirectoryExists,
+  getFeatureImportPath,
+} from '../../common';
 import { ComponentGeneratorBase } from '../base';
 import { schema } from './schema';
 
