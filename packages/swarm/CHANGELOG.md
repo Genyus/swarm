@@ -1,5 +1,15 @@
 # @ingenyus/swarm
 
+## [0.3.5][0.3.5] - 2025-11-12
+
+### 🔧 Minor Improvements
+
+- replace CLI logging from MCP manager ([02bb20c](https://github.com/genyus/swarm/commit/02bb20c7e0638fb0dc0ccc42e3d29bec84d80159))
+
+Contributors: [genyus](https://github.com/genyus)
+
+[0.3.5]: https://github.com/genyus/swarm/releases/tag/v0.3.5
+
 ## [0.3.4][0.3.4] - 2025-11-12
 
 ### 🐞 Bug Fixes
