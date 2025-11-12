@@ -70,14 +70,10 @@ export class PluginManager {
 
           if (plugin) {
             await this.registerPlugin(plugin);
-          } else {
-            console.warn(
-              `Could not resolve plugin '${pluginConfig.import}' from '${pluginConfig.from}'`
-            );
           }
         } catch (error) {
           console.warn(
-            `Failed to load plugin '${pluginConfig.import}' from '${pluginConfig.from}':`,
+            `Failed to load plugin '${pluginConfig.import}' from '${pluginConfig.from}' in ${applicationRoot}:`,
             error
           );
         }

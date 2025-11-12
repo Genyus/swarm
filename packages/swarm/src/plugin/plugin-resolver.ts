@@ -50,12 +50,20 @@ export class PluginResolver {
       const plugin = pluginModule[importName];
 
       if (!plugin) {
-        console.warn(`Plugin '${importName}' not found in source '${from}'`);
+        console.warn(`Module '${importName}' from '${from}' not found`);
 
         return null;
       }
 
-      return this.validatePlugin(plugin) ?? null;
+      if (!this.validatePlugin(plugin)) {
+        console.warn(
+          `Module '${importName}' from '${from}' is not a valid Plugin`
+        );
+
+        return null;
+      }
+
+      return plugin;
     } catch (error) {
       console.error(
         `Failed to resolve plugin '${importName}' from '${from}':`,
@@ -182,16 +190,19 @@ export class PluginResolver {
    * @param plugin Plugin object to validate
    * @returns Validated plugin or null
    */
-  private validatePlugin(plugin: any): Plugin | null {
-    if (
-      plugin &&
+  private validatePlugin(plugin: any): plugin is Plugin {
+    return (
+      plugin !== null &&
       typeof plugin === 'object' &&
-      'name' in plugin &&
-      'generators' in plugin &&
-      Array.isArray(plugin.generators)
-    ) {
-      return plugin as Plugin;
-    }
-    return null;
+      typeof plugin.name === 'string' &&
+      Array.isArray(plugin.providers) &&
+      plugin.providers.every(
+        (provider: any) =>
+          provider &&
+          typeof provider === 'object' &&
+          'schema' in provider &&
+          typeof provider.create === 'function'
+      )
+    );
   }
 }
