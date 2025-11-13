@@ -1,5 +1,15 @@
 # @ingenyus/swarm
 
+## [0.3.6][0.3.6] - 2025-11-13
+
+### 🔧 Minor Improvements
+
+- improve MCP logging ([4a95159](https://github.com/genyus/swarm/commit/4a9515982f45fbe11591378a503afd3d91b9a671))
+
+Contributors: [genyus](https://github.com/genyus)
+
+[0.3.6]: https://github.com/genyus/swarm/releases/tag/v0.3.6
+
 ## [0.3.5][0.3.5] - 2025-11-12
 
 ### 🔧 Minor Improvements
