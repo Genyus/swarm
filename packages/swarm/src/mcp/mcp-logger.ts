@@ -70,7 +70,9 @@ export class MCPLogger implements Logger {
       ) {
         // Fallback to stderr if method doesn't exist
         const logMessage = this.formatMessage(level, message, context);
+
         process.stderr.write(`${logMessage}\n`);
+
         return;
       }
 
@@ -101,7 +103,9 @@ export class MCPLogger implements Logger {
       // If notification fails, fallback to stderr to ensure message is not lost
       // This can happen if the server isn't fully ready or if sendLoggingMessage fails
       const logMessage = this.formatMessage(level, message, context);
+
       process.stderr.write(`${logMessage}\n`);
+
       return;
     }
   }
@@ -111,9 +115,9 @@ export class MCPLogger implements Logger {
     message: string,
     context?: Record<string, unknown>
   ): string {
-    const timestamp = new Date().toISOString();
     const contextStr = context ? ` ${JSON.stringify(context)}` : '';
-    return `[${timestamp}] [${level.toUpperCase()}] ${message}${contextStr}`;
+
+    return `[${level}] ${message}${contextStr}`;
   }
 
   setMCPServer(mcpServer: MCPServer | null): void {
@@ -140,5 +144,6 @@ export function getMCPLogger(
   logLevel?: LogLevel
 ): MCPLogger {
   const level = logLevel || getConfigManager().getLogLevel();
+
   return new MCPLogger(mcpServer || null, level);
 }

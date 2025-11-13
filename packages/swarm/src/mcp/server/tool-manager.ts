@@ -104,7 +104,8 @@ export class ToolManager extends PluginInterfaceManager<MCPTool> {
    * Consolidated helper to avoid duplication
    */
   private createGeneratorServices(): GeneratorServices {
-    const logger = getMCPLogger(this.mcpServer);
+    const logger = getMCPLogger(this.mcpServer, 'error');
+
     return getGeneratorServices('mcp', logger);
   }
 

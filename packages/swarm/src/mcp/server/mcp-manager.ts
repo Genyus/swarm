@@ -23,7 +23,7 @@ export class MCPManager {
   private transport?: MCPTransport;
   private toolManager: ToolManager;
   private swarmConfigPath?: string;
-  private mcpLogger = getMCPLogger();
+  private mcpLogger = getMCPLogger(null, 'error');
 
   constructor(config: MCPServerConfig, swarmConfigPath?: string) {
     this.swarmConfigPath = swarmConfigPath;

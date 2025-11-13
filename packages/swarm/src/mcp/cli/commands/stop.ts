@@ -18,14 +18,11 @@ export function createStopCommand(serverManager: ServerManager): Command {
           return;
         }
 
-        logger.info('Stopping Swarm MCP server...');
-
         if (options.force) {
           logger.info('Force stopping server...');
         }
 
         await serverManager.stop();
-        logger.info('Server stopped successfully');
       } catch (error) {
         const errorMessage =
           error instanceof Error ? error.message : String(error);
