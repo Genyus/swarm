@@ -1,5 +1,15 @@
 # @ingenyus/swarm
 
+## [0.3.7][0.3.7] - 2025-11-13
+
+### 🔧 Minor Improvements
+
+- consolidate package discovery logic ([5bf3590](https://github.com/genyus/swarm/commit/5bf3590551e1581d82978ee1ae943aaa638e22f2))
+
+Contributors: [genyus](https://github.com/genyus)
+
+[0.3.7]: https://github.com/genyus/swarm/releases/tag/v0.3.7
+
 ## [0.3.6][0.3.6] - 2025-11-13
 
 ### 🔧 Minor Improvements
