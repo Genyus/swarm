@@ -5,6 +5,8 @@ import {
   DEFAULT_CONFIG_FILE,
   DEFAULT_CUSTOM_TEMPLATES_DIR,
   LogLevel,
+  findPackageJson,
+  hasWorkspaceConfig,
 } from '../common';
 
 /**
@@ -111,9 +113,9 @@ class ConfigManager {
     // Always start from process.cwd() when no startDir is provided
     // This ensures we search from the actual project directory where the command was invoked,
     // not from where the module is installed (which can be in npx cache or node_modules)
-    let currentDir: string = startDir || process.cwd();
-
-    const rootDir = path.parse(currentDir).root;
+    const searchStartDir = startDir || process.cwd();
+    const rootDir = path.parse(searchStartDir).root;
+    let currentDir = searchStartDir;
 
     while (currentDir !== rootDir) {
       const packageJsonPath = path.join(currentDir, 'package.json');
@@ -125,19 +127,22 @@ class ConfigManager {
       }
 
       if (fs.existsSync(packageJsonPath)) {
-        try {
-          const packageJson = JSON.parse(
-            fs.readFileSync(packageJsonPath, 'utf8')
-          );
-          if (packageJson.name && !currentDir.includes('node_modules')) {
-            // Check if this is a monorepo root by looking for workspace configuration
-            const hasWorkspaceConfig =
-              fs.existsSync(path.join(currentDir, 'pnpm-workspace.yaml')) ||
-              fs.existsSync(path.join(currentDir, 'lerna.json')) ||
-              (packageJson.workspaces && packageJson.workspaces.length > 0);
+        if (currentDir.includes('node_modules')) {
+          currentDir = path.dirname(currentDir);
 
-            if (hasWorkspaceConfig) {
-              return currentDir; // This is likely the monorepo root
+          continue;
+        }
+
+        try {
+          const packageResult = findPackageJson(currentDir, {
+            returnFirst: true,
+          });
+
+          if (packageResult && packageResult.directory === currentDir) {
+            const { packageJson } = packageResult;
+
+            if (packageJson.name && hasWorkspaceConfig(currentDir)) {
+              return currentDir;
             }
 
             if (path.dirname(currentDir) === rootDir) {

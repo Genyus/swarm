@@ -1,6 +1,6 @@
-import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { findPackageJson } from './package-utils';
 
 let cachedVersion: string | null = null;
 
@@ -13,17 +13,19 @@ export function getVersion(): string {
     return cachedVersion;
   }
 
-  const currentDir = path.dirname(fileURLToPath(import.meta.url));
-  const packageJsonPath = path.resolve(currentDir, '../../../package.json');
+  const currentFile = fileURLToPath(import.meta.url);
+  const currentDir = path.dirname(currentFile);
+  const result = findPackageJson(currentDir, {
+    packageName: '@ingenyus/swarm',
+  });
 
-  try {
-    const raw = readFileSync(packageJsonPath, 'utf8');
-    const pkg = JSON.parse(raw) as { version?: string };
-    cachedVersion = pkg.version ?? '0.1.0';
-  } catch (err) {
-    console.error(err);
+  if (!result) {
     cachedVersion = '0.1.0';
+
+    return cachedVersion;
   }
+
+  cachedVersion = result.packageJson.version ?? '0.1.0';
 
   return cachedVersion;
 }

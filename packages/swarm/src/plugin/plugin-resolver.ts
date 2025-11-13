@@ -1,5 +1,6 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
+import { findPackageDirectory } from '../common/package-utils';
 import { Plugin } from './types';
 
 /**
@@ -141,21 +142,13 @@ export class PluginResolver {
           path.join(applicationRoot, 'package.json')
         );
         const resolvedPath = require.resolve(packageName);
-        let packageDir = path.dirname(resolvedPath);
+        const packageDir = findPackageDirectory(
+          path.dirname(resolvedPath),
+          packageName
+        );
 
-        while (packageDir !== path.dirname(packageDir)) {
-          const packageJsonPath = path.join(packageDir, 'package.json');
-
-          if (fs.existsSync(packageJsonPath)) {
-            const packageJsonContent = fs.readFileSync(packageJsonPath, 'utf8');
-            const packageJson = JSON.parse(packageJsonContent);
-
-            if (packageJson.name === packageName) {
-              return packageDir;
-            }
-          }
-
-          packageDir = path.dirname(packageDir);
+        if (packageDir) {
+          return packageDir;
         }
       } catch (resolveError) {
         // Fall through to manual resolution
