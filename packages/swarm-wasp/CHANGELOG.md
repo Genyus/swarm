@@ -1,11 +1,30 @@
 # @ingenyus/swarm-wasp
 
+## [0.3.0][0.3.0] - 2025-11-14
+
+### Minor Changes
+
+### 🎉 New Features
+
+- support Standard Schemas ([dd6d209](https://github.com/genyus/swarm/commit/dd6d2092343ee1d97637e0d0411ad5646a2eb7a7))
+
+### 🐞 Bug Fixes
+
+- enable unscheduled jobs ([e66fe23](https://github.com/genyus/swarm/commit/e66fe2300545a791ac936d0af3d99f7317a3b893))
+
+### 📦 Updated Dependencies
+
+- update @ingenyus/swarm to 0.4.0 ([daa4f94](https://github.com/genyus/swarm/commit/daa4f943969e253fc6715f109bde7ef43dcb5283))
+
+Contributors: [genyus](https://github.com/genyus)
+
+[0.3.0]: https://github.com/genyus/swarm/releases/tag/%40ingenyus%2Fswarm-wasp%400.3.0
+
 ## [0.2.12][0.2.12] - 2025-11-13
 
 ### 📦 Updated Dependencies
 
 - update @ingenyus/swarm to 0.3.7 ([59c6111](https://github.com/genyus/swarm/commit/59c611179ca4cddad8382904a292217b051d333c))
-
 
 [0.2.12]: https://github.com/genyus/swarm/releases/tag/v0.2.12
 
@@ -190,4 +209,4 @@ Contributors: [Genyus](https://github.com/Genyus)
 
 Contributors: [Genyus](https://github.com/Genyus)
 
-[0.2.0]: https://github.com/genyus/swarm/releases/tag/v0.2.0
+[0.2.0]: https://github.com/genyus/swarm/releases/tag/%40ingenyus%2Fswarm-wasp%400.2.0
