@@ -1,5 +1,17 @@
 # @ingenyus/swarm
 
+## [0.4.0][0.4.0] - 2025-11-14
+
+### Minor Changes
+
+### 🎉 New Features
+
+- support Standard Schemas ([dd6d209](https://github.com/genyus/swarm/commit/dd6d2092343ee1d97637e0d0411ad5646a2eb7a7))
+
+Contributors: [genyus](https://github.com/genyus)
+
+[0.4.0]: https://github.com/genyus/swarm/releases/tag/%40ingenyus%2Fswarm%400.4.0
+
 ## [0.3.7][0.3.7] - 2025-11-13
 
 ### 🔧 Minor Improvements
@@ -161,4 +173,4 @@ Contributors: [Genyus](https://github.com/Genyus)
 
 Contributors: [Genyus](https://github.com/Genyus)
 
-[0.2.0]: https://github.com/genyus/swarm/releases/tag/v0.2.0
+[0.2.0]: https://github.com/genyus/swarm/releases/tag/%40ingenyus%2Fswarm%400.2.0

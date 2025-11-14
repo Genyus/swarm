@@ -1,7 +1,7 @@
 {
   "name": "@ingenyus/swarm-wasp",
   "type": "module",
-  "version": "0.2.12",
+  "version": "0.3.0",
   "description": "Wasp-specific plugins for Swarm - Feature generators, commands, MCP tools, and enhanced Wasp configuration for Wasp development",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
