@@ -75,7 +75,7 @@ export class JobGenerator extends ComponentGeneratorBase<
   ) {
     const {
       entities = [],
-      cron = '0 0 * * *',
+      cron = '',
       args: executionArgs = '{}',
       force = false,
     } = args;

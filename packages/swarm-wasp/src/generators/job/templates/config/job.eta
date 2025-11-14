@@ -1,5 +1,7 @@
     .addJob(feature, "<%=jobName%>", {
+<%- if (cron !== '') { %>
       cron: "<%=cron%>",
+<%- } %>
 <%- if (args !== '{}') { %>
       args: <%=args%>,
 <%- } %>
