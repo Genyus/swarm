@@ -74,6 +74,14 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
+      - name: Format Release PR
+        if: ${{ steps.changesets.outputs.pullRequestNumber != '' }}
+        env:
+          PR_NUMBER: ${{ steps.changesets.outputs.pullRequestNumber }}
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: node .github/scripts/format-release-pr.js
+
       - name: Update Subrepo Dependencies
         if: steps.changesets.outputs.published == 'true'
         run: node .github/scripts/update-subrepo-deps.js
