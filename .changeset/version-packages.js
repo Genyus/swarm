@@ -130,16 +130,33 @@ const packages = fs
 
 (async () => {
   for (const pkg of packages) {
-    const changelogPath = path.join(packagesDir, pkg, 'CHANGELOG.md');
+    const pkgDir = path.join(packagesDir, pkg);
+    const changelogPath = path.join(pkgDir, 'CHANGELOG.md');
+
     if (!fs.existsSync(changelogPath)) continue;
+
+    let packageName = pkg;
+    const pkgJsonPath = path.join(pkgDir, 'package.json');
+
+    if (fs.existsSync(pkgJsonPath)) {
+      try {
+        const pkgJson = JSON.parse(fs.readFileSync(pkgJsonPath, 'utf8'));
+
+        if (pkgJson.name) {
+          packageName = pkgJson.name;
+        }
+      } catch {
+        // Ignore malformed package.json
+      }
+    }
 
     let content = fs.readFileSync(changelogPath, 'utf8');
 
-    await processChangelog(changelogPath, content, repo);
+    await processChangelog(changelogPath, content, repo, packageName);
   }
 })();
 
-async function processChangelog(changelogPath, content, repo) {
+async function processChangelog(changelogPath, content, repo, packageName) {
   content = content.replace(/^### Patch Changes\s*\n\s*/gm, '');
   content = content.replace(
     /\n\n(\[[\d.]+\]: https:\/\/github\.com\/[^\s]+(?:\n\[[\d.]+\]: https:\/\/github\.com\/[^\s]+)*)\n*$/g,
@@ -153,10 +170,11 @@ async function processChangelog(changelogPath, content, repo) {
         return m;
       }
 
+      const tag = `${packageName}@${version}`;
       let date = new Date().toISOString().split('T')[0];
       try {
         const tagDate = execSync(
-          `git log -1 --format=%ai v${version} 2>/dev/null || git log -1 --format=%ai 2>/dev/null`,
+          `git log -1 --format=%ai ${tag} 2>/dev/null || git log -1 --format=%ai 2>/dev/null`,
           { encoding: 'utf8' }
         ).trim();
         if (tagDate) date = new Date(tagDate).toISOString().split('T')[0];
@@ -267,7 +285,10 @@ async function processChangelog(changelogPath, content, repo) {
       }
 
       if (!foundReference) {
-        const referenceLink = `[${version}]: https://github.com/${repo}/releases/tag/v${version}`;
+        const tag = `${packageName}@${version}`;
+        const referenceLink = `[${version}]: https://github.com/${repo}/releases/tag/${encodeURIComponent(
+          tag
+        )}`;
         newLines.push('');
         newLines.push(referenceLink);
         newLines.push('');
