@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /* eslint-disable no-undef */
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
 
 const prNumber = process.env.PR_NUMBER;
 const repo = process.env.GITHUB_REPOSITORY;
