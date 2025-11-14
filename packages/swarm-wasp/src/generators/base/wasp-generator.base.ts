@@ -2,10 +2,10 @@ import {
   Config,
   GeneratorBase,
   GeneratorServices,
+  StandardSchemaV1,
   getConfigManager,
   TemplateResolver,
 } from '@ingenyus/swarm';
-import { ZodType } from 'zod';
 import { PLUGIN_NAME, TemplateUtility } from '../../common';
 import { WaspConfigGenerator } from '../config';
 
@@ -13,7 +13,7 @@ import { WaspConfigGenerator } from '../config';
  * Abstract base class for all Wasp generators
  */
 export abstract class WaspGeneratorBase<
-  S extends ZodType,
+  S extends StandardSchemaV1,
 > extends GeneratorBase<S> {
   protected configGenerator: WaspConfigGenerator;
   protected templateUtility: TemplateUtility;

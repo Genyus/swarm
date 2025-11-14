@@ -1,5 +1,4 @@
 import type { Server as MCPServer } from '@modelcontextprotocol/sdk/server';
-import { ZodType } from 'zod';
 import {
   Generator,
   GeneratorProvider,
@@ -7,7 +6,12 @@ import {
   getGeneratorServices,
 } from '../../generator';
 import { PluginInterfaceManager } from '../../plugin';
-import { CommandMetadata, SchemaManager } from '../../schema';
+import {
+  SchemaFieldMetadata,
+  SchemaManager,
+  StandardSchemaV1,
+  standardValidate,
+} from '../../schema';
 import { getMCPLogger } from '../mcp-logger';
 
 /**
@@ -73,8 +77,7 @@ export class ToolManager extends PluginInterfaceManager<MCPTool> {
     const properties: Record<string, any> = {};
     const required: string[] = [];
 
-    Object.keys(shape).forEach((fieldName) => {
-      const fieldSchema = shape[fieldName] as ZodType;
+    Object.entries(shape).forEach(([fieldName, fieldSchema]) => {
       const metadata = SchemaManager.getCommandMetadata(fieldSchema);
       const isRequired = SchemaManager.isFieldRequired(fieldSchema);
 
@@ -82,7 +85,7 @@ export class ToolManager extends PluginInterfaceManager<MCPTool> {
         required.push(fieldName);
       }
 
-      properties[fieldName] = this.convertZodToJSONSchema(
+      properties[fieldName] = this.convertFieldToJSONSchema(
         fieldSchema,
         metadata
       );
@@ -117,7 +120,7 @@ export class ToolManager extends PluginInterfaceManager<MCPTool> {
     return async (args: any) => {
       const services = this.createGeneratorServices();
       const generator = await provider.create(services);
-      const validatedArgs = generator.schema.parse(args);
+      const validatedArgs = await this.validateArgs(generator.schema, args);
 
       await generator.generate(validatedArgs);
 
@@ -152,14 +155,14 @@ export class ToolManager extends PluginInterfaceManager<MCPTool> {
   }
 
   /**
-   * Convert a Zod schema to JSON Schema format
+   * Convert schema metadata to JSON Schema format
    */
-  private convertZodToJSONSchema(
-    fieldSchema: ZodType,
-    metadata?: CommandMetadata
+  private convertFieldToJSONSchema(
+    fieldSchema: SchemaFieldMetadata,
+    metadata?: SchemaFieldMetadata
   ): Record<string, any> {
     const typeName = SchemaManager.getFieldTypeName(fieldSchema);
-    const description = fieldSchema.meta()?.description || '';
+    const description = metadata?.description || '';
 
     switch (typeName) {
       case 'string':
@@ -167,18 +170,27 @@ export class ToolManager extends PluginInterfaceManager<MCPTool> {
           type: 'string',
           description,
           ...(metadata?.examples && { examples: metadata.examples }),
+          ...(metadata?.defaultValue !== undefined && {
+            default: metadata.defaultValue,
+          }),
         };
 
       case 'number':
         return {
           type: 'number',
           description,
+          ...(metadata?.defaultValue !== undefined && {
+            default: metadata.defaultValue,
+          }),
         };
 
       case 'boolean':
         return {
           type: 'boolean',
           description,
+          ...(metadata?.defaultValue !== undefined && {
+            default: metadata.defaultValue,
+          }),
         };
 
       case 'array': {
@@ -187,9 +199,12 @@ export class ToolManager extends PluginInterfaceManager<MCPTool> {
         return {
           type: 'array',
           items: elementSchema
-            ? this.convertZodToJSONSchema(elementSchema)
+            ? this.convertFieldToJSONSchema(elementSchema, elementSchema)
             : { type: 'string' },
           description,
+          ...(metadata?.defaultValue !== undefined && {
+            default: metadata.defaultValue,
+          }),
         };
       }
 
@@ -200,58 +215,46 @@ export class ToolManager extends PluginInterfaceManager<MCPTool> {
           type: 'string',
           enum: values || [],
           description,
+          ...(metadata?.defaultValue !== undefined && {
+            default: metadata.defaultValue,
+          }),
         };
-      }
-
-      case 'optional': {
-        const innerType = SchemaManager.getInnerType(fieldSchema);
-
-        if (innerType) {
-          const innerMetadata = SchemaManager.getCommandMetadata(innerType);
-          const innerSchema = this.convertZodToJSONSchema(
-            innerType,
-            innerMetadata || metadata
-          );
-
-          return {
-            ...innerSchema,
-            description:
-              description ||
-              innerType.meta()?.description ||
-              innerSchema.description,
-          };
-        }
-
-        return { type: 'string', description };
-      }
-
-      case 'default': {
-        const defaultInfo = SchemaManager.getDefaultInnerType(fieldSchema);
-
-        if (defaultInfo) {
-          const innerSchema = this.convertZodToJSONSchema(
-            defaultInfo.innerType
-          );
-
-          return {
-            ...innerSchema,
-            description:
-              description ||
-              defaultInfo.innerType.meta()?.description ||
-              innerSchema.description,
-            default: defaultInfo.defaultValue,
-          };
-        }
-
-        return { type: 'string', description };
       }
 
       default:
         return {
           type: 'string',
           description,
+          ...(metadata?.defaultValue !== undefined && {
+            default: metadata.defaultValue,
+          }),
         };
     }
+  }
+
+  private async validateArgs(schema: StandardSchemaV1, rawArgs: unknown) {
+    const result = await standardValidate(schema, rawArgs as any);
+    if (result.issues) {
+      const message = result.issues
+        .map((issue) => `${issue.message}${this.formatIssuePath(issue.path)}`)
+        .join('\n');
+      throw new Error(message);
+    }
+    return result.value;
+  }
+
+  private formatIssuePath(
+    path?: ReadonlyArray<PropertyKey | { key: PropertyKey }>
+  ): string {
+    if (!path || path.length === 0) return '';
+    const rendered = path
+      .map((segment) =>
+        typeof segment === 'object' && 'key' in segment
+          ? String(segment.key)
+          : String(segment)
+      )
+      .join('.');
+    return rendered ? ` (${rendered})` : '';
   }
 
   /**

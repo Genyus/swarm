@@ -1,9 +1,19 @@
-import { z } from 'zod';
-import { commonSchemas } from '../../common';
+import { registerSchemaMetadata } from '@ingenyus/swarm';
+import { z } from 'zod/v4';
+import { commonFieldMetadata, commonSchemas } from '../../common';
 
-export const schema = z.object({
+const baseSchema = z.object({
   feature: commonSchemas.feature,
   name: commonSchemas.name,
   path: commonSchemas.path,
   force: commonSchemas.force,
+});
+
+export const schema = registerSchemaMetadata(baseSchema, {
+  fields: {
+    feature: commonFieldMetadata.feature,
+    name: commonFieldMetadata.name,
+    path: commonFieldMetadata.path,
+    force: commonFieldMetadata.force,
+  },
 });

@@ -1,10 +1,10 @@
 import {
+  StandardSchemaV1,
   capitalise,
   getPlural,
   handleFatalError,
   toPascalCase,
 } from '@ingenyus/swarm';
-import { ZodType } from 'zod';
 import {
   ActionOperation,
   CONFIG_TYPES,
@@ -45,7 +45,7 @@ interface OperationConfigEntry {
  * both OperationGenerator and CrudGenerator.
  */
 export abstract class OperationGeneratorBase<
-  S extends ZodType,
+  S extends StandardSchemaV1,
   TConfig extends
     | typeof CONFIG_TYPES.ACTION
     | typeof CONFIG_TYPES.QUERY

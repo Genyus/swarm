@@ -1,6 +1,10 @@
-import { SchemaManager, commandRegistry } from '@ingenyus/swarm';
-import { z } from 'zod';
-import { ACTION_OPERATIONS, commonSchemas } from '../../common';
+import { SchemaManager, registerSchemaMetadata } from '@ingenyus/swarm';
+import { z } from 'zod/v4';
+import {
+  ACTION_OPERATIONS,
+  commonFieldMetadata,
+  commonSchemas,
+} from '../../common';
 
 const validActions = Object.values(ACTION_OPERATIONS);
 const actionSchema = z
@@ -11,26 +15,38 @@ const actionSchema = z
     z.enum(ACTION_OPERATIONS, {
       message: `Invalid action. Must be one of: ${validActions.join(', ')}`,
     })
-  )
-  .meta({ description: 'The action operation to generate' })
-  .register(commandRegistry, {
-    shortName: 'o',
-    examples: validActions,
-    helpText: `Available actions: ${validActions.join(', ')}`,
-  });
+  );
 
-export const schema = z.object({
+const baseSchema = z.object({
   feature: commonSchemas.feature,
   operation: actionSchema,
   dataType: commonSchemas.dataType,
-  name: commonSchemas.name
-    .optional()
-    .meta({
-      ...(commonSchemas.name.meta() ?? {}),
-      description: `${commonSchemas.name.meta()?.description ?? ''} (optional)`,
-    })
-    .register(commandRegistry, commandRegistry.get(commonSchemas.name) ?? {}),
+  name: commonSchemas.name.optional(),
   entities: commonSchemas.entities,
   force: commonSchemas.force,
   auth: commonSchemas.auth,
+});
+
+export const schema = registerSchemaMetadata(baseSchema, {
+  fields: {
+    feature: commonFieldMetadata.feature,
+    operation: {
+      type: 'enum',
+      required: true,
+      description: 'The action operation to generate',
+      shortName: 'o',
+      examples: validActions,
+      helpText: `Available actions: ${validActions.join(', ')}`,
+      enumValues: validActions,
+    },
+    dataType: commonFieldMetadata.dataType,
+    name: {
+      ...commonFieldMetadata.name,
+      required: false,
+      description: `${commonFieldMetadata.name.description} (optional)`,
+    },
+    entities: commonFieldMetadata.entities,
+    force: commonFieldMetadata.force,
+    auth: commonFieldMetadata.auth,
+  },
 });

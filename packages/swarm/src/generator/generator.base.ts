@@ -1,15 +1,25 @@
 import path from 'node:path';
-import { core, ZodError, ZodType } from 'zod';
 import { FileSystem } from '../common';
 import { Logger } from '../common/logger';
-import { In, Out, SchemaManager, ValidationResult } from '../schema';
+import {
+  In,
+  Out,
+  SchemaFieldMetadata,
+  SchemaManager,
+  StandardSchemaV1,
+  StandardValidationError,
+  ValidationResult,
+  standardValidate,
+} from '../schema';
 import { GeneratorServices } from './services';
 import { Generator } from './types';
 
 /**
  * Abstract base class for all generators
  */
-export abstract class GeneratorBase<S extends ZodType> implements Generator<S> {
+export abstract class GeneratorBase<S extends StandardSchemaV1>
+  implements Generator<S>
+{
   abstract name: string;
   abstract description: string;
   abstract schema: S;
@@ -37,22 +47,29 @@ export abstract class GeneratorBase<S extends ZodType> implements Generator<S> {
    * @param params Parameters to validate
    * @returns Validation result
    */
-  validate(params: In<S>): ValidationResult {
+  async validate(params: In<S>): Promise<ValidationResult<Out<S>>> {
     try {
-      const validated = this.schema.parse(params);
-      return { valid: true, data: validated };
-    } catch (error: any) {
-      if (error instanceof ZodError) {
-        return {
-          valid: false,
-          errors: this.formatValidationErrors(error),
-        };
+      const result = await standardValidate(this.schema, params);
+
+      if (!result.issues) {
+        return { valid: true, data: result.value };
       }
 
       return {
         valid: false,
-        errors: [(error as Error).message],
+        issues: result.issues,
+        errors: result.issues.map((issue) => issue.message),
       };
+    } catch (error: any) {
+      if (error instanceof StandardValidationError) {
+        return {
+          valid: false,
+          issues: error.issues,
+          errors: error.issues.map((issue) => issue.message),
+        };
+      }
+
+      return { valid: false, errors: [(error as Error).message] };
     }
   }
 
@@ -67,17 +84,18 @@ export abstract class GeneratorBase<S extends ZodType> implements Generator<S> {
 
     let help = `${this.description}\n\n`;
 
-    Object.keys(shape).forEach((fieldName) => {
-      const fieldSchema = shape[fieldName] as ZodType;
+    Object.entries(shape).forEach(([fieldName, fieldSchema]) => {
       const metadata = SchemaManager.getCommandMetadata(fieldSchema);
       const isRequired = SchemaManager.isFieldRequired(fieldSchema);
       const fieldType = this.getFieldType(fieldSchema);
-      const description = fieldSchema.meta()?.description;
+      const description = metadata?.description;
 
       help += `  ${fieldName} (${fieldType})${isRequired ? ' (required)' : ' (optional)'}\n`;
+
       if (description) {
         help += `    ${description}\n`;
       }
+
       if (metadata?.examples) {
         help += `    Examples: ${metadata.examples.join(', ')}\n`;
       }
@@ -87,22 +105,8 @@ export abstract class GeneratorBase<S extends ZodType> implements Generator<S> {
     return help;
   }
 
-  private getFieldType(fieldSchema: ZodType): string {
-    const typeName = fieldSchema._zod.def.type;
+  private getFieldType(fieldSchema: SchemaFieldMetadata): string {
     return SchemaManager.getFieldTypeName(fieldSchema);
-  }
-
-  private formatValidationErrors(error: ZodError): string[] {
-    if (error.issues) {
-      return error.issues.map((err: core.$ZodIssue) => {
-        const fieldName = err.path.join('.') || 'unknown';
-        const message = err.message;
-
-        return `${fieldName}: ${message}`;
-      });
-    }
-
-    return [error.message];
   }
 
   /**

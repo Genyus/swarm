@@ -1,6 +1,6 @@
 import { Command } from 'commander';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import { Generator, GeneratorProvider, GeneratorServices } from '../generator';
 import { CLIManager } from './cli-manager';
 

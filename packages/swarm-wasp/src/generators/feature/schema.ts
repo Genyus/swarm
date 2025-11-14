@@ -1,6 +1,13 @@
-import { z } from 'zod';
-import { commonSchemas } from '../../common';
+import { registerSchemaMetadata } from '@ingenyus/swarm';
+import { z } from 'zod/v4';
+import { commonFieldMetadata, commonSchemas } from '../../common';
 
-export const schema = z.object({
+const baseSchema = z.object({
   target: commonSchemas.target,
+});
+
+export const schema = registerSchemaMetadata(baseSchema, {
+  fields: {
+    target: commonFieldMetadata.target,
+  },
 });

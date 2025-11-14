@@ -1,11 +1,14 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { z } from 'zod';
 import {
   Generator,
   GeneratorProvider,
   GeneratorServices,
 } from '../../generator';
-import { commandRegistry } from '../../schema';
+import {
+  registerSchemaMetadata,
+  SchemaMetadata,
+  StandardSchemaV1,
+} from '../../schema';
 import { ToolManager } from './tool-manager';
 
 vi.mock('../../plugin/plugin-manager', () => ({
@@ -22,14 +25,44 @@ describe('ToolManager', () => {
     toolManager = new ToolManager();
   });
 
+  const createSchema = (metadata: SchemaMetadata): StandardSchemaV1 => {
+    const schema: StandardSchemaV1 = {
+      '~standard': {
+        version: 1,
+        vendor: 'test',
+        validate: (value) => ({ value }),
+      },
+    };
+
+    registerSchemaMetadata(schema, metadata);
+    return schema;
+  };
+
   describe('Plugin Loading', () => {
     it('should load tools from plugin generators', async () => {
-      const apiSchema = z.object({
-        name: z.string().describe('API endpoint name'),
-        method: z.enum(['GET', 'POST']).describe('HTTP method'),
+      const apiSchema = createSchema({
+        fields: {
+          name: {
+            type: 'string',
+            description: 'API endpoint name',
+            required: true,
+          },
+          method: {
+            type: 'enum',
+            description: 'HTTP method',
+            enumValues: ['GET', 'POST'],
+            required: true,
+          },
+        },
       });
-      const crudSchema = z.object({
-        entity: z.string().describe('Entity name'),
+      const crudSchema = createSchema({
+        fields: {
+          entity: {
+            type: 'string',
+            description: 'Entity name',
+            required: true,
+          },
+        },
       });
       const mockProviders: GeneratorProvider[] = [
         {
@@ -76,13 +109,38 @@ describe('ToolManager', () => {
       expect(toolHandlers['generate-crud']).toBeTypeOf('function');
     });
 
-    it('should create valid JSON schema from Zod schema', async () => {
-      const testSchema = z.object({
-        name: z.string().describe('Name field'),
-        count: z.number().optional().describe('Optional count'),
-        type: z.enum(['A', 'B']).optional().describe('Type selection'),
-        tags: z.array(z.string()).describe('List of tags'),
-        enabled: z.boolean().default(true).describe('Enable feature'),
+    it('should create valid JSON schema from metadata', async () => {
+      const testSchema = createSchema({
+        fields: {
+          name: {
+            type: 'string',
+            description: 'Name field',
+            required: true,
+          },
+          count: {
+            type: 'number',
+            description: 'Optional count',
+            required: false,
+          },
+          type: {
+            type: 'enum',
+            description: 'Type selection',
+            enumValues: ['A', 'B'],
+            required: false,
+          },
+          tags: {
+            type: 'array',
+            description: 'List of tags',
+            required: true,
+            elementType: { type: 'string' },
+          },
+          enabled: {
+            type: 'boolean',
+            description: 'Enable feature',
+            required: true,
+            defaultValue: true,
+          },
+        },
       });
       const mockProvider: GeneratorProvider = {
         create: (services: GeneratorServices): Generator => ({
@@ -139,8 +197,10 @@ describe('ToolManager', () => {
 
     it('should execute generator when tool handler is called', async () => {
       const generateFn = vi.fn().mockResolvedValue(undefined);
-      const apiSchema = z.object({
-        name: z.string(),
+      const apiSchema = createSchema({
+        fields: {
+          name: { type: 'string', required: true },
+        },
       });
       const mockProvider: GeneratorProvider = {
         create: (services: GeneratorServices): Generator => ({
@@ -178,8 +238,10 @@ describe('ToolManager', () => {
       const generateFn = vi
         .fn()
         .mockRejectedValue(new Error('Generation failed'));
-      const apiSchema = z.object({
-        name: z.string(),
+      const apiSchema = createSchema({
+        fields: {
+          name: { type: 'string', required: true },
+        },
       });
       const mockProvider: GeneratorProvider = {
         create: (services: GeneratorServices): Generator => ({

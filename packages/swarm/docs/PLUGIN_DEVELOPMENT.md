@@ -154,14 +154,22 @@ See the [`@ingenyus/swarm-wasp`](../packages/swarm-wasp) package for a complete 
 Here's a minimal generator that creates a component file:
 
 ```typescript
-import { GeneratorBase, Out, toPascalCase } from '@ingenyus/swarm';
-import { z } from 'zod';
+import { GeneratorBase, Out, registerSchemaMetadata, toPascalCase } from '@ingenyus/swarm';
+import { z } from 'zod/v4';
 import { FileSystem, Logger } from '@ingenyus/swarm';
 
-const schema = z.object({
-  name: z.string().min(1, 'Component name is required'),
-  path: z.string().optional(),
-});
+const schema = registerSchemaMetadata(
+  z.object({
+    name: z.string().min(1, 'Component name is required'),
+    path: z.string().optional(),
+  }),
+  {
+    fields: {
+      name: { type: 'string', required: true },
+      path: { type: 'string', required: false },
+    },
+  }
+);
 
 export class ComponentGenerator extends GeneratorBase<typeof schema> {
   name = 'component';
@@ -193,7 +201,7 @@ export class ComponentGenerator extends GeneratorBase<typeof schema> {
 
 ```typescript
 import { GeneratorBase, Out } from '@ingenyus/swarm';
-import { z } from 'zod';
+import { z } from 'zod/v4';
 
 export class MyGenerator extends GeneratorBase<typeof schema> {
   // Required properties
@@ -224,11 +232,15 @@ export class MyGenerator extends GeneratorBase<typeof schema> {
 For framework-specific plugins, you can create custom base classes that extend `GeneratorBase`:
 
 ```typescript
-import { GeneratorBase, FileSystem, Logger } from '@ingenyus/swarm';
-import { ZodType } from 'zod';
+import {
+  FileSystem,
+  GeneratorBase,
+  Logger,
+  StandardSchemaV1,
+} from '@ingenyus/swarm';
 import { TemplateResolver, TemplateUtility } from './utils';
 
-export abstract class MyFrameworkGeneratorBase<S extends ZodType> 
+export abstract class MyFrameworkGeneratorBase<S extends StandardSchemaV1> 
   extends GeneratorBase<S> {
   
   protected templateResolver: TemplateResolver;
@@ -282,63 +294,66 @@ export abstract class MyFrameworkGeneratorBase<S extends ZodType>
 
 ## Schema Definition
 
-Schemas use Zod with Swarm's command registry for CLI metadata:
+Schemas can be authored with any [Standard Schema](https://standardschema.dev)-compliant library (Zod shown
+below). Metadata is attached via `registerSchemaMetadata` and used for tool and command generation:
 
 ```typescript
-import { commandRegistry } from '@ingenyus/swarm';
-import { z } from 'zod';
+import { registerSchemaMetadata } from '@ingenyus/swarm';
+import { z } from 'zod/v4';
 
-export const schema = z.object({
-  // Required string field
-  name: z
-    .string()
-    .min(1, 'Name is required')
-    .meta({ description: 'The name of the component' })
-    .register(commandRegistry, {
+const baseSchema = z.object({
+  name: z.string().min(1, 'Name is required'),
+  path: z.string().optional(),
+  withStyles: z.boolean().optional().default(false),
+  type: z.enum(['page', 'component', 'layout']),
+});
+
+export const schema = registerSchemaMetadata(baseSchema, {
+  fields: {
+    name: {
+      type: 'string',
+      required: true,
+      description: 'The name of the component',
       shortName: 'n',
       examples: ['Button', 'UserCard'],
       helpText: 'Must be a valid component name',
-    }),
-
-  // Optional path field
-  path: z
-    .string()
-    .optional()
-    .meta({ description: 'Output path for the component' })
-    .register(commandRegistry, {
+    },
+    path: {
+      type: 'string',
+      required: false,
+      description: 'Output path for the component',
       shortName: 'p',
       examples: ['src/components', 'app/components'],
-    }),
-
-  // Boolean flag
-  withStyles: z
-    .boolean()
-    .optional()
-    .default(false)
-    .meta({ description: 'Include CSS styles' })
-    .register(commandRegistry, {
+    },
+    withStyles: {
+      type: 'boolean',
+      required: false,
+      description: 'Include CSS styles',
       shortName: 's',
       helpText: 'Generates a separate CSS file',
-    }),
-
-  // Enum field
-  type: z
-    .enum(['page', 'component', 'layout'])
-    .meta({ description: 'Component type' })
-    .register(commandRegistry, {
+      defaultValue: false,
+    },
+    type: {
+      type: 'enum',
+      required: true,
+      description: 'Component type',
       examples: ['page', 'component', 'layout'],
-    }),
+      enumValues: ['page', 'component', 'layout'],
+    },
+  },
 });
 ```
 
 ### Schema Metadata
 
-- `.meta({ description })`: Sets field description for help text
-- `.register(commandRegistry, {...})`: Registers CLI metadata:
-  - `shortName`: Short flag (e.g., `-n`)
-  - `examples`: Example values
-  - `helpText`: Additional help text
-  - `defaultValue`: Default value
+`registerSchemaMetadata(schema, { fields })` registers per-field metadata used by
+the CLI and MCP server:
+
+- `shortName`: Short flag (e.g., `-n`)
+- `examples`: Example values
+- `helpText`: Additional help text
+- `defaultValue`: Default value surfaced in docs/help
+- `enumValues` / `elementType`: Enable enum and array descriptions
 
 ## Template System
 
@@ -509,8 +524,8 @@ describe('ComponentGenerator', () => {
     );
   });
 
-  it('should validate required fields', () => {
-    const result = generator.validate({});
+it('should validate required fields', async () => {
+  const result = await generator.validate({});
     expect(result.valid).toBe(false);
     expect(result.errors).toContain('name: Required');
   });

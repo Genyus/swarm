@@ -1,9 +1,13 @@
 import { Command } from 'commander';
-import { z, ZodType } from 'zod';
 import { realFileSystem, toKebabCase } from '../common';
 import { GeneratorProvider, getGeneratorServices } from '../generator';
 import { PluginInterfaceManager } from '../plugin';
-import { SchemaManager } from '../schema';
+import {
+  SchemaFieldMetadata,
+  SchemaManager,
+  StandardSchemaV1,
+  standardValidate,
+} from '../schema';
 import { getCLILogger } from './cli-logger';
 
 /**
@@ -13,7 +17,7 @@ import { getCLILogger } from './cli-logger';
 export class CLIManager extends PluginInterfaceManager<Command> {
   private commands = new Map<
     string,
-    { schema: ZodType; provider: GeneratorProvider }
+    { schema: StandardSchemaV1; provider: GeneratorProvider }
   >();
 
   /**
@@ -35,14 +39,12 @@ export class CLIManager extends PluginInterfaceManager<Command> {
     const command = new Command(name).description(description);
 
     this.commands.set(name, {
-      schema: schema as ZodType,
+      schema,
       provider,
     });
 
     if (shape) {
-      Object.keys(shape).forEach((fieldName) => {
-        const fieldSchema = shape[fieldName] as ZodType;
-
+      Object.entries(shape).forEach(([fieldName, fieldSchema]) => {
         this.addOptionFromField(command, fieldName, fieldSchema);
       });
     }
@@ -72,24 +74,37 @@ export class CLIManager extends PluginInterfaceManager<Command> {
       throw new Error(`Command '${commandName}' not found`);
     }
 
-    try {
-      const validatedArgs = commandInfo.schema.parse(rawArgs);
-      const logger = getCLILogger();
-      const services = getGeneratorServices('cli', logger);
-      const generator = await commandInfo.provider.create(services);
+    const validatedArgs = await this.validateArgs(commandInfo.schema, rawArgs);
+    const logger = getCLILogger();
+    const services = getGeneratorServices('cli', logger);
+    const generator = await commandInfo.provider.create(services);
 
-      await generator.generate(validatedArgs);
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        const errorMessages = error.issues
-          .map((err) => `'${err.path.join('.')}': ${err.message}`)
-          .join('\n');
+    await generator.generate(validatedArgs);
+  }
 
-        throw new Error(errorMessages);
-      }
-
-      throw error;
+  private async validateArgs(schema: StandardSchemaV1, rawArgs: unknown) {
+    const result = await standardValidate(schema, rawArgs as any);
+    if (result.issues) {
+      const errorMessages = result.issues
+        .map((issue) => `${issue.message}${this.formatIssuePath(issue.path)}`)
+        .join('\n');
+      throw new Error(errorMessages);
     }
+    return result.value;
+  }
+
+  private formatIssuePath(
+    path?: ReadonlyArray<PropertyKey | { key: PropertyKey }>
+  ): string {
+    if (!path || path.length === 0) return '';
+    const rendered = path
+      .map((segment) =>
+        typeof segment === 'object' && 'key' in segment
+          ? String(segment.key)
+          : String(segment)
+      )
+      .join('.');
+    return rendered ? ` (${rendered})` : '';
   }
 
   /**
@@ -98,16 +113,16 @@ export class CLIManager extends PluginInterfaceManager<Command> {
   private addOptionFromField(
     command: Command,
     fieldName: string,
-    fieldSchema: ZodType
+    fieldSchema: SchemaFieldMetadata
   ): void {
     const metadata = SchemaManager.getCommandMetadata(fieldSchema);
     const isRequired = SchemaManager.isFieldRequired(fieldSchema);
-    const isArray = this.isArrayType(fieldSchema);
     const typeName = SchemaManager.getFieldTypeName(fieldSchema);
+    const isArray = typeName === 'array';
     const argName = toKebabCase(fieldName);
     const shortName = metadata?.shortName;
     let optionString = '';
-    let description = fieldSchema.meta()?.description || `${fieldName} field`;
+    let description = metadata?.description || `${fieldName} field`;
 
     if (metadata?.examples && metadata.examples.length > 0) {
       description = `${description} (examples: ${metadata.examples.join(', ')})`;
@@ -164,14 +179,5 @@ export class CLIManager extends PluginInterfaceManager<Command> {
       name,
       description: command.description() || `Generate ${name}`,
     }));
-  }
-
-  /**
-   * Check if a Zod schema represents an array type
-   */
-  private isArrayType(schema: ZodType): boolean {
-    return (
-      (SchemaManager.getInnerType(schema) ?? schema)._zod.def.type === 'array'
-    );
   }
 }

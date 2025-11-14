@@ -1,6 +1,6 @@
-import { commandRegistry } from '@ingenyus/swarm';
-import { z } from 'zod';
-import { commonSchemas } from '../../common';
+import { registerSchemaMetadata } from '@ingenyus/swarm';
+import { z } from 'zod/v4';
+import { commonFieldMetadata, commonSchemas } from '../../common';
 
 const cronSchema = z
   .string()
@@ -79,13 +79,7 @@ const cronSchema = z
       message:
         'Cron expression must be a valid five-field format: (minute hour day month weekday), e.g. "0 9 * * *"',
     }
-  )
-  .meta({ description: 'Cron schedule expression for the job' })
-  .register(commandRegistry, {
-    shortName: 'c',
-    examples: ['0 9 * * *', '*/15 * * * *', '0 0 1 * *'],
-    helpText: 'Five-field cron expression: minute hour day month weekday',
-  });
+  );
 
 const argsSchema = z
   .string()
@@ -109,19 +103,38 @@ const argsSchema = z
     {
       message: 'Args must be a valid JSON object string',
     }
-  )
-  .meta({ description: 'Arguments to pass to the job function when executed' })
-  .register(commandRegistry, {
-    shortName: 'a',
-    examples: ['{"userId": 123}', '{"type": "cleanup", "batchSize": 100}'],
-    helpText: 'JSON object string that will be passed to the job function',
-  });
+  );
 
-export const schema = z.object({
+const baseSchema = z.object({
   feature: commonSchemas.feature,
   name: commonSchemas.name,
   entities: commonSchemas.entities,
   cron: cronSchema,
   args: argsSchema,
   force: commonSchemas.force,
+});
+
+export const schema = registerSchemaMetadata(baseSchema, {
+  fields: {
+    feature: commonFieldMetadata.feature,
+    name: commonFieldMetadata.name,
+    entities: commonFieldMetadata.entities,
+    cron: {
+      type: 'string',
+      required: false,
+      description: 'Cron schedule expression for the job',
+      shortName: 'c',
+      examples: ['0 9 * * *', '*/15 * * * *', '0 0 1 * *'],
+      helpText: 'Five-field cron expression: minute hour day month weekday',
+    },
+    args: {
+      type: 'string',
+      required: false,
+      description: 'Arguments to pass to the job function when executed',
+      shortName: 'a',
+      examples: ['{"userId": 123}', '{"type": "cleanup", "batchSize": 100}'],
+      helpText: 'JSON object string that will be passed to the job function',
+    },
+    force: commonFieldMetadata.force,
+  },
 });
