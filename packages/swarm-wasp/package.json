@@ -55,8 +55,8 @@
   },
   "dependencies": {
     "@ingenyus/swarm": "workspace:*",
-    "@mrleebo/prisma-ast": "^0.13.0",
-    "eta": "^4.0.1"
+    "@mrleebo/prisma-ast": "^0.13.1",
+    "eta": "^4.4.1"
   },
   "peerDependencies": {
     "wasp-config": "*",
@@ -68,15 +68,15 @@
     }
   },
   "devDependencies": {
-    "@types/node": "^24.3.0",
-    "@vitest/coverage-v8": "^3.2.3",
+    "@types/node": "^24.10.1",
+    "@vitest/coverage-v8": "^3.2.4",
     "glob": "^11.0.3",
-    "rimraf": "^6.0.1",
-    "tsup": "^8.5.0",
-    "typescript": "^5.9.2",
-    "vitest": "^3.1.4",
+    "rimraf": "^6.1.0",
+    "tsup": "^8.5.1",
+    "typescript": "^5.9.3",
+    "vitest": "^3.2.4",
     "wasp-config": "link:src/wasp-config/stubs",
-    "zod": "^3.25.76"
+    "zod": "^4.1.12"
   },
   "publishConfig": {
     "access": "public"
