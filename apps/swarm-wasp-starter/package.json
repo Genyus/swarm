@@ -3,8 +3,8 @@
   "type": "module",
   "dependencies": {
     "@hookform/resolvers": "^5.1.1",
-    "@ingenyus/swarm": "^0.4.0",
-    "@ingenyus/swarm-wasp": "^0.3.0",
+    "@ingenyus/swarm": "^1.0.0",
+    "@ingenyus/swarm-wasp": "^1.0.0",
     "@radix-ui/react-tooltip": "^1.2.7",
     "@radix-ui/react-use-controllable-state": "^1.2.2",
     "@tailwindcss/forms": "^0.5.3",
@@ -29,16 +29,16 @@
     "@typescript-eslint/eslint-plugin": "^8.41.0",
     "@typescript-eslint/parser": "^8.41.0",
     "eslint": "^9.34.0",
-    "eslint-config-prettier": "^9.1.0",
+    "eslint-config-prettier": "^10.1.8",
     "globals": "^16.4.0",
-    "prettier": "3.1.1",
+    "prettier": "3.6",
     "prettier-plugin-tailwindcss": "^0.7.1",
     "prisma": "5.19.1",
     "rimraf": "^6.0.1",
     "tslint-config-prettier": "^1.18.0",
-    "typescript": "5.8.2",
+    "typescript": "5.9",
     "vite": "^7.0.6",
-    "wasp-config": "file:../../.local/share/wasp-lang/0.18.1/data/packages/wasp-config"
+    "wasp-config": "file:../../.local/share/wasp-lang/0.18.2/data/packages/wasp-config"
   },
   "scripts": {
     "start:wasp": "wasp ts-setup && wasp start",
