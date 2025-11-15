@@ -41,10 +41,6 @@ describe('strings utils', () => {
     expect(strings.getPlural('company')).toBe('companies');
   });
 
-  it('validateFeaturePath returns segments', () => {
-    expect(strings.validateFeaturePath('foo/bar')).toEqual(['foo', 'bar']);
-  });
-
   describe('hasHelperMethodCall', () => {
     it('detects single-line helper method calls', () => {
       const content =

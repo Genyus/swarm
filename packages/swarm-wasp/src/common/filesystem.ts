@@ -1,4 +1,4 @@
-import { FileSystem, toPascalCase, validateFeaturePath } from '@ingenyus/swarm';
+import { FileSystem, toPascalCase } from '@ingenyus/swarm';
 import fs from 'node:fs';
 import path from 'path';
 import { TYPE_DIRECTORIES } from './constants';
@@ -174,6 +174,22 @@ export function getFeatureTargetDir(
   const importDirectory = `@src/${normalisedPath}/${typeDirectory}`;
 
   return { targetDirectory, importDirectory };
+}
+
+/**
+ * Validates a feature path and returns its segments.
+ * @param featurePath - The path of features (e.g., "parent/child/grandchild")
+ * @returns Array of feature path segments
+ * @throws If the path is empty
+ */
+export function validateFeaturePath(featurePath: string): string[] {
+  const segments = featurePath.split('/').filter(Boolean);
+
+  if (segments.length === 0) {
+    throw new Error('Feature path cannot be empty');
+  }
+
+  return segments;
 }
 
 /**

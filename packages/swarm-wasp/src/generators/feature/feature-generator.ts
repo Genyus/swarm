@@ -1,11 +1,10 @@
-import {
-  GeneratorServices,
-  handleFatalError,
-  Out,
-  validateFeaturePath,
-} from '@ingenyus/swarm';
+import { GeneratorServices, handleFatalError, Out } from '@ingenyus/swarm';
 import path from 'node:path';
-import { findWaspRoot, normaliseFeaturePath } from '../../common';
+import {
+  findWaspRoot,
+  normaliseFeaturePath,
+  validateFeaturePath,
+} from '../../common';
 import { WaspGeneratorBase } from '../base/wasp-generator.base';
 import { schema } from './schema';
 

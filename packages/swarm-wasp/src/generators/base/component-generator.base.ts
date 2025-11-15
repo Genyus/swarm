@@ -4,7 +4,6 @@ import {
   hasHelperMethodCall,
   StandardSchemaV1,
   toKebabCase,
-  validateFeaturePath,
 } from '@ingenyus/swarm';
 import path from 'node:path';
 import {
@@ -13,6 +12,7 @@ import {
   getFeatureDir,
   normaliseFeaturePath,
   TYPE_DIRECTORIES,
+  validateFeaturePath,
 } from '../../common';
 import { FeatureGenerator } from '../feature/feature-generator';
 import { schema as featureSchema } from '../feature/schema';
