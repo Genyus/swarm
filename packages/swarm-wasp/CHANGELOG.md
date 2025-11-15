@@ -1,5 +1,19 @@
 # @ingenyus/swarm-wasp
 
+## [1.0.1][1.0.1] - 2025-11-15
+
+### 🐞 Bug Fixes
+
+- de-restrict feature directory naming ([4dad205](https://github.com/genyus/swarm/commit/4dad205b938bdc4146860e9f2c0685c2c45ae9a1))
+
+### 📦 Updated Dependencies
+
+- update @ingenyus/swarm to 1.0.1 ([c0c0140](https://github.com/genyus/swarm/commit/c0c0140a9404ed1eccb04c58eedeea5e1a43d353))
+
+Contributors: [genyus](https://github.com/genyus)
+
+[1.0.1]: https://github.com/genyus/swarm/releases/tag/%40ingenyus%2Fswarm-wasp%401.0.1
+
 ## [1.0.0][1.0.0] - 2025-11-15
 
 ### Major Changes
