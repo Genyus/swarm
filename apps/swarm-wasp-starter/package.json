@@ -3,8 +3,8 @@
   "type": "module",
   "dependencies": {
     "@hookform/resolvers": "^5.1.1",
-    "@ingenyus/swarm": "^1.0.0",
-    "@ingenyus/swarm-wasp": "^1.0.0",
+    "@ingenyus/swarm": "^1.0.1",
+    "@ingenyus/swarm-wasp": "^1.0.1",
     "@radix-ui/react-tooltip": "^1.2.7",
     "@radix-ui/react-use-controllable-state": "^1.2.2",
     "@tailwindcss/forms": "^0.5.3",
