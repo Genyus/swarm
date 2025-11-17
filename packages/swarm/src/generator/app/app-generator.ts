@@ -1,4 +1,4 @@
-import degit from 'degit';
+import { downloadTemplate } from 'giget';
 import path from 'node:path';
 import {
   toFriendlyName,
@@ -48,9 +48,12 @@ export class AppGenerator extends GeneratorBase<typeof schema> {
       this.logger.info(`Template: ${args.template}`);
       this.logger.info(`Target: ${fullPath}`);
 
-      // Clone template using degit
-      const emitter = degit(args.template, { cache: false, force: false });
-      await emitter.clone(fullPath);
+      // Clone template using giget
+      const normalizedTemplate = this.normalizeTemplate(args.template);
+      await downloadTemplate(normalizedTemplate, {
+        dir: fullPath,
+        force: false,
+      });
 
       // Prepare replacement context
       const context = {
@@ -72,6 +75,24 @@ export class AppGenerator extends GeneratorBase<typeof schema> {
       this.logger.info(`  cd ${targetDir}`);
       this.logger.info(`  npm install`);
     });
+  }
+
+  /**
+   * Normalizes template format to giget-compatible format
+   * @param template - Template identifier (user/repo, gh:user/repo, etc.)
+   * @returns Normalized template identifier
+   */
+  private normalizeTemplate(template: string): string {
+    // If template already has a provider prefix, use as-is
+    if (template.match(/^(gh|github|gitlab|bitbucket|sourcehut):/)) {
+      return template;
+    }
+    // If it's a full URL, use as-is
+    if (template.startsWith('http://') || template.startsWith('https://')) {
+      return template;
+    }
+    // Default to GitHub for simple user/repo format
+    return `gh:${template}`;
   }
 
   /**

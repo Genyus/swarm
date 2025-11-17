@@ -9,14 +9,10 @@ import {
 } from '../index';
 import { AppGenerator } from './app-generator';
 
-// Mock degit module
-vi.mock('degit', () => {
-  return {
-    default: vi.fn().mockImplementation(() => ({
-      clone: vi.fn().mockResolvedValue(undefined),
-    })),
-  };
-});
+// Mock giget module
+vi.mock('giget', () => ({
+  downloadTemplate: vi.fn().mockResolvedValue(undefined),
+}));
 
 function createMockLogger() {
   return {
@@ -78,6 +74,16 @@ describe('AppGenerator', () => {
     expect(toFriendlyName('my_awesome_app')).toBe('My Awesome App');
   });
 
+  it('should normalize template formats correctly', () => {
+    expect(gen['normalizeTemplate']('user/repo')).toBe('gh:user/repo');
+    expect(gen['normalizeTemplate']('gh:user/repo')).toBe('gh:user/repo');
+    expect(gen['normalizeTemplate']('gitlab:user/repo')).toBe('gitlab:user/repo');
+    expect(gen['normalizeTemplate']('bitbucket:user/repo')).toBe('bitbucket:user/repo');
+    expect(gen['normalizeTemplate']('sourcehut:user/repo')).toBe('sourcehut:user/repo');
+    expect(gen['normalizeTemplate']('https://example.com/repo.tar.gz')).toBe('https://example.com/repo.tar.gz');
+    expect(gen['normalizeTemplate']('http://example.com/repo.tar.gz')).toBe('http://example.com/repo.tar.gz');
+  });
+
   it('should reject existing directories', async () => {
     const testFs = createMockFS();
     testFs.existsSync = vi.fn().mockReturnValue(true);
@@ -106,10 +112,10 @@ describe('AppGenerator', () => {
 
     await gen.generate({ name: 'my-app', template: 'test/template' });
 
-    // Verify that degit was called with correct parameters
-    const degit = await import('degit');
-    expect(degit.default).toHaveBeenCalledWith('test/template', {
-      cache: false,
+    // Verify that downloadTemplate was called with correct parameters
+    const giget = await import('giget');
+    expect(giget.downloadTemplate).toHaveBeenCalledWith('gh:test/template', {
+      dir: expect.stringContaining('my-app'),
       force: false,
     });
   });
@@ -125,10 +131,10 @@ describe('AppGenerator', () => {
       targetDir: './custom-dir',
     });
 
-    // Verify that degit was called with correct parameters
-    const degit = await import('degit');
-    expect(degit.default).toHaveBeenCalledWith('test/template', {
-      cache: false,
+    // Verify that downloadTemplate was called with correct parameters
+    const giget = await import('giget');
+    expect(giget.downloadTemplate).toHaveBeenCalledWith('gh:test/template', {
+      dir: expect.stringContaining('custom-dir'),
       force: false,
     });
   });
@@ -140,10 +146,10 @@ describe('AppGenerator', () => {
 
     await gen.generate({ name: 'my-app', template: 'test/template' });
 
-    // Verify that degit was called with correct parameters
-    const degit = await import('degit');
-    expect(degit.default).toHaveBeenCalledWith('test/template', {
-      cache: false,
+    // Verify that downloadTemplate was called with correct parameters
+    const giget = await import('giget');
+    expect(giget.downloadTemplate).toHaveBeenCalledWith('gh:test/template', {
+      dir: expect.stringContaining('my-app'),
       force: false,
     });
   });
