@@ -1,5 +1,19 @@
 # @ingenyus/swarm-wasp
 
+## [1.0.3][1.0.3] - 2025-11-17
+
+### 🐞 Bug Fixes
+
+- process operation name correctly ([fbd0901](https://github.com/genyus/swarm/commit/fbd090195961a799702f5d1abe16130e08db1b95))
+
+### 📦 Updated Dependencies
+
+- update @ingenyus/swarm to 1.0.2 ([7a02303](https://github.com/genyus/swarm/commit/7a0230373f1e1017d1b3f03dbe5ee40e3e34cb97))
+
+Contributors: [genyus](https://github.com/genyus)
+
+[1.0.3]: https://github.com/genyus/swarm/releases/tag/%40ingenyus%2Fswarm-wasp%401.0.3
+
 ## [1.0.2][1.0.2] - 2025-11-17
 
 ### 🐞 Bug Fixes
