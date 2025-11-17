@@ -1,8 +1,8 @@
 import {
-  StandardSchemaV1,
   capitalise,
   getPlural,
   handleFatalError,
+  StandardSchemaV1,
   toPascalCase,
 } from '@ingenyus/swarm';
 import {
@@ -92,9 +92,12 @@ export abstract class OperationGeneratorBase<
    */
   getOperationTypeName(
     operation: ActionOperation | QueryOperation,
-    modelName: string
+    modelName: string,
+    customName?: string
   ): string {
-    return toPascalCase(this.getOperationName(operation, modelName));
+    return toPascalCase(
+      this.getOperationName(operation, modelName, customName)
+    );
   }
 
   /**
@@ -103,7 +106,8 @@ export abstract class OperationGeneratorBase<
   generateImports(
     model: EntityMetadata,
     modelName: string,
-    operation: ActionOperation | QueryOperation
+    operation: ActionOperation | QueryOperation,
+    customName?: string
   ): string {
     const imports: string[] = [];
 
@@ -119,7 +123,8 @@ export abstract class OperationGeneratorBase<
     imports.push(
       `import type { ${this.getOperationTypeName(
         operation,
-        modelName
+        modelName,
+        customName
       )} } from "wasp/server/operations";`
     );
 
@@ -168,7 +173,8 @@ export abstract class OperationGeneratorBase<
       operation,
       auth,
       isCrudOverride,
-      crudName
+      crudName,
+      customName
     );
 
     const configEntry = {
@@ -193,7 +199,8 @@ export abstract class OperationGeneratorBase<
     operation: ActionOperation | QueryOperation,
     auth = false,
     isCrudOverride = false,
-    crudName: string | null = null
+    crudName: string | null = null,
+    customName?: string
   ): Promise<string> {
     const operationType = this.getOperationType(operation);
     const templatePath = this.getOperationTemplatePath(`${operation}.eta`);
@@ -205,10 +212,14 @@ export abstract class OperationGeneratorBase<
     const pluralModelName = getPlural(model.name);
     const pluralModelNameLower = pluralModelName.toLowerCase();
     const modelNameLower = model.name.toLowerCase();
-    const operationName = this.getOperationName(operation, model.name);
+    const operationName = this.getOperationName(
+      operation,
+      model.name,
+      customName
+    );
     const imports = isCrudOverride
       ? ''
-      : this.generateImports(model, model.name, operation);
+      : this.generateImports(model, model.name, operation, customName);
     const jsonTypeHandling = generateJsonTypeHandling(jsonFields);
     let typeParams = '';
 
@@ -276,12 +287,12 @@ export abstract class OperationGeneratorBase<
       }
     } else {
       if (operationType === 'action') {
-        typeAnnotation = `: ${this.getOperationTypeName(operation, model.name)}${typeParams}`;
+        typeAnnotation = `: ${this.getOperationTypeName(operation, model.name, customName)}${typeParams}`;
       } else {
         typeAnnotation = '';
       }
       if (operationType === 'query') {
-        satisfiesType = `satisfies ${this.getOperationTypeName(operation, model.name)}${typeParams}`;
+        satisfiesType = `satisfies ${this.getOperationTypeName(operation, model.name, customName)}${typeParams}`;
       } else {
         satisfiesType = '';
       }
