@@ -13,8 +13,8 @@ const excludeOperations = getCrudOperationsArray();
 
 const baseSchema = z.object({
   feature: commonSchemas.feature,
-  name: commonSchemas.name.optional(),
   dataType: commonSchemas.dataType,
+  name: commonSchemas.name.optional(),
   public: publicOperations,
   override: overrideOperations,
   exclude: excludeOperations,
