@@ -1,5 +1,15 @@
 # @ingenyus/swarm
 
+## [1.0.2][1.0.2] - 2025-11-17
+
+### 🐞 Bug Fixes
+
+- fix create command timing bug ([9ac9d25](https://github.com/genyus/swarm/commit/9ac9d25969fe8176acdd3fc8bc6315c8b9d4a2b2))
+
+Contributors: [genyus](https://github.com/genyus)
+
+[1.0.2]: https://github.com/genyus/swarm/releases/tag/%40ingenyus%2Fswarm%401.0.2
+
 ## [1.0.1][1.0.1] - 2025-11-15
 
 ### 🐞 Bug Fixes
