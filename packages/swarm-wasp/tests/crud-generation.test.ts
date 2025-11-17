@@ -1,9 +1,9 @@
 import path from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { CrudGenerator, FeatureGenerator } from '../src';
+import { realFileSystem } from '../src/common';
 import { schema as crudSchema } from '../src/generators/crud/schema';
 import { schema as featureSchema } from '../src/generators/feature/schema';
-import { realFileSystem } from '../src/common';
 import {
   assertImportsPresent,
   countOccurrences,
@@ -28,9 +28,13 @@ describe('CRUD Generator Integration Tests', () => {
   });
 
   it('should generate complete CRUD operations', async () => {
-    const featureGen = await createTestGenerator(FeatureGenerator, featureSchema, {
-      fileSystem: realFileSystem,
-    });
+    const featureGen = await createTestGenerator(
+      FeatureGenerator,
+      featureSchema,
+      {
+        fileSystem: realFileSystem,
+      }
+    );
     const crudGen = await createTestGenerator(CrudGenerator, crudSchema, {
       fileSystem: realFileSystem,
     });
@@ -75,9 +79,13 @@ describe('CRUD Generator Integration Tests', () => {
   });
 
   it('should generate CRUD config with all operations', async () => {
-    const featureGen = await createTestGenerator(FeatureGenerator, featureSchema, {
-      fileSystem: realFileSystem,
-    });
+    const featureGen = await createTestGenerator(
+      FeatureGenerator,
+      featureSchema,
+      {
+        fileSystem: realFileSystem,
+      }
+    );
     const crudGen = await createTestGenerator(CrudGenerator, crudSchema, {
       fileSystem: realFileSystem,
     });
@@ -101,14 +109,18 @@ describe('CRUD Generator Integration Tests', () => {
     expect(realFileSystem.existsSync(crudPath)).toBe(false);
     expect(content).toContain('addCrud');
     expect(content).toContain('Post');
-    expect(content).toContain('Posts');
+    expect(content).toContain('posts');
     expect(content).toContain('entity: "Post"');
   });
 
   it('should not duplicate CRUD in config without force flag', async () => {
-    const featureGen = await createTestGenerator(FeatureGenerator, featureSchema, {
-      fileSystem: realFileSystem,
-    });
+    const featureGen = await createTestGenerator(
+      FeatureGenerator,
+      featureSchema,
+      {
+        fileSystem: realFileSystem,
+      }
+    );
     const crudGen = await createTestGenerator(CrudGenerator, crudSchema, {
       fileSystem: realFileSystem,
     });
