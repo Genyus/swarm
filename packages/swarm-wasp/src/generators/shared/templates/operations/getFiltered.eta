@@ -12,6 +12,10 @@ export const <%=operationName%><%=typeAnnotation%> = (async (args, context) => {
   } catch (error) {
     console.error("Failed to get filtered <%=pluralModelNameLower%>:", error);
 
-    throw new HttpError(500, "Failed to get filtered <%=pluralModelNameLower%>");
+    if (error instanceof HttpError) {
+      throw error;
+    }
+
+    throw new HttpError(500, `Failed to get filtered <%=pluralModelNameLower%>${error instanceof Error ? `: ${error.message}` : ''}`);
   }
 }) <%=satisfiesType%>;

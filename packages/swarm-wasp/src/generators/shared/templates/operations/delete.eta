@@ -16,6 +16,10 @@ export const <%=operationName%><%=typeAnnotation%> = async ({ <%=idFieldParams%>
   } catch (error) {
     console.error(`Failed to delete <%=modelNameLower%> ${<%=idField%>}:`, error);
 
-    throw new HttpError(500, `Failed to delete <%=modelNameLower%> ${<%=idField%>}`);
+    if (error instanceof HttpError) {
+      throw error;
+    }
+
+    throw new HttpError(500, `Failed to delete <%=modelNameLower%> ${<%=idField%>}${error instanceof Error ? `: ${error.message}` : ''}`);
   }
 }; <%=satisfiesType%>
