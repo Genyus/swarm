@@ -45,7 +45,7 @@
     "recompile": "npm run reset:wasp && wasp compile",
     "start:wasp": "wasp ts-setup && wasp start",
     "start:db": "wasp db start",
-    "reset:wasp": "rimraf package-lock.json && wasp clean && wasp ts-setup",
+    "reset:wasp": "rm package-lock.json && wasp clean && wasp ts-setup",
     "reset:db": "wasp db reset && wasp db migrate-dev",
     "reset:all": "npm run reset:wasp && npm run reset:db",
     "restart:wasp": "npm run reset:wasp && wasp start",
