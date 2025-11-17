@@ -39,8 +39,8 @@ export class CrudGenerator extends OperationGeneratorBase<
   }
 
   async generate(args: Out<typeof schema>): Promise<void> {
-    const { dataType, feature } = args;
-    const crudName = toCamelCase(getPlural(dataType));
+    const { dataType, feature, name } = args;
+    const crudName = name || toCamelCase(getPlural(dataType));
     const crudType = toPascalCase(crudName);
 
     return this.handleGeneratorError(this.componentType, crudName, async () => {
@@ -232,7 +232,7 @@ export class CrudGenerator extends OperationGeneratorBase<
       .join('\n');
 
     return this.templateUtility.processTemplate(templatePath, {
-      crudName: toPascalCase(crudName),
+      crudName,
       dataType,
       operations: operationsStr,
     });

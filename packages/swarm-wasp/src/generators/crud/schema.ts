@@ -13,7 +13,7 @@ const excludeOperations = getCrudOperationsArray();
 
 const baseSchema = z.object({
   feature: commonSchemas.feature,
-  name: commonSchemas.name,
+  name: commonSchemas.name.optional(),
   dataType: commonSchemas.dataType,
   public: publicOperations,
   override: overrideOperations,
@@ -24,7 +24,11 @@ const baseSchema = z.object({
 export const schema = registerSchemaMetadata(baseSchema, {
   fields: {
     feature: commonFieldMetadata.feature,
-    name: commonFieldMetadata.name,
+    name: {
+      ...commonFieldMetadata.name,
+      required: false,
+      description: `${commonFieldMetadata.name.description} (optional)`,
+    },
     dataType: commonFieldMetadata.dataType,
     public: {
       type: 'array',
