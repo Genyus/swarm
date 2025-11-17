@@ -1,5 +1,20 @@
 # @ingenyus/swarm-wasp
 
+## [1.0.2][1.0.2] - 2025-11-17
+
+### 🐞 Bug Fixes
+
+- fix operation error handling ([c3be9c5](https://github.com/genyus/swarm/commit/c3be9c542ffce5da89cb4eb410da628052d8d5c8))
+- fix crud config naming ([d6340ce](https://github.com/genyus/swarm/commit/d6340ce88a34e006c4edbf7d80d16506e04cc760))
+
+### 🔧 Minor Improvements
+
+- reorder crud generator args ([228aa7f](https://github.com/genyus/swarm/commit/228aa7f9f8ba493b20b236096b85349a38f71abd))
+
+Contributors: [genyus](https://github.com/genyus)
+
+[1.0.2]: https://github.com/genyus/swarm/releases/tag/%40ingenyus%2Fswarm-wasp%401.0.2
+
 ## [1.0.1][1.0.1] - 2025-11-15
 
 ### 🐞 Bug Fixes
