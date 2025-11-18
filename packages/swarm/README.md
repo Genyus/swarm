@@ -184,17 +184,44 @@ pnpm build:watch
 
 ```
 src/
-├── cli/                  # Command-line interface
-├── mcp/                  # MCP server for AI tool integration
-├── generators/           # Core generation logic
-│   └── app/              # App generator for project scaffolding
-├── plugin/               # Plugin system and management
-├── common/               # Shared utilities
-│   ├── strings.ts        # String manipulation
-│   ├── logger.ts         # Logging utilities
-│   └── errors.ts         # Error handling
-├── types/                # TypeScript type definitions
-└── contracts/            # Plugin and generator interfaces
+├── cli/                             # Command-line interface
+│   ├── cli-manager.ts               # CLI command management
+│   └── cli-logger.ts                # CLI-specific logging
+├── common/                          # Shared utilities
+│   ├── strings.ts                   # String manipulation
+│   ├── logger.ts                    # Logging utilities
+│   ├── errors.ts                    # Error handling
+│   ├── filesystem.ts                # File system operations
+│   ├── package-utils.ts             # Package.json utilities
+│   ├── version.ts                   # Version management
+│   └── constants.ts                 # Shared constants
+├── config/                          # Configuration management
+│   └── config-manager.ts            # Configuration loading and validation
+├── generator/                       # Core generation logic
+│   ├── app/                         # App generator for project scaffolding
+│   ├── generator.base.ts            # Base generator class
+│   ├── template-resolver.ts         # Template resolution and rendering
+│   ├── provider.ts                  # Generator provider utilities
+│   └── services.ts                  # Generator services
+├── mcp/                             # MCP server for AI tool integration
+│   ├── cli/                         # CLI commands for MCP server management
+│   │   └── commands/                # start, stop, status commands
+│   ├── server/                      # MCP server implementation
+│   │   ├── errors/                  # MCP-specific error types
+│   │   ├── types/                   # MCP protocol type definitions
+│   │   ├── mcp-manager.ts           # MCP server lifecycle management
+│   │   └── tool-manager.ts          # Tool registration and execution
+│   └── mcp-logger.ts                # MCP-specific logging
+├── plugin/                          # Plugin system and management
+│   ├── plugin-manager.ts            # Plugin lifecycle management
+│   ├── plugin-resolver.ts           # Plugin resolution and loading
+│   └── plugin-interface-manager.ts  # Plugin interface handling
+├── schema/                          # Schema management
+│   ├── schema-manager.ts            # Schema validation and processing
+│   ├── metadata.ts                  # Schema metadata utilities
+│   └── standard.ts                  # Standard schema definitions
+└── types/                           # TypeScript type definitions
+    └── commander.d.ts               # Commander.js type definitions
 ```
 
 The core architecture consists of:
@@ -204,6 +231,8 @@ The core architecture consists of:
 - **CLI Interface** - Command-line tools for direct interaction
 - **MCP Server** - Protocol server for AI tool integration
 - **Template System** - Flexible templating for code generation
+- **Configuration System** - Configuration loading and validation
+- **Schema System** - Schema validation and metadata management
 
 ## Contributing
 
