@@ -1,5 +1,15 @@
 # @ingenyus/swarm
 
+## [1.0.3][1.0.3] - 2025-11-19
+
+### 🔧 Minor Improvements
+
+- add support for plugin configuration ([5044010](https://github.com/genyus/swarm/commit/504401014f91733615c7c8cc99348be11ad0adfa))
+
+Contributors: [genyus](https://github.com/genyus)
+
+[1.0.3]: https://github.com/genyus/swarm/releases/tag/%40ingenyus%2Fswarm%401.0.3
+
 ## [1.0.2][1.0.2] - 2025-11-17
 
 ### 🐞 Bug Fixes
