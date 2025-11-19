@@ -76,6 +76,7 @@ export interface Config {
         disabled?: boolean;
       };
     };
+    config?: Record<string, unknown>;
   }>;
 }
 
