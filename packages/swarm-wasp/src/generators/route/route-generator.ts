@@ -1,6 +1,6 @@
 import {
-  GeneratorServices,
   formatDisplayName,
+  GeneratorServices,
   Out,
   toCamelCase,
   toPascalCase,
@@ -34,6 +34,8 @@ export class RouteGenerator extends ComponentGeneratorBase<
       this.componentType,
       routeName,
       async () => {
+        this.ensureWaspCompatible();
+
         const configPath = this.validateFeatureConfig(feature);
         const { targetDirectory } = this.ensureTargetDirectory(feature, 'page');
         const targetFile = `${targetDirectory}/${fileName}`;

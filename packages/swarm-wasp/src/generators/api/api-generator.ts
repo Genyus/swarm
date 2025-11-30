@@ -31,6 +31,8 @@ export class ApiGenerator extends ComponentGeneratorBase<
     const apiName = toCamelCase(args.name);
 
     return this.handleGeneratorError(this.componentType, apiName, async () => {
+      this.ensureWaspCompatible();
+
       const configPath = this.validateFeatureConfig(args.feature);
       const {
         targetDirectory: apiTargetDirectory,

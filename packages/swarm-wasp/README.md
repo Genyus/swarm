@@ -13,6 +13,7 @@ A [Swarm](../swarm/README.md) plugin that provides a set of tools for accelerate
 ## Table of Contents
 
 - [Getting Started](#getting-started)
+- [Requirements](#requirements)
 - [Features](#features)
 - [Wasp Improvements](#wasp-improvements)
 - [MCP Integration](#mcp-integration)
@@ -60,6 +61,19 @@ To disable the plugin or any provided generators, set the `disabled` property (`
   ]
 }
 ```
+
+## Requirements
+
+### Wasp Version Compatibility
+
+This package requires Wasp version **0.18.x** or **0.19.x** to be installed. The generators will automatically check your installed Wasp version and throw an error if it's incompatible.
+
+To check your Wasp version:
+```bash
+wasp version
+```
+
+If you need to install or update Wasp, follow the instructions at [wasp.sh](https://wasp.sh).
 
 ## Features
 

@@ -43,6 +43,8 @@ export class QueryGenerator extends OperationGeneratorBase<
       this.componentType,
       operationName,
       async () => {
+        this.ensureWaspCompatible();
+
         const configPath = this.validateFeatureConfig(feature);
         const { targetDirectory: operationsDir, importDirectory } =
           this.ensureTargetDirectory(feature, operationType);

@@ -33,6 +33,8 @@ export class FeatureGenerator extends WaspGeneratorBase<typeof schema> {
    * @param target - The target path of the generated directory
    */
   async generate(args: Out<typeof schema>): Promise<void> {
+    this.ensureWaspCompatible();
+
     const { target } = args;
     const segments = validateFeaturePath(target);
     const normalisedPath = normaliseFeaturePath(target);

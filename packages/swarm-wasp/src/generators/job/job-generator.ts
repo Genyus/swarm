@@ -27,6 +27,8 @@ export class JobGenerator extends ComponentGeneratorBase<
     const jobName = toCamelCase(args.name);
 
     return this.handleGeneratorError(this.componentType, jobName, async () => {
+      this.ensureWaspCompatible();
+
       const configPath = this.validateFeatureConfig(args.feature);
       const { targetDirectory } = this.ensureTargetDirectory(
         args.feature,

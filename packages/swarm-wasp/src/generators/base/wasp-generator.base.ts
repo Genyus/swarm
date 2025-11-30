@@ -3,10 +3,14 @@ import {
   GeneratorBase,
   GeneratorServices,
   StandardSchemaV1,
-  getConfigManager,
   TemplateResolver,
+  getConfigManager,
 } from '@ingenyus/swarm';
-import { PLUGIN_NAME, TemplateUtility } from '../../common';
+import {
+  PLUGIN_NAME,
+  TemplateUtility,
+  assertWaspCompatible,
+} from '../../common';
 import { WaspConfigGenerator } from '../config';
 
 /**
@@ -32,6 +36,14 @@ export abstract class WaspGeneratorBase<
     );
     this.templateUtility = new TemplateUtility(this.fileSystem);
     this.templateResolver = new TemplateResolver(this.fileSystem);
+  }
+
+  /**
+   * Ensures that the installed Wasp version is compatible with this package.
+   * Should be called at the start of generator execution.
+   */
+  protected ensureWaspCompatible(): void {
+    assertWaspCompatible(this.logger);
   }
 
   private async loadConfig(): Promise<void> {

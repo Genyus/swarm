@@ -27,6 +27,8 @@ export class ApiNamespaceGenerator extends ComponentGeneratorBase<
       this.componentType,
       namespaceName,
       async () => {
+        this.ensureWaspCompatible();
+
         const configPath = this.validateFeatureConfig(feature);
         const {
           targetDirectory: apiTargetDirectory,

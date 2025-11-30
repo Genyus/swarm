@@ -44,6 +44,8 @@ export class CrudGenerator extends OperationGeneratorBase<
     const crudType = toPascalCase(crudName);
 
     return this.handleGeneratorError(this.componentType, crudName, async () => {
+      this.ensureWaspCompatible();
+
       const configPath = this.validateFeatureConfig(feature);
       const { targetDirectory } = this.ensureTargetDirectory(
         feature,
