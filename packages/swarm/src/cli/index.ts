@@ -19,11 +19,11 @@ export async function main(): Promise<void> {
   const hasConfig = fs.existsSync(DEFAULT_CONFIG_FILE);
   const hasPackageJson = fs.existsSync('package.json');
   const isInProject = hasConfig || hasPackageJson;
+  const logger = getCLILogger();
 
   try {
     if (!isInProject) {
       // Only show create command when not in a project
-      const logger = getCLILogger();
       const services = getGeneratorServices('cli', logger);
       const appGen = new AppGenerator(services);
       const createCmd = new Command('create')
@@ -43,8 +43,8 @@ export async function main(): Promise<void> {
         .action(async (name: string, options: any) => {
           try {
             if (!options.template) {
-              console.error(
-                'Error: Template is required. Use --template to specify a GitHub repository.'
+              logger.error(
+                'Template is required. Use --template to specify a GitHub repository.'
               );
               process.exit(1);
             }
@@ -54,7 +54,7 @@ export async function main(): Promise<void> {
               targetDir: options.targetDir,
             });
           } catch (err: any) {
-            console.error('Error:', err.message);
+            logger.error(err.message);
             process.exit(1);
           }
         });
@@ -70,10 +70,7 @@ export async function main(): Promise<void> {
 
     await command.parseAsync(process.argv);
   } catch (error) {
-    console.error(
-      'Error:',
-      error instanceof Error ? error.message : 'Unknown error'
-    );
+    logger.error(error instanceof Error ? error.message : 'Unknown error');
     process.exit(1);
   }
 }

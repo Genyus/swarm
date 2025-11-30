@@ -19,6 +19,7 @@ export class CLIManager extends PluginInterfaceManager<Command> {
     string,
     { schema: StandardSchemaV1; provider: GeneratorProvider }
   >();
+  private logger = getCLILogger();
 
   /**
    * Create a Commander.js command from a generator provider
@@ -29,7 +30,7 @@ export class CLIManager extends PluginInterfaceManager<Command> {
     // Create a temporary generator instance to get metadata
     const tempServices = {
       fileSystem: realFileSystem,
-      logger: getCLILogger(),
+      logger: this.logger,
     };
     const generator = await provider.create(tempServices);
     const name = generator.name;
@@ -53,7 +54,6 @@ export class CLIManager extends PluginInterfaceManager<Command> {
       try {
         await this.executeCommand(name, rawArgs);
       } catch (err: any) {
-        console.error('Error:', err.message);
         process.exit(1);
       }
     });
@@ -75,8 +75,7 @@ export class CLIManager extends PluginInterfaceManager<Command> {
     }
 
     const validatedArgs = await this.validateArgs(commandInfo.schema, rawArgs);
-    const logger = getCLILogger();
-    const services = getGeneratorServices('cli', logger);
+    const services = getGeneratorServices('cli', this.logger);
     const generator = await commandInfo.provider.create(services);
 
     await generator.generate(validatedArgs);

@@ -77,11 +77,21 @@ describe('AppGenerator', () => {
   it('should normalize template formats correctly', () => {
     expect(gen['normalizeTemplate']('user/repo')).toBe('gh:user/repo');
     expect(gen['normalizeTemplate']('gh:user/repo')).toBe('gh:user/repo');
-    expect(gen['normalizeTemplate']('gitlab:user/repo')).toBe('gitlab:user/repo');
-    expect(gen['normalizeTemplate']('bitbucket:user/repo')).toBe('bitbucket:user/repo');
-    expect(gen['normalizeTemplate']('sourcehut:user/repo')).toBe('sourcehut:user/repo');
-    expect(gen['normalizeTemplate']('https://example.com/repo.tar.gz')).toBe('https://example.com/repo.tar.gz');
-    expect(gen['normalizeTemplate']('http://example.com/repo.tar.gz')).toBe('http://example.com/repo.tar.gz');
+    expect(gen['normalizeTemplate']('gitlab:user/repo')).toBe(
+      'gitlab:user/repo'
+    );
+    expect(gen['normalizeTemplate']('bitbucket:user/repo')).toBe(
+      'bitbucket:user/repo'
+    );
+    expect(gen['normalizeTemplate']('sourcehut:user/repo')).toBe(
+      'sourcehut:user/repo'
+    );
+    expect(gen['normalizeTemplate']('https://example.com/repo.tar.gz')).toBe(
+      'https://example.com/repo.tar.gz'
+    );
+    expect(gen['normalizeTemplate']('http://example.com/repo.tar.gz')).toBe(
+      'http://example.com/repo.tar.gz'
+    );
   });
 
   it('should reject existing directories', async () => {
