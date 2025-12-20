@@ -2,9 +2,15 @@ name: CI
 
 on:
   push:
-    branches: [main, develop]
+    branches:
+      - main
+      - develop
+      - "*-[0-9]+.x"
   pull_request:
-    branches: [main, develop]
+    branches:
+      - main
+      - develop
+      - "*-[0-9]+.x"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -68,7 +74,8 @@ jobs:
     name: Generate Changesets
     needs: test
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    # Run on main and package maintenance branches (*-N.x)
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || endsWith(github.ref, '.x'))
     permissions:
       contents: write
 
@@ -104,14 +111,15 @@ jobs:
           RELEASE_COMMIT_MESSAGE: ${{ env.RELEASE_COMMIT_MESSAGE }}
         run: |
           LATEST_COMMIT=$(git log -1 --pretty=%B)
+          BRANCH_NAME="${{ github.ref_name }}"
 
           # Check if latest commit is a merge commit (has 2 parents)
           PARENT_COUNT=$(git log -1 --format=%P | wc -w | tr -d ' ')
 
           if [[ "$PARENT_COUNT" -eq "2" ]]; then
-            # It's a merge commit, check if it merged from changeset-release/main
+            # It's a merge commit, check if it merged from changeset-release branch
             # GitHub merge commits contain the branch name in the message
-            if [[ "$LATEST_COMMIT" == *"changeset-release/main"* ]]; then
+            if [[ "$LATEST_COMMIT" == *"changeset-release/"* ]]; then
               echo "is_release_commit=true" >> $GITHUB_OUTPUT
               echo "Latest commit is a release PR merge, skipping changeset generation"
               exit 0

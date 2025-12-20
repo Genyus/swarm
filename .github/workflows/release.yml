@@ -7,6 +7,7 @@ on:
       - completed
     branches:
       - main
+      - "*-[0-9]+.x" # Package maintenance branches (e.g., swarm-wasp-1.x, swarm-2.x)
 
 permissions:
   contents: write
@@ -21,7 +22,7 @@ jobs:
   release:
     name: Release
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main' }}
+    if: ${{ github.event.workflow_run.conclusion == 'success' && (github.event.workflow_run.head_branch == 'main' || endsWith(github.event.workflow_run.head_branch, '-[0-9]+.x')) }}
 
     env:
       RELEASE_COMMIT_MESSAGE: "chore: version packages"
@@ -33,7 +34,7 @@ jobs:
         with:
           fetch-depth: 0
           token: ${{ secrets.PAT_TOKEN }}
-          # Checkout the branch (main) to get the latest commit which includes
+          # Checkout the branch to get the latest commit which includes
           # any changesets that were committed during the CI workflow
           ref: ${{ github.event.workflow_run.head_branch }}
 
@@ -59,18 +60,38 @@ jobs:
 
       - name: Fetch latest commits
         run: |
-          git fetch origin main
-          git checkout main
+          BRANCH="${{ github.event.workflow_run.head_branch }}"
+          git fetch origin "$BRANCH"
+          git checkout "$BRANCH"
           echo "Latest commit: $(git log -1 --oneline)"
+
+      - name: Determine release tag
+        id: release-tag
+        run: |
+          BRANCH="${{ github.event.workflow_run.head_branch }}"
+          if [[ "$BRANCH" =~ ^(.+)-([0-9]+)\.x$ ]]; then
+            # Maintenance branch: <package>-N.x
+            MAJOR="${BASH_REMATCH[2]}"
+            echo "tag=v${MAJOR}" >> $GITHUB_OUTPUT
+            echo "is_maintenance=true" >> $GITHUB_OUTPUT
+            echo "pr_suffix= [${BRANCH}]" >> $GITHUB_OUTPUT
+            echo "Publishing to 'v${MAJOR}' tag (maintenance branch: ${BRANCH})"
+          else
+            # Main branch or other
+            echo "tag=" >> $GITHUB_OUTPUT
+            echo "is_maintenance=false" >> $GITHUB_OUTPUT
+            echo "pr_suffix=" >> $GITHUB_OUTPUT
+            echo "Publishing to 'latest' tag"
+          fi
 
       - name: Create Release PR or Publish to NPM
         id: changesets
         uses: changesets/action@v1
         with:
-          commit: ${{ env.RELEASE_COMMIT_MESSAGE }}
-          title: ${{ env.RELEASE_PR_TITLE }}
+          commit: "${{ env.RELEASE_COMMIT_MESSAGE }}${{ steps.release-tag.outputs.pr_suffix }}"
+          title: "${{ env.RELEASE_PR_TITLE }}${{ steps.release-tag.outputs.pr_suffix }}"
           version: pnpm changeset:version
-          publish: pnpm release
+          publish: pnpm release ${{ steps.release-tag.outputs.tag != '' && format('--tag {0}', steps.release-tag.outputs.tag) || '' }}
           createGithubReleases: true
         env:
           GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
@@ -85,7 +106,7 @@ jobs:
         run: node .github/scripts/format-release-pr.js
 
       - name: Update Subrepo Dependencies
-        if: steps.changesets.outputs.published == 'true'
+        if: steps.changesets.outputs.published == 'true' && steps.release-tag.outputs.is_maintenance == 'false'
         run: node .github/scripts/update-subrepo-deps.js
         env:
           GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
