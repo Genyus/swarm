@@ -41,6 +41,7 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: 24
+          registry-url: "https://registry.npmjs.org"
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
@@ -61,6 +62,9 @@ jobs:
           git fetch origin main
           git checkout main
           echo "Latest commit: $(git log -1 --oneline)"
+
+      - name: Clear auth token for OIDC
+        run: echo "NODE_AUTH_TOKEN=" >> $GITHUB_ENV
 
       - name: Create Release PR or Publish to NPM
         id: changesets

@@ -43,12 +43,12 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/genyus/swarm.git",
+    "url": "https://github.com/Genyus/swarm",
     "directory": "packages/swarm-wasp"
   },
-  "homepage": "https://github.com/genyus/swarm/tree/main/packages/swarm-wasp#readme",
+  "homepage": "https://github.com/Genyus/swarm/tree/main/packages/swarm-wasp#readme",
   "bugs": {
-    "url": "https://github.com/genyus/swarm/issues"
+    "url": "https://github.com/Genyus/swarm/issues"
   },
   "engines": {
     "node": ">=18.0.0"
