@@ -15,6 +15,7 @@ permissions:
     # Needed for workflow_run
   packages: write
   actions: write
+  id-token: write
 
 jobs:
   release:
