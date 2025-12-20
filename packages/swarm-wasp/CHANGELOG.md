@@ -1,21 +1,5 @@
 # @ingenyus/swarm-wasp
 
-## [1.1.0][1.1.0] - 2025-12-20
-
-### Minor Changes
-
-### 🎉 New Features
-
-- add Wasp compatibility checking ([ba8c1f7](https://github.com/genyus/swarm/commit/ba8c1f798845111517ad4b0c52ad9711522bcceb))
-
-### 📦 Updated Dependencies
-
-- update @ingenyus/swarm to 1.0.3 ([061c359](https://github.com/genyus/swarm/commit/061c3592af901b037f626353c8472a075eaced3d))
-
-Contributors: [genyus](https://github.com/genyus)
-
-[1.1.0]: https://github.com/genyus/swarm/releases/tag/%40ingenyus%2Fswarm-wasp%401.1.0
-
 ## [1.0.3][1.0.3] - 2025-11-17
 
 ### 🐞 Bug Fixes
