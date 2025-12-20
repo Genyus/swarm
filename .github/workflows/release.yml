@@ -63,9 +63,6 @@ jobs:
           git checkout main
           echo "Latest commit: $(git log -1 --oneline)"
 
-      - name: Clear auth token for OIDC
-        run: echo "NODE_AUTH_TOKEN=" >> $GITHUB_ENV
-
       - name: Create Release PR or Publish to NPM
         id: changesets
         uses: changesets/action@v1
@@ -77,6 +74,7 @@ jobs:
           createGithubReleases: true
         env:
           GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
+          NODE_AUTH_TOKEN: ""
 
       - name: Format Release PR
         if: ${{ steps.changesets.outputs.pullRequestNumber != '' }}
