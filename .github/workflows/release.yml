@@ -38,9 +38,9 @@ jobs:
           ref: ${{ github.event.workflow_run.head_branch }}
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
-          node-version: 20
+          node-version: 24
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
@@ -73,7 +73,6 @@ jobs:
           createGithubReleases: true
         env:
           GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Format Release PR
         if: ${{ steps.changesets.outputs.pullRequestNumber != '' }}
