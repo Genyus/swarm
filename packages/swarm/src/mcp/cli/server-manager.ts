@@ -115,6 +115,15 @@ export class ServerManager {
     return this.isRunning;
   }
 
+  private isProjectRoot(dir: string): boolean {
+    const pathExists = (dirPath: string, fileName: string) =>
+      existsSync(path.join(dirPath, fileName));
+
+    return (
+      pathExists(dir, 'swarm.config.json') || pathExists(dir, 'package.json')
+    );
+  }
+
   private resolveProjectRoot(): string {
     // Strategy: Try process.cwd() first, then fall back to binary path resolution
     // This handles all scenarios:
@@ -122,21 +131,12 @@ export class ServerManager {
     // 2. External direct path: cwd() is target project root
     // 3. Local npx: cwd() is project root (fixed)
     // 4. Remote npx: cwd() is where command was invoked, then fallback to binary path
-
     const cwd = process.cwd();
 
-    // Check if cwd() looks like a valid project directory
-    const hasSwarmConfig = existsSync(path.join(cwd, 'swarm.config.json'));
-    const hasPackageJson = existsSync(path.join(cwd, 'package.json'));
-
-    if (hasSwarmConfig || hasPackageJson) {
+    if (this.isProjectRoot(cwd)) {
       return cwd;
     }
 
-    // Fallback: Try to infer project root from binary location
-    // This helps when:
-    // - Binary is installed locally in project/node_modules (scenario 1)
-    // - Remote npx but binary happens to be in a project's node_modules
     const binPath = process.argv[1];
 
     if (binPath) {
@@ -148,23 +148,12 @@ export class ServerManager {
         const rootSegments = segments.slice(0, nodeModulesIndex);
         const candidate = rootSegments.join(path.sep);
 
-        // Verify the candidate actually looks like a project root
-        if (candidate) {
-          const candidateHasConfig = existsSync(
-            path.join(candidate, 'swarm.config.json')
-          );
-          const candidateHasPackage = existsSync(
-            path.join(candidate, 'package.json')
-          );
-
-          if (candidateHasConfig || candidateHasPackage) {
-            return candidate;
-          }
+        if (this.isProjectRoot(candidate)) {
+          return candidate;
         }
       }
     }
 
-    // Final fallback: use cwd() (will be used by findProjectRoot() to search upward)
     return cwd;
   }
 }
