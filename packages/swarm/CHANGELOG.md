@@ -1,5 +1,15 @@
 # @ingenyus/swarm
 
+## [1.0.4][1.0.4] - 2025-12-23
+
+### 🔧 Minor Improvements
+
+- refactor project root resolution ([d74e561](https://github.com/genyus/swarm/commit/d74e5611730ee30d437b51dd6b6a1456a07f93bd))
+
+Contributors: [genyus](https://github.com/genyus)
+
+[1.0.4]: https://github.com/genyus/swarm/releases/tag/%40ingenyus%2Fswarm%401.0.4
+
 ## [1.0.3][1.0.3] - 2025-12-20
 
 ### 🐞 Bug Fixes
