@@ -1,12 +1,50 @@
-import { Logger, getVersion } from '@ingenyus/swarm';
+import { Logger, findPackageJson, getVersion } from '@ingenyus/swarm';
 import { execSync } from 'node:child_process';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import * as semver from 'semver';
 
-const waspCompatibility = {
-  supportedRange: '>=0.18.0 <0.20.0',
-};
+let cachedSupportedRange: string | null = null;
+
+/**
+ * Gets the Wasp supported version range from package.json swarm.wasp field.
+ * Throws an error if the range is not found.
+ *
+ * @returns The supported Wasp version range (e.g., ">=0.18.0 <0.20.0")
+ * @throws Error if the supported range is not found in package.json
+ */
+function getWaspSupportedRange(): string {
+  if (cachedSupportedRange) {
+    return cachedSupportedRange;
+  }
+
+  const currentFile = fileURLToPath(import.meta.url);
+  const currentDir = path.dirname(currentFile);
+  const result = findPackageJson(currentDir, {
+    packageName: '@ingenyus/swarm-wasp',
+  });
+
+  if (!result) {
+    throw new Error(
+      'Unable to find package.json for @ingenyus/swarm-wasp. ' +
+        'Wasp supported version range must be specified in swarm.wasp field.'
+    );
+  }
+
+  const swarm = result.packageJson.swarm as { wasp?: string } | undefined;
+  const waspRange = swarm?.wasp;
+
+  if (!waspRange) {
+    throw new Error(
+      'Wasp supported version range not found in package.json. ' +
+        'Please specify swarm.wasp field in @ingenyus/swarm-wasp package.json ' +
+        `(e.g., "swarm": { "wasp": ">=0.18.0 <0.20.0" }).`
+    );
+  }
+
+  cachedSupportedRange = waspRange;
+  return cachedSupportedRange;
+}
 
 /**
  * Gets the installed Wasp version by executing `wasp version` command.
@@ -83,14 +121,15 @@ export function assertWaspCompatible(logger: Logger): void {
   }
 
   const version = getInstalledWaspVersion(logger);
+  const supportedRange = getWaspSupportedRange();
 
-  if (!semver.satisfies(version, waspCompatibility.supportedRange)) {
+  if (!semver.satisfies(version, supportedRange)) {
     const startDir = path.dirname(fileURLToPath(import.meta.url));
     const packageVersion = getVersion('@ingenyus/swarm-wasp', startDir);
     logger.error(
       `Incompatible Wasp version detected: ${version}. ` +
         `@ingenyus/swarm-wasp@${packageVersion} supports Wasp ` +
-        `${waspCompatibility.supportedRange}.`
+        `${supportedRange}.`
     );
 
     throw new Error('Incompatible Wasp version');
