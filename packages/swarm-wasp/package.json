@@ -17,12 +17,12 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "lint": "eslint src --ext .ts",
-    "lint:fix": "eslint src --ext .ts --fix",
-    "format": "prettier --write src",
+    "lint": "eslint src --ext .ts --fix",
+    "lint:check": "eslint src --ext .ts",
+    "format": "prettier --write --list-different src",
     "format:check": "prettier --check src",
     "typecheck": "tsc --project tsconfig.typecheck.json",
-    "validate": "pnpm run build && pnpm run typecheck && pnpm run lint:fix && pnpm run format && pnpm test"
+    "validate": "pnpm run build && pnpm run typecheck && pnpm test && pnpm run lint && pnpm run format"
   },
   "keywords": [
     "wasp",
