@@ -4,7 +4,7 @@
   "dependencies": {
     "@hookform/resolvers": "^5.1.1",
     "@ingenyus/swarm": "^1.0.2",
-    "@ingenyus/swarm-wasp": "^1.0.3",
+    "@ingenyus/swarm-wasp": "^1.2.0",
     "@radix-ui/react-tooltip": "^1.2.7",
     "@radix-ui/react-use-controllable-state": "^1.2.2",
     "@tailwindcss/forms": "^0.5.3",
@@ -38,7 +38,7 @@
     "tslint-config-prettier": "^1.18.0",
     "typescript": "5.8.2",
     "vite": "^7.0.6",
-    "wasp-config": "file:../../.local/share/wasp-lang/0.18.2/data/packages/wasp-config"
+    "wasp-config": "file:../../.local/share/wasp-lang/0.19.1/data/packages/wasp-config"
   },
   "scripts": {
     "compile": "wasp ts-setup && wasp compile",
@@ -67,5 +67,9 @@
     "restart": "npm run restart:wasp",
     "db": "npm run start:db",
     "shadcn": "node scripts/add-shadcn.js"
-  }
+  },
+  "workspaces": [
+    ".wasp/build/*",
+    ".wasp/out/*"
+  ]
 }

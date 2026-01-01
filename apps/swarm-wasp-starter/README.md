@@ -56,9 +56,9 @@ src/
 
 ### Prerequisites
 
-- Node.js 18+ 
-- pnpm (recommended) or npm
-- Wasp CLI installed globally
+- Node.js 22+ 
+- npm
+- Wasp 0.19.x
 
 ### Installation
 
@@ -72,18 +72,15 @@ src/
    cd my-app
    ```
 
-3. **Install dependencies:**
+3. **Install and configure dependencies:**
    ```bash
    npm install
-   # or
-   pnpm install
+   npm run reset:wasp
    ```
 
 4. **Start the development server:**
    ```bash
    npm run dev
-   # or
-   pnpm dev
    ```
 
 ## Generating Code
