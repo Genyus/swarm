@@ -54,7 +54,7 @@
     "node": ">=22.12.0"
   },
   "swarm": {
-    "wasp": ">=0.18.0 <0.21.0"
+    "wasp": ">=0.18.0 <0.22.0"
   },
   "dependencies": {
     "@ingenyus/swarm": "workspace:*",
