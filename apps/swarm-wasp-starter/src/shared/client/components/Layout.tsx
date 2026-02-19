@@ -1,4 +1,4 @@
-import { Outlet } from "react-router-dom";
+import { Outlet } from "react-router";
 import { useThemeProvider } from "../hooks/useTheme";
 import "../Main.css";
 import Footer from "./Footer";

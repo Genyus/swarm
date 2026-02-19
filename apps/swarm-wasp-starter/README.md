@@ -58,7 +58,7 @@ src/
 
 - Node.js 22+ 
 - npm
-- Wasp 0.19.x
+- Wasp 0.21.x
 
 ### Installation
 
@@ -74,7 +74,6 @@ src/
 
 3. **Install and configure dependencies:**
    ```bash
-   npm install
    npm run reset:wasp
    ```
 

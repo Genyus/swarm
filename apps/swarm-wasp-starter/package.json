@@ -14,18 +14,17 @@
     "clsx": "^2.1.0",
     "lucide-react": "^0.525.0",
     "motion": "^12.23.24",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-router-dom": "^6.26.2",
+    "react": "^19.2.1",
+    "react-dom": "^19.2.1",
+    "react-router": "^7.12.0",
     "sonner": "^1.7.4",
     "tailwind-merge": "^2.2.1",
-    "tailwindcss": "^4.1.14",
-    "wasp": "file:.wasp/out/sdk/wasp"
+    "tailwindcss": "^4.1.14"
   },
   "devDependencies": {
     "@eslint/js": "^9.34.0",
     "@tailwindcss/vite": "^4.1.14",
-    "@types/react": "^18.0.37",
+    "@types/react": "^19.2.7",
     "@typescript-eslint/eslint-plugin": "^8.41.0",
     "@typescript-eslint/parser": "^8.41.0",
     "eslint": "^9.34.0",
@@ -38,7 +37,7 @@
     "tslint-config-prettier": "^1.18.0",
     "typescript": "5.8.2",
     "vite": "^7.0.6",
-    "wasp-config": "file:../../.local/share/wasp-lang/0.19.1/data/packages/wasp-config"
+    "wasp-config": "file:../../../../.nvm/versions/node/v24.12.0/lib/node_modules/@wasp.sh/wasp-cli/node_modules/@wasp.sh/wasp-cli-darwin-arm64-unknown/data/packages/wasp-config"
   },
   "scripts": {
     "compile": "wasp ts-setup && wasp compile",
@@ -69,7 +68,7 @@
     "shadcn": "node scripts/add-shadcn.js"
   },
   "workspaces": [
-    ".wasp/build/*",
-    ".wasp/out/*"
+    ".wasp/out/*",
+    ".wasp/out/sdk/wasp"
   ]
 }
