@@ -7,11 +7,6 @@ export default defineConfig({
     environment: 'node',
     testTimeout: 30000,
     pool: 'forks',
-    poolOptions: {
-      forks: {
-        singleFork: true,
-      },
-    },
     include: [
       'src/**/*.test.ts', // Unit tests
       'tests/**/*.test.ts', // Integration tests

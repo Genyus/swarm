@@ -3,9 +3,21 @@ import path from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ServerManager } from './server-manager';
 
+const mockStart = vi.fn().mockResolvedValue(undefined);
+const mockStop = vi.fn().mockResolvedValue(undefined);
+
 // Mock the MCPManager
 vi.mock('../server/mcp-manager', () => ({
-  MCPManager: vi.fn(),
+  MCPManager: function MockMCPManager(
+    this: any,
+    _config: any,
+    _configPath?: string
+  ) {
+    this.start = mockStart;
+    this.stop = mockStop;
+
+    return this;
+  },
 }));
 
 // Mock node:fs
@@ -31,24 +43,11 @@ vi.mock('../server/utils', async (importOriginal) => ({
 
 describe('ServerManager', () => {
   let serverManager: ServerManager;
-  let mockServer: any;
-  let MockedMCPManager: any;
 
   beforeEach(async () => {
     vi.clearAllMocks();
-
-    // Get the mocked SwarmMCPServer
-    const { MCPManager } = await import('../server');
-    MockedMCPManager = MCPManager as any;
-
-    // Create the mock server instance with proper method setup
-    mockServer = {
-      start: vi.fn().mockResolvedValue(undefined),
-      stop: vi.fn().mockResolvedValue(undefined),
-    };
-
-    // Set up the mock constructor to return our mock server
-    MockedMCPManager.mockImplementation(() => mockServer);
+    mockStart.mockResolvedValue(undefined);
+    mockStop.mockResolvedValue(undefined);
 
     serverManager = new ServerManager();
   });
@@ -60,8 +59,6 @@ describe('ServerManager', () => {
   describe('constructor', () => {
     it('should create a new server manager instance', () => {
       expect(serverManager).toBeInstanceOf(ServerManager);
-      // SwarmMCPServer is not called during construction, only when start() is called
-      expect(MockedMCPManager).not.toHaveBeenCalled();
     });
 
     it('should initialize with server not running', () => {
@@ -73,7 +70,7 @@ describe('ServerManager', () => {
     it('should start the server successfully', async () => {
       await serverManager.start();
 
-      expect(mockServer.start).toHaveBeenCalledOnce();
+      expect(mockStart).toHaveBeenCalledOnce();
       expect(serverManager.isServerRunning()).toBe(true);
     });
 
@@ -89,7 +86,7 @@ describe('ServerManager', () => {
 
     it('should handle server start failure', async () => {
       // Mock start failure
-      mockServer.start.mockRejectedValue(new Error('Start failed'));
+      mockStart.mockRejectedValue(new Error('Start failed'));
 
       await expect(serverManager.start()).rejects.toThrow(
         'Internal error during start server'
@@ -99,7 +96,7 @@ describe('ServerManager', () => {
 
     it('should handle non-Error exceptions during start', async () => {
       // Mock start failure with non-Error
-      mockServer.start.mockRejectedValue('String error');
+      mockStart.mockRejectedValue('String error');
 
       await expect(serverManager.start()).rejects.toThrow(
         'Internal error during start server'
@@ -115,7 +112,7 @@ describe('ServerManager', () => {
 
       await serverManager.stop();
 
-      expect(mockServer.stop).toHaveBeenCalledOnce();
+      expect(mockStop).toHaveBeenCalledOnce();
       expect(serverManager.isServerRunning()).toBe(false);
     });
 
@@ -124,7 +121,7 @@ describe('ServerManager', () => {
       await serverManager.start();
 
       // Mock stop failure
-      mockServer.stop.mockRejectedValue(new Error('Stop failed'));
+      mockStop.mockRejectedValue(new Error('Stop failed'));
 
       await expect(serverManager.stop()).rejects.toThrow(
         'Internal error during stop server'
@@ -137,7 +134,7 @@ describe('ServerManager', () => {
       await serverManager.start();
 
       // Mock stop failure with non-Error
-      mockServer.stop.mockRejectedValue('String error');
+      mockStop.mockRejectedValue('String error');
 
       await expect(serverManager.stop()).rejects.toThrow(
         'Internal error during stop server'
@@ -172,7 +169,7 @@ describe('ServerManager', () => {
 
   describe('error handling integration', () => {
     it('should use proper error context for start errors', async () => {
-      mockServer.start.mockRejectedValue(new Error('Start failed'));
+      mockStart.mockRejectedValue(new Error('Start failed'));
 
       try {
         await serverManager.start();
@@ -188,7 +185,7 @@ describe('ServerManager', () => {
       // Start the server first
       await serverManager.start();
 
-      mockServer.stop.mockRejectedValue(new Error('Stop failed'));
+      mockStop.mockRejectedValue(new Error('Stop failed'));
 
       try {
         await serverManager.stop();

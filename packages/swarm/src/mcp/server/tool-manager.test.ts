@@ -12,10 +12,10 @@ import {
 import { ToolManager } from './tool-manager';
 
 vi.mock('../../plugin/plugin-manager', () => ({
-  PluginManager: vi.fn().mockImplementation(() => ({
-    initialize: vi.fn().mockResolvedValue(undefined),
-    getEnabledGenerators: vi.fn().mockReturnValue([]),
-  })),
+  PluginManager: function MockPluginManager(this: any) {
+    this.initialize = vi.fn().mockResolvedValue(undefined);
+    this.getEnabledGenerators = vi.fn().mockReturnValue([]);
+  },
 }));
 
 describe('ToolManager', () => {
