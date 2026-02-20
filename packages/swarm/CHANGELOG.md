@@ -1,5 +1,17 @@
 # @ingenyus/swarm
 
+## [2.0.0][2.0.0] - 2026-02-20
+
+### Major Changes
+
+### ⚠️ Breaking Changes
+
+- update dependencies ([be334a5](https://github.com/genyus/swarm/commit/be334a5b0b45becd501b8db804878233eb66d1d4))
+
+Contributors: [genyus](https://github.com/genyus)
+
+[2.0.0]: https://github.com/genyus/swarm/releases/tag/%40ingenyus%2Fswarm%402.0.0
+
 ## [1.0.4][1.0.4] - 2025-12-23
 
 ### 🔧 Minor Improvements

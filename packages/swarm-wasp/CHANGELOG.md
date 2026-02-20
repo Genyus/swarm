@@ -1,5 +1,25 @@
 # @ingenyus/swarm-wasp
 
+## [2.0.0][2.0.0] - 2026-02-20
+
+### Major Changes
+
+### ⚠️ Breaking Changes
+
+- update dependencies ([be334a5](https://github.com/genyus/swarm/commit/be334a5b0b45becd501b8db804878233eb66d1d4))
+
+### 🐞 Bug Fixes
+
+- add support for Wasp 0.21.x ([17028d1](https://github.com/genyus/swarm/commit/17028d1be57d729dfcd7af9a42f421b0776d33d1))
+
+### 📦 Updated Dependencies
+
+- update @ingenyus/swarm to 2.0.0 ([be334a5](https://github.com/genyus/swarm/commit/be334a5b0b45becd501b8db804878233eb66d1d4))
+
+Contributors: [genyus](https://github.com/genyus)
+
+[2.0.0]: https://github.com/genyus/swarm/releases/tag/%40ingenyus%2Fswarm-wasp%402.0.0
+
 ## [1.2.0][1.2.0] - 2025-12-23
 
 ### Minor Changes
