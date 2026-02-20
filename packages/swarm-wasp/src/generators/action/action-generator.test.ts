@@ -28,10 +28,10 @@ vi.mock('../../common', async () => {
     getFeatureDir: vi.fn((fs, path) => `/test-project/src/features/${path}`),
     getFeatureImportPath: vi.fn((path) => path),
     ensureDirectoryExists: vi.fn(),
-    TemplateUtility: vi.fn().mockImplementation(() => ({
-      processTemplate: vi.fn(),
-      resolveTemplatePath: vi.fn(),
-    })),
+    TemplateUtility: function MockTemplateUtility(this: any) {
+      this.processTemplate = vi.fn();
+      this.resolveTemplatePath = vi.fn();
+    },
   };
 });
 

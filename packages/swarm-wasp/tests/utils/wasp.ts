@@ -20,7 +20,7 @@ let testCounter = 0;
 export function createTestWaspProject(): TestProjectPaths {
   const outDir = getOutDirectory();
 
-  const projectName = `test-project-${Date.now()}-${testCounter++}`;
+  const projectName = `test-project-${Date.now()}-${testCounter++}-${process.pid}`;
   const root = path.join(outDir, projectName);
 
   // Create root directory first

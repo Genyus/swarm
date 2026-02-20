@@ -1,3 +1,4 @@
+import type { FileSystem } from '@ingenyus/swarm';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { TemplateUtility } from './templates';
 
@@ -21,15 +22,7 @@ vi.mock('./strings', () => ({
 
 describe('TemplateUtility', () => {
   let templateUtility: TemplateUtility;
-  let mockFileSystem: {
-    existsSync: ReturnType<typeof vi.fn>;
-    readFileSync: ReturnType<typeof vi.fn>;
-    writeFileSync: ReturnType<typeof vi.fn>;
-    mkdirSync: ReturnType<typeof vi.fn>;
-    copyFileSync: ReturnType<typeof vi.fn>;
-    readdirSync: ReturnType<typeof vi.fn>;
-    statSync: ReturnType<typeof vi.fn>;
-  };
+  let mockFileSystem: FileSystem;
 
   beforeEach(() => {
     mockFileSystem = {
@@ -40,25 +33,27 @@ describe('TemplateUtility', () => {
       copyFileSync: vi.fn(),
       readdirSync: vi.fn(),
       statSync: vi.fn(),
-    };
+    } as FileSystem;
     templateUtility = new TemplateUtility(mockFileSystem);
   });
 
   describe('processTemplate', () => {
     beforeEach(() => {
       // Mock the file system to simulate template files
-      mockFileSystem.existsSync = vi.fn().mockImplementation((path: string) => {
-        // Return false for test templates to force renderString usage
-        return (
-          !path.includes('test-template') &&
-          !path.includes('multi-template') &&
-          !path.includes('repeat-template') &&
-          !path.includes('empty-template') &&
-          !path.includes('no-placeholders')
-        );
-      });
+      (mockFileSystem.existsSync as ReturnType<typeof vi.fn>) = vi
+        .fn()
+        .mockImplementation((path: string) => {
+          // Return false for test templates to force renderString usage
+          return (
+            !path.includes('test-template') &&
+            !path.includes('multi-template') &&
+            !path.includes('repeat-template') &&
+            !path.includes('empty-template') &&
+            !path.includes('no-placeholders')
+          );
+        });
 
-      mockFileSystem.readFileSync = vi
+      (mockFileSystem.readFileSync as ReturnType<typeof vi.fn>) = vi
         .fn()
         .mockImplementation((path: string) => {
           if (path.includes('test-template.eta')) {
