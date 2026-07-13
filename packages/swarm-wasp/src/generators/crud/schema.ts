@@ -1,9 +1,9 @@
 import { registerSchemaMetadata, SchemaManager } from '@ingenyus/swarm';
 import { z } from 'zod/v4';
 import {
+  CRUD_OPERATIONS,
   commonFieldMetadata,
   commonSchemas,
-  CRUD_OPERATIONS,
 } from '../../common';
 
 const validCrudOperations = Object.values(CRUD_OPERATIONS);

@@ -1,7 +1,7 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { findPackageDirectory } from '../common/package-utils';
-import { Plugin } from './types';
+import type { Plugin } from './types';
 
 /**
  * Unified plugin resolver using dynamic imports
@@ -95,11 +95,11 @@ export class PluginResolver {
     applicationRoot: string
   ): Promise<string | null> {
     try {
-      const { createRequire } = await import('module');
+      const { createRequire } = await import('node:module');
       const require = createRequire(path.join(applicationRoot, 'package.json'));
       const resolvedPath = require.resolve(packageName);
       return resolvedPath;
-    } catch (error) {
+    } catch (_error) {
       // Fallback to manual resolution
       const packagePath = await this.resolvePackagePath(
         packageName,
@@ -137,7 +137,7 @@ export class PluginResolver {
   ): Promise<string | null> {
     try {
       try {
-        const { createRequire } = await import('module');
+        const { createRequire } = await import('node:module');
         const require = createRequire(
           path.join(applicationRoot, 'package.json')
         );
@@ -150,7 +150,7 @@ export class PluginResolver {
         if (packageDir) {
           return packageDir;
         }
-      } catch (resolveError) {
+      } catch (_resolveError) {
         // Fall through to manual resolution
       }
 
@@ -183,17 +183,21 @@ export class PluginResolver {
    * @param plugin Plugin object to validate
    * @returns Validated plugin or null
    */
-  private validatePlugin(plugin: any): plugin is Plugin {
+  private validatePlugin(plugin: unknown): plugin is Plugin {
+    if (plugin === null || typeof plugin !== 'object') {
+      return false;
+    }
+
+    const candidate = plugin as { name?: unknown; providers?: unknown };
+
     return (
-      plugin !== null &&
-      typeof plugin === 'object' &&
-      typeof plugin.name === 'string' &&
-      Array.isArray(plugin.providers) &&
-      plugin.providers.every(
-        (provider: any) =>
-          provider &&
+      typeof candidate.name === 'string' &&
+      Array.isArray(candidate.providers) &&
+      candidate.providers.every(
+        (provider: unknown) =>
+          provider !== null &&
           typeof provider === 'object' &&
-          typeof provider.create === 'function'
+          typeof (provider as { create?: unknown }).create === 'function'
       )
     );
   }

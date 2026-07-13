@@ -1,5 +1,5 @@
-import { Command } from 'commander';
 import fs from 'node:fs';
+import { Command } from 'commander';
 import { DEFAULT_CONFIG_FILE, getVersion } from '../common';
 import { AppGenerator, getGeneratorServices } from '../generator';
 import { getCLILogger } from './cli-logger';
@@ -40,24 +40,32 @@ export async function main(): Promise<void> {
           '-d, --target-dir [target-dir]',
           'Target directory (defaults to project name)'
         )
-        .action(async (name: string, options: any) => {
-          try {
-            if (!options.template) {
-              logger.error(
-                'Template is required. Use --template to specify a GitHub repository.'
-              );
+        .action(
+          async (
+            name: string,
+            options: { template?: string; targetDir?: string | boolean }
+          ) => {
+            try {
+              if (!options.template) {
+                logger.error(
+                  'Template is required. Use --template to specify a GitHub repository.'
+                );
+                process.exit(1);
+              }
+              await appGen.generate({
+                name,
+                template: options.template,
+                targetDir:
+                  typeof options.targetDir === 'string'
+                    ? options.targetDir
+                    : undefined,
+              });
+            } catch (err) {
+              logger.error(err instanceof Error ? err.message : String(err));
               process.exit(1);
             }
-            await appGen.generate({
-              name,
-              template: options.template,
-              targetDir: options.targetDir,
-            });
-          } catch (err: any) {
-            logger.error(err.message);
-            process.exit(1);
           }
-        });
+        );
 
       command.addCommand(createCmd);
     } else {

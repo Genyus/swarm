@@ -106,7 +106,7 @@ export default function configureFeature(app: App, feature: string): void {
       fs.readFileSync = vi.fn(() => contentWithSemicolons);
       fs.writeFileSync = vi.fn();
 
-      const result = gen.update(
+      const _result = gen.update(
         'test-feature',
         '.addQuery(feature, "getAllTasks", { entities: ["Task"], auth: false })'
       );

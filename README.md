@@ -55,7 +55,7 @@ To integrate Swarm components into your own projects or to extend the framework,
 ## Scripts & Tooling
 
 - **Monorepo management:** [pnpm](https://pnpm.io/) (`pnpm-workspace.yaml`)
-- **Code style and linting:** [ESLint](https://eslint.org), [Prettier](https://prettier.io), [EditorConfig](https://editorconfig.org)
+- **Code style and linting:** [Biome](https://biomejs.dev), [EditorConfig](https://editorconfig.org)
 - **Schema management:** [Zod](https://zod.dev)
 - **Testing:** [Vitest](https://vitest.dev)
 - **CI/CD:** [GitHub Actions](https://docs.github.com/en/actions)

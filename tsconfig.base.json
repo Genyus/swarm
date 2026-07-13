@@ -15,7 +15,8 @@
     "outDir": "./dist",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "verbatimModuleSyntax": false
+    "verbatimModuleSyntax": false,
+    "types": ["node"]
   },
   "exclude": [
     "node_modules",

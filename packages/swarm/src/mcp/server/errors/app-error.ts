@@ -1,4 +1,4 @@
-import { MCPErrorCode, MCPProtocolError } from './mcp-protocol-error';
+import { type MCPErrorCode, MCPProtocolError } from './mcp-protocol-error';
 
 /**
  * Error context interface

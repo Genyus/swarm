@@ -31,12 +31,12 @@ vi.mock('@ingenyus/swarm', async () => {
 
 describe('RouteGenerator', () => {
   let fs: FileSystem;
-  let featureGen: Generator<typeof featureSchema>;
+  let _featureGen: Generator<typeof featureSchema>;
   let gen: RouteGenerator;
 
   beforeEach(async () => {
     fs = createMockFS();
-    featureGen = createMockFeatureGen(featureSchema);
+    _featureGen = createMockFeatureGen(featureSchema);
     gen = await createTestGenerator(RouteGenerator, schema, {
       fileSystem: fs,
     });
@@ -73,7 +73,7 @@ export default function configureFeature(app: App, feature: string): void {
         return `// Generated route template for ${replacements.componentName || 'unknown'}`;
       }),
       resolveTemplatePath: vi.fn(
-        (templateName, generatorName, currentFileUrl) => {
+        (templateName, generatorName, _currentFileUrl) => {
           return `/mock/templates/${generatorName}/templates/${templateName}`;
         }
       ),

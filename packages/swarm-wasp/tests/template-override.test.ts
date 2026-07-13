@@ -1,14 +1,14 @@
+import * as fs from 'node:fs';
+import * as path from 'node:path';
 import {
   DEFAULT_CONFIG_FILE,
   DEFAULT_CUSTOM_TEMPLATES_DIR,
 } from '@ingenyus/swarm';
-import * as fs from 'node:fs';
-import * as path from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { ApiGenerator, FeatureGenerator } from '../src';
+import { realFileSystem } from '../src/common';
 import { schema as apiSchema } from '../src/generators/api/schema';
 import { schema as featureSchema } from '../src/generators/feature/schema';
-import { realFileSystem } from '../src/common';
 import {
   createTestGenerator,
   createTestWaspProject,
@@ -94,9 +94,13 @@ export const <%=apiName%>: <%=apiType%> = async (req, res, context) => {
       JSON.stringify(swarmConfig, null, 2)
     );
 
-    const featureGen = await createTestGenerator(FeatureGenerator, featureSchema, {
-      fileSystem: realFileSystem,
-    });
+    const featureGen = await createTestGenerator(
+      FeatureGenerator,
+      featureSchema,
+      {
+        fileSystem: realFileSystem,
+      }
+    );
     const apiGen = await createTestGenerator(ApiGenerator, apiSchema, {
       fileSystem: realFileSystem,
     });
@@ -146,9 +150,13 @@ export const <%=apiName%>: <%=apiType%> = async (req, res, context) => {
       JSON.stringify(swarmConfig, null, 2)
     );
 
-    const featureGen = await createTestGenerator(FeatureGenerator, featureSchema, {
-      fileSystem: realFileSystem,
-    });
+    const featureGen = await createTestGenerator(
+      FeatureGenerator,
+      featureSchema,
+      {
+        fileSystem: realFileSystem,
+      }
+    );
     const apiGen = await createTestGenerator(ApiGenerator, apiSchema, {
       fileSystem: realFileSystem,
     });
@@ -227,9 +235,13 @@ export const <%=apiName%>: <%=apiType%> = async (req, res, context) => {
       JSON.stringify(swarmConfig, null, 2)
     );
 
-    const featureGen = await createTestGenerator(FeatureGenerator, featureSchema, {
-      fileSystem: realFileSystem,
-    });
+    const featureGen = await createTestGenerator(
+      FeatureGenerator,
+      featureSchema,
+      {
+        fileSystem: realFileSystem,
+      }
+    );
     const apiGen = await createTestGenerator(ApiGenerator, apiSchema, {
       fileSystem: realFileSystem,
     });
@@ -293,9 +305,13 @@ export const <%=apiName%>: <%=apiType%> = async (req, res, context) => {
       JSON.stringify(swarmConfig, null, 2)
     );
 
-    const featureGen = await createTestGenerator(FeatureGenerator, featureSchema, {
-      fileSystem: realFileSystem,
-    });
+    const featureGen = await createTestGenerator(
+      FeatureGenerator,
+      featureSchema,
+      {
+        fileSystem: realFileSystem,
+      }
+    );
     const apiGen = await createTestGenerator(ApiGenerator, apiSchema, {
       fileSystem: realFileSystem,
     });
@@ -350,9 +366,13 @@ export const <%=apiName%>: <%=apiType%> = async (req, res, context) => {
       JSON.stringify(swarmConfig, null, 2)
     );
 
-    const featureGen = await createTestGenerator(FeatureGenerator, featureSchema, {
-      fileSystem: realFileSystem,
-    });
+    const featureGen = await createTestGenerator(
+      FeatureGenerator,
+      featureSchema,
+      {
+        fileSystem: realFileSystem,
+      }
+    );
     const apiGen = await createTestGenerator(ApiGenerator, apiSchema, {
       fileSystem: realFileSystem,
     });

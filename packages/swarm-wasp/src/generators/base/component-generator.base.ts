@@ -1,13 +1,13 @@
-import {
-  Generator,
-  GeneratorServices,
-  hasHelperMethodCall,
-  StandardSchemaV1,
-  toKebabCase,
-} from '@ingenyus/swarm';
 import path from 'node:path';
 import {
-  ConfigType,
+  type Generator,
+  type GeneratorServices,
+  hasHelperMethodCall,
+  type StandardSchemaV1,
+  toKebabCase,
+} from '@ingenyus/swarm';
+import {
+  type ConfigType,
   ensureDirectoryExists,
   getFeatureDir,
   normaliseFeaturePath,
@@ -15,7 +15,7 @@ import {
   validateFeaturePath,
 } from '../../common';
 import { FeatureGenerator } from '../feature/feature-generator';
-import { schema as featureSchema } from '../feature/schema';
+import type { schema as featureSchema } from '../feature/schema';
 import { WaspGeneratorBase } from './wasp-generator.base';
 
 /**
@@ -57,7 +57,7 @@ export abstract class ComponentGeneratorBase<
     for (let i = segments.length; i > 0; i--) {
       const pathSegments = segments.slice(0, i);
       const currentPath = pathSegments.join('/');
-      const featureName = pathSegments[pathSegments.length - 1];
+      const _featureName = pathSegments[pathSegments.length - 1];
 
       const featureDir = getFeatureDir(this.fileSystem, currentPath);
       const configPath = path.join(featureDir, `feature.wasp.ts`);

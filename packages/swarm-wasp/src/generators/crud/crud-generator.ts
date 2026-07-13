@@ -1,14 +1,13 @@
 import {
-  GeneratorServices,
   getPlural,
-  Out,
+  type Out,
   toCamelCase,
   toPascalCase,
 } from '@ingenyus/swarm';
 import {
   CONFIG_TYPES,
-  CrudOperation,
-  EntityMetadata,
+  type CrudOperation,
+  type EntityMetadata,
   getEntityMetadata,
   needsPrismaImport,
 } from '../../common';
@@ -33,10 +32,6 @@ export class CrudGenerator extends OperationGeneratorBase<
 
   description = 'Generates a Wasp CRUD operation';
   schema = schema;
-
-  constructor(services: GeneratorServices) {
-    super(services);
-  }
 
   async generate(args: Out<typeof schema>): Promise<void> {
     const { dataType, feature, name } = args;
@@ -219,7 +214,11 @@ export class CrudGenerator extends OperationGeneratorBase<
   /**
    * Generates a CRUD definition for the feature configuration.
    */
-  getDefinition(crudName: string, dataType: string, operations: any): string {
+  getDefinition(
+    crudName: string,
+    dataType: string,
+    operations: unknown
+  ): string {
     const templatePath = this.templateUtility.resolveTemplatePath(
       'config/crud.eta',
       'crud',
@@ -230,7 +229,7 @@ export class CrudGenerator extends OperationGeneratorBase<
       .slice(1, -1) // Remove outer braces
       .split('\n')
       .filter((line) => line.trim() !== '')
-      .map((line, index) => (index === 0 ? line.trimStart() : '    ' + line))
+      .map((line, index) => (index === 0 ? line.trimStart() : `    ${line}`))
       .join('\n');
 
     return this.templateUtility.processTemplate(templatePath, {

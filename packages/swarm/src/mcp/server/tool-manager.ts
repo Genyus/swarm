@@ -1,15 +1,16 @@
 import type { Server as MCPServer } from '@modelcontextprotocol/sdk/server';
+import type { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
 import {
-  Generator,
-  GeneratorProvider,
-  GeneratorServices,
+  type Generator,
+  type GeneratorProvider,
+  type GeneratorServices,
   getGeneratorServices,
 } from '../../generator';
 import { PluginInterfaceManager } from '../../plugin';
 import {
-  SchemaFieldMetadata,
+  type SchemaFieldMetadata,
   SchemaManager,
-  StandardSchemaV1,
+  type StandardSchemaV1,
   standardValidate,
 } from '../../schema';
 import { getMCPLogger } from '../mcp-logger';
@@ -22,7 +23,7 @@ interface MCPToolDefinition {
   description: string;
   inputSchema: {
     type: 'object';
-    properties: Record<string, any>;
+    properties: Record<string, unknown>;
     required?: string[];
   };
 }
@@ -30,7 +31,7 @@ interface MCPToolDefinition {
 /**
  * MCP Tool handler function type
  */
-type MCPToolHandler = (args: any) => Promise<any>;
+type MCPToolHandler = (args: unknown) => Promise<CallToolResult>;
 
 /**
  * MCP Tool interface combining definition and handler
@@ -74,7 +75,7 @@ export class ToolManager extends PluginInterfaceManager<MCPTool> {
       throw new Error(`Invalid schema for generator '${generator.name}'`);
     }
 
-    const properties: Record<string, any> = {};
+    const properties: Record<string, unknown> = {};
     const required: string[] = [];
 
     Object.entries(shape).forEach(([fieldName, fieldSchema]) => {
@@ -117,7 +118,7 @@ export class ToolManager extends PluginInterfaceManager<MCPTool> {
    * Returns SDK-compatible CallToolResult format
    */
   private createToolHandler(provider: GeneratorProvider): MCPToolHandler {
-    return async (args: any) => {
+    return async (args: unknown) => {
       const services = this.createGeneratorServices();
       const generator = await provider.create(services);
       const validatedArgs = await this.validateArgs(generator.schema, args);
@@ -160,7 +161,7 @@ export class ToolManager extends PluginInterfaceManager<MCPTool> {
   private convertFieldToJSONSchema(
     fieldSchema: SchemaFieldMetadata,
     metadata?: SchemaFieldMetadata
-  ): Record<string, any> {
+  ): Record<string, unknown> {
     const typeName = SchemaManager.getFieldTypeName(fieldSchema);
     const description = metadata?.description || '';
 
@@ -233,7 +234,7 @@ export class ToolManager extends PluginInterfaceManager<MCPTool> {
   }
 
   private async validateArgs(schema: StandardSchemaV1, rawArgs: unknown) {
-    const result = await standardValidate(schema, rawArgs as any);
+    const result = await standardValidate(schema, rawArgs);
     if (result.issues) {
       const message = result.issues
         .map((issue) => `${issue.message}${this.formatIssuePath(issue.path)}`)
@@ -297,9 +298,7 @@ export class ToolManager extends PluginInterfaceManager<MCPTool> {
    * Get all available tools as a single object for MCP server
    * This is a convenience method that combines definitions and handlers
    */
-  async getTools(
-    configPath?: string
-  ): Promise<Record<string, (args: any) => Promise<any>>> {
+  async getTools(configPath?: string): Promise<Record<string, MCPToolHandler>> {
     if (!this.isInitialized()) {
       await this.initialize(configPath);
     }

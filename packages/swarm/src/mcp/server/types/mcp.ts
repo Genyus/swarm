@@ -22,7 +22,7 @@ export interface MCPServerConfig {
     description: string;
     inputSchema: {
       type: 'object';
-      properties: Record<string, any>;
+      properties: Record<string, unknown>;
       required?: string[];
       additionalProperties?: boolean;
     };
@@ -35,16 +35,16 @@ export interface MCPServerConfig {
 
 export interface MCPServerState {
   isRunning: boolean;
-  transport?: any;
-  clientCapabilities?: any;
-  clientVersion?: any;
+  transport?: unknown;
+  clientCapabilities?: unknown;
+  clientVersion?: unknown;
   sessionId?: string | undefined;
 }
 
 export interface MCPServerInfo {
   name: string;
   version: string;
-  capabilities?: any;
+  capabilities?: unknown;
   instructions?: string | undefined;
   status: MCPServerState;
 }

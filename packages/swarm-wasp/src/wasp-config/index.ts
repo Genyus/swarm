@@ -1,5 +1,4 @@
 // Export the main App class
-export { App } from './app';
 
 // Re-export wasp-config types for convenience
 export type {
@@ -17,3 +16,4 @@ export type {
   QueryConfig,
   RouteConfig,
 } from 'wasp-config';
+export { App } from './app';

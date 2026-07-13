@@ -1,7 +1,7 @@
-import { DEFAULT_CONFIG_FILE } from '@ingenyus/swarm';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { DEFAULT_CONFIG_FILE } from '@ingenyus/swarm';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

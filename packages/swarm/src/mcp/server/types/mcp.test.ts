@@ -5,11 +5,11 @@ import {
   isNotification,
   isRequest,
   isResponse,
-  MCPNotification,
+  type MCPNotification,
   MCPNotificationSchema,
-  MCPRequest,
+  type MCPRequest,
   MCPRequestSchema,
-  MCPResponse,
+  type MCPResponse,
   MCPResponseSchema,
 } from './mcp.test-utils.js';
 

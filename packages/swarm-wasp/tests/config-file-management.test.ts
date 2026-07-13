@@ -7,13 +7,13 @@ import {
   QueryGenerator,
   RouteGenerator,
 } from '../src';
+import { realFileSystem } from '../src/common';
 import { schema as actionSchema } from '../src/generators/action/schema';
 import { schema as apiSchema } from '../src/generators/api/schema';
 import { schema as featureSchema } from '../src/generators/feature/schema';
 import { schema as jobSchema } from '../src/generators/job/schema';
 import { schema as querySchema } from '../src/generators/query/schema';
 import { schema as routeSchema } from '../src/generators/route/schema';
-import { realFileSystem } from '../src/common';
 import {
   countOccurrences,
   createTestGenerator,

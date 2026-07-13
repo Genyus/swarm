@@ -1,13 +1,13 @@
+import path from 'node:path';
 import {
-  FileSystem,
+  type FileSystem,
   getCLILogger,
   handleFatalError,
-  Logger,
+  type Logger,
   parseHelperMethodDefinition,
 } from '@ingenyus/swarm';
-import path from 'node:path';
 import { getFeatureDir, realFileSystem, TemplateUtility } from '../../common';
-import { ConfigGenerator } from '../../generators/config';
+import type { ConfigGenerator } from '../../generators/config';
 
 export class WaspConfigGenerator implements ConfigGenerator {
   protected path = path;
@@ -176,7 +176,7 @@ export class WaspConfigGenerator implements ConfigGenerator {
    * @returns The insertion index for the method name
    */
   private getInsertionIndexForMethod(
-    groups: Record<string, any[]>,
+    groups: Record<string, unknown[]>,
     methodName: string
   ): number {
     const existingMethods = Object.keys(groups).filter(
@@ -250,7 +250,7 @@ export class WaspConfigGenerator implements ConfigGenerator {
         // If not found on this line, look at subsequent lines
         while (!foundClosingParen && j < lines.length - 1) {
           j++;
-          methodCallContent += ' ' + lines[j].trim();
+          methodCallContent += ` ${lines[j].trim()}`;
           for (let k = 0; k < lines[j].length; k++) {
             if (lines[j][k] === '(') closingParenCount++;
             if (lines[j][k] === ')') closingParenCount--;
@@ -319,8 +319,6 @@ export class WaspConfigGenerator implements ConfigGenerator {
               insertIndex = j; // Insert before the comment
               break;
             } else if (line.startsWith('.') || line === '') {
-              // Skip empty lines and method calls
-              continue;
             } else {
               // Stop at non-comment, non-empty, non-method lines
               break;
@@ -445,7 +443,7 @@ export class WaspConfigGenerator implements ConfigGenerator {
     }
 
     const { methodName, firstParam } = parsed;
-    let contentLines = content.split('\n');
+    const contentLines = content.split('\n');
 
     // Find and remove any existing definition
     let openingLineIndex = -1;
@@ -515,32 +513,6 @@ export class WaspConfigGenerator implements ConfigGenerator {
   }
 
   /**
-   * Adds a definition to the content by finding the appropriate place to insert it.
-   * @param content - The current file content
-   * @param definition - The definition to add
-   * @returns The updated content with the new definition
-   */
-  private addDefinitionToContent(content: string, definition: string): string {
-    const lines = content.split('\n');
-    const lastLineIndex = lines.length - 1;
-
-    // Find the last line that's not empty and not a closing brace
-    let insertIndex = lastLineIndex;
-    for (let i = lastLineIndex; i >= 0; i--) {
-      const line = lines[i].trim();
-      if (line && !line.startsWith('}')) {
-        insertIndex = i;
-        break;
-      }
-    }
-
-    // Insert the definition before the last closing brace
-    lines.splice(insertIndex + 1, 0, `  ${definition}`);
-
-    return lines.join('\n');
-  }
-
-  /**
    * Normalises semicolons in the config file by removing them from method chain calls
    * while preserving them in other contexts (imports, declarations, etc.).
    * @param content - The file content to normalise
@@ -607,7 +579,7 @@ export class WaspConfigGenerator implements ConfigGenerator {
       lastMethodCallIndex !== -1 &&
       !lines[lastMethodCallIndex].trim().endsWith(';')
     ) {
-      lines[lastMethodCallIndex] = lines[lastMethodCallIndex] + ';';
+      lines[lastMethodCallIndex] = `${lines[lastMethodCallIndex]};`;
     }
 
     return lines.join('\n');

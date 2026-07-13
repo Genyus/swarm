@@ -1,5 +1,5 @@
-import { FileSystem, Logger, realFileSystem } from '../common';
-import { GeneratorEnvironment } from './types';
+import { type FileSystem, type Logger, realFileSystem } from '../common';
+import type { GeneratorEnvironment } from './types';
 
 export interface GeneratorServices {
   fileSystem: FileSystem;
@@ -7,7 +7,7 @@ export interface GeneratorServices {
 }
 
 export function getGeneratorServices(
-  env: GeneratorEnvironment,
+  _env: GeneratorEnvironment,
   logger: Logger,
   overrides: Partial<GeneratorServices> = {}
 ): GeneratorServices {

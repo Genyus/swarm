@@ -1,7 +1,10 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 
-export function readGeneratedFile(projectRoot: string, relativePath: string): string {
+export function readGeneratedFile(
+  projectRoot: string,
+  relativePath: string
+): string {
   return fs.readFileSync(path.join(projectRoot, relativePath), 'utf8');
 }
 
@@ -17,7 +20,7 @@ export function assertConfigGroupOrder(
   content: string,
   expectedOrder: string[]
 ): void {
-  const positions = expectedOrder.map(group => {
+  const positions = expectedOrder.map((group) => {
     const match = content.match(new RegExp(`//\\s*${group}`, 'i'));
     return match ? match.index! : -1;
   });

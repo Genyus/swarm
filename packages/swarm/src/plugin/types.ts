@@ -1,4 +1,4 @@
-import { GeneratorProvider } from '../generator/provider';
+import type { GeneratorProvider } from '../generator/provider';
 
 /**
  * Plugin interface

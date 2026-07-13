@@ -31,12 +31,12 @@ vi.mock('@ingenyus/swarm', async () => {
 
 describe('JobGenerator', () => {
   let fs: FileSystem;
-  let featureGen: Generator<typeof featureSchema>;
+  let _featureGen: Generator<typeof featureSchema>;
   let gen: JobGenerator;
 
   beforeEach(async () => {
     fs = createMockFS();
-    featureGen = createMockFeatureGen(featureSchema);
+    _featureGen = createMockFeatureGen(featureSchema);
     gen = await createTestGenerator(JobGenerator, schema, {
       fileSystem: fs,
     });
@@ -73,7 +73,7 @@ export default function configureFeature(app: App, feature: string): void {
         return `// Generated job template for ${replacements.jobName || 'unknown'}`;
       }),
       resolveTemplatePath: vi.fn(
-        (templateName, generatorName, currentFileUrl) => {
+        (templateName, generatorName, _currentFileUrl) => {
           return `/mock/templates/${generatorName}/templates/${templateName}`;
         }
       ),
@@ -99,11 +99,11 @@ export default function configureFeature(app: App, feature: string): void {
   it('getDefinition returns processed template', () => {
     // Mock the template utility to process templates
     (gen as any).templateUtility = {
-      processTemplate: vi.fn((templatePath, replacements) => {
+      processTemplate: vi.fn((_templatePath, _replacements) => {
         return `testJob: { schedule: "", args: {} }`;
       }),
       resolveTemplatePath: vi.fn(
-        (templateName, generatorName, currentFileUrl) => {
+        (templateName, generatorName, _currentFileUrl) => {
           return `/mock/templates/${generatorName}/templates/${templateName}`;
         }
       ),

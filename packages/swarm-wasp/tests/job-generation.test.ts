@@ -1,8 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { FeatureGenerator, JobGenerator } from '../src';
+import { realFileSystem } from '../src/common';
 import { schema as featureSchema } from '../src/generators/feature/schema';
 import { schema as jobSchema } from '../src/generators/job/schema';
-import { realFileSystem } from '../src/common';
 import {
   countOccurrences,
   createTestGenerator,
@@ -26,9 +26,13 @@ describe('Job Generator Integration Tests', () => {
   });
 
   it('should generate job with proper structure', async () => {
-    const featureGen = await createTestGenerator(FeatureGenerator, featureSchema, {
-      fileSystem: realFileSystem,
-    });
+    const featureGen = await createTestGenerator(
+      FeatureGenerator,
+      featureSchema,
+      {
+        fileSystem: realFileSystem,
+      }
+    );
     const jobGen = await createTestGenerator(JobGenerator, jobSchema, {
       fileSystem: realFileSystem,
     });
@@ -49,9 +53,13 @@ describe('Job Generator Integration Tests', () => {
   });
 
   it('should generate job config with cron schedule', async () => {
-    const featureGen = await createTestGenerator(FeatureGenerator, featureSchema, {
-      fileSystem: realFileSystem,
-    });
+    const featureGen = await createTestGenerator(
+      FeatureGenerator,
+      featureSchema,
+      {
+        fileSystem: realFileSystem,
+      }
+    );
     const jobGen = await createTestGenerator(JobGenerator, jobSchema, {
       fileSystem: realFileSystem,
     });
@@ -73,9 +81,13 @@ describe('Job Generator Integration Tests', () => {
   });
 
   it('should generate job with custom args', async () => {
-    const featureGen = await createTestGenerator(FeatureGenerator, featureSchema, {
-      fileSystem: realFileSystem,
-    });
+    const featureGen = await createTestGenerator(
+      FeatureGenerator,
+      featureSchema,
+      {
+        fileSystem: realFileSystem,
+      }
+    );
     const jobGen = await createTestGenerator(JobGenerator, jobSchema, {
       fileSystem: realFileSystem,
     });
@@ -96,9 +108,13 @@ describe('Job Generator Integration Tests', () => {
   });
 
   it('should not duplicate job in config without force flag', async () => {
-    const featureGen = await createTestGenerator(FeatureGenerator, featureSchema, {
-      fileSystem: realFileSystem,
-    });
+    const featureGen = await createTestGenerator(
+      FeatureGenerator,
+      featureSchema,
+      {
+        fileSystem: realFileSystem,
+      }
+    );
     const jobGen = await createTestGenerator(JobGenerator, jobSchema, {
       fileSystem: realFileSystem,
     });

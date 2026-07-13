@@ -1,6 +1,7 @@
+import { randomUUID } from 'node:crypto';
 import {
   Server as MCPServer,
-  ServerOptions,
+  type ServerOptions,
 } from '@modelcontextprotocol/sdk/server';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import type { Transport as MCPTransport } from '@modelcontextprotocol/sdk/shared/transport.js';
@@ -9,12 +10,11 @@ import {
   ListResourcesRequestSchema,
   ListToolsRequestSchema,
 } from '@modelcontextprotocol/sdk/types.js';
-import { randomUUID } from 'crypto';
 import { realFileSystem } from '../../common';
 import { getMCPLogger } from '../mcp-logger';
 import { createErrorContext, InternalError } from './errors';
 import { ToolManager } from './tool-manager';
-import { MCPServerConfig, MCPServerInfo, MCPServerState } from './types';
+import type { MCPServerConfig, MCPServerInfo, MCPServerState } from './types';
 
 export class MCPManager {
   private mcpServer: MCPServer;

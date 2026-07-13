@@ -1,7 +1,6 @@
 import {
   formatDisplayName,
-  GeneratorServices,
-  Out,
+  type Out,
   toCamelCase,
   toPascalCase,
 } from '@ingenyus/swarm';
@@ -19,10 +18,6 @@ export class RouteGenerator extends ComponentGeneratorBase<
 
   description = 'Generates a Wasp Page and Route';
   schema = schema;
-
-  constructor(services: GeneratorServices) {
-    super(services);
-  }
 
   async generate(args: Out<typeof schema>): Promise<void> {
     const { path: routePath, name, feature } = args;
@@ -51,7 +46,7 @@ export class RouteGenerator extends ComponentGeneratorBase<
     componentName: string,
     args: Out<typeof schema>
   ) {
-    const templatePath = 'files/client/page.eta';
+    const _templatePath = 'files/client/page.eta';
     const replacements = {
       componentName,
       displayName: formatDisplayName(componentName),

@@ -1,13 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import {
+import type {
   Generator,
   GeneratorProvider,
   GeneratorServices,
 } from '../../generator';
 import {
   registerSchemaMetadata,
-  SchemaMetadata,
-  StandardSchemaV1,
+  type SchemaMetadata,
+  type StandardSchemaV1,
 } from '../../schema';
 import { ToolManager } from './tool-manager';
 
@@ -66,7 +66,7 @@ describe('ToolManager', () => {
       });
       const mockProviders: GeneratorProvider[] = [
         {
-          create: (services: GeneratorServices): Generator => ({
+          create: (_services: GeneratorServices): Generator => ({
             name: 'api',
             description: 'Generate API endpoint',
             schema: apiSchema,
@@ -74,7 +74,7 @@ describe('ToolManager', () => {
           }),
         },
         {
-          create: (services: GeneratorServices): Generator => ({
+          create: (_services: GeneratorServices): Generator => ({
             name: 'crud',
             description: 'Generate CRUD operations',
             schema: crudSchema,
@@ -143,7 +143,7 @@ describe('ToolManager', () => {
         },
       });
       const mockProvider: GeneratorProvider = {
-        create: (services: GeneratorServices): Generator => ({
+        create: (_services: GeneratorServices): Generator => ({
           name: 'test',
           description: 'Test generator',
           schema: testSchema,
@@ -203,7 +203,7 @@ describe('ToolManager', () => {
         },
       });
       const mockProvider: GeneratorProvider = {
-        create: (services: GeneratorServices): Generator => ({
+        create: (_services: GeneratorServices): Generator => ({
           name: 'api',
           description: 'Generate API',
           schema: apiSchema,
@@ -229,7 +229,9 @@ describe('ToolManager', () => {
       expect(result.content[0]).toHaveProperty('type', 'text');
       expect(result.content[0]).toHaveProperty('text');
 
-      const parsedText = JSON.parse(result.content[0].text);
+      const parsedText = JSON.parse(
+        (result.content[0] as { text: string }).text
+      );
       expect(parsedText.success).toBe(true);
       expect(generateFn).toHaveBeenCalledWith({ name: 'test-api' });
     });
@@ -244,7 +246,7 @@ describe('ToolManager', () => {
         },
       });
       const mockProvider: GeneratorProvider = {
-        create: (services: GeneratorServices): Generator => ({
+        create: (_services: GeneratorServices): Generator => ({
           name: 'api',
           description: 'Generate API',
           schema: apiSchema,

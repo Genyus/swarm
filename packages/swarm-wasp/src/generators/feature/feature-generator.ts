@@ -1,5 +1,9 @@
-import { GeneratorServices, handleFatalError, Out } from '@ingenyus/swarm';
 import path from 'node:path';
+import {
+  type GeneratorServices,
+  handleFatalError,
+  type Out,
+} from '@ingenyus/swarm';
 import {
   findWaspRoot,
   normaliseFeaturePath,

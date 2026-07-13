@@ -35,13 +35,14 @@ const cronSchema = z
             const [base, step] = item.split('/');
             const stepNum = parseInt(step, 10);
 
-            if (isNaN(stepNum) || stepNum <= 0) return false;
+            if (Number.isNaN(stepNum) || stepNum <= 0) return false;
 
             if (base === '*') continue; // */15 is valid
 
             const baseNum = parseInt(base, 10);
 
-            if (isNaN(baseNum) || baseNum < min || baseNum > max) return false;
+            if (Number.isNaN(baseNum) || baseNum < min || baseNum > max)
+              return false;
           } else if (item.includes('-')) {
             // Handle ranges like 1-5
             const [start, end] = item.split('-');
@@ -49,8 +50,8 @@ const cronSchema = z
             const endNum = parseInt(end, 10);
 
             if (
-              isNaN(startNum) ||
-              isNaN(endNum) ||
+              Number.isNaN(startNum) ||
+              Number.isNaN(endNum) ||
               startNum < min ||
               endNum > max ||
               startNum > endNum
@@ -60,7 +61,7 @@ const cronSchema = z
             // Handle single values
             const num = parseInt(item, 10);
 
-            if (isNaN(num) || num < min || num > max) return false;
+            if (Number.isNaN(num) || num < min || num > max) return false;
           }
         }
 

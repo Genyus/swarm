@@ -1,15 +1,15 @@
 import {
-  Config,
+  type Config,
   GeneratorBase,
-  GeneratorServices,
-  StandardSchemaV1,
-  TemplateResolver,
+  type GeneratorServices,
   getConfigManager,
+  type StandardSchemaV1,
+  TemplateResolver,
 } from '@ingenyus/swarm';
 import {
+  assertWaspCompatible,
   PLUGIN_NAME,
   TemplateUtility,
-  assertWaspCompatible,
 } from '../../common';
 import { WaspConfigGenerator } from '../config';
 
@@ -100,7 +100,7 @@ export abstract class WaspGeneratorBase<
    */
   protected async renderTemplateToFile(
     templateName: string,
-    replacements: Record<string, any>,
+    replacements: Record<string, string>,
     outputPath: string,
     readableFileType: string,
     force: boolean

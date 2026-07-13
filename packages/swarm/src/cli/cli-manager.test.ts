@@ -1,13 +1,17 @@
 import { Command } from 'commander';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { z } from 'zod/v4';
-import { Generator, GeneratorProvider, GeneratorServices } from '../generator';
+import type {
+  Generator,
+  GeneratorProvider,
+  GeneratorServices,
+} from '../generator';
 import { CLIManager } from './cli-manager';
 
 // Mock generator provider for testing
 const createMockProvider = (name: string, schema: any): GeneratorProvider => {
   return {
-    create: (services: GeneratorServices): Generator => ({
+    create: (_services: GeneratorServices): Generator => ({
       name,
       description: `Generate ${name}`,
       schema,
@@ -61,7 +65,7 @@ describe('CommandManager', () => {
       });
       const generateFn = vi.fn().mockResolvedValue(undefined);
       const provider: GeneratorProvider = {
-        create: (services: GeneratorServices): Generator => ({
+        create: (_services: GeneratorServices): Generator => ({
           name: 'test-command',
           description: 'Generate test-command',
           schema: testSchema,

@@ -1,6 +1,6 @@
-import { toKebabCase, type FileSystem } from '@ingenyus/swarm';
+import path from 'node:path';
+import { type FileSystem, toKebabCase } from '@ingenyus/swarm';
 import { Eta } from 'eta';
-import path from 'path';
 
 export class TemplateUtility {
   constructor(private fileSystem: FileSystem) {}

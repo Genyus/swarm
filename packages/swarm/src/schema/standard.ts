@@ -7,11 +7,16 @@ type StandardSchemaResult<T extends StandardSchemaV1> = StandardSchemaV1.Result<
 >;
 
 export function isStandardSchema(value: unknown): value is StandardSchemaV1 {
+  if (typeof value !== 'object' || value === null) {
+    return false;
+  }
+
+  const standard = (value as { '~standard'?: unknown })['~standard'];
+
   return (
-    typeof value === 'object' &&
-    value !== null &&
-    typeof (value as any)['~standard'] === 'object' &&
-    typeof (value as any)['~standard'].validate === 'function'
+    typeof standard === 'object' &&
+    standard !== null &&
+    typeof (standard as { validate?: unknown }).validate === 'function'
   );
 }
 

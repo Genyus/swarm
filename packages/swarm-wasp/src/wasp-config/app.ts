@@ -5,21 +5,21 @@ import path from 'node:path';
 // In development: resolves to stub implementation via devDependency link
 // In production (Wasp project): resolves to real wasp-config package
 import {
-  ActionConfig,
-  ApiConfig,
-  ApiNamespaceConfig,
-  AppConfig,
-  AuthConfig,
-  ClientConfig,
-  CrudConfig,
-  DbConfig,
-  EmailSenderConfig,
-  JobConfig,
-  QueryConfig,
-  RouteConfig,
+  type ActionConfig,
+  type ApiConfig,
+  type ApiNamespaceConfig,
+  type AppConfig,
+  type AuthConfig,
+  type ClientConfig,
+  type CrudConfig,
+  type DbConfig,
+  type EmailSenderConfig,
+  type JobConfig,
+  type QueryConfig,
+  type RouteConfig,
   App as WaspApp,
 } from 'wasp-config';
-import { ApiHttpMethod } from '../common';
+import type { ApiHttpMethod } from '../common';
 
 // Type definitions for helper method options
 interface RouteOptions {
@@ -74,10 +74,6 @@ interface ApiNamespaceOptions {
  * - Enhanced error handling and validation
  */
 export class App extends WaspApp {
-  constructor(name: string, config: AppConfig) {
-    super(name, config);
-  }
-
   /**
    * Static factory method that creates and initializes Swarm with configuration
    * dynamically loaded from feature directories
@@ -252,7 +248,9 @@ export class App extends WaspApp {
     ) => {
       if (!operationOptions) return undefined;
 
-      const processedOptions: any = { ...operationOptions };
+      const processedOptions: Record<string, unknown> = {
+        ...operationOptions,
+      };
 
       if (operationOptions.override) {
         const operationDataType =
@@ -438,7 +436,7 @@ export class App extends WaspApp {
    */
   private getPlural(word: string): string {
     if (word.endsWith('y')) {
-      return word.slice(0, -1) + 'ies';
+      return `${word.slice(0, -1)}ies`;
     } else if (
       word.endsWith('s') ||
       word.endsWith('sh') ||
@@ -446,9 +444,9 @@ export class App extends WaspApp {
       word.endsWith('x') ||
       word.endsWith('z')
     ) {
-      return word + 'es';
+      return `${word}es`;
     } else {
-      return word + 's';
+      return `${word}s`;
     }
   }
 

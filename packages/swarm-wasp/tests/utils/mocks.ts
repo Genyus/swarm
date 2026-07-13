@@ -62,7 +62,7 @@ export function createMockFeatureGen<S extends StandardSchemaV1>(
  */
 export async function createTestGenerator<T extends GeneratorBase<any>>(
   ctor: new (services: GeneratorServices) => T,
-  schema: StandardSchemaV1,
+  _schema: StandardSchemaV1,
   overrides: Partial<GeneratorServices> = {}
 ): Promise<T> {
   const mockFS = createMockFS();

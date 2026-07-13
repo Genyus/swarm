@@ -2,14 +2,14 @@ import {
   capitalise,
   getPlural,
   handleFatalError,
-  StandardSchemaV1,
+  type StandardSchemaV1,
   toPascalCase,
 } from '@ingenyus/swarm';
 import {
-  ActionOperation,
-  CONFIG_TYPES,
+  type ActionOperation,
+  type CONFIG_TYPES,
   copyDirectory,
-  EntityMetadata,
+  type EntityMetadata,
   generateIntersectionType,
   generateJsonTypeHandling,
   generateOmitType,
@@ -24,8 +24,8 @@ import {
   needsPrismaImport,
   OPERATION_TYPES,
   OPERATIONS,
-  OperationType,
-  QueryOperation,
+  type OperationType,
+  type QueryOperation,
   TYPE_DIRECTORIES,
 } from '../../common';
 import { ComponentGeneratorBase } from './component-generator.base';

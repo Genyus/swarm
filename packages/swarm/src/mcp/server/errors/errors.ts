@@ -1,4 +1,4 @@
-import { ErrorContext } from './app-error';
+import type { ErrorContext } from './app-error';
 
 /**
  * Create an error context

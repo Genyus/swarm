@@ -1,7 +1,8 @@
-import { createProviders } from '../generator/provider';
-import { GeneratorServices } from '../generator/services';
-import { Generator } from '../generator/types';
-import { Plugin } from './types';
+import {
+  createProviders,
+  type GeneratorConstructor,
+} from '../generator/provider';
+import type { Plugin } from './types';
 
 /**
  * Creates a plugin with the given name and generator classes
@@ -20,9 +21,7 @@ import { Plugin } from './types';
  */
 export function createPlugin(
   name: string,
-  ...generatorClasses: Array<
-    new (services: GeneratorServices) => Generator<any>
-  >
+  ...generatorClasses: Array<GeneratorConstructor>
 ): Plugin {
   return {
     name,

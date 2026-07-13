@@ -1,7 +1,7 @@
-import { Logger, findPackageJson, getVersion } from '@ingenyus/swarm';
 import { execSync } from 'node:child_process';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { findPackageJson, getVersion, type Logger } from '@ingenyus/swarm';
 import * as semver from 'semver';
 
 let cachedSupportedRange: string | null = null;
@@ -83,8 +83,9 @@ function getInstalledWaspVersion(logger: Logger): string {
     }
 
     return firstLine;
-  } catch (error: any) {
-    if (error.code === 'ENOENT' || error.message?.includes('wasp')) {
+  } catch (error) {
+    const err = error as NodeJS.ErrnoException;
+    if (err.code === 'ENOENT' || err.message?.includes('wasp')) {
       logger.error(
         'Wasp CLI not found. Install using: curl -sSL https://get.wasp.sh/installer.sh | sh -s'
       );

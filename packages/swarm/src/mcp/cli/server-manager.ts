@@ -8,7 +8,7 @@ import {
   createErrorContext,
   InternalError,
   MCPManager,
-  MCPServerConfig,
+  type MCPServerConfig,
 } from '../server';
 
 export class ServerManager {

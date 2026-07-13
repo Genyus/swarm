@@ -3,7 +3,7 @@
  * These types are derived from the constants in constants.ts.
  */
 
-import {
+import type {
   ACTION_OPERATIONS,
   API_HTTP_METHODS,
   CONFIG_TYPES,

@@ -1,6 +1,6 @@
 import { getCLILogger } from '../cli/cli-logger';
 import { realFileSystem } from '../common';
-import { GeneratorProvider, GeneratorServices } from '../generator';
+import type { GeneratorProvider, GeneratorServices } from '../generator';
 import { PluginManager } from './plugin-manager';
 
 /**

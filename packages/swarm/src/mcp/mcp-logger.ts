@@ -1,5 +1,5 @@
 import type { Server as MCPServer } from '@modelcontextprotocol/sdk/server';
-import { Logger, LogLevel } from '../common/logger';
+import type { Logger, LogLevel } from '../common/logger';
 import { getConfigManager } from '../config';
 
 export class MCPLogger implements Logger {
@@ -63,11 +63,17 @@ export class MCPLogger implements Logger {
     }
 
     try {
+      const sendLoggingMessage = (
+        this.mcpServer as {
+          sendLoggingMessage?: (params: {
+            level: string;
+            data: unknown;
+          }) => Promise<void>;
+        } | null
+      )?.sendLoggingMessage;
+
       // Check if sendLoggingMessage method exists on the server
-      if (
-        !this.mcpServer ||
-        typeof (this.mcpServer as any).sendLoggingMessage !== 'function'
-      ) {
+      if (typeof sendLoggingMessage !== 'function') {
         // Fallback to stderr if method doesn't exist
         const logMessage = this.formatMessage(level, message, context);
 
@@ -95,11 +101,11 @@ export class MCPLogger implements Logger {
 
       const mcpLevel = levelMap[level] || 'info';
 
-      await (this.mcpServer as any).sendLoggingMessage({
+      await sendLoggingMessage({
         level: mcpLevel,
         data: message,
       });
-    } catch (error) {
+    } catch (_error) {
       // If notification fails, fallback to stderr to ensure message is not lost
       // This can happen if the server isn't fully ready or if sendLoggingMessage fails
       const logMessage = this.formatMessage(level, message, context);

@@ -31,12 +31,12 @@ vi.mock('@ingenyus/swarm', async () => {
 
 describe('ApiGenerator', () => {
   let fs: FileSystem;
-  let featureGen: Generator<typeof featureSchema>;
+  let _featureGen: Generator<typeof featureSchema>;
   let gen: ApiGenerator;
 
   beforeEach(async () => {
     fs = createMockFS();
-    featureGen = createMockFeatureGen(featureSchema);
+    _featureGen = createMockFeatureGen(featureSchema);
     gen = await createTestGenerator(ApiGenerator, schema, {
       fileSystem: fs,
     });

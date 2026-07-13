@@ -1,8 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { ApiNamespaceGenerator, FeatureGenerator } from '../src';
+import { realFileSystem } from '../src/common';
 import { schema as apiNamespaceSchema } from '../src/generators/api-namespace/schema';
 import { schema as featureSchema } from '../src/generators/feature/schema';
-import { realFileSystem } from '../src/common';
 import {
   countOccurrences,
   createTestGenerator,
@@ -26,12 +26,20 @@ describe('API Namespace Generator Integration Tests', () => {
   });
 
   it('should generate API namespace middleware', async () => {
-    const featureGen = await createTestGenerator(FeatureGenerator, featureSchema, {
-      fileSystem: realFileSystem,
-    });
-    const apiNamespaceGen = await createTestGenerator(ApiNamespaceGenerator, apiNamespaceSchema, {
-      fileSystem: realFileSystem,
-    });
+    const featureGen = await createTestGenerator(
+      FeatureGenerator,
+      featureSchema,
+      {
+        fileSystem: realFileSystem,
+      }
+    );
+    const apiNamespaceGen = await createTestGenerator(
+      ApiNamespaceGenerator,
+      apiNamespaceSchema,
+      {
+        fileSystem: realFileSystem,
+      }
+    );
 
     await featureGen.generate({ target: 'posts' });
     await apiNamespaceGen.generate({
@@ -41,7 +49,8 @@ describe('API Namespace Generator Integration Tests', () => {
       force: false,
     });
 
-    const middlewarePath = 'src/features/posts/server/apis/middleware/postsApi.ts';
+    const middlewarePath =
+      'src/features/posts/server/apis/middleware/postsApi.ts';
     const content = readGeneratedFile(projectPaths.root, middlewarePath);
 
     expect(content).toContain('export const postsApi');
@@ -49,12 +58,20 @@ describe('API Namespace Generator Integration Tests', () => {
   });
 
   it('should generate API namespace config', async () => {
-    const featureGen = await createTestGenerator(FeatureGenerator, featureSchema, {
-      fileSystem: realFileSystem,
-    });
-    const apiNamespaceGen = await createTestGenerator(ApiNamespaceGenerator, apiNamespaceSchema, {
-      fileSystem: realFileSystem,
-    });
+    const featureGen = await createTestGenerator(
+      FeatureGenerator,
+      featureSchema,
+      {
+        fileSystem: realFileSystem,
+      }
+    );
+    const apiNamespaceGen = await createTestGenerator(
+      ApiNamespaceGenerator,
+      apiNamespaceSchema,
+      {
+        fileSystem: realFileSystem,
+      }
+    );
 
     await featureGen.generate({ target: 'posts' });
     await apiNamespaceGen.generate({
@@ -74,12 +91,20 @@ describe('API Namespace Generator Integration Tests', () => {
   });
 
   it('should not duplicate API namespace in config without force flag', async () => {
-    const featureGen = await createTestGenerator(FeatureGenerator, featureSchema, {
-      fileSystem: realFileSystem,
-    });
-    const apiNamespaceGen = await createTestGenerator(ApiNamespaceGenerator, apiNamespaceSchema, {
-      fileSystem: realFileSystem,
-    });
+    const featureGen = await createTestGenerator(
+      FeatureGenerator,
+      featureSchema,
+      {
+        fileSystem: realFileSystem,
+      }
+    );
+    const apiNamespaceGen = await createTestGenerator(
+      ApiNamespaceGenerator,
+      apiNamespaceSchema,
+      {
+        fileSystem: realFileSystem,
+      }
+    );
 
     await featureGen.generate({ target: 'posts' });
     await apiNamespaceGen.generate({

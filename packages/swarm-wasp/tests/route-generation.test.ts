@@ -1,8 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { FeatureGenerator, RouteGenerator } from '../src';
+import { realFileSystem } from '../src/common';
 import { schema as featureSchema } from '../src/generators/feature/schema';
 import { schema as routeSchema } from '../src/generators/route/schema';
-import { realFileSystem } from '../src/common';
 import {
   countOccurrences,
   createTestGenerator,
@@ -26,9 +26,13 @@ describe('Route Generator Integration Tests', () => {
   });
 
   it('should generate route page with proper React component', async () => {
-    const featureGen = await createTestGenerator(FeatureGenerator, featureSchema, {
-      fileSystem: realFileSystem,
-    });
+    const featureGen = await createTestGenerator(
+      FeatureGenerator,
+      featureSchema,
+      {
+        fileSystem: realFileSystem,
+      }
+    );
     const routeGen = await createTestGenerator(RouteGenerator, routeSchema, {
       fileSystem: realFileSystem,
     });
@@ -51,9 +55,13 @@ describe('Route Generator Integration Tests', () => {
   });
 
   it('should generate authenticated route', async () => {
-    const featureGen = await createTestGenerator(FeatureGenerator, featureSchema, {
-      fileSystem: realFileSystem,
-    });
+    const featureGen = await createTestGenerator(
+      FeatureGenerator,
+      featureSchema,
+      {
+        fileSystem: realFileSystem,
+      }
+    );
     const routeGen = await createTestGenerator(RouteGenerator, routeSchema, {
       fileSystem: realFileSystem,
     });
@@ -74,9 +82,13 @@ describe('Route Generator Integration Tests', () => {
   });
 
   it('should generate route config with correct structure', async () => {
-    const featureGen = await createTestGenerator(FeatureGenerator, featureSchema, {
-      fileSystem: realFileSystem,
-    });
+    const featureGen = await createTestGenerator(
+      FeatureGenerator,
+      featureSchema,
+      {
+        fileSystem: realFileSystem,
+      }
+    );
     const routeGen = await createTestGenerator(RouteGenerator, routeSchema, {
       fileSystem: realFileSystem,
     });
@@ -98,9 +110,13 @@ describe('Route Generator Integration Tests', () => {
   });
 
   it('should not duplicate route in config without force flag', async () => {
-    const featureGen = await createTestGenerator(FeatureGenerator, featureSchema, {
-      fileSystem: realFileSystem,
-    });
+    const featureGen = await createTestGenerator(
+      FeatureGenerator,
+      featureSchema,
+      {
+        fileSystem: realFileSystem,
+      }
+    );
     const routeGen = await createTestGenerator(RouteGenerator, routeSchema, {
       fileSystem: realFileSystem,
     });

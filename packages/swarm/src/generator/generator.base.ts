@@ -1,18 +1,18 @@
 import path from 'node:path';
-import { FileSystem } from '../common';
-import { Logger } from '../common/logger';
+import type { FileSystem } from '../common';
+import type { Logger } from '../common/logger';
 import {
-  In,
-  Out,
-  SchemaFieldMetadata,
+  type In,
+  type Out,
+  type SchemaFieldMetadata,
   SchemaManager,
-  StandardSchemaV1,
+  type StandardSchemaV1,
   StandardValidationError,
-  ValidationResult,
   standardValidate,
+  type ValidationResult,
 } from '../schema';
-import { GeneratorServices } from './services';
-import { Generator } from './types';
+import type { GeneratorServices } from './services';
+import type { Generator } from './types';
 
 /**
  * Abstract base class for all generators
@@ -60,7 +60,7 @@ export abstract class GeneratorBase<S extends StandardSchemaV1>
         issues: result.issues,
         errors: result.issues.map((issue) => issue.message),
       };
-    } catch (error: any) {
+    } catch (error) {
       if (error instanceof StandardValidationError) {
         return {
           valid: false,
@@ -123,7 +123,7 @@ export abstract class GeneratorBase<S extends StandardSchemaV1>
       this.logCompletion(itemType, itemName);
 
       return result;
-    } catch (error: any) {
+    } catch (error) {
       this.logger.error(
         `Generating ${itemName} ${itemType.toLowerCase()} failed.`
       );

@@ -1,6 +1,6 @@
 import { Command } from 'commander';
 import { getCLILogger } from '../../../cli/cli-logger';
-import { ServerManager } from '../server-manager';
+import type { ServerManager } from '../server-manager';
 
 export function createStartCommand(serverManager: ServerManager): Command {
   const logger = getCLILogger();

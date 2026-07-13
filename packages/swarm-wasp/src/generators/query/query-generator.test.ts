@@ -25,7 +25,7 @@ vi.mock('../../common', async () => {
     generatePartialType: vi.fn(),
     generateIntersectionType: vi.fn(),
     normaliseFeaturePath: vi.fn((path) => path),
-    getFeatureDir: vi.fn((fs, path) => `/test-project/src/features/${path}`),
+    getFeatureDir: vi.fn((_fs, path) => `/test-project/src/features/${path}`),
     getFeatureImportPath: vi.fn((path) => path),
     ensureDirectoryExists: vi.fn(),
     TemplateUtility: function MockTemplateUtility(this: any) {
@@ -55,7 +55,7 @@ vi.mock('../../common/prisma', async () => {
 
 describe('QueryGenerator', () => {
   let fs: FileSystem;
-  let featureGen: Generator<typeof featureSchema>;
+  let _featureGen: Generator<typeof featureSchema>;
   let gen: QueryGenerator;
 
   beforeEach(async () => {
@@ -119,7 +119,7 @@ describe('QueryGenerator', () => {
     );
 
     fs = createMockFS();
-    featureGen = createMockFeatureGen(featureSchema);
+    _featureGen = createMockFeatureGen(featureSchema);
     gen = await createTestGenerator(QueryGenerator, schema, {
       fileSystem: fs,
     });

@@ -11,12 +11,12 @@ import { schema } from './schema';
 
 describe('CrudGenerator', () => {
   let fs: FileSystem;
-  let featureGen: Generator<typeof featureSchema>;
+  let _featureGen: Generator<typeof featureSchema>;
   let gen: CrudGenerator;
 
   beforeEach(async () => {
     fs = createMockFS();
-    featureGen = createMockFeatureGen(featureSchema);
+    _featureGen = createMockFeatureGen(featureSchema);
     gen = await createTestGenerator(CrudGenerator, schema, {
       fileSystem: fs,
     });

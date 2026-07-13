@@ -11,7 +11,7 @@ export default async function globalSetup() {
   if (fs.existsSync(outDir)) {
     try {
       fs.rmSync(outDir, { recursive: true, force: true });
-    } catch (error) {
+    } catch (_error) {
       // Ignore errors during cleanup
     }
   }

@@ -14,7 +14,7 @@ Thank you for your interest in contributing to Swarm! This document outlines bes
 ---
 
 ## Code Style
-- Use [Prettier](https://prettier.io/) and [ESLint](https://eslint.org/) for formatting and linting.
+- Use [Biome](https://biomejs.dev/) for formatting and linting.
 - Prefer single responsibility per file/module.
 - Use descriptive variable and function names.
 - Write JSDoc comments for all exported functions and types.

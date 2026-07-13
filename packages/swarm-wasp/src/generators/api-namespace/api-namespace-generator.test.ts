@@ -11,12 +11,12 @@ import { schema } from './schema';
 
 describe('ApiNamespaceGenerator', () => {
   let fs: FileSystem;
-  let featureGen: Generator<typeof featureSchema>;
+  let _featureGen: Generator<typeof featureSchema>;
   let gen: ApiNamespaceGenerator;
 
   beforeEach(async () => {
     fs = createMockFS();
-    featureGen = createMockFeatureGen(featureSchema);
+    _featureGen = createMockFeatureGen(featureSchema);
     gen = await createTestGenerator(ApiNamespaceGenerator, schema, {
       fileSystem: fs,
     });
