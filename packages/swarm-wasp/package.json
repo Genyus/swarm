@@ -51,10 +51,10 @@
     "url": "https://github.com/Genyus/swarm/issues"
   },
   "engines": {
-    "node": ">=22.12.0"
+    "node": ">=24.14.1"
   },
   "swarm": {
-    "wasp": ">=0.18.0 <0.22.0"
+    "wasp": ">=0.24.0 <0.25.0"
   },
   "dependencies": {
     "@ingenyus/swarm": "workspace:*",
@@ -63,11 +63,11 @@
     "semver": "^7.7.4"
   },
   "peerDependencies": {
-    "wasp-config": "*",
+    "@wasp.sh/spec": "*",
     "zod": "^3.25.0 || ^4.0.0"
   },
   "peerDependenciesMeta": {
-    "wasp-config": {
+    "@wasp.sh/spec": {
       "optional": true
     }
   },
@@ -80,7 +80,7 @@
     "tsup": "^8.5.1",
     "typescript": "^7.0.2",
     "vitest": "^4.0.18",
-    "wasp-config": "link:src/wasp-config/stubs",
+    "@wasp.sh/spec": "link:src/wasp-config/stubs",
     "zod": "^4.3.6"
   },
   "publishConfig": {
