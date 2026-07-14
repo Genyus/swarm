@@ -1,7 +1,6 @@
 import {
   capitalise,
   getPlural,
-  handleFatalError,
   type StandardSchemaV1,
   toPascalCase,
 } from '@ingenyus/swarm';
@@ -16,18 +15,16 @@ import {
   generatePartialType,
   generatePickType,
   getEntityMetadata,
-  getFeatureImportPath,
   getIdFields,
   getJsonFields,
   getOptionalFields,
   getRequiredFields,
   needsPrismaImport,
-  OPERATION_TYPES,
   OPERATIONS,
   type OperationType,
   type QueryOperation,
-  TYPE_DIRECTORIES,
 } from '../../common';
+import type { SpecDeclaration } from '../config';
 import { ComponentGeneratorBase } from './component-generator.base';
 
 /**
@@ -357,37 +354,24 @@ export abstract class OperationGeneratorBase<
   }
 
   /**
-   * Generates an operation definition for the feature configuration.
+   * Builds a native query/action spec declaration for the feature configuration.
    */
-  getDefinition(
+  getOperationDefinition(
     operationName: string,
-    featurePath: string,
     entities: string[],
     operationType: OperationType,
-    importPath: string,
     auth = false
-  ): string {
-    if (!OPERATION_TYPES.includes(operationType)) {
-      handleFatalError(`Unknown operation type: ${operationType}`);
-    }
-    const directory = TYPE_DIRECTORIES[operationType];
-    const featureDir = getFeatureImportPath(featurePath);
+  ): SpecDeclaration {
+    const from = this.getRelativeRefPath(operationType, operationName);
+    const call = `${operationType}(${operationName}, ${this.configObject([
+      entities.length ? `entities: ${this.stringArray(entities)}` : undefined,
+      `auth: ${String(auth)}`,
+    ])})`;
 
-    // Use templateUtility to resolve the config template path
-    const templatePath = this.templateUtility.resolveTemplatePath(
-      'operation.eta',
-      'config',
-      import.meta.url
-    );
-
-    return this.templateUtility.processTemplate(templatePath, {
-      operationType: capitalise(operationType),
-      operationName,
-      featureDir,
-      directory,
-      entities: entities.map((e) => `"${e}"`).join(', '),
-      importPath,
-      auth: String(auth),
-    });
+    return {
+      kind: operationType,
+      call,
+      refImports: [{ names: [operationName], from }],
+    };
   }
 }

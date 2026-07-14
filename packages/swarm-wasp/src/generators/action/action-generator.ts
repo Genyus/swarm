@@ -42,9 +42,10 @@ export class ActionGenerator extends OperationGeneratorBase<
         this.ensureWaspCompatible();
 
         const configPath = this.validateFeatureConfig(feature);
-        const { targetDirectory: operationsDir, importDirectory } =
-          this.ensureTargetDirectory(feature, operationType);
-        const importPath = `${importDirectory}/${operationName}`;
+        const { targetDirectory: operationsDir } = this.ensureTargetDirectory(
+          feature,
+          operationType
+        );
 
         this.generateOperationFile(
           operationsDir,
@@ -54,19 +55,15 @@ export class ActionGenerator extends OperationGeneratorBase<
         );
 
         // Generate config definition and update
-        const definition = this.getDefinition(
+        const definition = this.getOperationDefinition(
           operationName,
-          feature,
           entities,
           'action',
-          importPath,
           args.auth
         );
 
         this.updateConfigWithCheck(
           configPath,
-          'addAction',
-          operationName,
           definition,
           feature,
           args.force || false

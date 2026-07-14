@@ -113,6 +113,35 @@ export class WaspConfigGenerator implements ConfigGenerator {
     return configFilePath;
   }
 
+  /**
+   * Whether the feature's `spec` array already contains an element with the same
+   * kind and identity as `declaration`.
+   * @param featurePath - The path to the feature
+   * @param declaration - The declaration to check for
+   */
+  has(featurePath: string, declaration: SpecDeclaration): boolean {
+    const configDir = getFeatureDir(this.fileSystem, featurePath);
+    const configFilePath = path.join(configDir, `feature.wasp.ts`);
+
+    if (!this.fileSystem.existsSync(configFilePath)) {
+      return false;
+    }
+
+    const content = this.fileSystem.readFileSync(configFilePath, 'utf8');
+    const arr = this.findSpecArray(this.parse(content));
+
+    if (!arr) {
+      return false;
+    }
+
+    const identity = this.identityOf(declaration.kind, declaration.call);
+
+    return this.extractElements(this.parse(content), arr).some(
+      (element) =>
+        element.kind === declaration.kind && element.identity === identity
+    );
+  }
+
   /* ---------------------------------------------------------------------- */
   /*  Spec-file editing (AST-located, text-spliced)                         */
   /* ---------------------------------------------------------------------- */

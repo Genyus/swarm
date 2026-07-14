@@ -1,10 +1,7 @@
 import { type Out, toCamelCase, toPascalCase } from '@ingenyus/swarm';
-import {
-  CONFIG_TYPES,
-  ensureDirectoryExists,
-  getFeatureImportPath,
-} from '../../common';
+import { CONFIG_TYPES, ensureDirectoryExists } from '../../common';
 import { ComponentGeneratorBase } from '../base';
+import type { SpecDeclaration } from '../config';
 import { schema } from './schema';
 
 export class ApiGenerator extends ComponentGeneratorBase<
@@ -25,10 +22,8 @@ export class ApiGenerator extends ComponentGeneratorBase<
       this.ensureWaspCompatible();
 
       const configPath = this.validateFeatureConfig(args.feature);
-      const {
-        targetDirectory: apiTargetDirectory,
-        importDirectory: apiImportDirectory,
-      } = this.ensureTargetDirectory(args.feature, this.name);
+      const { targetDirectory: apiTargetDirectory } =
+        this.ensureTargetDirectory(args.feature, this.name);
       const fileName = `${apiName}.ts`;
       const targetFile = `${apiTargetDirectory}/${fileName}`;
 
@@ -46,18 +41,12 @@ export class ApiGenerator extends ComponentGeneratorBase<
 
         this.generateMiddlewareFile(
           middlewareFile,
-          apiName,
+          `${apiName}Middleware`,
           args.force || false
         );
       }
 
-      await this.updateConfigFile(
-        apiName,
-        fileName,
-        apiImportDirectory,
-        args,
-        configPath
-      );
+      this.updateConfigFile(apiName, args, configPath);
     });
   }
 
@@ -77,70 +66,61 @@ export class ApiGenerator extends ComponentGeneratorBase<
     );
   }
 
-  private async updateConfigFile(
+  private updateConfigFile(
     apiName: string,
-    apiFile: string,
-    importDirectory: string,
     args: Out<typeof schema>,
     configFilePath: string
   ) {
-    const {
-      feature,
-      force = false,
-      entities,
-      method,
-      path,
-      auth,
-      customMiddleware,
-    } = args;
-    const importPath = this.path.join(importDirectory, apiFile);
-    const definition = await this.getConfigDefinition(
+    const { feature, force = false, entities, method, path, auth } = args;
+    const entityList = Array.isArray(entities)
+      ? entities
+      : entities
+        ? [entities]
+        : [];
+    const definition = this.getDefinition(
       apiName,
-      feature,
-      Array.isArray(entities) ? entities : entities ? [entities] : [],
       method,
       path,
-      apiFile,
-      auth,
-      importPath,
-      customMiddleware || false
+      entityList,
+      auth || false,
+      args.customMiddleware || false
     );
 
-    this.updateConfigWithCheck(
-      configFilePath,
-      'addApi',
-      apiName,
-      definition,
-      feature,
-      force
-    );
+    this.updateConfigWithCheck(configFilePath, definition, feature, force);
   }
 
-  private async getConfigDefinition(
+  /**
+   * Builds a native api spec declaration for the feature configuration.
+   */
+  getDefinition(
     apiName: string,
-    featurePath: string,
-    entities: string[],
     method: string,
     route: string,
-    apiFile: string,
-    auth = false,
-    importPath: string,
-    customMiddleware = false
-  ): Promise<string> {
-    const featureDir = getFeatureImportPath(featurePath);
-    const configTemplatePath = await this.getTemplatePath('config/api.eta');
+    entities: string[],
+    auth: boolean,
+    customMiddleware: boolean
+  ): SpecDeclaration {
+    const refImports = [
+      { names: [apiName], from: this.getRelativeRefPath('api', apiName) },
+    ];
 
-    return this.templateUtility.processTemplate(configTemplatePath, {
-      apiName,
-      featureDir,
-      entities: entities.map((e) => `"${e}"`).join(', '),
-      method,
-      route,
-      apiFile,
-      auth: String(auth),
-      importPath,
-      customMiddleware: String(customMiddleware),
-    });
+    let middleware: string | undefined;
+    if (customMiddleware) {
+      const middlewareName = `${apiName}Middleware`;
+      middleware = `middlewareConfigFn: ${middlewareName}`;
+      refImports.push({
+        names: [middlewareName],
+        from: this.getRelativeRefPath('api', `middleware/${apiName}`),
+      });
+    }
+
+    const call = `api("${method}", "${route}", ${apiName}, ${this.configObject([
+      middleware,
+      entities.length ? `entities: ${this.stringArray(entities)}` : undefined,
+      `auth: ${String(auth)}`,
+    ])})`;
+
+    return { kind: 'api', call, refImports };
   }
 
   private buildTemplateData(apiName: string, method: string, auth: boolean) {

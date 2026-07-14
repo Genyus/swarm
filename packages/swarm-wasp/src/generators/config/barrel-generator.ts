@@ -1,5 +1,10 @@
 import path from 'node:path';
-import { type FileSystem, getCLILogger, type Logger } from '@ingenyus/swarm';
+import {
+  type FileSystem,
+  getCLILogger,
+  type Logger,
+  toCamelCase,
+} from '@ingenyus/swarm';
 import { findWaspRoot, realFileSystem } from '../../common';
 
 const FEATURE_FILE = 'feature.wasp.ts';
@@ -96,24 +101,13 @@ export class FeaturesBarrelGenerator {
    * the feature chain: `dashboard/features/stats` -> `dashboardStatsSpec`.
    */
   private toAlias(relDir: string): string {
-    const parts = relDir
+    const slug = relDir
       .split('/')
-      .filter((segment) => segment && segment !== 'features');
+      .filter((segment) => segment && segment !== 'features')
+      .join('-');
 
-    const camel = parts
-      .map((segment, index) => {
-        const clean = segment.replace(/[^a-zA-Z0-9]/g, '');
-        const cased =
-          index === 0
-            ? clean.charAt(0).toLowerCase() + clean.slice(1)
-            : clean.charAt(0).toUpperCase() + clean.slice(1);
-
-        return cased;
-      })
-      .join('');
-
-    const base = camel || 'feature';
-    const safe = /^[a-zA-Z_$]/.test(base) ? base : `_${base}`;
+    const camel = toCamelCase(slug) || 'feature';
+    const safe = /^[a-zA-Z_$]/.test(camel) ? camel : `_${camel}`;
 
     return `${safe}Spec`;
   }

@@ -1,8 +1,8 @@
 import path from 'node:path';
 import {
+  capitalise,
   type Generator,
   type GeneratorServices,
-  hasHelperMethodCall,
   type StandardSchemaV1,
   toKebabCase,
 } from '@ingenyus/swarm';
@@ -14,6 +14,7 @@ import {
   TYPE_DIRECTORIES,
   validateFeaturePath,
 } from '../../common';
+import type { SpecDeclaration } from '../config';
 import { FeatureGenerator } from '../feature/feature-generator';
 import type { schema as featureSchema } from '../feature/schema';
 import { WaspGeneratorBase } from './wasp-generator.base';
@@ -78,73 +79,47 @@ export abstract class ComponentGeneratorBase<
   }
 
   /**
-   * Checks if a config item already exists in the feature config
-   */
-  protected checkConfigExists(
-    configPath: string,
-    methodName: string,
-    itemName: string,
-    force: boolean
-  ): boolean {
-    const configContent = this.fileSystem.readFileSync(configPath, 'utf8');
-    const configExists = hasHelperMethodCall(
-      configContent,
-      methodName,
-      itemName
-    );
-
-    return this.checkExistence(
-      configExists,
-      `${methodName} config already exists in ${configPath}`,
-      force,
-      `${methodName} config already exists`
-    );
-  }
-
-  /**
-   * Updates the feature config with a new definition
-   */
-  protected updateFeatureConfig(
-    featurePath: string,
-    definition: string,
-    configPath: string,
-    configExists: boolean,
-    methodName: string
-  ): void {
-    this.configGenerator.update(featurePath, definition);
-    this.logger.success(
-      `${configExists ? 'Updated' : 'Added'} ${methodName} config in: ${configPath}`
-    );
-  }
-
-  /**
-   * Consolidated helper for updating config files with existence check
-   * This replaces the duplicated updateConfigFile pattern in concrete generators
+   * Inserts or replaces a native spec declaration in the feature config,
+   * erroring if it already exists unless `force` is set.
    */
   protected updateConfigWithCheck(
     configPath: string,
-    methodName: string,
-    entityName: string,
-    definition: string,
+    declaration: SpecDeclaration,
     featurePath: string,
     force: boolean
   ): void {
-    const configExists = this.checkConfigExists(
-      configPath,
-      methodName,
-      entityName,
-      force
+    const exists = this.checkExistence(
+      this.configGenerator.has(featurePath, declaration),
+      `${capitalise(declaration.kind)} config already exists in ${configPath}`,
+      force,
+      `${declaration.kind} config already exists`
     );
 
-    if (!configExists || force) {
-      this.updateFeatureConfig(
-        featurePath,
-        definition,
-        configPath,
-        configExists,
-        methodName
-      );
-    }
+    this.configGenerator.update(featurePath, declaration);
+    this.logger.success(
+      `${exists ? 'Updated' : 'Added'} ${declaration.kind} config in: ${configPath}`
+    );
+  }
+
+  /**
+   * Builds a feature-relative `with { type: "ref" }` import path for a component
+   * of the given type, e.g. `getRelativeRefPath('query', 'getTasks')` ->
+   * `./server/queries/getTasks`.
+   */
+  protected getRelativeRefPath(type: string, name: string): string {
+    return `./${TYPE_DIRECTORIES[type.toLowerCase()]}/${name}`;
+  }
+
+  /** Renders an object literal from `key: value` parts, e.g. `{ auth: true }`. */
+  protected configObject(parts: Array<string | undefined>): string {
+    const present = parts.filter((part): part is string => part !== undefined);
+
+    return present.length ? `{ ${present.join(', ')} }` : '{}';
+  }
+
+  /** Renders a string array literal, e.g. `["Task", "Tag"]`. */
+  protected stringArray(items: string[]): string {
+    return `[${items.map((item) => `"${item}"`).join(', ')}]`;
   }
 
   /**
