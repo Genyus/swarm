@@ -61,6 +61,7 @@ export class FeatureGenerator extends WaspGeneratorBase<typeof schema> {
 
     this.fileSystem.mkdirSync(featureDir, { recursive: true });
     this.configGenerator.generate(normalisedPath);
+    this.barrelGenerator.regenerate();
     this.logger.success(`Generated feature: ${normalisedPath}`);
   }
 }

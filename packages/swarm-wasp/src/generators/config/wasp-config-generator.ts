@@ -4,10 +4,35 @@ import {
   getCLILogger,
   handleFatalError,
   type Logger,
-  parseHelperMethodDefinition,
 } from '@ingenyus/swarm';
+import ts from 'typescript';
 import { getFeatureDir, realFileSystem, TemplateUtility } from '../../common';
-import type { ConfigGenerator } from '../../generators/config';
+import type { ConfigGenerator, SpecDeclaration } from './config-generator';
+
+const SPEC_PKG = '@wasp.sh/spec';
+const INDENT = '  ';
+
+/** Group-comment header rendered above the first element of each kind. */
+const KIND_COMMENT: Record<string, string> = {
+  route: '// Route definitions',
+  api: '// Api definitions',
+  apiNamespace: '// ApiNamespace definitions',
+  crud: '// Crud definitions',
+  action: '// Action definitions',
+  query: '// Query definitions',
+  job: '// Job definitions',
+};
+
+interface SpecElement {
+  kind: string;
+  identity: string;
+  text: string;
+}
+
+interface ParsedRefImport {
+  names: Set<string>;
+  from: string;
+}
 
 export class WaspConfigGenerator implements ConfigGenerator {
   protected path = path;
@@ -22,9 +47,6 @@ export class WaspConfigGenerator implements ConfigGenerator {
 
   /**
    * Gets the template path for feature config templates.
-   * Feature config templates are located in the feature generator's templates directory.
-   * @param templateName - The name of the template file (e.g., 'feature.wasp.eta')
-   * @returns The full path to the template file
    */
   private getTemplatePath(templateName: string): string {
     return this.templateUtility.resolveTemplatePath(
@@ -35,17 +57,15 @@ export class WaspConfigGenerator implements ConfigGenerator {
   }
 
   /**
-   * Generate a TypeScript Wasp config file in a feature directory
+   * Generate a TypeScript Wasp config file in a feature directory.
    * @param featurePath - The feature directory path
    */
   generate(featurePath: string): void {
-    // Create feature directory if it doesn't exist
     const featureDir = getFeatureDir(this.fileSystem, featurePath);
     if (!this.fileSystem.existsSync(featureDir)) {
       this.fileSystem.mkdirSync(featureDir, { recursive: true });
     }
 
-    // Generate feature config in the feature directory
     const templatePath = this.getTemplatePath('feature.wasp.eta');
 
     if (!this.fileSystem.existsSync(templatePath)) {
@@ -65,12 +85,13 @@ export class WaspConfigGenerator implements ConfigGenerator {
   }
 
   /**
-   * Updates or creates a feature configuration file with a pre-built declaration.
+   * Inserts or replaces a declaration in a feature's `spec` array, keeping the
+   * `@wasp.sh/spec` named imports and the `with { type: "ref" }` imports in sync.
    * @param featurePath - The path to the feature
-   * @param declaration - The pre-built declaration string to add or update
-   * @returns The updated feature configuration file
+   * @param declaration - The native spec declaration to add or update
+   * @returns The path to the updated feature configuration file
    */
-  update(featurePath: string, declaration: string): string {
+  update(featurePath: string, declaration: SpecDeclaration): string {
     const configDir = getFeatureDir(this.fileSystem, featurePath);
     const configFilePath = path.join(configDir, `feature.wasp.ts`);
 
@@ -84,504 +105,263 @@ export class WaspConfigGenerator implements ConfigGenerator {
       this.fileSystem.copyFileSync(templatePath, configFilePath);
     }
 
-    let content = this.fileSystem.readFileSync(configFilePath, 'utf8');
+    const content = this.fileSystem.readFileSync(configFilePath, 'utf8');
+    const updated = this.applyDeclaration(content, declaration);
 
-    content = this.normaliseSemicolons(content);
-
-    const parsed = parseHelperMethodDefinition(declaration);
-
-    if (!parsed) {
-      handleFatalError(`Could not parse definition: ${declaration}`);
-      return content;
-    }
-
-    const { methodName } = parsed;
-
-    // Check if there are any existing definitions of this type before removal
-    const hadExistingDefinitions = this.hasExistingDefinitions(
-      content,
-      methodName
-    );
-
-    // Remove existing definition before adding new one
-    content = this.removeExistingDefinition(content, declaration);
-
-    // Check if there are any existing definitions of this type after removal
-    const hasExistingDefinitions = this.hasExistingDefinitions(
-      content,
-      methodName
-    );
-
-    // Find the position to insert the new definition
-    const lines = content.split('\n');
-    const configureFunctionStart = lines.findIndex((line) =>
-      line.trim().startsWith('export default function')
-    );
-
-    if (configureFunctionStart === -1) {
-      handleFatalError('Could not find configure function in feature config');
-    }
-
-    // Find the app line inside the configure function
-    const appLineIndex = lines.findIndex(
-      (line, index) => index > configureFunctionStart && line.trim() === 'app'
-    );
-
-    if (appLineIndex === -1) {
-      // No existing app chain, add it after the opening brace
-      const insertIndex = configureFunctionStart + 1;
-      const itemsToInsert = ['  app'];
-
-      // Always add comment for the first entry since it's the first item of its type
-      const comment = this.getMethodComment(methodName);
-      itemsToInsert.push(`    ${comment}`);
-
-      itemsToInsert.push(declaration.trimEnd());
-      lines.splice(insertIndex, 0, ...itemsToInsert);
-    } else {
-      // Find the correct insertion point based on ordering
-      // Use hadExistingDefinitions to determine if we should add a comment
-      // If there were existing definitions before removal, don't add a comment (we're replacing)
-      const { insertIndex, addComment } = this.findGroupInsertionPoint(
-        lines,
-        methodName,
-        declaration,
-        hadExistingDefinitions || hasExistingDefinitions
-      );
-
-      // Insert with proper spacing
-      const newLines = this.insertWithSpacing(
-        lines,
-        declaration,
-        insertIndex,
-        methodName,
-        addComment
-      );
-      const normalisedContent = this.normaliseSemicolons(newLines.join('\n'));
-      this.fileSystem.writeFileSync(configFilePath, normalisedContent);
-      return configFilePath;
-    }
-
-    const normalisedContent = this.normaliseSemicolons(lines.join('\n'));
-    this.fileSystem.writeFileSync(configFilePath, normalisedContent);
+    this.fileSystem.writeFileSync(configFilePath, updated);
 
     return configFilePath;
   }
 
+  /* ---------------------------------------------------------------------- */
+  /*  Spec-file editing (AST-located, text-spliced)                         */
+  /* ---------------------------------------------------------------------- */
+
   /**
-   * Determines the insertion index for a method name based on alphabetical ordering
-   * of existing groups in the configuration file.
-   * @param groups - Object containing existing method groups
-   * @param methodName - The method name to find insertion index for
-   * @returns The insertion index for the method name
+   * Returns `content` with `declaration` inserted into (or replacing a
+   * same-identity element within) the `export const spec` array, coordinating
+   * the three edit sites: the array element, the `with { type: "ref" }`
+   * imports, and the `@wasp.sh/spec` named-import list. Idempotent.
    */
-  private getInsertionIndexForMethod(
-    groups: Record<string, unknown[]>,
-    methodName: string
-  ): number {
-    const existingMethods = Object.keys(groups).filter(
-      (method) => groups[method].length > 0
+  private applyDeclaration(content: string, decl: SpecDeclaration): string {
+    const sf = this.parse(content);
+    const arr = this.findSpecArray(sf);
+
+    if (!arr) {
+      handleFatalError(
+        'Could not find an `export const spec` array in the feature config'
+      );
+      return content;
+    }
+
+    // 1. Element list: drop same-identity, add the new declaration.
+    const identity = this.identityOf(decl.kind, decl.call);
+    const elements = this.extractElements(sf, arr).filter(
+      (element) =>
+        !(element.kind === decl.kind && element.identity === identity)
     );
-    const allMethods = [...existingMethods, methodName].sort();
+    elements.push({ kind: decl.kind, identity, text: decl.call.trim() });
+    const newArrayText = this.renderArray(elements);
 
-    return allMethods.indexOf(methodName);
-  }
+    // 2. `@wasp.sh/spec` import rebuilt from the kinds actually used.
+    const newSpecImport = this.renderSpecImport(newArrayText);
 
-  /**
-   * Gets the comment text for a method type.
-   * @param methodName The method name (e.g., 'addApi')
-   * @returns The comment text for the method type
-   */
-  private getMethodComment(methodName: string): string {
-    const entityName = methodName.startsWith('add')
-      ? methodName.slice(3)
-      : methodName;
-
-    return `// ${entityName} definitions`;
-  }
-
-  /**
-   * Finds the correct insertion point for a new configuration item.
-   * @param lines - Array of file lines
-   * @param methodName - The method name (e.g., 'addApi')
-   * @param definition - The definition string to parse for item name
-   * @returns Object with insertion index and whether to add a comment
-   */
-  private findGroupInsertionPoint(
-    lines: string[],
-    methodName: string,
-    definition: string,
-    hasExistingDefinitionsOfType: boolean
-  ): { insertIndex: number; addComment: boolean } {
-    const appLineIndex = lines.findIndex((line) => line.trim() === 'app');
-
-    if (appLineIndex === -1) {
-      return { insertIndex: appLineIndex + 1, addComment: false }; // Insert after app line
+    // 3. Ref imports: merge the declaration's, evict re-homed identifiers, prune.
+    const refs = this.extractRefImports(sf);
+    for (const ri of decl.refImports ?? []) {
+      let existing = refs.find((ref) => ref.from === ri.from);
+      if (!existing) {
+        existing = { names: new Set<string>(), from: ri.from };
+        refs.push(existing);
+      }
+      for (const name of ri.names) {
+        // An identifier can only be imported once — evict it from other paths.
+        for (const other of refs) {
+          if (other !== existing) other.names.delete(name);
+        }
+        existing.names.add(name);
+      }
     }
-
-    // Find all existing method calls and their positions
-    const methodCalls: Array<{
-      lineIndex: number;
-      endLineIndex: number;
-      methodName: string;
-      itemName: string;
-    }> = [];
-
-    for (let i = appLineIndex + 1; i < lines.length; i++) {
-      const line = lines[i].trim();
-
-      if (line.startsWith('.') && line.includes('(')) {
-        // Look for the method call across multiple lines
-        let methodCallContent = line;
-        let j = i;
-        let closingParenCount = 0;
-        let foundClosingParen = false;
-
-        // Count opening and closing parentheses to find the complete method call
-        for (let k = 0; k < methodCallContent.length; k++) {
-          if (methodCallContent[k] === '(') closingParenCount++;
-          if (methodCallContent[k] === ')') closingParenCount--;
-          if (closingParenCount === 0 && methodCallContent[k] === ')') {
-            foundClosingParen = true;
-            break;
-          }
-        }
-
-        // If not found on this line, look at subsequent lines
-        while (!foundClosingParen && j < lines.length - 1) {
-          j++;
-          methodCallContent += ` ${lines[j].trim()}`;
-          for (let k = 0; k < lines[j].length; k++) {
-            if (lines[j][k] === '(') closingParenCount++;
-            if (lines[j][k] === ')') closingParenCount--;
-            if (closingParenCount === 0 && lines[j][k] === ')') {
-              foundClosingParen = true;
-              break;
-            }
-          }
-        }
-
-        const match = methodCallContent.match(
-          /\.(\w+)\([^,]+,\s*['"`]([^'"`]+)['"`]/
-        );
-        if (match) {
-          methodCalls.push({
-            lineIndex: i,
-            endLineIndex: j,
-            methodName: match[1],
-            itemName: match[2],
-          });
+    for (const ref of refs) {
+      for (const name of [...ref.names]) {
+        if (!new RegExp(`\\b${name}\\b`).test(newArrayText)) {
+          ref.names.delete(name);
         }
       }
     }
+    const newRefImports = this.renderRefImports(refs);
 
-    // Group method calls by type
-    const groups: Record<
-      string,
-      Array<{ lineIndex: number; endLineIndex: number; itemName: string }>
-    > = {};
-    methodCalls.forEach((call) => {
-      if (!groups[call.methodName]) {
-        groups[call.methodName] = [];
-      }
-      groups[call.methodName].push({
-        lineIndex: call.lineIndex,
-        endLineIndex: call.endLineIndex,
-        itemName: call.itemName,
+    // Apply edits bottom-to-top so offsets stay valid.
+    const edits: Array<{ start: number; end: number; text: string }> = [];
+
+    const specImportNode = sf.statements.find(
+      (st): st is ts.ImportDeclaration =>
+        ts.isImportDeclaration(st) &&
+        ts.isStringLiteral(st.moduleSpecifier) &&
+        st.moduleSpecifier.text === SPEC_PKG
+    );
+    if (specImportNode) {
+      edits.push({
+        start: specImportNode.getStart(sf),
+        end: specImportNode.getEnd(),
+        text: `${newSpecImport}\n${newRefImports}`,
       });
+    }
+
+    for (const st of sf.statements) {
+      if (!ts.isImportDeclaration(st) || !this.isRefImport(st, sf)) continue;
+      let end = st.getEnd();
+      if (content[end] === '\n') end += 1;
+      edits.push({ start: st.getStart(sf), end, text: '' });
+    }
+
+    edits.push({
+      start: arr.getStart(sf),
+      end: arr.getEnd(),
+      text: newArrayText,
     });
 
-    // Find the target group
-    const targetGroup = groups[methodName] || [];
+    edits.sort((a, b) => b.start - a.start);
 
-    if (targetGroup.length === 0) {
-      // No items of this type exist, find position based on alphabetical ordering
-      const targetGroupIndex = this.getInsertionIndexForMethod(
-        groups,
-        methodName
-      );
-      const existingMethods = Object.keys(groups)
-        .filter((method) => groups[method].length > 0)
-        .sort();
+    let out = content;
+    for (const edit of edits) {
+      out = out.slice(0, edit.start) + edit.text + out.slice(edit.end);
+    }
 
-      // Look for the first group that comes after the target group alphabetically
-      for (let i = targetGroupIndex; i < existingMethods.length; i++) {
-        const groupMethod = existingMethods[i];
-        if (groups[groupMethod] && groups[groupMethod].length > 0) {
-          // Insert before the first item of the next group
-          const firstItem = groups[groupMethod][0];
-          let insertIndex = firstItem.lineIndex;
+    return out.replace(/\n{3,}/g, '\n\n');
+  }
 
-          // Check if there's a comment line before the first item
-          for (let j = firstItem.lineIndex - 1; j > appLineIndex; j--) {
-            const line = lines[j].trim();
-            if (line.startsWith('//') && line.includes('definitions')) {
-              insertIndex = j; // Insert before the comment
-              break;
-            } else if (line.startsWith('.') || line === '') {
-            } else {
-              // Stop at non-comment, non-empty, non-method lines
-              break;
-            }
-          }
+  private parse(content: string): ts.SourceFile {
+    return ts.createSourceFile(
+      'feature.wasp.ts',
+      content,
+      ts.ScriptTarget.Latest,
+      true,
+      ts.ScriptKind.TS
+    );
+  }
 
-          // Only add comment if this is the first item of its type
-          return { insertIndex, addComment: !hasExistingDefinitionsOfType };
+  /**
+   * The stable identity of a spec element, keyed by constructor kind. Used to
+   * detect the same declaration for replacement and to sort within a group.
+   */
+  private identityOf(kind: string, call: string): string {
+    const sf = this.parse(`const _ = ${call};`);
+    const decl = sf.statements[0];
+    if (!ts.isVariableStatement(decl)) return call;
+    const init = decl.declarationList.declarations[0]?.initializer;
+    if (!init || !ts.isCallExpression(init)) return call;
+
+    const args = init.arguments;
+    const str = (n: ts.Node | undefined) =>
+      n && ts.isStringLiteral(n) ? n.text : undefined;
+    const id = (n: ts.Node | undefined) =>
+      n && ts.isIdentifier(n) ? n.text : undefined;
+
+    switch (kind) {
+      case 'route':
+      case 'crud':
+      case 'apiNamespace':
+        return str(args[0]) ?? call;
+      case 'api':
+        return id(args[2]) ?? call;
+      default:
+        return id(args[0]) ?? str(args[0]) ?? call;
+    }
+  }
+
+  private findSpecArray(sf: ts.SourceFile): ts.ArrayLiteralExpression | null {
+    for (const st of sf.statements) {
+      if (!ts.isVariableStatement(st)) continue;
+      for (const decl of st.declarationList.declarations) {
+        if (
+          ts.isIdentifier(decl.name) &&
+          decl.name.text === 'spec' &&
+          decl.initializer &&
+          ts.isArrayLiteralExpression(decl.initializer)
+        ) {
+          return decl.initializer;
         }
       }
+    }
+    return null;
+  }
 
-      // If no later groups exist, look for the last item of the previous group
-      for (let i = targetGroupIndex - 1; i >= 0; i--) {
-        const groupMethod = existingMethods[i];
-
-        if (groups[groupMethod] && groups[groupMethod].length > 0) {
-          const lastItem = groups[groupMethod][groups[groupMethod].length - 1];
-
-          return {
-            insertIndex: lastItem.endLineIndex + 1,
-            addComment: !hasExistingDefinitionsOfType,
-          };
-        }
-      }
+  private extractElements(
+    sf: ts.SourceFile,
+    arr: ts.ArrayLiteralExpression
+  ): SpecElement[] {
+    return arr.elements.map((element) => {
+      const kind =
+        ts.isCallExpression(element) && ts.isIdentifier(element.expression)
+          ? element.expression.text
+          : '?';
 
       return {
-        insertIndex: appLineIndex + 1,
-        addComment: !hasExistingDefinitionsOfType,
-      }; // Insert after app line if no groups exist
-    }
-
-    // Parse the new item name
-    const parsed = parseHelperMethodDefinition(definition);
-
-    if (!parsed) {
-      return { insertIndex: appLineIndex + 1, addComment: false }; // Fallback if parsing fails
-    }
-
-    const { firstParam: itemName } = parsed;
-
-    // Find the correct insertion point by comparing with existing items
-    // We need to find where this item should be inserted alphabetically
-    for (let i = 0; i < targetGroup.length; i++) {
-      if (itemName.localeCompare(targetGroup[i].itemName) < 0) {
-        // Insert before this item
-        // If we're inserting at the beginning of the group, we need to add the comment
-        return { insertIndex: targetGroup[i].lineIndex, addComment: false };
-      }
-    }
-
-    // If we get here, the new item should be inserted after the last item
-    const lastItem = targetGroup[targetGroup.length - 1];
-
-    return { insertIndex: lastItem.endLineIndex + 1, addComment: false };
+        kind,
+        identity: this.identityOf(kind, element.getText(sf)),
+        text: element.getText(sf),
+      };
+    });
   }
 
-  /**
-   * Inserts a definition with optional comment header.
-   * @param lines - Array of file lines
-   * @param declaration - The declaration to insert
-   * @param insertIndex - The index where to insert
-   * @param methodName - The method name for comment generation
-   * @param addComment - Whether to add a comment before the declaration
-   * @returns The modified lines array
-   */
-  private insertWithSpacing(
-    lines: string[],
-    declaration: string,
-    insertIndex: number,
-    methodName: string,
-    addComment: boolean = false
-  ): string[] {
-    const newLines = [...lines];
+  private renderArray(elements: SpecElement[]): string {
+    if (elements.length === 0) return '[]';
 
-    // Add comment if this is the first item of its type
-    if (addComment) {
-      const comment = this.getMethodComment(methodName);
-
-      newLines.splice(insertIndex, 0, `    ${comment}`);
-      insertIndex += 1; // Adjust for the added comment line
-    }
-
-    // Insert the declaration (trim any trailing newlines)
-    newLines.splice(insertIndex, 0, declaration.trimEnd());
-
-    return newLines;
-  }
-
-  /**
-   * Checks if there are any existing definitions of a specific type in the content.
-   * @param content - The file content to search
-   * @param methodName - The method name to check for (e.g., 'addJob', 'addApi')
-   * @returns true if there are existing definitions of this type, false otherwise
-   */
-  private hasExistingDefinitions(content: string, methodName: string): boolean {
-    const lines = content.split('\n');
-
-    for (const line of lines) {
-      if (line.trim().startsWith(`.${methodName}(`)) {
-        return true;
-      }
-    }
-
-    return false;
-  }
-
-  /**
-   * Removes an existing definition from the content by finding the helper method call
-   * and removing the entire method call block.
-   * @param content - The file content
-   * @param definition - The new definition to find the existing one from
-   * @returns The content with the existing definition removed
-   */
-  private removeExistingDefinition(
-    content: string,
-    definition: string
-  ): string {
-    const parsed = parseHelperMethodDefinition(definition);
-
-    if (!parsed) {
-      return content;
-    }
-
-    const { methodName, firstParam } = parsed;
-    const contentLines = content.split('\n');
-
-    // Find and remove any existing definition
-    let openingLineIndex = -1;
-
-    for (let i = 0; i < contentLines.length; i++) {
-      const line = contentLines[i];
-
-      if (line.trim().startsWith(`.${methodName}(`)) {
-        // Check if this is the right method call by comparing the first parameter
-        if (firstParam && line.includes(firstParam)) {
-          openingLineIndex = i;
-          break;
-        }
-      }
-    }
-
-    if (openingLineIndex === -1) {
-      return content;
-    }
-
-    // Find the closing parenthesis
-    let closingLineIndex = -1;
-    let parenCount = 0;
-    let braceCount = 0;
-    let foundOpening = false;
-
-    for (let i = openingLineIndex; i < contentLines.length; i++) {
-      const line = contentLines[i];
-
-      for (const char of line) {
-        if (char === '(') {
-          parenCount++;
-          foundOpening = true;
-        } else if (char === ')') {
-          parenCount--;
-          if (foundOpening && parenCount === 0 && braceCount === 0) {
-            // Found the closing parenthesis for the method call
-            closingLineIndex = i;
-            break;
-          }
-        } else if (char === '{') {
-          braceCount++;
-        } else if (char === '}') {
-          braceCount--;
-        }
-      }
-
-      if (closingLineIndex !== -1) {
-        break;
-      }
-    }
-
-    if (closingLineIndex === -1) {
-      this.logger.warn(
-        'Could not find closing parenthesis for existing definition'
-      );
-      return content;
-    }
-
-    // Remove the lines containing the existing definition
-    contentLines.splice(
-      openingLineIndex,
-      closingLineIndex - openingLineIndex + 1
+    const sorted = [...elements].sort(
+      (a, b) =>
+        a.kind.localeCompare(b.kind) ||
+        String(a.identity).localeCompare(String(b.identity))
     );
 
-    return contentLines.join('\n');
+    const lines: string[] = [];
+    let lastKind: string | null = null;
+
+    for (const element of sorted) {
+      if (element.kind !== lastKind) {
+        lines.push(
+          `${INDENT}${KIND_COMMENT[element.kind] ?? `// ${element.kind}`}`
+        );
+        lastKind = element.kind;
+      }
+      lines.push(`${INDENT}${element.text},`);
+    }
+
+    return `[\n${lines.join('\n')}\n]`;
   }
 
-  /**
-   * Normalises semicolons in the config file by removing them from method chain calls
-   * while preserving them in other contexts (imports, declarations, etc.).
-   * @param content - The file content to normalise
-   * @returns The normalised content
-   */
-  private normaliseSemicolons(content: string): string {
-    const lines = content.split('\n');
-    const configureFunctionStart = lines.findIndex((line) =>
-      line.trim().startsWith('export default function')
+  /** Rebuilds the `@wasp.sh/spec` import from the constructors used in the array. */
+  private renderSpecImport(arrayText: string): string {
+    const kinds = new Set<string>();
+    for (const kind of Object.keys(KIND_COMMENT)) {
+      if (new RegExp(`\\b${kind}\\s*\\(`).test(arrayText)) kinds.add(kind);
+    }
+    if (/\bpage\s*\(/.test(arrayText)) kinds.add('page');
+
+    const names = ['type Spec', ...[...kinds].sort()];
+
+    return `import { ${names.join(', ')} } from '${SPEC_PKG}';`;
+  }
+
+  private isRefImport(node: ts.ImportDeclaration, sf: ts.SourceFile): boolean {
+    const attributes = node.attributes;
+    return Boolean(
+      attributes?.elements.some(
+        (attr) =>
+          attr.name.getText(sf) === 'type' &&
+          ts.isStringLiteral(attr.value) &&
+          attr.value.text === 'ref'
+      )
     );
+  }
 
-    if (configureFunctionStart === -1) {
-      return content;
+  private extractRefImports(sf: ts.SourceFile): ParsedRefImport[] {
+    const refs: ParsedRefImport[] = [];
+
+    for (const st of sf.statements) {
+      if (!ts.isImportDeclaration(st) || !this.isRefImport(st, sf)) continue;
+      if (!ts.isStringLiteral(st.moduleSpecifier)) continue;
+
+      const bindings = st.importClause?.namedBindings;
+      const names =
+        bindings && ts.isNamedImports(bindings)
+          ? bindings.elements.map((element) => element.name.text)
+          : [];
+
+      refs.push({ names: new Set(names), from: st.moduleSpecifier.text });
     }
 
-    const appLineIndex = lines.findIndex(
-      (line, index) =>
-        index > configureFunctionStart && line.trim().startsWith('app')
-    );
+    return refs;
+  }
 
-    if (appLineIndex === -1) {
-      return content;
-    }
-
-    let braceCount = 0;
-    let functionEndIndex = lines.length - 1;
-
-    for (let i = configureFunctionStart; i < lines.length; i++) {
-      const line = lines[i];
-
-      for (const char of line) {
-        if (char === '{') braceCount++;
-        if (char === '}') {
-          braceCount--;
-
-          if (braceCount === 0) {
-            functionEndIndex = i;
-
-            break;
-          }
-        }
-      }
-
-      if (braceCount === 0 && i > configureFunctionStart) {
-        break;
-      }
-    }
-
-    let lastMethodCallIndex = -1;
-    for (let i = appLineIndex + 1; i < functionEndIndex; i++) {
-      const line = lines[i];
-      const trimmed = line.trim();
-
-      if (
-        (trimmed.endsWith(')') || trimmed.endsWith(');')) &&
-        !trimmed.startsWith('//')
-      ) {
-        lines[i] = line.replace(/;\s*$/, '');
-        lastMethodCallIndex = i;
-      }
-    }
-
-    if (
-      lastMethodCallIndex !== -1 &&
-      !lines[lastMethodCallIndex].trim().endsWith(';')
-    ) {
-      lines[lastMethodCallIndex] = `${lines[lastMethodCallIndex]};`;
-    }
-
-    return lines.join('\n');
+  private renderRefImports(refs: ParsedRefImport[]): string {
+    return refs
+      .filter((ref) => ref.names.size > 0)
+      .sort((a, b) => a.from.localeCompare(b.from))
+      .map(
+        (ref) =>
+          `import { ${[...ref.names].sort().join(', ')} } from '${ref.from}' with { type: 'ref' };`
+      )
+      .join('\n');
   }
 }
