@@ -220,7 +220,11 @@ export class CrudGenerator extends OperationGeneratorBase<
       );
     }
 
-    const call = `crud("${crudName}", "${dataType}", { ${operationParts.join(', ')} })`;
+    // The crud declaration name must match the generated crud type namespace
+    // (`wasp/server/crud`) that override operations are typed against, so it is
+    // PascalCased; the override file itself is imported by its (camelCase) name.
+    const crudType = toPascalCase(crudName);
+    const call = `crud("${crudType}", "${dataType}", { ${operationParts.join(', ')} })`;
     const refImports = overrideNames.length
       ? [
           {
