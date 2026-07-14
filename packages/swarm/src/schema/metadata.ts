@@ -53,12 +53,18 @@ type GlobalWithRegistry = typeof globalThis & {
 
 const globalWithRegistry = globalThis as GlobalWithRegistry;
 
-const registry =
-  globalWithRegistry[metadataRegistrySymbol] ??
-  (globalWithRegistry[metadataRegistrySymbol] = new WeakMap<
-    StandardSchemaV1,
-    SchemaMetadata
-  >());
+function getOrCreateRegistry(): WeakMap<StandardSchemaV1, SchemaMetadata> {
+  const existing = globalWithRegistry[metadataRegistrySymbol];
+  if (existing) {
+    return existing;
+  }
+
+  const created = new WeakMap<StandardSchemaV1, SchemaMetadata>();
+  globalWithRegistry[metadataRegistrySymbol] = created;
+  return created;
+}
+
+const registry = getOrCreateRegistry();
 
 export function registerSchemaMetadata<T extends StandardSchemaV1>(
   schema: T,

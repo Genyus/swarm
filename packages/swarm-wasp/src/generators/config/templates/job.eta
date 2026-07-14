@@ -1,9 +1,0 @@
-    .addJob(feature, "<%=jobName%>", {
-      cron: "<%=cron%>",
-<%- if (args !== '{}') { %>
-      args: <%=args%>,
-<%- } %>
-<%- if (entities.length > 0) { %>
-      entities: [<%=entities%>],
-<%- } %>
-    })

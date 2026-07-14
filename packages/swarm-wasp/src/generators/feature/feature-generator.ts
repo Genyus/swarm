@@ -1,5 +1,9 @@
-import { GeneratorServices, handleFatalError, Out } from '@ingenyus/swarm';
 import path from 'node:path';
+import {
+  type GeneratorServices,
+  handleFatalError,
+  type Out,
+} from '@ingenyus/swarm';
 import {
   findWaspRoot,
   normaliseFeaturePath,
@@ -57,6 +61,7 @@ export class FeatureGenerator extends WaspGeneratorBase<typeof schema> {
 
     this.fileSystem.mkdirSync(featureDir, { recursive: true });
     this.configGenerator.generate(normalisedPath);
+    this.barrelGenerator.regenerate();
     this.logger.success(`Generated feature: ${normalisedPath}`);
   }
 }

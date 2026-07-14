@@ -1,8 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { ActionGenerator, FeatureGenerator } from '../src';
+import { realFileSystem } from '../src/common';
 import { schema as actionSchema } from '../src/generators/action/schema';
 import { schema as featureSchema } from '../src/generators/feature/schema';
-import { realFileSystem } from '../src/common';
 import {
   assertImportsPresent,
   countOccurrences,
@@ -27,9 +27,13 @@ describe('Action Generator Integration Tests', () => {
   });
 
   it('should generate create action with proper types and imports', async () => {
-    const featureGen = await createTestGenerator(FeatureGenerator, featureSchema, {
-      fileSystem: realFileSystem,
-    });
+    const featureGen = await createTestGenerator(
+      FeatureGenerator,
+      featureSchema,
+      {
+        fileSystem: realFileSystem,
+      }
+    );
     const actionGen = await createTestGenerator(ActionGenerator, actionSchema, {
       fileSystem: realFileSystem,
     });
@@ -58,9 +62,13 @@ describe('Action Generator Integration Tests', () => {
   });
 
   it('should not duplicate action in config without force flag', async () => {
-    const featureGen = await createTestGenerator(FeatureGenerator, featureSchema, {
-      fileSystem: realFileSystem,
-    });
+    const featureGen = await createTestGenerator(
+      FeatureGenerator,
+      featureSchema,
+      {
+        fileSystem: realFileSystem,
+      }
+    );
     const actionGen = await createTestGenerator(ActionGenerator, actionSchema, {
       fileSystem: realFileSystem,
     });
@@ -95,9 +103,13 @@ describe('Action Generator Integration Tests', () => {
   });
 
   it('should replace action definition with force flag', async () => {
-    const featureGen = await createTestGenerator(FeatureGenerator, featureSchema, {
-      fileSystem: realFileSystem,
-    });
+    const featureGen = await createTestGenerator(
+      FeatureGenerator,
+      featureSchema,
+      {
+        fileSystem: realFileSystem,
+      }
+    );
     const actionGen = await createTestGenerator(ActionGenerator, actionSchema, {
       fileSystem: realFileSystem,
     });
@@ -127,6 +139,6 @@ describe('Action Generator Integration Tests', () => {
     const contentAfter = readGeneratedFile(projectPaths.root, configPath);
     expect(contentAfter).toContain('auth: true');
 
-    expect(countOccurrences(contentAfter, 'addAction')).toBeLessThanOrEqual(1);
+    expect(countOccurrences(contentAfter, 'action\\(')).toBeLessThanOrEqual(1);
   });
 });

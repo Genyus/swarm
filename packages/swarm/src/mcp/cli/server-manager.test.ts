@@ -232,12 +232,12 @@ describe('ServerManager', () => {
   });
 
   describe('resolveProjectRoot', () => {
-    let originalCwd: string;
+    let _originalCwd: string;
     let originalArgv: string[];
     const mockedExistsSync = vi.mocked(existsSync);
 
     beforeEach(() => {
-      originalCwd = process.cwd();
+      _originalCwd = process.cwd();
       originalArgv = [...process.argv];
       mockedExistsSync.mockReset();
     });

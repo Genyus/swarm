@@ -1,18 +1,18 @@
 import {
-  GeneratorServices,
   getPlural,
-  Out,
+  type Out,
   toCamelCase,
   toPascalCase,
 } from '@ingenyus/swarm';
 import {
   CONFIG_TYPES,
-  CrudOperation,
-  EntityMetadata,
+  type CrudOperation,
+  type EntityMetadata,
   getEntityMetadata,
   needsPrismaImport,
 } from '../../common';
 import { OperationGeneratorBase } from '../base';
+import type { SpecDeclaration } from '../config';
 import { schema } from './schema';
 
 const CRUD_OPERATIONS_LIST: readonly CrudOperation[] = [
@@ -33,10 +33,6 @@ export class CrudGenerator extends OperationGeneratorBase<
 
   description = 'Generates a Wasp CRUD operation';
   schema = schema;
-
-  constructor(services: GeneratorServices) {
-    super(services);
-  }
 
   async generate(args: Out<typeof schema>): Promise<void> {
     const { dataType, feature, name } = args;
@@ -134,54 +130,20 @@ export class CrudGenerator extends OperationGeneratorBase<
     return imports.join('\n');
   }
 
-  private async updateConfigFile(
+  private updateConfigFile(
     feature: string,
     crudName: string,
     dataType: string,
     args: Out<typeof schema>,
     configPath: string
   ) {
-    const operations = this.buildOperations(args);
-    const definition = this.getDefinition(crudName, dataType, operations);
+    const definition = this.getDefinition(crudName, dataType, args);
 
     this.updateConfigWithCheck(
       configPath,
-      'addCrud',
-      crudName,
       definition,
       feature,
       args.force || false
-    );
-  }
-
-  private buildOperations(args: Out<typeof schema>): Record<string, unknown> {
-    const {
-      public: publicOps = [],
-      override: overrideOps = [],
-      exclude: excludeOps = [],
-    } = args;
-
-    return CRUD_OPERATIONS_LIST.reduce(
-      (acc, operation) => {
-        if (excludeOps.includes(operation)) {
-          return acc;
-        }
-
-        const operationConfig: Record<string, unknown> = {};
-
-        if (publicOps.includes(operation)) {
-          operationConfig.isPublic = true;
-        }
-
-        if (overrideOps.includes(operation)) {
-          operationConfig.override = true;
-        }
-
-        acc[operation] = operationConfig;
-
-        return acc;
-      },
-      {} as Record<string, unknown>
     );
   }
 
@@ -217,26 +179,61 @@ export class CrudGenerator extends OperationGeneratorBase<
   }
 
   /**
-   * Generates a CRUD definition for the feature configuration.
+   * Builds a native crud spec declaration for the feature configuration.
+   * Enabled operations render as `{}`, public ones add `isPublic: true`, and
+   * overridden ones add `overrideFn: <ref>` (all overrides import from the
+   * single generated crud file).
    */
-  getDefinition(crudName: string, dataType: string, operations: any): string {
-    const templatePath = this.templateUtility.resolveTemplatePath(
-      'config/crud.eta',
-      'crud',
-      import.meta.url
-    );
-    const operationsStr = JSON.stringify(operations, null, 2)
-      .replace(/"([^"]+)":/g, '$1:')
-      .slice(1, -1) // Remove outer braces
-      .split('\n')
-      .filter((line) => line.trim() !== '')
-      .map((line, index) => (index === 0 ? line.trimStart() : '    ' + line))
-      .join('\n');
+  getDefinition(
+    crudName: string,
+    dataType: string,
+    args: Out<typeof schema>
+  ): SpecDeclaration {
+    const {
+      public: publicOps = [],
+      override: overrideOps = [],
+      exclude: excludeOps = [],
+    } = args;
 
-    return this.templateUtility.processTemplate(templatePath, {
-      crudName,
-      dataType,
-      operations: operationsStr,
-    });
+    const overrideNames: string[] = [];
+    const operationParts: string[] = [];
+
+    for (const operation of CRUD_OPERATIONS_LIST) {
+      if (excludeOps.includes(operation)) {
+        continue;
+      }
+
+      const inner: string[] = [];
+
+      if (publicOps.includes(operation)) {
+        inner.push('isPublic: true');
+      }
+
+      if (overrideOps.includes(operation)) {
+        const fn = this.getOperationName(operation, dataType);
+        inner.push(`overrideFn: ${fn}`);
+        overrideNames.push(fn);
+      }
+
+      operationParts.push(
+        `${operation}: ${inner.length ? `{ ${inner.join(', ')} }` : '{}'}`
+      );
+    }
+
+    // The crud declaration name must match the generated crud type namespace
+    // (`wasp/server/crud`) that override operations are typed against, so it is
+    // PascalCased; the override file itself is imported by its (camelCase) name.
+    const crudType = toPascalCase(crudName);
+    const call = `crud("${crudType}", "${dataType}", { ${operationParts.join(', ')} })`;
+    const refImports = overrideNames.length
+      ? [
+          {
+            names: overrideNames,
+            from: this.getRelativeRefPath('crud', crudName),
+          },
+        ]
+      : [];
+
+    return { kind: 'crud', call, refImports };
   }
 }

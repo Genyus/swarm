@@ -1,4 +1,4 @@
-import { AppError, ErrorContext } from './app-error';
+import { AppError, type ErrorContext } from './app-error';
 import { MCPErrorCode } from './mcp-protocol-error';
 
 /**

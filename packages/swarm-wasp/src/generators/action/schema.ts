@@ -1,4 +1,4 @@
-import { SchemaManager, registerSchemaMetadata } from '@ingenyus/swarm';
+import { registerSchemaMetadata, SchemaManager } from '@ingenyus/swarm';
 import { z } from 'zod/v4';
 import {
   ACTION_OPERATIONS,

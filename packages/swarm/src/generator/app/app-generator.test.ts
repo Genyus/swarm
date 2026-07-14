@@ -1,10 +1,14 @@
 import path from 'node:path';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { FileSystem, toFriendlyName, validateProjectName } from '../../common';
 import {
-  Generator,
-  GeneratorProvider,
-  GeneratorServices,
+  type FileSystem,
+  toFriendlyName,
+  validateProjectName,
+} from '../../common';
+import {
+  type Generator,
+  type GeneratorProvider,
+  type GeneratorServices,
   getGeneratorServices,
 } from '../index';
 import { AppGenerator } from './app-generator';

@@ -1,7 +1,8 @@
-import { GeneratorServices, Out, toCamelCase } from '@ingenyus/swarm';
 import path from 'node:path';
+import { type Out, toCamelCase } from '@ingenyus/swarm';
 import { CONFIG_TYPES, ensureDirectoryExists } from '../../common';
 import { ComponentGeneratorBase } from '../base';
+import type { SpecDeclaration } from '../config';
 import { schema } from './schema';
 
 export class ApiNamespaceGenerator extends ComponentGeneratorBase<
@@ -15,10 +16,6 @@ export class ApiNamespaceGenerator extends ComponentGeneratorBase<
   description = 'Generates a Wasp API Namespace';
   schema = schema;
 
-  constructor(services: GeneratorServices) {
-    super(services);
-  }
-
   async generate(args: Out<typeof schema>): Promise<void> {
     const { name, path: namespacePath, feature } = args;
     const namespaceName = toCamelCase(name);
@@ -30,10 +27,8 @@ export class ApiNamespaceGenerator extends ComponentGeneratorBase<
         this.ensureWaspCompatible();
 
         const configPath = this.validateFeatureConfig(feature);
-        const {
-          targetDirectory: apiTargetDirectory,
-          importDirectory: apiImportDirectory,
-        } = this.ensureTargetDirectory(feature, 'api');
+        const { targetDirectory: apiTargetDirectory } =
+          this.ensureTargetDirectory(feature, 'api');
         const middlewareTargetDirectory = path.join(
           apiTargetDirectory,
           'middleware'
@@ -41,7 +36,6 @@ export class ApiNamespaceGenerator extends ComponentGeneratorBase<
 
         ensureDirectoryExists(this.fileSystem, middlewareTargetDirectory);
 
-        const importDirectory = `${apiImportDirectory}/middleware`;
         const targetFile = `${middlewareTargetDirectory}/${namespaceName}.ts`;
 
         await this.generateMiddlewareFile(
@@ -49,60 +43,37 @@ export class ApiNamespaceGenerator extends ComponentGeneratorBase<
           namespaceName,
           args.force || false
         );
-        await this.updateConfigFile(
-          namespaceName,
-          importDirectory,
-          namespacePath,
-          args,
-          configPath
-        );
+        this.updateConfigFile(namespaceName, namespacePath, args, configPath);
       }
     );
   }
 
-  private async updateConfigFile(
+  private updateConfigFile(
     namespaceName: string,
-    importDirectory: string,
     namespacePath: string,
     args: Out<typeof schema>,
     configFilePath: string
   ) {
-    const { force = false } = args;
-    const importPath = `${importDirectory}/${namespaceName}`;
-    const definition = await this.getDefinition(
-      namespaceName,
-      importPath,
-      namespacePath
-    );
+    const definition = this.getDefinition(namespaceName, namespacePath);
 
     this.updateConfigWithCheck(
       configFilePath,
-      'addApiNamespace',
-      namespaceName,
       definition,
       args.feature,
-      force
+      args.force || false
     );
   }
 
   /**
-   * Generates an apiNamespace definition for the feature configuration.
+   * Builds a native apiNamespace spec declaration for the feature configuration.
    */
-  async getDefinition(
-    namespaceName: string,
-    middlewareImportPath: string,
-    pathValue: string
-  ): Promise<string> {
-    const templatePath = this.templateUtility.resolveTemplatePath(
-      'config/api-namespace.eta',
-      'api-namespace',
-      import.meta.url
-    );
+  getDefinition(namespaceName: string, pathValue: string): SpecDeclaration {
+    const from = this.getRelativeRefPath('api', `middleware/${namespaceName}`);
 
-    return this.templateUtility.processTemplate(templatePath, {
-      namespaceName,
-      middlewareImportPath,
-      pathValue,
-    });
+    return {
+      kind: 'apiNamespace',
+      call: `apiNamespace("${pathValue}", { middlewareConfigFn: ${namespaceName} })`,
+      refImports: [{ names: [namespaceName], from }],
+    };
   }
 }

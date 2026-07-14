@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { SchemaManager, StandardSchemaV1 } from '.';
-import { registerSchemaMetadata, SchemaMetadata } from './metadata';
+import { SchemaManager, type StandardSchemaV1 } from '.';
+import { registerSchemaMetadata, type SchemaMetadata } from './metadata';
 
 function createSchema(metadata?: SchemaMetadata): StandardSchemaV1 {
   const schema: StandardSchemaV1 = {

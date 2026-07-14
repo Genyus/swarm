@@ -1,12 +1,12 @@
-import { AsyncSearcher, LilconfigResult, lilconfig } from 'lilconfig';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
+import { type AsyncSearcher, type LilconfigResult, lilconfig } from 'lilconfig';
 import {
   DEFAULT_CONFIG_FILE,
   DEFAULT_CUSTOM_TEMPLATES_DIR,
-  LogLevel,
   findPackageJson,
   hasWorkspaceConfig,
+  type LogLevel,
 } from '../common';
 
 /**
@@ -150,7 +150,7 @@ class ConfigManager {
               return currentDir;
             }
           }
-        } catch (e) {
+        } catch (_e) {
           // Ignore package.json parsing errors
         }
       }
@@ -197,7 +197,7 @@ class ConfigManager {
         result = await this.lilconfig.search(searchDir);
       }
 
-      if (!result || !result.config) {
+      if (!result?.config) {
         // Use default configuration when no config file is found
         console.warn(
           `No configuration file found in ${searchDir}. Searched for: ${this.searchPlaces.join(', ')}`
@@ -209,23 +209,21 @@ class ConfigManager {
         return this.config;
       }
 
-      this.config = result.config;
+      const config: Config = result.config;
+      this.config = config;
       this.configPath = result.filepath || null;
 
-      if (this.config && !this.config.templateDirectory) {
-        this.config.templateDirectory = DEFAULT_CUSTOM_TEMPLATES_DIR;
+      if (!config.templateDirectory) {
+        config.templateDirectory = DEFAULT_CUSTOM_TEMPLATES_DIR;
       }
 
       // Check if no plugins are defined and warn the user
-      if (
-        this.config &&
-        (!this.config.plugins || this.config.plugins.length === 0)
-      ) {
+      if (!config.plugins || config.plugins.length === 0) {
         console.warn('No plugins are defined in the configuration file.');
         console.warn('Swarm will not have any generators available.');
       }
 
-      return this.config!;
+      return config;
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unknown error';
 
@@ -256,7 +254,7 @@ class ConfigManager {
    */
   getLogLevel(): LogLevel {
     // First check environment variable
-    const envLevel = process.env['SWARM_MCP_LOG_LEVEL'];
+    const envLevel = process.env.SWARM_MCP_LOG_LEVEL;
     if (envLevel && ['debug', 'info', 'warn', 'error'].includes(envLevel)) {
       return envLevel as LogLevel;
     }

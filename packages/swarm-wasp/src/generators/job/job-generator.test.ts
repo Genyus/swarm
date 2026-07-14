@@ -1,115 +1,36 @@
-import type { FileSystem, Generator } from '@ingenyus/swarm';
-import { DEFAULT_CUSTOM_TEMPLATES_DIR } from '@ingenyus/swarm';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
-import {
-  createMockFeatureGen,
-  createMockFS,
-  createTestGenerator,
-} from '../../../tests/utils';
-import { schema as featureSchema } from '../feature/schema';
+import { beforeEach, describe, expect, it } from 'vitest';
+import { createTestGenerator } from '../../../tests/utils';
 import { JobGenerator } from './job-generator';
 import { schema } from './schema';
 
-// Mock getConfigManager
-vi.mock('@ingenyus/swarm', async () => {
-  const actual = await vi.importActual('@ingenyus/swarm');
-  return {
-    ...actual,
-    getConfigManager: vi.fn().mockImplementation(() => ({
-      loadConfig: vi.fn().mockResolvedValue({
-        templateDirectory: DEFAULT_CUSTOM_TEMPLATES_DIR,
-        plugins: [
-          {
-            from: '@ingenyus/swarm-wasp',
-            import: 'wasp',
-          },
-        ],
-      }),
-    })),
-  };
-});
-
 describe('JobGenerator', () => {
-  let fs: FileSystem;
-  let featureGen: Generator<typeof featureSchema>;
   let gen: JobGenerator;
 
   beforeEach(async () => {
-    fs = createMockFS();
-    featureGen = createMockFeatureGen(featureSchema);
-    gen = await createTestGenerator(JobGenerator, schema, {
-      fileSystem: fs,
-    });
+    gen = await createTestGenerator(JobGenerator, schema);
   });
 
-  it('generate writes worker file and updates config', async () => {
-    fs.existsSync = vi.fn((p) => !p.includes('notfound'));
-    fs.readFileSync = vi.fn((path) => {
-      if (typeof path === 'string' && path.endsWith('.wasp.ts')) {
-        return `import { App } from "@ingenyus/swarm-wasp";
+  it('getDefinition builds a native job declaration with a schedule', () => {
+    const decl = gen.getDefinition('cleanup', ['Task'], '0 0 * * *', '{}');
 
-export default function configureFeature(app: App, feature: string): void {
-  app
-}`;
-      }
-      return '<%=imports%>\nexport const <%=jobName%>: <%=jobType%><never, void> = async (_args, _context) => {\n  // TODO: Implement job logic\n  console.log("Job executed");\n}';
-    });
-    fs.writeFileSync = vi.fn();
-
-    // Create generator after setting up mocks
-    gen = await createTestGenerator(JobGenerator, schema, {
-      fileSystem: fs,
-    });
-
-    // Mock the template utility to return a simple template
-    (gen as any).templateUtility = {
-      processTemplate: vi.fn((templatePath, replacements) => {
-        if (templatePath.includes('config/job.eta')) {
-          return `app.addJob("${replacements.jobName}", {
-  schedule: "${replacements.cron}",
-  args: ${replacements.args}
-});`;
-        }
-        return `// Generated job template for ${replacements.jobName || 'unknown'}`;
-      }),
-      resolveTemplatePath: vi.fn(
-        (templateName, generatorName, currentFileUrl) => {
-          return `/mock/templates/${generatorName}/templates/${templateName}`;
-        }
-      ),
-    };
-
-    await gen.generate({
-      feature: 'foo',
-      name: 'Job',
-      force: true,
-      entities: ['User'],
-      cron: '0 0 * * *',
-      args: '{}',
-    });
-    expect(fs.writeFileSync).toHaveBeenCalled();
-    // The WaspBaseGenerator uses its own configGenerator instead of updateFeatureConfig
-    // So we expect the config file to be written directly
-    expect(fs.writeFileSync).toHaveBeenCalledWith(
-      expect.stringContaining('feature.wasp.ts'),
-      expect.any(String)
+    expect(decl.kind).toBe('job');
+    expect(decl.call).toBe(
+      'job(cleanup, { executor: "PgBoss", entities: ["Task"], schedule: { cron: "0 0 * * *" } })'
     );
+    expect(decl.refImports).toEqual([
+      { names: ['cleanup'], from: './server/jobs/cleanup' },
+    ]);
   });
 
-  it('getDefinition returns processed template', () => {
-    // Mock the template utility to process templates
-    (gen as any).templateUtility = {
-      processTemplate: vi.fn((templatePath, replacements) => {
-        return `testJob: { schedule: "", args: {} }`;
-      }),
-      resolveTemplatePath: vi.fn(
-        (templateName, generatorName, currentFileUrl) => {
-          return `/mock/templates/${generatorName}/templates/${templateName}`;
-        }
-      ),
-    };
+  it('omits schedule when no cron is given and includes schedule args when provided', () => {
+    expect(gen.getDefinition('cleanup', [], '', '{}').call).toBe(
+      'job(cleanup, { executor: "PgBoss" })'
+    );
 
-    const result = gen.getDefinition('testJob', [], '', '{}');
-    expect(typeof result).toBe('string');
+    expect(
+      gen.getDefinition('cleanup', [], '0 0 * * *', '{ limit: 10 }').call
+    ).toBe(
+      'job(cleanup, { executor: "PgBoss", schedule: { cron: "0 0 * * *", args: { limit: 10 } } })'
+    );
   });
 });

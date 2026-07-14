@@ -1,6 +1,0 @@
-    .add<%=operationType%>(feature, "<%=operationName%>", {
-<%- if (entities.length > 0) { %>
-      entities: [<%=entities%>],
-<%- } %>
-      auth: <%=auth%>,
-    })

@@ -21,11 +21,11 @@ Swarm is a set of code generation tools for rapid Typescript application develop
 ### Key Scripts
 - `pnpm build` - Build all packages
 - `pnpm dev` - Watch mode for development
-- `pnpm lint` - Run ESLint
-- `pnpm lint:fix` - Fix linting issues automatically
+- `pnpm lint` - Run Biome lint + format checks
+- `pnpm lint:fix` - Fix linting/formatting issues automatically
 - `pnpm typecheck` - Run TypeScript type checking
-- `pnpm format` - Apply Prettier formatting
-- `pnpm format:check` - Check Prettier formatting
+- `pnpm format` - Apply Biome formatting
+- `pnpm format:check` - Check Biome formatting
 
 ## Testing
 
@@ -81,7 +81,7 @@ Swarm is a set of code generation tools for rapid Typescript application develop
 
 ### Key Dependencies
 - **Vite** - Build tool and dev server
-- **ESLint** - Linting
+- **Biome** - Linting and formatting
 - **TypeScript** - Type checking
 
 ### Development Tools

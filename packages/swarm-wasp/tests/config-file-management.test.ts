@@ -7,13 +7,13 @@ import {
   QueryGenerator,
   RouteGenerator,
 } from '../src';
+import { realFileSystem } from '../src/common';
 import { schema as actionSchema } from '../src/generators/action/schema';
 import { schema as apiSchema } from '../src/generators/api/schema';
 import { schema as featureSchema } from '../src/generators/feature/schema';
 import { schema as jobSchema } from '../src/generators/job/schema';
 import { schema as querySchema } from '../src/generators/query/schema';
 import { schema as routeSchema } from '../src/generators/route/schema';
-import { realFileSystem } from '../src/common';
 import {
   countOccurrences,
   createTestGenerator,
@@ -100,11 +100,11 @@ describe('Configuration File Management Tests', () => {
     const content = readGeneratedFile(projectPaths.root, configPath);
 
     // The actual generated format doesn't have group headers, just comments
-    expect(content).toContain('addRoute');
-    expect(content).toContain('addQuery');
-    expect(content).toContain('addAction');
-    expect(content).toContain('addApi');
-    expect(content).toContain('addJob');
+    expect(content).toContain('route(');
+    expect(content).toContain('query(');
+    expect(content).toContain('action(');
+    expect(content).toContain('api(');
+    expect(content).toContain('job(');
   });
 
   it('should include group headers for each definition type', async () => {
@@ -156,7 +156,7 @@ describe('Configuration File Management Tests', () => {
     const content = readGeneratedFile(projectPaths.root, configPath);
 
     // The generated config ends with a closing brace, not semicolon
-    expect(content.trim()).toMatch(/}\s*$/);
+    expect(content.trim()).toMatch(/];\s*$/);
   });
 
   it('should preserve proper structure after multiple additions', async () => {
@@ -191,10 +191,10 @@ describe('Configuration File Management Tests', () => {
     const content = readGeneratedFile(projectPaths.root, configPath);
 
     // The generated config should end with a closing brace
-    expect(content.trim()).toMatch(/}\s*$/);
+    expect(content.trim()).toMatch(/];\s*$/);
 
     // Should have multiple action definitions
-    expect(countOccurrences(content, 'addAction')).toBe(3);
+    expect(countOccurrences(content, 'action\\(')).toBe(3);
   });
 
   it('should sort definitions alphabetically within groups', async () => {

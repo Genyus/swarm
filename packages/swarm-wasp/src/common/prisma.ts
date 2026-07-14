@@ -1,13 +1,13 @@
+import fs from 'node:fs';
+import path from 'node:path';
 import {
-  Field,
-  getSchema,
   type Attribute,
   type AttributeArgument,
   type Block,
+  type Field,
+  getSchema,
   type Model,
 } from '@mrleebo/prisma-ast';
-import fs from 'node:fs';
-import path from 'node:path';
 
 /**
  * Represents a field in a Prisma model.
@@ -49,7 +49,7 @@ export async function getEntityMetadata(
       (m: Block): m is Model => m.type === 'model' && m.name === modelName
     );
 
-    if (!model || model.type !== 'model') {
+    if (model?.type !== 'model') {
       throw new Error(`Model ${modelName} not found in schema`);
     }
 

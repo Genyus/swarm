@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { ServerManager } from '../server-manager';
+import type { ServerManager } from '../server-manager';
 import { createStatusCommand } from './status';
 
 // Mock the ServerManager

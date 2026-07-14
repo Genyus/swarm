@@ -1,11 +1,11 @@
 import { Command } from 'commander';
 import { realFileSystem, toKebabCase } from '../common';
-import { GeneratorProvider, getGeneratorServices } from '../generator';
+import { type GeneratorProvider, getGeneratorServices } from '../generator';
 import { PluginInterfaceManager } from '../plugin';
 import {
-  SchemaFieldMetadata,
+  type SchemaFieldMetadata,
   SchemaManager,
-  StandardSchemaV1,
+  type StandardSchemaV1,
   standardValidate,
 } from '../schema';
 import { getCLILogger } from './cli-logger';
@@ -53,7 +53,7 @@ export class CLIManager extends PluginInterfaceManager<Command> {
     command.action(async (rawArgs: unknown) => {
       try {
         await this.executeCommand(name, rawArgs);
-      } catch (err: any) {
+      } catch (_err: unknown) {
         process.exit(1);
       }
     });
@@ -82,7 +82,7 @@ export class CLIManager extends PluginInterfaceManager<Command> {
   }
 
   private async validateArgs(schema: StandardSchemaV1, rawArgs: unknown) {
-    const result = await standardValidate(schema, rawArgs as any);
+    const result = await standardValidate(schema, rawArgs);
     if (result.issues) {
       const errorMessages = result.issues
         .map((issue) => `${issue.message}${this.formatIssuePath(issue.path)}`)

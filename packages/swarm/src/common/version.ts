@@ -15,9 +15,10 @@ export function getVersion(
   startDir?: string
 ): string {
   const cacheKey = `${packageName}:${startDir ?? 'default'}`;
+  const cached = versionCache.get(cacheKey);
 
-  if (versionCache.has(cacheKey)) {
-    return versionCache.get(cacheKey)!;
+  if (cached !== undefined) {
+    return cached;
   }
 
   const searchDir = startDir ?? path.dirname(fileURLToPath(import.meta.url));

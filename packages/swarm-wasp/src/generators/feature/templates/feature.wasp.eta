@@ -1,5 +1,3 @@
-import { App } from "@ingenyus/swarm-wasp";
+import { type Spec } from '@wasp.sh/spec';
 
-export default function configureFeature(app: App, feature: string): void {
-  app
-}
+export const spec: Spec = [];

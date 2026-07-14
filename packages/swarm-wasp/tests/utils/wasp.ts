@@ -1,7 +1,7 @@
-import { DEFAULT_CONFIG_FILE } from '@ingenyus/swarm';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { DEFAULT_CONFIG_FILE } from '@ingenyus/swarm';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -32,17 +32,28 @@ export function createTestWaspProject(): TestProjectPaths {
 
   fs.writeFileSync(path.join(root, '.wasproot'), 'wasp');
 
+  // Native Wasp 0.24 spec: `main.wasp.ts` lives at the project root and pulls in
+  // the generated features barrel.
   const mainWasp = path.join(root, 'main.wasp.ts');
   fs.writeFileSync(
     mainWasp,
-    `
-import { app } from '@wasp/config';
+    `import { app } from '@wasp.sh/spec';
+import { featureSpecs } from './src/features/index.wasp';
 
-export default app('TestApp', {
-  wasp: { version: '^0.18.0' },
+export default app({
+  name: 'TestApp',
   title: 'Test Application',
+  wasp: { version: '^0.24.0' },
+  spec: [featureSpecs],
 });
 `
+  );
+
+  // Empty features barrel so `main.wasp.ts` resolves before any feature exists;
+  // it is regenerated as features are added.
+  fs.writeFileSync(
+    path.join(features, 'index.wasp.ts'),
+    `import type { Spec } from '@wasp.sh/spec';\n\nexport const featureSpecs: Spec = [];\n`
   );
 
   const schema = path.join(root, 'schema.prisma');
@@ -100,9 +111,9 @@ model Comment {
         name: 'test-wasp-app',
         version: '0.0.1',
         private: true,
+        type: 'module',
         dependencies: {
-          '@wasp/entities': 'workspace:*',
-          wasp: '^0.18.0',
+          '@wasp.sh/spec': '^0.24.0',
         },
       },
       null,
@@ -110,16 +121,55 @@ model Comment {
     )
   );
 
+  // Wasp 0.24 tsconfig split: the root config references a `src` project (app
+  // code, excludes *.wasp.ts) and a `wasp` project (the *.wasp.ts spec files).
   fs.writeFileSync(
     path.join(root, 'tsconfig.json'),
     JSON.stringify(
       {
-        extends: './tsconfig.wasp.json',
+        files: [],
+        references: [
+          { path: './tsconfig.src.json' },
+          { path: './tsconfig.wasp.json' },
+        ],
+      },
+      null,
+      2
+    )
+  );
+
+  fs.writeFileSync(
+    path.join(root, 'tsconfig.src.json'),
+    JSON.stringify(
+      {
         compilerOptions: {
+          module: 'esnext',
+          moduleResolution: 'bundler',
+          composite: true,
           strict: true,
-          esModuleInterop: true,
+          jsx: 'preserve',
           skipLibCheck: true,
         },
+        include: ['src'],
+        exclude: ['**/*.wasp.ts'],
+      },
+      null,
+      2
+    )
+  );
+
+  fs.writeFileSync(
+    path.join(root, 'tsconfig.wasp.json'),
+    JSON.stringify(
+      {
+        compilerOptions: {
+          module: 'esnext',
+          moduleResolution: 'bundler',
+          strict: true,
+          skipLibCheck: true,
+          noEmit: true,
+        },
+        include: ['**/*.wasp.ts'],
       },
       null,
       2

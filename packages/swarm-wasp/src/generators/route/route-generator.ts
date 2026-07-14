@@ -1,12 +1,12 @@
 import {
   formatDisplayName,
-  GeneratorServices,
-  Out,
+  type Out,
   toCamelCase,
   toPascalCase,
 } from '@ingenyus/swarm';
 import { CONFIG_TYPES, getRouteNameFromPath } from '../../common';
 import { ComponentGeneratorBase } from '../base';
+import type { SpecDeclaration } from '../config';
 import { schema } from './schema';
 
 export class RouteGenerator extends ComponentGeneratorBase<
@@ -19,10 +19,6 @@ export class RouteGenerator extends ComponentGeneratorBase<
 
   description = 'Generates a Wasp Page and Route';
   schema = schema;
-
-  constructor(services: GeneratorServices) {
-    super(services);
-  }
 
   async generate(args: Out<typeof schema>): Promise<void> {
     const { path: routePath, name, feature } = args;
@@ -51,7 +47,7 @@ export class RouteGenerator extends ComponentGeneratorBase<
     componentName: string,
     args: Out<typeof schema>
   ) {
-    const templatePath = 'files/client/page.eta';
+    const _templatePath = 'files/client/page.eta';
     const replacements = {
       componentName,
       displayName: formatDisplayName(componentName),
@@ -73,17 +69,10 @@ export class RouteGenerator extends ComponentGeneratorBase<
     args: Out<typeof schema>,
     configPath: string
   ) {
-    const definition = this.getDefinition(
-      routeName,
-      routePath,
-      featurePath,
-      args.auth
-    );
+    const definition = this.getDefinition(routeName, routePath, args.auth);
 
     this.updateConfigWithCheck(
       configPath,
-      'addRoute',
-      routeName,
       definition,
       featurePath,
       args.force || false
@@ -91,21 +80,23 @@ export class RouteGenerator extends ComponentGeneratorBase<
   }
 
   /**
-   * Generates a route definition for the feature configuration.
+   * Builds a native route spec declaration for the feature configuration.
    */
   getDefinition(
     routeName: string,
     routePath: string,
-    featurePath: string,
     auth = false
-  ): string {
-    const templatePath = this.getDefaultTemplatePath('config/route.eta');
+  ): SpecDeclaration {
+    const componentName = toPascalCase(routeName);
+    const from = this.getRelativeRefPath('page', componentName);
+    const pageArgs = auth
+      ? `${componentName}, { authRequired: true }`
+      : componentName;
 
-    return this.templateUtility.processTemplate(templatePath, {
-      featureName: featurePath.split('/').pop() || featurePath,
-      routeName,
-      routePath,
-      auth: String(auth),
-    });
+    return {
+      kind: 'route',
+      call: `route("${routeName}", "${routePath}", page(${pageArgs}))`,
+      refImports: [{ names: [componentName], from }],
+    };
   }
 }

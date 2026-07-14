@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { DEFAULT_CUSTOM_TEMPLATES_DIR, FileSystem } from '../common';
+import { DEFAULT_CUSTOM_TEMPLATES_DIR, type FileSystem } from '../common';
 import { TemplateResolver } from './template-resolver';
 
 // Mock file system

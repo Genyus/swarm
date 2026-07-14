@@ -1,17 +1,17 @@
 import {
-  Config,
+  type Config,
   GeneratorBase,
-  GeneratorServices,
-  StandardSchemaV1,
-  TemplateResolver,
+  type GeneratorServices,
   getConfigManager,
+  type StandardSchemaV1,
+  TemplateResolver,
 } from '@ingenyus/swarm';
 import {
+  assertWaspCompatible,
   PLUGIN_NAME,
   TemplateUtility,
-  assertWaspCompatible,
 } from '../../common';
-import { WaspConfigGenerator } from '../config';
+import { FeaturesBarrelGenerator, WaspConfigGenerator } from '../config';
 
 /**
  * Abstract base class for all Wasp generators
@@ -20,6 +20,7 @@ export abstract class WaspGeneratorBase<
   S extends StandardSchemaV1,
 > extends GeneratorBase<S> {
   protected configGenerator: WaspConfigGenerator;
+  protected barrelGenerator: FeaturesBarrelGenerator;
   protected templateUtility: TemplateUtility;
   protected templateResolver: TemplateResolver;
   private swarmConfig: Config | undefined;
@@ -31,6 +32,10 @@ export abstract class WaspGeneratorBase<
   constructor(services: GeneratorServices) {
     super(services);
     this.configGenerator = new WaspConfigGenerator(
+      this.logger,
+      this.fileSystem
+    );
+    this.barrelGenerator = new FeaturesBarrelGenerator(
       this.logger,
       this.fileSystem
     );
@@ -100,7 +105,7 @@ export abstract class WaspGeneratorBase<
    */
   protected async renderTemplateToFile(
     templateName: string,
-    replacements: Record<string, any>,
+    replacements: Record<string, string>,
     outputPath: string,
     readableFileType: string,
     force: boolean

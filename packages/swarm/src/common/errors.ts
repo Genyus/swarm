@@ -38,6 +38,6 @@ export function handleFatalError(
  * Used purely to help compiler check for exhaustiveness in switch statements,
  * will never execute. See https://stackoverflow.com/a/39419171.
  */
-export function assertUnreachable(x: never): never {
+export function assertUnreachable(_x: never): never {
   throw Error('This code should be unreachable');
 }

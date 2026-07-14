@@ -1,6 +1,5 @@
 import type {
   FileSystem,
-  Generator,
   GeneratorBase,
   GeneratorProvider,
   GeneratorServices,
@@ -32,17 +31,6 @@ export function createMockFS(): FileSystem {
   } as FileSystem;
 }
 
-export function createMockFeatureGen<S extends StandardSchemaV1>(
-  s: S
-): Generator<S> {
-  return {
-    name: 'feature',
-    description: 'Mock',
-    schema: s,
-    generate: vi.fn(),
-  };
-}
-
 /**
  * Convenience helper for creating generators in tests with default mocks.
  * Automatically provides mock filesystem and logger, with optional overrides.
@@ -62,7 +50,7 @@ export function createMockFeatureGen<S extends StandardSchemaV1>(
  */
 export async function createTestGenerator<T extends GeneratorBase<any>>(
   ctor: new (services: GeneratorServices) => T,
-  schema: StandardSchemaV1,
+  _schema: StandardSchemaV1,
   overrides: Partial<GeneratorServices> = {}
 ): Promise<T> {
   const mockFS = createMockFS();

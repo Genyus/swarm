@@ -1,6 +1,6 @@
-import { FileSystem, toPascalCase } from '@ingenyus/swarm';
 import fs from 'node:fs';
-import path from 'path';
+import path from 'node:path';
+import { type FileSystem, toPascalCase } from '@ingenyus/swarm';
 import { TYPE_DIRECTORIES } from './constants';
 
 export const realFileSystem: FileSystem = {

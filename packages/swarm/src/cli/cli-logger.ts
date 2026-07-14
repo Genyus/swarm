@@ -1,6 +1,6 @@
 import type { Signale, SignaleOptions } from 'signale';
 import pkg from 'signale';
-import { Logger, LogLevel } from '../common/logger';
+import type { Logger, LogLevel } from '../common/logger';
 import { getConfigManager } from '../config';
 
 const { Signale: SignaleConstructor } = pkg;

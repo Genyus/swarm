@@ -15,15 +15,21 @@ describe('WaspFeatureGenerator', () => {
     });
   });
 
-  it('generate creates feature directory structure', async () => {
+  it('generate creates feature directory structure and regenerates the barrel', async () => {
     fs.existsSync = vi.fn((p) => !p.includes('notfound'));
     fs.mkdirSync = vi.fn();
     fs.copyFileSync = vi.fn();
+    // The barrel generator scans src/features; return no existing features.
+    fs.readdirSync = vi.fn(() => []);
+    fs.writeFileSync = vi.fn();
 
     await gen.generate({ target: 'test-feature' });
 
-    // Since copyDirectory is mocked, we expect the generate method to complete successfully
-    // The actual copyDirectory call is internal to the generator
     expect(fs.existsSync).toHaveBeenCalled();
+    // The features barrel (src/features/index.wasp.ts) is (re)written.
+    expect(fs.writeFileSync).toHaveBeenCalledWith(
+      expect.stringContaining('index.wasp.ts'),
+      expect.stringContaining('featureSpecs')
+    );
   });
 });

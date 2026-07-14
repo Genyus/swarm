@@ -1,14 +1,14 @@
+import * as fs from 'node:fs';
+import * as path from 'node:path';
 import {
   DEFAULT_CONFIG_FILE,
   DEFAULT_CUSTOM_TEMPLATES_DIR,
 } from '@ingenyus/swarm';
-import * as fs from 'node:fs';
-import * as path from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { ApiGenerator, FeatureGenerator } from '../src';
+import { realFileSystem } from '../src/common';
 import { schema as apiSchema } from '../src/generators/api/schema';
 import { schema as featureSchema } from '../src/generators/feature/schema';
-import { realFileSystem } from '../src/common';
 import {
   createTestGenerator,
   createTestWaspProject,
@@ -16,6 +16,9 @@ import {
   type TestProjectPaths,
 } from './utils';
 
+// Only the code-file templates (e.g. `api.eta`) are user-overridable. Config
+// declarations are generated in code (not templated), so a custom config
+// template has no effect.
 describe('Template Override Integration Tests', () => {
   let projectPaths: TestProjectPaths;
   let originalCwd: string;
@@ -30,26 +33,51 @@ describe('Template Override Integration Tests', () => {
     process.chdir(originalCwd);
   });
 
-  it('should use custom template when it exists', async () => {
-    const customTemplateDir = DEFAULT_CUSTOM_TEMPLATES_DIR;
+  function writeSwarmConfig(templateDirectory?: string): void {
+    const swarmConfig = {
+      ...(templateDirectory ? { templateDirectory } : {}),
+      plugins: { wasp: { enabled: true, plugin: 'wasp' } },
+    };
+    fs.writeFileSync(
+      path.join(projectPaths.root, DEFAULT_CONFIG_FILE),
+      JSON.stringify(swarmConfig, null, 2)
+    );
+  }
+
+  async function generateApi(name: string, overrides = {}): Promise<void> {
+    const featureGen = await createTestGenerator(
+      FeatureGenerator,
+      featureSchema,
+      {
+        fileSystem: realFileSystem,
+      }
+    );
+    const apiGen = await createTestGenerator(ApiGenerator, apiSchema, {
+      fileSystem: realFileSystem,
+    });
+
+    await featureGen.generate({ target: 'posts' });
+    await apiGen.generate({
+      feature: 'posts',
+      name,
+      method: 'GET',
+      path: `/api/posts/${name}`,
+      entities: ['Post'],
+      auth: false,
+      force: true,
+      ...overrides,
+    });
+  }
+
+  it('should use a custom code template when it exists', async () => {
     const customApiTemplatePath = path.join(
       projectPaths.root,
-      customTemplateDir,
+      DEFAULT_CUSTOM_TEMPLATES_DIR,
       'wasp',
       'api',
       'api.eta'
     );
-    const customConfigTemplatePath = path.join(
-      projectPaths.root,
-      customTemplateDir,
-      'wasp',
-      'api',
-      'config',
-      'api.eta'
-    );
-
     fs.mkdirSync(path.dirname(customApiTemplatePath), { recursive: true });
-    fs.mkdirSync(path.dirname(customConfigTemplatePath), { recursive: true });
     fs.writeFileSync(
       customApiTemplatePath,
       `// CUSTOM API TEMPLATE
@@ -61,246 +89,73 @@ export const <%=apiName%>: <%=apiType%> = async (req, res, context) => {
 };
 `
     );
-    fs.writeFileSync(
-      customConfigTemplatePath,
-      `    .addApi(feature, "<%=apiName%>", {
-      method: "<%=method%>",
-      route: "<%=route%>",
-<%- if (entities) { %>
-      entities: [<%=entities%>],
-<%- } %>
-      auth: <%=auth%>,
-<%- if (customMiddleware === 'true') { %>
-      customMiddleware: true,
-<%- } %>
-      // Custom config template feature
-      customFeature: true,
-    })
-`
-    );
+    writeSwarmConfig(DEFAULT_CUSTOM_TEMPLATES_DIR);
 
-    const swarmConfig = {
-      templateDirectory: customTemplateDir,
-      plugins: {
-        wasp: {
-          enabled: true,
-          plugin: 'wasp',
-        },
-      },
-    };
-
-    fs.writeFileSync(
-      path.join(projectPaths.root, DEFAULT_CONFIG_FILE),
-      JSON.stringify(swarmConfig, null, 2)
-    );
-
-    const featureGen = await createTestGenerator(FeatureGenerator, featureSchema, {
-      fileSystem: realFileSystem,
-    });
-    const apiGen = await createTestGenerator(ApiGenerator, apiSchema, {
-      fileSystem: realFileSystem,
-    });
-
-    await featureGen.generate({ target: 'posts' });
-    await apiGen.generate({
-      feature: 'posts',
-      name: 'customApi',
-      method: 'GET',
-      path: '/api/posts/custom',
-      entities: ['Post'],
-      auth: false,
-      force: true,
-    });
+    await generateApi('customApi');
 
     const apiContent = readGeneratedFile(
       projectPaths.root,
       'src/features/posts/server/apis/customApi.ts'
     );
-
     expect(apiContent).toContain('// CUSTOM API TEMPLATE');
     expect(apiContent).toContain('Custom API: customApi');
-    expect(apiContent).toContain('Custom implementation');
 
+    // The config declaration is always code-generated, regardless of templates.
     const configContent = readGeneratedFile(
       projectPaths.root,
       'src/features/posts/feature.wasp.ts'
     );
-
-    expect(configContent).toContain('customFeature: true');
+    expect(configContent).toContain('api(');
     expect(configContent).toContain('customApi');
   });
 
-  it('should fall back to built-in template when custom does not exist', async () => {
-    const swarmConfig = {
-      templateDirectory: DEFAULT_CUSTOM_TEMPLATES_DIR,
-      plugins: {
-        wasp: {
-          enabled: true,
-          plugin: 'wasp',
-        },
-      },
-    };
+  it('should fall back to the built-in template when no custom exists', async () => {
+    writeSwarmConfig(DEFAULT_CUSTOM_TEMPLATES_DIR);
 
-    fs.writeFileSync(
-      path.join(projectPaths.root, DEFAULT_CONFIG_FILE),
-      JSON.stringify(swarmConfig, null, 2)
-    );
-
-    const featureGen = await createTestGenerator(FeatureGenerator, featureSchema, {
-      fileSystem: realFileSystem,
-    });
-    const apiGen = await createTestGenerator(ApiGenerator, apiSchema, {
-      fileSystem: realFileSystem,
-    });
-
-    await featureGen.generate({ target: 'posts' });
-    await apiGen.generate({
-      feature: 'posts',
-      name: 'builtInApi',
-      method: 'POST',
-      path: '/api/posts',
-      entities: ['Post'],
-      auth: true,
-      force: true,
-    });
+    await generateApi('builtInApi', { method: 'POST', auth: true });
 
     const apiContent = readGeneratedFile(
       projectPaths.root,
       'src/features/posts/server/apis/builtInApi.ts'
     );
-
     expect(apiContent).not.toContain('// CUSTOM API TEMPLATE');
     expect(apiContent).toContain('export const builtInApi: BuiltInApi = async');
     expect(apiContent).toContain('import { HttpError } from "wasp/server"');
-
-    const configContent = readGeneratedFile(
-      projectPaths.root,
-      'src/features/posts/feature.wasp.ts'
-    );
-
-    expect(configContent).not.toContain('customFeature: true');
-    expect(configContent).toContain('builtInApi');
   });
 
-  it('should handle nested template paths correctly', async () => {
-    const customTemplateDir = DEFAULT_CUSTOM_TEMPLATES_DIR;
-    const customConfigTemplatePath = path.join(
-      projectPaths.root,
-      customTemplateDir,
-      'wasp',
-      'api',
-      'config',
-      'api.eta'
-    );
-
-    fs.mkdirSync(path.dirname(customConfigTemplatePath), { recursive: true });
-    fs.writeFileSync(
-      customConfigTemplatePath,
-      `    .addApi(feature, "<%=apiName%>", {
-      method: "<%=method%>",
-      route: "<%=route%>",
-<%- if (entities) { %>
-      entities: [<%=entities%>],
-<%- } %>
-      auth: <%=auth%>,
-<%- if (customMiddleware === 'true') { %>
-      customMiddleware: true,
-<%- } %>
-      // Custom nested template feature
-      customFeature: true,
-    })
-`
-    );
-
-    const swarmConfig = {
-      templateDirectory: customTemplateDir,
-      plugins: {
-        wasp: {
-          enabled: true,
-          plugin: 'wasp',
-        },
-      },
-    };
-
-    fs.writeFileSync(
-      path.join(projectPaths.root, DEFAULT_CONFIG_FILE),
-      JSON.stringify(swarmConfig, null, 2)
-    );
-
-    const featureGen = await createTestGenerator(FeatureGenerator, featureSchema, {
-      fileSystem: realFileSystem,
-    });
-    const apiGen = await createTestGenerator(ApiGenerator, apiSchema, {
-      fileSystem: realFileSystem,
-    });
-
-    await featureGen.generate({ target: 'posts' });
-    await apiGen.generate({
-      feature: 'posts',
-      name: 'nestedApi',
-      method: 'PUT',
-      path: '/api/posts/nested',
-      entities: ['Post'],
-      auth: false,
-      force: true,
-    });
-
-    const configContent = readGeneratedFile(
-      projectPaths.root,
-      'src/features/posts/feature.wasp.ts'
-    );
-
-    expect(configContent).toContain('customFeature: true');
-    expect(configContent).toContain('nestedApi');
-  });
-
-  it('should validate custom template syntax and throw error for invalid templates', async () => {
-    const customTemplateDir = DEFAULT_CUSTOM_TEMPLATES_DIR;
+  it('should throw for a custom template with invalid syntax', async () => {
     const customApiTemplatePath = path.join(
       projectPaths.root,
-      customTemplateDir,
+      DEFAULT_CUSTOM_TEMPLATES_DIR,
       'wasp',
       'api',
       'api.eta'
     );
-
     fs.mkdirSync(path.dirname(customApiTemplatePath), { recursive: true });
     fs.writeFileSync(
       customApiTemplatePath,
       `// INVALID TEMPLATE
 <%=imports%>
-
 export const <%=apiName%>: <%=apiType%> = async (req, res, context) => {
-<%=authCheck%><%=methodCheck%>  <% if (auth) { %>
-    // Missing closing tag
-  res.json({ message: 'Invalid template' });
+  <% if (auth) { %>
+  // Missing closing tag
 };
 `
     );
+    writeSwarmConfig(DEFAULT_CUSTOM_TEMPLATES_DIR);
 
-    const swarmConfig = {
-      templateDirectory: customTemplateDir,
-      plugins: {
-        wasp: {
-          enabled: true,
-          plugin: 'wasp',
-        },
-      },
-    };
-
-    fs.writeFileSync(
-      path.join(projectPaths.root, DEFAULT_CONFIG_FILE),
-      JSON.stringify(swarmConfig, null, 2)
+    const featureGen = await createTestGenerator(
+      FeatureGenerator,
+      featureSchema,
+      {
+        fileSystem: realFileSystem,
+      }
     );
-
-    const featureGen = await createTestGenerator(FeatureGenerator, featureSchema, {
-      fileSystem: realFileSystem,
-    });
     const apiGen = await createTestGenerator(ApiGenerator, apiSchema, {
       fileSystem: realFileSystem,
     });
-
     await featureGen.generate({ target: 'posts' });
+
     await expect(
       apiGen.generate({
         feature: 'posts',
@@ -314,16 +169,14 @@ export const <%=apiName%>: <%=apiType%> = async (req, res, context) => {
     ).rejects.toThrow('Bad template syntax');
   });
 
-  it('should use default template directory when not specified in config', async () => {
-    const defaultTemplateDir = DEFAULT_CUSTOM_TEMPLATES_DIR;
+  it('should use the default template directory when not specified', async () => {
     const customApiTemplatePath = path.join(
       projectPaths.root,
-      defaultTemplateDir,
+      DEFAULT_CUSTOM_TEMPLATES_DIR,
       'wasp',
       'api',
       'api.eta'
     );
-
     fs.mkdirSync(path.dirname(customApiTemplatePath), { recursive: true });
     fs.writeFileSync(
       customApiTemplatePath,
@@ -335,44 +188,14 @@ export const <%=apiName%>: <%=apiType%> = async (req, res, context) => {
 };
 `
     );
+    writeSwarmConfig();
 
-    const swarmConfig = {
-      plugins: {
-        wasp: {
-          enabled: true,
-          plugin: 'wasp',
-        },
-      },
-    };
-
-    fs.writeFileSync(
-      path.join(projectPaths.root, DEFAULT_CONFIG_FILE),
-      JSON.stringify(swarmConfig, null, 2)
-    );
-
-    const featureGen = await createTestGenerator(FeatureGenerator, featureSchema, {
-      fileSystem: realFileSystem,
-    });
-    const apiGen = await createTestGenerator(ApiGenerator, apiSchema, {
-      fileSystem: realFileSystem,
-    });
-
-    await featureGen.generate({ target: 'posts' });
-    await apiGen.generate({
-      feature: 'posts',
-      name: 'defaultApi',
-      method: 'DELETE',
-      path: '/api/posts/default',
-      entities: ['Post'],
-      auth: false,
-      force: true,
-    });
+    await generateApi('defaultApi', { method: 'DELETE' });
 
     const apiContent = readGeneratedFile(
       projectPaths.root,
       'src/features/posts/server/apis/defaultApi.ts'
     );
-
     expect(apiContent).toContain('// DEFAULT LOCATION TEMPLATE');
     expect(apiContent).toContain('Default location template: defaultApi');
   });

@@ -1,11 +1,7 @@
-import {
-  capitalise,
-  GeneratorServices,
-  Out,
-  toCamelCase,
-} from '@ingenyus/swarm';
+import { capitalise, type Out, toCamelCase } from '@ingenyus/swarm';
 import { CONFIG_TYPES } from '../../common';
 import { ComponentGeneratorBase } from '../base';
+import type { SpecDeclaration } from '../config';
 import { schema } from './schema';
 
 export class JobGenerator extends ComponentGeneratorBase<
@@ -18,10 +14,6 @@ export class JobGenerator extends ComponentGeneratorBase<
 
   description = 'Generates a Wasp Job';
   schema = schema;
-
-  constructor(services: GeneratorServices) {
-    super(services);
-  }
 
   async generate(args: Out<typeof schema>): Promise<void> {
     const jobName = toCamelCase(args.name);
@@ -88,32 +80,33 @@ export class JobGenerator extends ComponentGeneratorBase<
       executionArgs
     );
 
-    this.updateConfigWithCheck(
-      configPath,
-      'job',
-      jobName,
-      definition,
-      featurePath,
-      force
-    );
+    this.updateConfigWithCheck(configPath, definition, featurePath, force);
   }
 
   /**
-   * Generates a job definition for the feature configuration.
+   * Builds a native job spec declaration for the feature configuration.
    */
   getDefinition(
     jobName: string,
     entities: string[],
     cron: string,
     args: string
-  ): string {
-    const templatePath = this.getDefaultTemplatePath('config/job.eta');
+  ): SpecDeclaration {
+    const from = this.getRelativeRefPath('job', jobName);
+    const hasArgs = args && args !== '{}';
+    const schedule = cron
+      ? `{ cron: "${cron}"${hasArgs ? `, args: ${args}` : ''} }`
+      : undefined;
+    const call = `job(${jobName}, ${this.configObject([
+      'executor: "PgBoss"',
+      entities.length ? `entities: ${this.stringArray(entities)}` : undefined,
+      schedule ? `schedule: ${schedule}` : undefined,
+    ])})`;
 
-    return this.templateUtility.processTemplate(templatePath, {
-      jobName,
-      entities: entities.map((e) => `"${e}"`).join(', '),
-      cron,
-      args,
-    });
+    return {
+      kind: 'job',
+      call,
+      refImports: [{ names: [jobName], from }],
+    };
   }
 }

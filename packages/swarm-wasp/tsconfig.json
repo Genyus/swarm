@@ -8,7 +8,7 @@
     "tsBuildInfoFile": "./dist/.tsbuildinfo",
     "noEmit": false,
     "paths": {
-      "wasp-config": ["./src/wasp-config/stubs"]
+      "@wasp.sh/spec": ["./src/wasp-config/stubs"]
     }
   },
   "include": ["src/**/*", "tests/**/*"],

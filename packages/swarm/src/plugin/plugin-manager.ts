@@ -1,8 +1,13 @@
 import * as path from 'node:path';
+import type { FileSystem } from '../common';
 import { getConfigManager } from '../config';
-import { Generator, GeneratorProvider, GeneratorServices } from '../generator';
+import type {
+  Generator,
+  GeneratorProvider,
+  GeneratorServices,
+} from '../generator';
 import { PluginResolver } from './plugin-resolver';
-import { Plugin } from './types';
+import type { Plugin } from './types';
 
 /**
  * Main plugin management system
@@ -32,7 +37,7 @@ export class PluginManager {
 
     for (const provider of plugin.providers) {
       const tempServices: GeneratorServices = {
-        fileSystem: {} as any,
+        fileSystem: {} as unknown as FileSystem,
         logger: {
           debug: () => {},
           info: () => {},

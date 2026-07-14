@@ -1,6 +1,6 @@
-import { GeneratorBase } from './generator.base';
-import { GeneratorProvider } from './provider';
-import { GeneratorServices, getGeneratorServices } from './services';
+import type { GeneratorBase } from './generator.base';
+import type { GeneratorProvider } from './provider';
+import { type GeneratorServices, getGeneratorServices } from './services';
 
 /**
  * Create a generator instance from a provider with service overrides for testing.
@@ -19,6 +19,7 @@ import { GeneratorServices, getGeneratorServices } from './services';
  * );
  * ```
  */
+// biome-ignore lint/suspicious/noExplicitAny: constraint must accept generators of any concrete schema; GeneratorBase is invariant over its schema type
 export async function createGenerator<T extends GeneratorBase<any>>(
   provider: GeneratorProvider,
   overrides: Partial<GeneratorServices> = {}

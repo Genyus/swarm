@@ -1,5 +1,4 @@
-import type { StandardSchemaV1 } from '../schema';
-import { Out } from '../schema';
+import type { Out, StandardSchemaV1 } from '../schema';
 
 export type GeneratorEnvironment = 'cli' | 'mcp' | 'test';
 
