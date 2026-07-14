@@ -1,5 +1,20 @@
 # @ingenyus/swarm-wasp
 
+## [3.0.0][3.0.0] - 2026-07-14
+
+### Major Changes
+
+### ⚠️ Breaking Changes
+
+- initialise Wasp 0.24 compatibility ([b3e8bb9](https://github.com/genyus/swarm/commit/b3e8bb9b3bd9cd34f2ff3629246953524632735f))
+- implement core Wasp 0.24 updates ([2f3b5f2](https://github.com/genyus/swarm/commit/2f3b5f2132805488629b9a1eb225e224920bbbad))
+- update templates and generators ([53daa42](https://github.com/genyus/swarm/commit/53daa420ac894b6911e14144ff8b9dd8fa83f3d5))
+- update project scaffolding ([dfbf304](https://github.com/genyus/swarm/commit/dfbf304f803d227eec2e13795c62bfc8992e9427))
+
+Contributors: [genyus](https://github.com/genyus)
+
+[3.0.0]: https://github.com/genyus/swarm/releases/tag/%40ingenyus%2Fswarm-wasp%403.0.0
+
 ## [2.0.0][2.0.0] - 2026-02-20
 
 ### Major Changes
