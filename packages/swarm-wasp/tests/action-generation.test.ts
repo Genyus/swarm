@@ -139,6 +139,6 @@ describe('Action Generator Integration Tests', () => {
     const contentAfter = readGeneratedFile(projectPaths.root, configPath);
     expect(contentAfter).toContain('auth: true');
 
-    expect(countOccurrences(contentAfter, 'addAction')).toBeLessThanOrEqual(1);
+    expect(countOccurrences(contentAfter, 'action\\(')).toBeLessThanOrEqual(1);
   });
 });

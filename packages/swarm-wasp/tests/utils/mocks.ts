@@ -1,6 +1,5 @@
 import type {
   FileSystem,
-  Generator,
   GeneratorBase,
   GeneratorProvider,
   GeneratorServices,
@@ -30,17 +29,6 @@ export function createMockFS(): FileSystem {
     readdirSync: vi.fn(),
     statSync: vi.fn(),
   } as FileSystem;
-}
-
-export function createMockFeatureGen<S extends StandardSchemaV1>(
-  s: S
-): Generator<S> {
-  return {
-    name: 'feature',
-    description: 'Mock',
-    schema: s,
-    generate: vi.fn(),
-  };
 }
 
 /**

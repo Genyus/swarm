@@ -1,77 +1,44 @@
-import type { FileSystem, Generator } from '@ingenyus/swarm';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
-import {
-  createMockFeatureGen,
-  createMockFS,
-  createTestGenerator,
-} from '../../../tests/utils';
-import { schema as featureSchema } from '../feature/schema';
+import { beforeEach, describe, expect, it } from 'vitest';
+import { createTestGenerator } from '../../../tests/utils';
 import { CrudGenerator } from './crud-generator';
 import { schema } from './schema';
 
 describe('CrudGenerator', () => {
-  let fs: FileSystem;
-  let _featureGen: Generator<typeof featureSchema>;
   let gen: CrudGenerator;
 
   beforeEach(async () => {
-    fs = createMockFS();
-    _featureGen = createMockFeatureGen(featureSchema);
-    gen = await createTestGenerator(CrudGenerator, schema, {
-      fileSystem: fs,
-    });
+    gen = await createTestGenerator(CrudGenerator, schema);
   });
 
-  it('buildOperations should handle public, override, and exclude flags correctly', () => {
-    const operations = (gen as any).buildOperations({
+  it('getDefinition builds a native crud declaration with public, override, and excluded ops', () => {
+    const decl = gen.getDefinition('tasks', 'Task', {
+      dataType: 'Task',
+      feature: 'todo',
       public: ['get', 'getAll'],
       override: ['create'],
       exclude: ['delete'],
     });
 
-    expect(operations).toHaveProperty('get');
-    expect(operations).toHaveProperty('getAll');
-    expect(operations).toHaveProperty('create');
-    expect(operations).toHaveProperty('update', {});
-    expect(operations).not.toHaveProperty('delete');
-    expect(operations.get).toEqual({ isPublic: true });
-    expect(operations.getAll).toEqual({ isPublic: true });
-    expect(operations.create).toHaveProperty('override', true);
-  });
-
-  it('buildOperations should handle default flags correctly', () => {
-    const operations = (gen as any).buildOperations({});
-
-    expect(operations).toHaveProperty('get', {});
-    expect(operations).toHaveProperty('getAll', {});
-    expect(operations).toHaveProperty('create', {});
-    expect(operations).toHaveProperty('update', {});
-    expect(operations).toHaveProperty('delete', {});
-  });
-
-  it('getDefinition returns processed template', async () => {
-    // Mock the template utility
-    (gen as any).templateUtility = {
-      processTemplate: vi.fn(
-        () => 'app.addCrud("testCrud", { operations: {...} });'
-      ),
-      resolveTemplatePath: vi.fn(
-        (templateName) => `/mock/templates/${templateName}`
-      ),
-    };
-
-    // Mock the getTemplatePath method to return a resolved promise
-    (gen as any).getTemplatePath = vi.fn(() =>
-      Promise.resolve('/mock/templates/config/crud.eta')
+    expect(decl.kind).toBe('crud');
+    // The crud is declared with a PascalCase name matching the generated type.
+    expect(decl.call).toBe(
+      'crud("Tasks", "Task", { get: { isPublic: true }, getAll: { isPublic: true }, create: { overrideFn: createTask }, update: {} })'
     );
+    // Override fn is imported from the single generated crud file.
+    expect(decl.refImports).toEqual([
+      { names: ['createTask'], from: './server/cruds/tasks' },
+    ]);
+  });
 
-    const result = await gen.getDefinition('testCrud', 'User', {
-      get: {},
-      getAll: {},
-      create: {},
-      update: {},
-      delete: {},
+  it('enables all operations by default with no ref imports', () => {
+    const decl = gen.getDefinition('tasks', 'Task', {
+      dataType: 'Task',
+      feature: 'todo',
     });
-    expect(typeof result).toBe('string');
+
+    expect(decl.call).toBe(
+      'crud("Tasks", "Task", { get: {}, getAll: {}, create: {}, update: {}, delete: {} })'
+    );
+    expect(decl.refImports).toEqual([]);
   });
 });

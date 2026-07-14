@@ -5,7 +5,6 @@
 
 import type {
   ACTION_OPERATIONS,
-  API_HTTP_METHODS,
   CONFIG_TYPES,
   CRUD_OPERATIONS,
   OPERATION_TYPES,
@@ -16,11 +15,6 @@ import type {
  * Type for valid operation types.
  */
 export type OperationType = (typeof OPERATION_TYPES)[number];
-
-/**
- * Type for valid API HTTP method values.
- */
-export type ApiHttpMethod = (typeof API_HTTP_METHODS)[number];
 
 /**
  * Type for valid CRUD operation values.

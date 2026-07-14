@@ -116,10 +116,10 @@ describe('API Generator Integration Tests', () => {
     const configPath = 'src/features/posts/feature.wasp.ts';
     const content = readGeneratedFile(projectPaths.root, configPath);
 
-    expect(content).toContain('addApi');
+    expect(content).toContain('api(');
     expect(content).toContain('postsApi');
-    expect(content).toContain('route: "/api/posts"');
-    expect(content).toContain('method: "GET"');
+    expect(content).toContain('"/api/posts"');
+    expect(content).toContain('"GET"');
   });
 
   it('should not duplicate API in config without force flag', async () => {

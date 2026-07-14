@@ -107,10 +107,8 @@ describe('CRUD Generator Integration Tests', () => {
     );
 
     expect(realFileSystem.existsSync(crudPath)).toBe(false);
-    expect(content).toContain('addCrud');
-    expect(content).toContain('Post');
-    expect(content).toContain('posts');
-    expect(content).toContain('entity: "Post"');
+    // The crud is declared with a PascalCase name matching its generated type.
+    expect(content).toContain('crud("Posts", "Post"');
   });
 
   it('should not duplicate CRUD in config without force flag', async () => {
@@ -136,19 +134,21 @@ describe('CRUD Generator Integration Tests', () => {
 
     const configPath = 'src/features/posts/feature.wasp.ts';
     const contentBefore = readGeneratedFile(projectPaths.root, configPath);
-    const occurrencesBefore = countOccurrences(contentBefore, 'addCrud');
+    const occurrencesBefore = countOccurrences(contentBefore, 'crud\\(');
 
-    // The CRUD generator should replace the existing definition, not duplicate it
-    await crudGen.generate({
-      dataType: 'Post',
-      feature: 'posts',
-      name: 'posts',
-      public: ['create', 'get'],
-      force: false,
-    });
+    // Without --force, re-adding an existing crud is rejected (not duplicated).
+    await expect(
+      crudGen.generate({
+        dataType: 'Post',
+        feature: 'posts',
+        name: 'posts',
+        public: ['create', 'get'],
+        force: false,
+      })
+    ).rejects.toThrow();
 
     const contentAfter = readGeneratedFile(projectPaths.root, configPath);
-    const occurrencesAfter = countOccurrences(contentAfter, 'addCrud');
+    const occurrencesAfter = countOccurrences(contentAfter, 'crud\\(');
     const crudPath = path.join(
       projectPaths.root,
       'src/features/posts/server/cruds/posts.ts'

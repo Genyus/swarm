@@ -1,7 +1,7 @@
 /**
  * A `with { type: "ref" }` import that a spec declaration depends on.
  */
-export interface RefImport {
+interface RefImport {
   /** Named exports to import, e.g. `["getTasks"]`. */
   names: string[];
   /** Module specifier relative to the feature file, e.g. `./server/queries/getTasks`. */

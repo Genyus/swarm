@@ -84,10 +84,10 @@ describe('API Namespace Generator Integration Tests', () => {
     const configPath = 'src/features/posts/feature.wasp.ts';
     const content = readGeneratedFile(projectPaths.root, configPath);
 
-    expect(content).toContain('addApiNamespace');
+    expect(content).toContain('apiNamespace(');
     expect(content).toContain('postsApi');
-    expect(content).toContain('addApiNamespace');
-    expect(content).toContain('path: "/api/posts"');
+    expect(content).toContain('apiNamespace(');
+    expect(content).toContain('"/api/posts"');
   });
 
   it('should not duplicate API namespace in config without force flag', async () => {

@@ -7,7 +7,7 @@ import {
 } from '@ingenyus/swarm';
 import ts from 'typescript';
 import { getFeatureDir, realFileSystem, TemplateUtility } from '../../common';
-import type { ConfigGenerator, SpecDeclaration } from './config-generator';
+import type { ConfigGenerator, SpecDeclaration } from '.';
 
 const SPEC_PKG = '@wasp.sh/spec';
 const INDENT = '  ';

@@ -80,16 +80,16 @@ describe('Cross-Generator Integration Tests', () => {
     const configPath = 'src/features/posts/feature.wasp.ts';
     const content = readGeneratedFile(projectPaths.root, configPath);
 
-    expect(content).toContain('addCrud');
-    expect(content).toContain('addAction');
-    expect(content).toContain('addQuery');
+    expect(content).toContain('crud(');
+    expect(content).toContain('action(');
+    expect(content).toContain('query(');
     expect(content).toContain('createPost');
     expect(content).toContain('getPost');
 
     // The actual generated format doesn't have group headers, just comments
-    expect(content).toContain('addQuery');
-    expect(content).toContain('addAction');
-    expect(content).toContain('addCrud');
+    expect(content).toContain('query(');
+    expect(content).toContain('action(');
+    expect(content).toContain('crud(');
   });
 
   it('should generate complete feature with all generator types', async () => {
@@ -159,7 +159,7 @@ describe('Cross-Generator Integration Tests', () => {
       'Jobs',
     ]);
 
-    expect(content.trim()).toMatch(/}\s*$/);
+    expect(content.trim()).toMatch(/];\s*$/);
 
     expect(content).toContain('postsPage');
     expect(content).toContain('getAllPosts');
@@ -200,13 +200,13 @@ describe('Cross-Generator Integration Tests', () => {
     const postsContent = readGeneratedFile(projectPaths.root, postsConfig);
     const usersContent = readGeneratedFile(projectPaths.root, usersConfig);
 
-    expect(postsContent).toContain('addAction');
+    expect(postsContent).toContain('action(');
     expect(postsContent).toContain('createPost');
 
-    expect(usersContent).toContain('addCrud');
+    expect(usersContent).toContain('crud(');
     expect(usersContent).toContain('User');
 
-    expect(postsContent.trim()).toMatch(/}\s*$/);
-    expect(usersContent.trim()).toMatch(/}\s*$/);
+    expect(postsContent.trim()).toMatch(/];\s*$/);
+    expect(usersContent.trim()).toMatch(/];\s*$/);
   });
 });

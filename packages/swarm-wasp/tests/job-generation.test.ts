@@ -75,7 +75,7 @@ describe('Job Generator Integration Tests', () => {
     const configPath = 'src/features/posts/feature.wasp.ts';
     const content = readGeneratedFile(projectPaths.root, configPath);
 
-    expect(content).toContain('addJob');
+    expect(content).toContain('job(');
     expect(content).toContain('cleanupPosts');
     expect(content).toContain('cron: "0 0 * * *"');
   });

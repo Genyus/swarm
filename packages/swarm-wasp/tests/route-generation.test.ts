@@ -104,8 +104,8 @@ describe('Route Generator Integration Tests', () => {
     const configPath = 'src/features/posts/feature.wasp.ts';
     const content = readGeneratedFile(projectPaths.root, configPath);
 
-    expect(content).toContain('addRoute');
-    expect(content).toContain('path: "/posts"');
+    expect(content).toContain('route(');
+    expect(content).toContain('"/posts"');
     expect(content).toContain('posts');
   });
 
