@@ -3,8 +3,8 @@
   "type": "module",
   "dependencies": {
     "@hookform/resolvers": "^5.1.1",
-    "@ingenyus/swarm": "^1.0.2",
-    "@ingenyus/swarm-wasp": "^1.2.0",
+    "@ingenyus/swarm": "^2.0.0",
+    "@ingenyus/swarm-wasp": "^3.0.0",
     "@radix-ui/react-tooltip": "^1.2.7",
     "@radix-ui/react-use-controllable-state": "^1.2.2",
     "@tailwindcss/forms": "^0.5.3",
@@ -35,9 +35,9 @@
     "prisma": "5.19.1",
     "rimraf": "^6.0.1",
     "tslint-config-prettier": "^1.18.0",
-    "typescript": "5.8.2",
+    "typescript": "5.9.3",
     "vite": "^7.0.6",
-    "wasp-config": "file:../../../../.nvm/versions/node/v24.12.0/lib/node_modules/@wasp.sh/wasp-cli/node_modules/@wasp.sh/wasp-cli-darwin-arm64-unknown/data/packages/wasp-config"
+    "@wasp.sh/spec": "file:.wasp/spec/"
   },
   "scripts": {
     "compile": "wasp ts-setup && wasp compile",

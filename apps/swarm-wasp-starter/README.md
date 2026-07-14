@@ -56,9 +56,9 @@ src/
 
 ### Prerequisites
 
-- Node.js 22+ 
+- Node.js 24.14.1+
 - npm
-- Wasp 0.21.x
+- Wasp 0.24.x
 
 ### Installation
 
@@ -168,61 +168,51 @@ The template includes full MCP (Model Context Protocol) integration for AI-assis
 
 ## Type-Safe Wasp Configuration
 
-The template uses the enhanced `App` class from the Swarm Wasp plugin, providing a fluent API for type-safe Wasp configuration:
+The template uses the native [Wasp Spec](https://wasp.sh/docs/general/wasp-ts-config) (`@wasp.sh/spec`). `main.wasp.ts` lives at the project root and pulls in a generated features barrel, so you never have to wire each feature into it by hand:
 
 ```typescript
-import { App } from "@ingenyus/swarm-wasp";
+import { app } from "@wasp.sh/spec";
+import Layout from "./src/shared/client/components/Layout" with { type: "ref" };
+import { featureSpecs } from "./src/features/index.wasp";
 
-const app = await App.create("swarm-wasp-starter", {
+export default app({
+  name: "swarm_wasp_starter",
   title: "Swarm Wasp Starter",
-  wasp: { version: "^0.18.1" },
+  wasp: { version: "^0.24.0" },
   head: [
-    '<meta name="description" content="Swarm Wasp Starter description">',
-    '<meta name="viewport" content="width=device-width, initial-scale=1.0">',
-    '<meta charset="UTF-8">',
+    '<meta name="description" content="Swarm Wasp Starter description" />',
+    '<meta name="viewport" content="width=device-width, initial-scale=1.0" />',
+    '<meta charSet="UTF-8" />',
   ],
+  client: { rootComponent: Layout },
+  spec: [featureSpecs],
 });
-
-app.client({
-  rootComponent: {
-    importDefault: "Layout",
-    from: "@src/shared/client/components/Layout",
-  },
-});
-
-export default app;
 ```
 
-### Helper Methods
+### Feature declarations
 
-The enhanced `App` class provides convenient helper methods:
+Each feature directory holds a `feature.wasp.ts` that exports a native `spec` array. Swarm's generators produce these declarations (and their `with { type: "ref" }` imports) for you:
 
 ```typescript
-// Add routes with automatic component imports
-app.addRoute("dashboard", "DashboardRoute", { 
-  path: "/dashboard", 
-  auth: true 
-});
+import { type Spec, api, crud, job, route, page } from "@wasp.sh/spec";
+import { Dashboard } from "./client/pages/Dashboard" with { type: "ref" };
+import { getStats } from "./server/apis/getStats" with { type: "ref" };
+import { sendReport } from "./server/jobs/sendReport" with { type: "ref" };
 
-// Create API endpoints with middleware support
-app.addApi("dashboard", "getStats", { 
-  method: "GET", 
-  route: "/api/stats", 
-  auth: true 
-});
-
-// Add CRUD operations with custom overrides
-app.addCrud("dashboard", "users", { 
-  entity: "User",
-  getAll: { isPublic: false },
-  create: { auth: true }
-});
-
-// Create background jobs with cron scheduling
-app.addJob("dashboard", "sendReport", { 
-  cron: "0 9 * * 1",  // Every Monday at 9 AM
-  entities: ["User", "Task"]
-});
+export const spec: Spec = [
+  // Route definitions
+  route("dashboard", "/dashboard", page(Dashboard, { authRequired: true })),
+  // Api definitions
+  api("GET", "/api/stats", getStats, { auth: true }),
+  // Crud definitions
+  crud("Users", "User", { getAll: {}, create: {} }),
+  // Job definitions
+  job(sendReport, {
+    executor: "PgBoss",
+    entities: ["User", "Task"],
+    schedule: { cron: "0 9 * * 1" }, // Every Monday at 9 AM
+  }),
+];
 ```
 
 ## Package Scripts

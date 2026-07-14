@@ -168,44 +168,29 @@ export function Home() {
                 Typescript config{" "}
               </a>
               model. Configuration is split across features, with each directory
-              containing a <code>feature.wasp.ts</code> file that holds
-              declarations for that feature. Fluent helper methods make
-              configuration more concise and readable than the default
-              declarative structure:
+              containing a <code>feature.wasp.ts</code> file that exports a
+              native <code>spec</code> array. Swarm's generators produce these
+              declarations and auto-discover every feature, so you never have to
+              wire them into <code>main.wasp.ts</code> by hand:
             </p>
             <code className="block rounded bg-muted px-3 py-2 font-mono text-xs whitespace-pre">
-              {`import { App } from "@ingenyus/swarm-wasp";
+              {`import { type Spec, crud, page, route } from "@wasp.sh/spec";
+import { Home } from "./client/pages/Home" with { type: "ref" };
+import { Login } from "./client/pages/Login" with { type: "ref" };
+import { Dashboard } from "./client/pages/Dashboard" with { type: "ref" };
 
-export default function configureFeature(app: App, feature: string): void {
-  app
-    // Route definitions
-    .addRoute(feature, "home", {
-      path: "/",
-      auth: false,
-    })
-    .addRoute(feature, "login", {
-      path: "/login",
-      auth: false,
-    })
-    .addRoute(feature, "dashboard", {
-      path: "/dashboard",
-      auth: true,
-    })
-    // CRUD definitions
-    .addCrud(feature, "task", {
-      entities: ["Task"],
-      getAll: {
-        public: ["id", "name", "description"],
-      },
-      get: {
-        public: ["id", "name", "description"],
-      },
-      create: {
-        public: ["id", "name", "description"],
-      },
-      auth: true,
-    });
-}`}
+export const spec: Spec = [
+  // Route definitions
+  route("home", "/", page(Home)),
+  route("login", "/login", page(Login)),
+  route("dashboard", "/dashboard", page(Dashboard, { authRequired: true })),
+  // Crud definitions
+  crud("Tasks", "Task", {
+    getAll: { isPublic: true },
+    get: { isPublic: true },
+    create: {},
+  }),
+];`}
             </code>
           </div>
 

@@ -10,10 +10,13 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
 
-    "module": "NodeNext",
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "jsx": "preserve",
+    "allowJs": true,
     "noEmit": true,
 
     "lib": ["ES2023"]
   },
-  "include": ["main.wasp.ts", "src/**/feature.wasp.ts"]
+  "include": ["**/*.wasp.ts", ".wasp/out/types/spec"]
 }
