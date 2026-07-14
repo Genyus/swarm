@@ -6,7 +6,7 @@
 [subrepo]
 	remote = git@github.com:Genyus/swarm-wasp-starter.git
 	branch = main
-	commit = 7efbaa25cf6ef1bdd109130758ba418f6b43eeeb
-	parent = 2be158e4bce1574e570db878e679621bb64709d9
+	commit = 5ed75e8760eb0b3e5bc49b0b2b1ae4b8ab8829c9
+	parent = 7bb54385ab00ebabd10ca083bd63fd5f19294c72
 	method = merge
 	cmdver = 0.4.9
